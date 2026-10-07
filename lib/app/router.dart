@@ -13,6 +13,7 @@ import '../features/sesion/presentation/pantalla_bienvenida.dart';
 import '../features/sesion/presentation/pantalla_cuenta_creada.dart';
 import '../features/sesion/presentation/pantalla_iniciar_sesion.dart';
 import '../features/sesion/presentation/pantalla_registro.dart';
+import '../features/sesion/presentation/pantallas_recuperacion.dart';
 import 'navegacion.dart';
 import 'pantalla_pendiente.dart';
 import 'rutas.dart';
@@ -49,8 +50,30 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Rutas.iniciarSesion,
         builder: (context, state) => PantallaIniciarSesion(
           correo: state.uri.queryParameters['correo'],
-          sesionCerrada: state.uri.queryParameters['cerrada'] == '1',
+          aviso: AvisoInicioSesion.desde(state.uri.queryParameters['aviso']),
         ),
+      ),
+      GoRoute(
+        path: Rutas.recuperar,
+        builder: (context, state) =>
+            PantallaRecuperar(correo: state.uri.queryParameters['correo']),
+      ),
+      GoRoute(
+        path: Rutas.enlaceEnviado,
+        builder: (context, state) => PantallaEnlaceEnviado(
+          correo: state.uri.queryParameters['correo'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: Rutas.nuevaContrasena,
+        builder: (context, state) => PantallaNuevaContrasena(
+          token: state.uri.queryParameters['token'] ?? '',
+          correo: state.uri.queryParameters['correo'],
+        ),
+      ),
+      GoRoute(
+        path: Rutas.enlaceVencido,
+        builder: (context, state) => const PantallaEnlaceVencido(),
       ),
       GoRoute(
         path: Rutas.configPersona,

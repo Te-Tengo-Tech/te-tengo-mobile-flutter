@@ -6,10 +6,18 @@ import 'package:te_tengo/features/sesion/domain/cuenta.dart';
 import '../../apoyo/datos.dart';
 
 class CuentasRepositorioFalso implements CuentasRepositorio {
-  CuentasRepositorioFalso({this.errorRegistro, this.errorSesion, this.sesion});
+  CuentasRepositorioFalso({
+    this.errorRegistro,
+    this.errorSesion,
+    this.errorConfirmacion,
+    this.sesion,
+  });
 
   ProblemaApi? errorRegistro;
   ProblemaApi? errorSesion;
+  ProblemaApi? errorConfirmacion;
+  final recuperaciones = <String>[];
+  final confirmaciones = <Map<String, String>>[];
   Sesion? sesion;
   final registros = <Map<String, String>>[];
   final inicios = <Map<String, String>>[];
@@ -37,5 +45,18 @@ class CuentasRepositorioFalso implements CuentasRepositorio {
     inicios.add({'correo': correo, 'contrasena': contrasena});
     if (errorSesion != null) throw errorSesion!;
     return sesion ?? sesionSinHogar;
+  }
+
+  @override
+  Future<void> solicitarRecuperacion(String correo) async =>
+      recuperaciones.add(correo);
+
+  @override
+  Future<void> confirmarRecuperacion({
+    required String token,
+    required String nuevaContrasena,
+  }) async {
+    confirmaciones.add({'token': token, 'nuevaContrasena': nuevaContrasena});
+    if (errorConfirmacion != null) throw errorConfirmacion!;
   }
 }

@@ -15,20 +15,32 @@ import '../../../core/ui/marca.dart';
 import '../../../core/ui/piezas.dart';
 import '../data/cuentas_repositorio.dart';
 
+/// Notice shown when the sign-in screen opens (`?aviso=`).
+enum AvisoInicioSesion {
+  /// After signing out (CA-02.4).
+  sesionCerrada('cerrada'),
+
+  /// After a password reset (US-03).
+  claveActualizada('clave');
+
+  const AvisoInicioSesion(this.codigo);
+
+  final String codigo;
+
+  static AvisoInicioSesion? desde(String? valor) =>
+      values.where((a) => a.codigo == valor).firstOrNull;
+}
+
 /// US-02, screens 06–08: sign in. Wrong credentials are denied with a message (CA-02.2); after 5
 /// failures the account is locked for 15 minutes and the unlock time is shown (CA-02.3).
 class PantallaIniciarSesion extends ConsumerStatefulWidget {
-  const PantallaIniciarSesion({
-    super.key,
-    this.correo,
-    this.sesionCerrada = false,
-  });
+  const PantallaIniciarSesion({super.key, this.correo, this.aviso});
 
   /// Email to prefill (after signing out or from the register screen).
   final String? correo;
 
-  /// Shows the «Sesión cerrada» notice (CA-02.4).
-  final bool sesionCerrada;
+  /// Notice shown on arrival.
+  final AvisoInicioSesion? aviso;
 
   /// Failures after which the backend locks the account (CA-02.3).
   static const intentosAntesDelBloqueo = 5;
@@ -52,18 +64,27 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
   @override
   void initState() {
     super.initState();
-    if (widget.sesionCerrada) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        mostrarToast(
-          context,
-          titulo: 'Sesión cerrada',
-          texto: 'Inicia sesión para volver a recibir alertas.',
-          icono: Ico.logout,
-          tono: TonoAviso.neutral,
-        );
-      });
-    }
+    final aviso = widget.aviso;
+    if (aviso == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      switch (aviso) {
+        case AvisoInicioSesion.sesionCerrada:
+          mostrarToast(
+            context,
+            titulo: 'Sesión cerrada',
+            texto: 'Inicia sesión para volver a recibir alertas.',
+            icono: Ico.logout,
+            tono: TonoAviso.neutral,
+          );
+        case AvisoInicioSesion.claveActualizada:
+          mostrarToast(
+            context,
+            titulo: 'Contraseña actualizada',
+            texto: 'Ya puedes iniciar sesión con ella.',
+          );
+      }
+    });
   }
 
   @override
