@@ -53,6 +53,16 @@ abstract final class Colores {
   /// Dark background of the live view.
   static const noche = Color(0xFF17121F);
   static const nocheTexto = Color(0xFFD9D3E6);
+  static const nocheRaya = Color(0xFF231C30);
+  static const nocheRaya2 = Color(0xFF2A2238);
+  static const nocheEtiqueta = Color(0xC717121F);
+
+  /// Icons of the unavailable live view: disconnected (amber) and paused (gray-blue).
+  static const nocheAviso = Color(0xFFFFC76B);
+  static const nochePausa = Color(0xFFC9D2E3);
+
+  /// Recording dot of «EN VIVO».
+  static const grabando = Color(0xFFFF5A47);
 
   /// Avatar tints of the prototype (`.avatar.b`, `.avatar.c`, `.avatar.rosa`).
   static const avatarAzulFondo = Color(0xFFE0EEF0);

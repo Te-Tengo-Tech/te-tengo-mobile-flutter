@@ -29,6 +29,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T21 Escalation views (US-20):** screens 58 and 59. The alert shows when and to whom it escalates, the escalated and no-secondary notices with «Agregar contacto secundario» for the owner, and foreground `ALERTA_ESCALADA`/`SIN_CONTACTO_SECUNDARIO` notices.
 - **T22 Pause camera (US-22):** screens 33–35. Pause sheet with 30 min, 1 h, 2 h and «Hasta mañana» (`POST /api/camaras/{id}/pausa`), paused state with the end time in the camera detail and home, «Reanudar ahora» (`DELETE`), and the `PAUSA_FINALIZADA` notice.
 - **T23 Unreliable detection (US-15):** screens 36 and 37. Foreground `DETECCION_NO_CONFIABLE` notice that opens the camera, and the camera detail with what to check (light and framing).
+- **T24 Live view (US-23):** screens 38–40, 54 and 74. Dark live screen with «EN VIVO · mm:ss» over the WebSocket JPEG relay (`POST /api/camaras/{id}/vista-en-vivo`, `DELETE /api/vista-en-vivo/{id}` on close), from home, the camera or an alert; unavailable views for a disconnected, paused or stopped camera; «Acceso registrado» on close.
 ### Changed
 - Documentation translated to English.
 

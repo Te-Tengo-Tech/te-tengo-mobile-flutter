@@ -88,6 +88,28 @@ class _Detalle extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         ..._cuerpo(context, ref, titular, nombreAdultoMayor),
+        const EncabezadoSeccion('Vista en vivo'),
+        ListaTarjeta(
+          children: [
+            FilaLista(
+              inicio: const IconoFila(Ico.video),
+              titulo: 'Ver en vivo',
+              subtitulo: switch (estado) {
+                EstadoVisible.enLinea ||
+                EstadoVisible.noConfiable => 'Disponible ahora',
+                EstadoVisible.enPausa =>
+                  'No disponible hasta las ${hora(camara.pausadaHasta!)}',
+                _ => 'No disponible ahora',
+              },
+              alTocar: () => context.push(
+                Uri(
+                  path: Rutas.vivo,
+                  queryParameters: {'camara': camara.id},
+                ).toString(),
+              ),
+            ),
+          ],
+        ),
         const EncabezadoSeccion('Habitación'),
         ListaTarjeta(
           children: [
