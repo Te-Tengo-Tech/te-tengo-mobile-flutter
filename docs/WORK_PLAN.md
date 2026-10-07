@@ -69,7 +69,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 - [x] **T16 US-18 Clip:** screens 47 and 53. `GET /api/alertas/{id}/clip` with `video_player`; «video no disponible» on `404`.
 
 ### Sprint 4
-- [ ] **T17 US-09 Revoke consent:** screens 97–101. Confirmation step (CA-09.2); deletion in progress and done.
+- [x] **T17 US-09 Revoke consent:** screens 97–101. Confirmation step (CA-09.2); deletion in progress and done.
 - [ ] **T18 US-19 Mark alert:** screens 55, 56, 60 and 61. Bottom sheet with «Atendida» or «Falsa alarma»; shows who attended and when.
 - [ ] **T19 US-25 History:** screens 83–88. `GET /api/alertas` with filters; empty state «Sin eventos registrados»; loading state.
 - [ ] **T20 US-10 Alert order and wait time:** screens 62–65 and 72. 3, 5 (default) or 10 min; single-member case.

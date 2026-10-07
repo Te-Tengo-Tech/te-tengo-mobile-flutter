@@ -23,6 +23,10 @@ abstract interface class HogarRepositorio {
   /// `POST /api/hogar/consentimiento` (owner). Both flags must be true; the backend stores the date
   /// and time (CA-05.3) and capture may start (CA-05.1). Errors: `422 CONSENTIMIENTO_NO_ACEPTADO`.
   Future<Consentimiento> registrarConsentimiento({required String otorgadoPor});
+
+  /// `DELETE /api/hogar/consentimiento` (owner): stops capture and schedules the deletion of every
+  /// recording (CA-09.1); the push `DATOS_ELIMINADOS` arrives when done (CA-09.3).
+  Future<void> revocarConsentimiento();
 }
 
 class HogarRepositorioApi implements HogarRepositorio {
@@ -69,6 +73,11 @@ class HogarRepositorioApi implements HogarRepositorio {
     );
     return Consentimiento.desdeJson(r.data!);
   });
+
+  @override
+  Future<void> revocarConsentimiento() => llamarApi(
+    () => _dio.delete<Map<String, dynamic>>('/api/hogar/consentimiento'),
+  );
 }
 
 final hogarRepositorioProvider = Provider<HogarRepositorio>(

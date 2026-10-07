@@ -15,6 +15,7 @@ import '../features/hogar/presentation/pantalla_persona_setup.dart';
 import '../features/inicio/presentation/pantalla_inicio.dart';
 import '../features/camaras/presentation/pantalla_camara_lista.dart';
 import '../features/hogar/presentation/pantallas_consentimiento.dart';
+import '../features/hogar/presentation/pantallas_privacidad.dart';
 import '../features/sesion/presentation/pantalla_bienvenida.dart';
 import '../features/sesion/presentation/pantalla_cuenta_creada.dart';
 import '../features/sesion/presentation/pantalla_iniciar_sesion.dart';
@@ -181,7 +182,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.privacidad,
-        builder: (context, state) => const PantallaPendiente('Privacidad'),
+        builder: (context, state) => const PantallaPrivacidad(),
+      ),
+      GoRoute(
+        path: Rutas.revocado,
+        builder: (context, state) => const PantallaRevocado(),
       ),
       GoRoute(
         path: Rutas.vivo,
