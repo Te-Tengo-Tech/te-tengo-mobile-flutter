@@ -17,7 +17,9 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/ui/tarjeta.dart';
 import '../../camaras/domain/camara.dart';
+import '../../../core/sesion/sesion_controller.dart';
 import '../../familia/data/familia_repositorio.dart';
+import '../../familia/domain/familiar.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../hogar/domain/hogar.dart';
 import '../data/alertas_repositorio.dart';
@@ -150,7 +152,14 @@ class _Alerta extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ..._avisos(nombre),
+                    ..._avisos(
+                      context,
+                      nombre,
+                      miembros: miembros,
+                      espera: esperaDe(ref),
+                      yo: ref.watch(sesionControllerProvider)?.usuario.id,
+                      titular: ref.watch(esTitularProvider),
+                    ),
                     const SizedBox(height: 4),
                     Semantics(
                       header: true,
@@ -217,7 +226,14 @@ class _Alerta extends ConsumerWidget {
   }
 
   /// Notices above «Qué hacer ahora».
-  List<Widget> _avisos(String nombre) {
+  List<Widget> _avisos(
+    BuildContext context,
+    String nombre, {
+    required List<MiembroFamilia> miembros,
+    required int espera,
+    required String? yo,
+    required bool titular,
+  }) {
     final hab = enHabitacion(alerta.habitacion);
     final recuperada = alerta.recuperadaEn;
     final avisos = <Widget>[
@@ -263,10 +279,117 @@ class _Alerta extends ConsumerWidget {
           'No se detectó una caída. Si la situación termina en una caída, te '
           'avisaremos de inmediato con una alerta urgente.',
         ),
+      ?_escalamiento(
+        context,
+        miembros: miembros,
+        espera: espera,
+        yo: yo,
+        titular: titular,
+      ),
     ];
     return [
       for (final a in avisos) ...[a, const SizedBox(height: 16)],
     ];
+  }
+
+  /// Who is told next and when (US-20, `escBlock`).
+  Widget? _escalamiento(
+    BuildContext context, {
+    required List<MiembroFamilia> miembros,
+    required int espera,
+    required String? yo,
+    required bool titular,
+  }) {
+    if (miembros.isEmpty) return null;
+    MiembroFamilia? con(PapelAviso p) =>
+        miembros.where((m) => m.papel == p).firstOrNull;
+    final principal = con(PapelAviso.principal)?.familiar;
+    final secundario = con(PapelAviso.secundario)?.familiar;
+    final soySecundario = secundario != null && secundario.usuarioId == yo;
+    final soyPrincipal = principal != null && principal.usuarioId == yo;
+    final escalada = alerta.escaladaEn;
+    final agregar = titular
+        ? (String texto) => Boton(
+            texto,
+            estilo: EstiloBoton.tinta,
+            pequeno: true,
+            alPresionar: () => context.push(Rutas.invitar),
+          )
+        : null;
+    if (escalada != null && secundario != null) {
+      return soySecundario
+          ? Aviso(
+              tono: TonoAviso.info,
+              icono: Ico.users,
+              titulo: 'Te toca atenderla',
+              contenido: conHora(
+                'Nadie marcó la alerta en $espera minutos, así que a las ',
+                hora(escalada),
+                ' te avisamos como contacto secundario.',
+              ),
+            )
+          : Aviso(
+              tono: TonoAviso.info,
+              icono: Ico.users,
+              titulo: 'Avisamos a ${secundario.nombre}',
+              contenido: conHora(
+                'Nadie marcó la alerta en $espera minutos, así que a las ',
+                hora(escalada),
+                ' se la enviamos al contacto secundario. Tú todavía puedes '
+                    'atenderla.',
+              ),
+            );
+    }
+    if (escalada != null) {
+      return Aviso(
+        tono: TonoAviso.advertencia,
+        icono: Ico.warn,
+        titulo: 'No hay a quién escalar',
+        texto:
+            'Pasaron $espera minutos sin respuesta y no hay contacto '
+            'secundario. Esta alerta sigue siendo '
+            '${soyPrincipal ? 'tuya' : 'de ${principal?.nombrePila ?? ''}'}.',
+        accion: agregar?.call('Agregar contacto secundario'),
+      );
+    }
+    final limite = hora(alerta.ocurridaEn.add(Duration(minutes: espera)));
+    if (secundario != null) {
+      return _LineaRica(
+        Ico.clock,
+        TextSpan(
+          children: soySecundario
+              ? [
+                  TextSpan(
+                    text:
+                        '${principal?.nombrePila ?? ''} es el contacto '
+                        'principal. Si nadie la marca como atendida antes de las ',
+                  ),
+                  TextSpan(text: limite, style: _limite),
+                  const TextSpan(
+                    text: ', te avisaremos como contacto secundario.',
+                  ),
+                ]
+              : [
+                  const TextSpan(
+                    text: 'Si nadie la marca como atendida antes de las ',
+                  ),
+                  TextSpan(text: limite, style: _limite),
+                  TextSpan(
+                    text:
+                        ', avisaremos a ${secundario.nombre} (contacto '
+                        'secundario).',
+                  ),
+                ],
+        ),
+      );
+    }
+    return Aviso(
+      tono: TonoAviso.advertencia,
+      icono: Ico.warn,
+      titulo: 'Sin contacto secundario',
+      texto: 'Si nadie atiende esta alerta, no habrá nadie más a quién avisar.',
+      accion: agregar?.call('Agregar contacto'),
+    );
   }
 
   List<(String, String?)> _pasos(AdultoMayor adulto) {
@@ -293,6 +416,30 @@ class _Alerta extends ConsumerWidget {
       ('Marca la alerta', 'Cuando esté atendida, para que la familia lo sepa.'),
     ];
   }
+}
+
+final _limite = estiloMono(tamano: 16, peso: 700);
+
+class _LineaRica extends StatelessWidget {
+  const _LineaRica(this.icono, this.texto);
+
+  final Ico icono;
+  final InlineSpan texto;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Icono(icono, tamano: 20, color: Colores.tinta2),
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: Text.rich(texto, style: Theme.of(context).textTheme.bodyMedium),
+      ),
+    ],
+  );
 }
 
 class _Linea extends StatelessWidget {

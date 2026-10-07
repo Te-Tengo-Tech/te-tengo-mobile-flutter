@@ -26,6 +26,7 @@ Future<List<String?>> abrirConAlertas(
   DateTime? ahora,
   Sesion sesion = sesionTitular,
   NotificacionesPushFalsas? push,
+  FamiliaRepositorioFalso? familia,
   List<Override> overrides = const [],
 }) async {
   final llamadas = <String?>[];
@@ -39,7 +40,9 @@ Future<List<String?>> abrirConAlertas(
         alertasRepositorioProvider.overrideWithValue(alertas),
         camarasRepositorioProvider.overrideWithValue(CamarasRepositorioFalso()),
         hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
-        familiaRepositorioProvider.overrideWithValue(FamiliaRepositorioFalso()),
+        familiaRepositorioProvider.overrideWithValue(
+          familia ?? FamiliaRepositorioFalso(),
+        ),
         relojProvider.overrideWithValue(
           () => ahora ?? DateTime(2026, 9, 23, 10, 42, 20),
         ),
