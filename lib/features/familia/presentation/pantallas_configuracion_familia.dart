@@ -48,7 +48,7 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
 
   Future<void> _invitar() async {
     final correo = _correo.text.trim();
-    final propio = ref.read(sesionActualProvider).usuario.correo;
+    final propio = ref.read(sesionControllerProvider)?.usuario.correo ?? '';
     setState(() {
       _error =
           validarCorreo(correo, vacio: 'Escribe el correo de tu familiar.') ??

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/dispositivo/permiso_notificaciones.dart';
 import '../core/ui/avisos_flotantes.dart';
+import 'push.dart';
 import 'router.dart';
 import 'tema/tema.dart';
 
@@ -24,6 +27,7 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
     _ciclo = AppLifecycleListener(
       onResume: () => ref.invalidate(notificacionesActivasProvider),
     );
+    unawaited(ref.read(gestorPushProvider).iniciar());
   }
 
   @override
