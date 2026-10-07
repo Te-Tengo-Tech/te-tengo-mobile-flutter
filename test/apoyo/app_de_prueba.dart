@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:te_tengo/app/app.dart';
@@ -43,3 +44,18 @@ Widget appDePrueba({
   ],
   child: const TeTengoApp(),
 );
+
+/// Uses a phone-sized view (390 × 844 logical px, as the prototype).
+void usarTelefono(WidgetTester tester) {
+  tester.view.physicalSize = const Size(1170, 2532);
+  tester.view.devicePixelRatio = 3;
+  addTearDown(tester.view.reset);
+}
+
+/// Scrolls [finder] into view and taps it.
+Future<void> tocar(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
