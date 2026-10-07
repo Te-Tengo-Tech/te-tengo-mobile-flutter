@@ -96,7 +96,8 @@ Future<void> verHasta(WidgetTester tester, Finder finder) async {
   await tester.scrollUntilVisible(
     finder,
     200,
-    scrollable: find.byType(Scrollable).first,
+    // The visible list: tabs and routes below keep theirs in the tree.
+    scrollable: find.byType(Scrollable).hitTestable().first,
   );
   await tester.pumpAndSettle();
 }

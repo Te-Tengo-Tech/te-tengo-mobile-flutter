@@ -13,7 +13,10 @@ import '../../../core/ui/tarjeta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
+import '../../../core/red/problema_api.dart';
+import '../../../core/ui/botones.dart';
 import '../data/alertas_repositorio.dart';
+import '../data/descarga_grabacion.dart';
 import '../domain/alerta.dart';
 import 'clip_evento.dart';
 import 'etiquetas.dart';
@@ -94,6 +97,7 @@ class _Detalle extends ConsumerWidget {
         TarjetaDetalle(alerta: a),
         const EncabezadoSeccion('Grabación'),
         ClipEvento(alerta: a),
+        if (a.clip == EstadoClip.disponible) _Descarga(alerta: a),
         const EncabezadoSeccion('Registro'),
         TarjetaBanda(
           child: LineaDeTiempo(
@@ -183,4 +187,75 @@ class TarjetaDetalle extends StatelessWidget {
       ),
     );
   }
+}
+
+/// «Descargar grabación» (screens 89 and 90, CA-26.2): asks for the download link and saves the file.
+class _Descarga extends ConsumerStatefulWidget {
+  const _Descarga({required this.alerta});
+
+  final Alerta alerta;
+
+  @override
+  ConsumerState<_Descarga> createState() => _DescargaState();
+}
+
+class _DescargaState extends ConsumerState<_Descarga> {
+  bool _descargando = false;
+
+  Future<void> _descargar() async {
+    final a = widget.alerta;
+    setState(() => _descargando = true);
+    try {
+      final enlace = await ref
+          .read(alertasRepositorioProvider)
+          .clip(a.id, descarga: true);
+      final nombre = await ref.read(guardarArchivoProvider)(
+        Uri.parse(enlace.url),
+        nombreGrabacion(a),
+      );
+      if (!mounted) return;
+      mostrarToast(
+        context,
+        titulo: 'Grabación descargada',
+        texto: '$nombre en Archivos',
+        icono: Ico.download,
+      );
+    } on Object catch (e) {
+      if (!mounted) return;
+      // A recording removed meanwhile (410 CLIP_ELIMINADO) shows as deleted (CA-26.3).
+      if (e is ProblemaApi && e.codigo == 'CLIP_ELIMINADO') {
+        ref.invalidate(alertaProvider(a.id));
+      }
+      mostrarToast(
+        context,
+        titulo: textoDeError(e),
+        icono: Ico.warn,
+        tono: TonoAviso.advertencia,
+      );
+    } finally {
+      if (mounted) setState(() => _descargando = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      const SizedBox(height: 12),
+      Boton(
+        'Descargar grabación',
+        icono: Ico.download,
+        estilo: EstiloBoton.secundario,
+        cargando: _descargando,
+        alPresionar: _descargar,
+      ),
+      const SizedBox(height: 8),
+      Text(
+        'MP4 · 12 s · disponible hasta el '
+        '${fechaConAnio(widget.alerta.ocurridaEn.add(const Duration(days: 30)))}',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+    ],
+  );
 }
