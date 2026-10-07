@@ -37,7 +37,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
   - Bottom navigation with 4 tabs (Inicio, Historial, Familia, Ajustes; DESIGN.md "Components").
   - Splash screen 00 with the logo animation, a static final frame when `disableAnimations` is on.
   - Router guards: no session → welcome or sign-in; session without household → onboarding.
-- [ ] **T02 Session state.**
+- [x] **T02 Session state.**
   - A `SesionController` (Riverpod) holding the `Sesion` from the contract.
   - Token refresh on `401 SESION_EXPIRADA` through a Dio interceptor.
   - Household switching (`GET /api/hogares`, `POST /api/sesiones/hogar`).

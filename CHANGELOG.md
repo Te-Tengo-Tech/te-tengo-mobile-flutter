@@ -7,6 +7,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - Shared API contract with the backend (`docs/API_CONTRACT.md`), the work plan with its autonomous loop (`docs/WORK_PLAN.md`) and the `/work` command.
 - The 103 prototype screens and the prototype HTML as visual references.
 - **T01 App shell:** splash screen 00 with the logo animation (still final frame when animations are disabled), welcome screen 01, bottom bar with Inicio, Historial, Familia and Ajustes, and router guards (no session → welcome; no household → onboarding). Shared UI kit with the prototype icons, illustrations, notices, lists, fields and buttons.
+- **T02 Session state:** `SesionController` with the contract `Sesion` in secure storage, token refresh on `401 SESION_EXPIRADA` through a Dio interceptor, household switching (`GET /api/hogares`, `POST /api/sesiones/hogar`) and the shared `MensajeProblema` widget for RFC 9457 errors.
 ### Changed
 - Documentation translated to English.
 
