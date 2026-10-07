@@ -61,6 +61,27 @@ class AvisosCamara {
           ),
         );
   }
+
+  /// «La detección no es confiable en la Sala» with what to check (screen 36, CA-15.3).
+  void noConfiable({
+    required String habitacion,
+    required String nombre,
+    void Function()? abrir,
+  }) {
+    _ref.invalidate(camarasProvider);
+    _ref
+        .read(avisoFlotanteProvider.notifier)
+        .mostrar(
+          AvisoFlotante(
+            tipo: TipoFlotante.enApp,
+            titulo: 'La detección no es confiable ${enHabitacion(habitacion)}',
+            texto:
+                'Hace más de 5 minutos que la cámara no ve bien a $nombre. '
+                'Revisa la luz y el encuadre.',
+            alTocar: abrir,
+          ),
+        );
+  }
 }
 
 final avisosCamaraProvider = Provider<AvisosCamara>(AvisosCamara.new);

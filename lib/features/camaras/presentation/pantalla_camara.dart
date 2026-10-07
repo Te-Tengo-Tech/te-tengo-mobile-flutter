@@ -87,7 +87,7 @@ class _Detalle extends ConsumerWidget {
           ahora: ref.watch(relojProvider)(),
         ),
         const SizedBox(height: 16),
-        ..._cuerpo(context, ref, titular),
+        ..._cuerpo(context, ref, titular, nombreAdultoMayor),
         const EncabezadoSeccion('Habitación'),
         ListaTarjeta(
           children: [
@@ -124,7 +124,12 @@ class _Detalle extends ConsumerWidget {
   }
 
   /// What to do in each state (`S.camara`).
-  List<Widget> _cuerpo(BuildContext context, WidgetRef ref, bool titular) {
+  List<Widget> _cuerpo(
+    BuildContext context,
+    WidgetRef ref,
+    bool titular,
+    String nombre,
+  ) {
     final habitacion = camara.nombreHabitacion;
     final senal = camara.ultimaSenal;
     switch (estado) {
@@ -201,6 +206,45 @@ class _Detalle extends ConsumerWidget {
             alPresionar: () => reanudarCamara(context, ref, camara),
           ),
         ];
+      case EstadoVisible.noConfiable:
+        final desde = camara.noConfiableDesde;
+        return [
+          Aviso(
+            tono: TonoAviso.advertencia,
+            icono: Ico.eyeOff,
+            titulo: desde == null
+                ? 'La detección no es confiable'
+                : 'La detección no es confiable desde las ${hora(desde)}',
+            texto:
+                'Hace más de 5 minutos que la cámara no ve bien a $nombre. '
+                'Descartamos esas imágenes, así que no podemos asegurar que '
+                'detectemos una caída.',
+          ),
+          const EncabezadoSeccion('Qué revisar en la casa'),
+          ListaTarjeta(
+            children: [
+              const FilaLista(
+                inicio: IconoFila(Ico.sun),
+                titulo: 'La luz de la habitación',
+                subtitulo:
+                    'Que haya luz suficiente. De noche, deja encendida una '
+                    'lámpara pequeña.',
+              ),
+              FilaLista(
+                inicio: const IconoFila(Ico.cam),
+                titulo: 'El encuadre de la cámara',
+                subtitulo:
+                    'Que nada la tape y que se vea el cuerpo entero de '
+                    '$nombre, de la cabeza a los pies.',
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Te avisaremos cuando la cámara vuelva a verla bien.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ];
       case EstadoVisible.enLinea:
         return [
           Boton(
@@ -215,8 +259,6 @@ class _Detalle extends ConsumerWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ];
-      default:
-        return const [];
     }
   }
 }
