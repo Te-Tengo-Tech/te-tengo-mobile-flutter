@@ -19,6 +19,7 @@ import '../features/sesion/presentation/pantalla_cuenta_creada.dart';
 import '../features/sesion/presentation/pantalla_iniciar_sesion.dart';
 import '../features/sesion/presentation/pantalla_registro.dart';
 import '../features/sesion/presentation/pantallas_recuperacion.dart';
+import 'barras_estado.dart';
 import 'navegacion.dart';
 import 'pantalla_pendiente.dart';
 import 'rutas.dart';
@@ -128,8 +129,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PantallaPersonaCuidada(),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navegacion) =>
-            ShellPestanas(navegacion: navegacion),
+        builder: (context, state, navegacion) => ShellPestanas(
+          navegacion: navegacion,
+          encima: const [BarraSinInternet()],
+        ),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -165,6 +168,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: Rutas.vivo,
+        builder: (context, state) => const PantallaPendiente('En vivo'),
       ),
       GoRoute(
         path: '/camara/:id',
