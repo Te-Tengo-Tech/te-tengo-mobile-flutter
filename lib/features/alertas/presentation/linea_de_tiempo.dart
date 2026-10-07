@@ -1,10 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/colores.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../camaras/domain/camara.dart';
+import '../../familia/data/familia_repositorio.dart';
+import '../../familia/domain/familiar.dart';
 import '../domain/alerta.dart';
+
+/// «Carmen (principal)», «Luis»: who receives each alert.
+List<String> avisadosDe(List<MiembroFamilia> miembros) => [
+  for (final m in miembros)
+    m.papel == PapelAviso.principal
+        ? '${m.familiar.nombrePila} (principal)'
+        : m.familiar.nombrePila,
+];
+
+/// Full name of the secondary contact, if any.
+String? secundarioDe(List<MiembroFamilia> miembros) => miembros
+    .where((m) => m.papel == PapelAviso.secundario)
+    .firstOrNull
+    ?.familiar
+    .nombre;
+
+/// Wait before escalating (CA-10.3 default while loading).
+int esperaDe(WidgetRef ref) =>
+    ref.watch(avisoProvider).value?.esperaMinutos ??
+    ConfiguracionAviso.esperaPredeterminada;
 
 /// Kind of dot of a timeline item (`.tl li.c-*`).
 enum PuntoLinea { neutro, caida, inestable, ok, escalada }

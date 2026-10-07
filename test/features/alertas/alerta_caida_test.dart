@@ -47,7 +47,9 @@ void main() {
     );
     await verHasta(
       tester,
-      find.text('Aviso enviado a Carmen y Luis, 6 s después de la caída'),
+      find.text(
+        'Aviso enviado a Carmen (principal) y Luis, 6 s después de la caída',
+      ),
     );
     expect(find.text('Caída detectada en la Sala'), findsOneWidget);
     expect(find.text('Marcar alerta'), findsOneWidget);

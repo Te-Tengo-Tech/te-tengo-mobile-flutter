@@ -10,6 +10,8 @@ import '../features/alertas/presentation/pantalla_detalle_alerta.dart';
 import '../features/arranque/pantalla_arranque.dart';
 import '../features/camaras/presentation/pantalla_camara.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
+import '../features/familia/presentation/pantalla_familia.dart';
+import '../features/familia/presentation/pantalla_orden_aviso.dart';
 import '../features/familia/presentation/pantallas_configuracion_familia.dart';
 import '../features/historial/presentation/pantalla_historial.dart';
 import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
@@ -158,7 +160,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Rutas.familia,
-                builder: (context, state) => const PantallaPendiente('Familia'),
+                builder: (context, state) => const PantallaFamilia(),
               ),
             ],
           ),
@@ -189,6 +191,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Rutas.revocado,
         builder: (context, state) => const PantallaRevocado(),
+      ),
+      GoRoute(
+        path: Rutas.ordenAviso,
+        builder: (context, state) => const PantallaOrdenAviso(),
+      ),
+      GoRoute(
+        path: Rutas.invitar,
+        builder: (context, state) =>
+            const PantallaPendiente('Invitar a un familiar'),
       ),
       GoRoute(
         path: Rutas.vivo,

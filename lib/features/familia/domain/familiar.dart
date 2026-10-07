@@ -42,3 +42,57 @@ class Invitacion {
         : DateTime.parse(json['expiraEn'] as String).toLocal(),
   );
 }
+
+/// Alert order and wait time (`GET /api/hogar/aviso`): CA-10.1 to CA-10.4.
+class ConfiguracionAviso {
+  const ConfiguracionAviso({
+    required this.principalId,
+    this.secundarioId,
+    this.esperaMinutos = esperaPredeterminada,
+  });
+
+  /// 5 minutes until the owner chooses another wait (CA-10.3).
+  static const esperaPredeterminada = 5;
+
+  /// Waits allowed by the contract (CA-10.2).
+  static const esperas = [3, 5, 10];
+
+  final String principalId;
+  final String? secundarioId;
+  final int esperaMinutos;
+
+  factory ConfiguracionAviso.desdeJson(Map<String, dynamic> json) =>
+      ConfiguracionAviso(
+        principalId: json['principalId'] as String,
+        secundarioId: json['secundarioId'] as String?,
+        esperaMinutos: json['esperaMinutos'] as int? ?? esperaPredeterminada,
+      );
+
+  Map<String, Object?> aJson() => {
+    'principalId': principalId,
+    'secundarioId': secundarioId,
+    'esperaMinutos': esperaMinutos,
+  };
+
+  ConfiguracionAviso con({
+    String? principalId,
+    String? secundarioId,
+    bool sinSecundario = false,
+    int? esperaMinutos,
+  }) => ConfiguracionAviso(
+    principalId: principalId ?? this.principalId,
+    secundarioId: sinSecundario ? null : secundarioId ?? this.secundarioId,
+    esperaMinutos: esperaMinutos ?? this.esperaMinutos,
+  );
+}
+
+/// Role of a member in the alert order.
+enum PapelAviso {
+  principal('Principal'),
+  secundario('Secundario'),
+  familiar('Recibe alertas');
+
+  const PapelAviso(this.etiqueta);
+
+  final String etiqueta;
+}
