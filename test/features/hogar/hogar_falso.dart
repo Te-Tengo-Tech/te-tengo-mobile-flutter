@@ -57,10 +57,12 @@ class HogarRepositorioFalso implements HogarRepositorio {
 
   final consentimientos = <String>[];
   int revocaciones = 0;
+  ProblemaApi? errorRevocar;
 
   @override
   Future<void> revocarConsentimiento() async {
     revocaciones++;
+    if (errorRevocar != null) throw errorRevocar!;
     final c = hogar.consentimiento!;
     hogar = Hogar(
       hogarId: hogar.hogarId,

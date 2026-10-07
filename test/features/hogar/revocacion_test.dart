@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
 import 'package:te_tengo/core/red/cliente_api.dart';
+import 'package:te_tengo/core/red/problema_api.dart';
 import 'package:te_tengo/core/reloj.dart';
 import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
@@ -13,6 +14,7 @@ import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:te_tengo/features/hogar/domain/hogar.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -181,6 +183,54 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    '404 SIN_CONSENTIMIENTO: si ya estaba revocado, muestra que no hay consentimiento',
+    (tester) async {
+      await abrir(tester);
+      expect(find.text('Constancia de consentimiento'), findsOneWidget);
+      // Revoked meanwhile from another phone: the backend has no current consent.
+      final c = hogar.hogar.consentimiento!;
+      hogar
+        ..errorRevocar = const ProblemaApi(
+          codigo: 'SIN_CONSENTIMIENTO',
+          detalle: 'No hay un consentimiento vigente.',
+          estado: 404,
+        )
+        ..hogar = Hogar(
+          hogarId: 'h-1',
+          adultoMayor: rosa,
+          rol: Rol.titular,
+          consentimiento: Consentimiento(
+            otorgadoEn: c.otorgadoEn,
+            otorgadoPor: c.otorgadoPor,
+            registradoPor: c.registradoPor,
+            vistaEnVivoAceptada: true,
+            vigente: false,
+          ),
+        );
+      await tocar(tester, find.text('Revocar consentimiento'));
+      await tester.tap(find.text('Sí, revocar y eliminar'));
+      await tester.pumpAndSettle();
+      expect(hogar.revocaciones, 1);
+      expect(find.text('Revocando el consentimiento'), findsNothing);
+      await tester.drag(
+        find.byType(Scrollable).hitTestable().first,
+        const Offset(0, 3000),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('No hay un consentimiento vigente.'), findsNothing);
+      expect(find.text('Sin consentimiento'), findsOneWidget);
+      expect(
+        find.text(
+          'Revocado. La cámara no captura y las grabaciones fueron eliminadas.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Constancia de consentimiento'), findsNothing);
+      expect(find.text('Revocar consentimiento'), findsNothing);
+    },
+  );
 
   testWidgets('un familiar invitado no puede revocar', (tester) async {
     await abrir(tester, sesion: sesionInvitado);

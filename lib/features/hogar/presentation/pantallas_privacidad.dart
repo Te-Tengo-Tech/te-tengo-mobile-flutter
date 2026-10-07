@@ -78,7 +78,12 @@ class _Privacidad extends ConsumerWidget {
                   children: [
                     const Icono(Ico.lock, tamano: 28, color: Colores.pausa),
                     const SizedBox(width: 12),
-                    Text('Sin consentimiento', style: texto.titleLarge),
+                    Expanded(
+                      child: Text(
+                        'Sin consentimiento',
+                        style: texto.titleLarge,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -209,6 +214,14 @@ class _Privacidad extends ConsumerWidget {
         ..invalidate(alertaActivaProvider);
       if (context.mounted) context.go(Rutas.revocado);
     } on ProblemaApi catch (e) {
+      if (e.codigo == 'SIN_CONSENTIMIENTO') {
+        // Already revoked (for example from another phone): reloading the household shows the
+        // «Sin consentimiento» card instead of the certificate.
+        ref
+          ..invalidate(hogarProvider)
+          ..invalidate(camarasProvider);
+        return;
+      }
       if (context.mounted) {
         mostrarToast(context, titulo: e.detalle, icono: Ico.warn);
       }
