@@ -15,6 +15,7 @@ import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/camaras/data/camaras_repositorio.dart';
 import '../features/camaras/presentation/avisos_camara.dart';
 import '../features/hogar/data/hogar_repositorio.dart';
+import '../features/hogar/presentation/revocacion.dart';
 import 'router.dart';
 import 'rutas.dart';
 
@@ -124,6 +125,11 @@ class GestorPush {
                 alTocar: () => router.push(Rutas.alerta(id)),
               ),
             );
+      case TipoPush.datosEliminados:
+        // CA-09.3: the revocation screen shows the recordings as deleted.
+        _ref
+            .read(revocacionProvider.notifier)
+            .terminar(m.ocurridaEn ?? _ref.read(relojProvider)());
       case TipoPush.camaraDesconectada:
         _ref
             .read(avisosCamaraProvider)
@@ -150,6 +156,11 @@ class GestorPush {
 
   void _refrescar(MensajePush m) {
     if (m.tipo.deCamara) _ref.invalidate(camarasProvider);
+    if (m.tipo == TipoPush.datosEliminados) {
+      _ref
+        ..invalidate(hogarProvider)
+        ..invalidate(camarasProvider);
+    }
     if (m.tipo.deAlerta || m.tipo == TipoPush.alertaAtendida) {
       _ref.invalidate(alertaActivaProvider);
       if (m.alertaId case final id?) _ref.invalidate(alertaProvider(id));

@@ -55,6 +55,25 @@ class HogarRepositorioFalso implements HogarRepositorio {
   }
 
   final consentimientos = <String>[];
+  int revocaciones = 0;
+
+  @override
+  Future<void> revocarConsentimiento() async {
+    revocaciones++;
+    final c = hogar.consentimiento!;
+    hogar = Hogar(
+      hogarId: hogar.hogarId,
+      adultoMayor: hogar.adultoMayor,
+      rol: hogar.rol,
+      consentimiento: Consentimiento(
+        otorgadoEn: c.otorgadoEn,
+        otorgadoPor: c.otorgadoPor,
+        registradoPor: c.registradoPor,
+        vistaEnVivoAceptada: c.vistaEnVivoAceptada,
+        vigente: false,
+      ),
+    );
+  }
 
   @override
   Future<Consentimiento> registrarConsentimiento({

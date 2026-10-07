@@ -22,6 +22,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T14 Confirmation chip (US-13):** screen 46. «Comprobando si sigue en el suelo» turns into «Sigue en el suelo · confirmada» with the confirmed headline, notice and record line, from the `CAIDA_CONFIRMADA` push or the 10 s refresh of an open alert; elsewhere in the app the confirmation arrives as an in-app notice.
 - **T15 Unstable movement (US-17):** screens 49–52. Amber medium-severity alert with its own icon, label and steps (never shared with a fall), amber strip and home state, and the in-place update to a fall with «Empezó como movimiento inestable» on `ALERTA_ACTUALIZADA_A_CAIDA`.
 - **T16 Clip (US-18):** screens 47 and 53. `GET /api/alertas/{id}/clip` played with `video_player` behind a controller interface (room and pose poster while loading, play/pause, event mark, 0:00 / 0:12), and «Clip no disponible» when the alert says `NO_DISPONIBLE` or the clip returns `404`.
+- **T17 Revoke consent (US-09):** screens 97–101. Privacy screen with the certificate and how data is cared for, confirmation dialog that keeps everything active when declined (CA-09.2), `DELETE /api/hogar/consentimiento`, and the deleting → deleted progress completed by the `DATOS_ELIMINADOS` push (CA-09.3); invited members see the read-only notice.
 ### Changed
 - Documentation translated to English.
 
