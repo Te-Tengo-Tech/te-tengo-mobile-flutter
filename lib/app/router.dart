@@ -10,7 +10,9 @@ import '../features/camaras/presentation/pantalla_camaras.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
 import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
 import '../features/hogar/presentation/pantalla_persona_setup.dart';
-import '../features/inicio/pantalla_inicio.dart';
+import '../features/inicio/presentation/pantalla_inicio.dart';
+import '../features/camaras/presentation/pantalla_camara_lista.dart';
+import '../features/hogar/presentation/pantallas_consentimiento.dart';
 import '../features/sesion/presentation/pantalla_bienvenida.dart';
 import '../features/sesion/presentation/pantalla_cuenta_creada.dart';
 import '../features/sesion/presentation/pantalla_iniciar_sesion.dart';
@@ -83,7 +85,36 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.configConsentimiento,
-        builder: (context, state) => const PantallaPendiente('Consentimiento'),
+        builder: (context, state) =>
+            const PantallaConsentimiento(enConfiguracion: true),
+      ),
+      GoRoute(
+        path: Rutas.configConstancia,
+        builder: (context, state) =>
+            const PantallaConsentimientoRegistrado(enConfiguracion: true),
+      ),
+      GoRoute(
+        path: Rutas.configCamara,
+        builder: (context, state) => const PantallaCamaraLista(),
+      ),
+      GoRoute(
+        path: Rutas.configNombreCamara,
+        builder: (context, state) => PantallaNombreHabitacion(
+          camaraId: state.uri.queryParameters['id'] ?? '',
+          nombreActual: state.uri.queryParameters['actual'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: Rutas.configFamilia,
+        builder: (context, state) => const PantallaPendiente('Familia'),
+      ),
+      GoRoute(
+        path: Rutas.consentimiento,
+        builder: (context, state) => const PantallaConsentimiento(),
+      ),
+      GoRoute(
+        path: Rutas.constancia,
+        builder: (context, state) => const PantallaConsentimientoRegistrado(),
       ),
       GoRoute(
         path: Rutas.personaCuidada,

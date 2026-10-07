@@ -121,9 +121,11 @@ class FilaDato extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            clave,
-            style: const TextStyle(fontSize: 16, color: Colores.tinta3),
+          Flexible(
+            child: Text(
+              clave,
+              style: const TextStyle(fontSize: 16, color: Colores.tinta3),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(

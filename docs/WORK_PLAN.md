@@ -48,7 +48,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 - [x] **T04 US-02 Sign in and sign out:** screens 06–08 and 13. `POST /api/sesiones`; `423 CUENTA_BLOQUEADA` shows the unlock time; `DELETE /api/sesiones/actual`.
 - [x] **T05 US-03 Password recovery:** screens 09–12. Generic message (`202`); `410 ENLACE_VENCIDO`; deep link for the reset token.
 - [x] **T06 US-04 Older adult profile:** screens 14, 15 and 95. `POST /api/hogar` (stores the returned `Sesion`); `convivencia` options from the contract; `409 HOGAR_YA_REGISTRADO`.
-- [ ] **T07 US-05 Consent:** screens 16–18, 22 and 102. Both checkboxes are required; certificate with date and time and Law No. 29733; banner «sin consentimiento» on home.
+- [x] **T07 US-05 Consent:** screens 16–18, 22 and 102. Both checkboxes are required; certificate with date and time and Law No. 29733; banner «sin consentimiento» on home.
 - [ ] **T08 US-06 Camera and room name:** screens 19–21 and 32. Extend `features/camaras` to the full screens; renaming is owner-only (`403 SOLO_TITULAR` and read-only UI).
 - [ ] **T09 US-08 Invite during onboarding:** screens 23 and 24. `POST /api/invitaciones`.
 - [ ] **T10 Home:** screens 25–27.

@@ -54,6 +54,29 @@ class HogarRepositorioFalso implements HogarRepositorio {
     return sesionCreada;
   }
 
+  final consentimientos = <String>[];
+
+  @override
+  Future<Consentimiento> registrarConsentimiento({
+    required String otorgadoPor,
+  }) async {
+    consentimientos.add(otorgadoPor);
+    final c = Consentimiento(
+      otorgadoEn: DateTime(2026, 9, 23, 9, 14),
+      otorgadoPor: otorgadoPor,
+      registradoPor: 'Carmen Huamán',
+      vistaEnVivoAceptada: true,
+      vigente: true,
+    );
+    hogar = Hogar(
+      hogarId: hogar.hogarId,
+      adultoMayor: hogar.adultoMayor,
+      rol: hogar.rol,
+      consentimiento: c,
+    );
+    return c;
+  }
+
   @override
   Future<AdultoMayor> actualizarAdultoMayor(AdultoMayor adultoMayor) async {
     actualizados.add(adultoMayor);

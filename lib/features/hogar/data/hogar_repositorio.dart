@@ -19,6 +19,10 @@ abstract interface class HogarRepositorio {
 
   /// `PUT /api/hogar/adulto-mayor` (owner).
   Future<AdultoMayor> actualizarAdultoMayor(AdultoMayor adultoMayor);
+
+  /// `POST /api/hogar/consentimiento` (owner). Both flags must be true; the backend stores the date
+  /// and time (CA-05.3) and capture may start (CA-05.1). Errors: `422 CONSENTIMIENTO_NO_ACEPTADO`.
+  Future<Consentimiento> registrarConsentimiento({required String otorgadoPor});
 }
 
 class HogarRepositorioApi implements HogarRepositorio {
@@ -50,6 +54,21 @@ class HogarRepositorioApi implements HogarRepositorio {
         );
         return AdultoMayor.desdeJson(r.data!);
       });
+
+  @override
+  Future<Consentimiento> registrarConsentimiento({
+    required String otorgadoPor,
+  }) => llamarApi(() async {
+    final r = await _dio.post<Map<String, dynamic>>(
+      '/api/hogar/consentimiento',
+      data: {
+        'otorgadoPor': otorgadoPor,
+        'aceptadoPorAdultoMayor': true,
+        'vistaEnVivoAceptada': true,
+      },
+    );
+    return Consentimiento.desdeJson(r.data!);
+  });
 }
 
 final hogarRepositorioProvider = Provider<HogarRepositorio>(
