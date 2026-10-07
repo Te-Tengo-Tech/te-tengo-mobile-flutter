@@ -101,8 +101,12 @@ class GestorPush {
       case TipoPush.alertaCaida ||
           TipoPush.alertaMovimientoInestable ||
           TipoPush.alertaActualizadaACaida:
-        // A new alert takes the whole screen.
-        if (m.alertaId != null) router.push(Rutas.alerta(m.alertaId!));
+        // A new alert takes the whole screen; an alert already open is refreshed in place
+        // (unstable movement that became a fall, CA-17.3).
+        final id = m.alertaId;
+        if (id != null && !_enPantalla(router, Rutas.alerta(id))) {
+          router.push(Rutas.alerta(id));
+        }
       case TipoPush.caidaConfirmada:
         // On the alert itself the chip changes; elsewhere an in-app notice tells it (CA-13.1).
         final id = m.alertaId;
