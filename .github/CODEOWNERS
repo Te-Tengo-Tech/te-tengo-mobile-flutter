@@ -1,0 +1,15 @@
+# Owners are requested as reviewers on every pull request that touches matching files.
+# Format: <pattern> @<github-login>. The last matching pattern wins.
+
+*                      @jhosepmyr
+
+# Build, CI and governance
+/pubspec.yaml          @jhosepmyr
+/pubspec.lock          @jhosepmyr
+/android/              @jhosepmyr
+/ios/                  @jhosepmyr
+/.github/              @jhosepmyr
+
+# Contract shared with the backend, and the design system
+/docs/API_CONTRACT.md  @jhosepmyr
+/lib/core/             @jhosepmyr
