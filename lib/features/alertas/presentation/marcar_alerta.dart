@@ -15,6 +15,7 @@ import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
 import '../../camaras/domain/camara.dart';
+import '../../historial/data/historial_provider.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/alertas_repositorio.dart';
 import '../domain/alerta.dart';
@@ -91,7 +92,8 @@ class _HojaMarcarState extends ConsumerState<_HojaMarcar> {
 
   void _refrescar(String id) => ref
     ..invalidate(alertaProvider(id))
-    ..invalidate(alertaActivaProvider);
+    ..invalidate(alertaActivaProvider)
+    ..invalidate(historialProvider);
 
   @override
   Widget build(BuildContext context) {

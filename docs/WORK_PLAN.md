@@ -71,7 +71,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 ### Sprint 4
 - [x] **T17 US-09 Revoke consent:** screens 97–101. Confirmation step (CA-09.2); deletion in progress and done.
 - [x] **T18 US-19 Mark alert:** screens 55, 56, 60 and 61. Bottom sheet with «Atendida» or «Falsa alarma»; shows who attended and when.
-- [ ] **T19 US-25 History:** screens 83–88. `GET /api/alertas` with filters; empty state «Sin eventos registrados»; loading state.
+- [x] **T19 US-25 History:** screens 83–88. `GET /api/alertas` with filters; empty state «Sin eventos registrados»; loading state.
 - [ ] **T20 US-10 Alert order and wait time:** screens 62–65 and 72. 3, 5 (default) or 10 min; single-member case.
 - [ ] **T21 US-20 Escalation views:** screens 58 and 59.
 - [ ] **T22 US-22 Pause camera:** screens 33–35. Options 30 min, 1 h, 2 h, «Hasta mañana» (contract `duracion`); paused state with the end time; resume.
