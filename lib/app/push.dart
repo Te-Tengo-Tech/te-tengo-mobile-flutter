@@ -11,6 +11,7 @@ import '../core/reloj.dart';
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
 import '../core/ui/avisos_flotantes.dart';
+import '../features/ajustes/data/preferencias.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/alertas/domain/alerta.dart';
 import '../features/camaras/data/camaras_repositorio.dart';
@@ -54,6 +55,10 @@ class GestorPush {
   Future<void> iniciar() async {
     if (_iniciado) return;
     _iniciado = true;
+    // Loaded now so a push can be filtered by them as soon as it arrives.
+    unawaited(
+      _ref.read(preferenciasProvider.future).then((_) {}, onError: (_) {}),
+    );
     _suscripciones
       ..add(_push.abiertas.listen(abrir))
       ..add(_push.recibidas.listen(enPrimerPlano))
@@ -111,7 +116,13 @@ class GestorPush {
         // A new alert takes the whole screen; an alert already open is refreshed in place
         // (unstable movement that became a fall, CA-17.3).
         final id = m.alertaId;
-        if (id != null && !_enPantalla(router, Rutas.alerta(id))) {
+        // Unstable movement can be muted on this phone (screen 96); falls never.
+        final silenciada =
+            m.tipo == TipoPush.alertaMovimientoInestable &&
+            !(_ref.read(preferenciasProvider).value?.inestables ?? true);
+        if (id != null &&
+            !silenciada &&
+            !_enPantalla(router, Rutas.alerta(id))) {
           router.push(Rutas.alerta(id));
         }
       case TipoPush.caidaConfirmada:
@@ -197,6 +208,10 @@ class GestorPush {
                   : () => router.push(Rutas.camara(m.camaraId!)),
             );
       case TipoPush.pausaFinalizada:
+        if (!(_ref.read(preferenciasProvider).value?.finPausa ?? true)) {
+          _ref.invalidate(camarasProvider);
+          break;
+        }
         _ref
             .read(avisosCamaraProvider)
             .reactivada(
