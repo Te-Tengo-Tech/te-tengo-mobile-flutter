@@ -50,7 +50,7 @@ void main() {
     await abrir(tester);
     expect(find.text('Miércoles 23 de septiembre'), findsOneWidget);
     expect(find.text('Hola, Carmen'), findsOneWidget);
-    expect(find.text('Rosa Huamán'), findsOneWidget);
+    expect(find.text('Rosa Huamán, 78 años'), findsOneWidget);
     expect(find.text('Jr. Los Pinos 482, San Miguel'), findsOneWidget);
     expect(find.text('Todo tranquilo'), findsOneWidget);
     expect(

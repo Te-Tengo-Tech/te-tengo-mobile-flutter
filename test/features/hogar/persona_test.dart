@@ -17,6 +17,15 @@ import '../../apoyo/datos.dart';
 import '../familia/familia_falso.dart';
 import 'hogar_falso.dart';
 
+/// Scrolls the visible list back to its top.
+Future<void> alInicio(WidgetTester tester) async {
+  await tester.drag(
+    find.byType(Scrollable).hitTestable().first,
+    const Offset(0, 3000),
+  );
+  await tester.pumpAndSettle();
+}
+
 Finder campo(String etiqueta) => find.descendant(
   of: find.widgetWithText(CampoTexto, etiqueta),
   matching: find.byType(TextField),
@@ -105,6 +114,7 @@ void main() {
         await abrir(tester, Rutas.configPersona, sesionSinHogar);
         await tester.enterText(campo('Nombre y apellido'), 'Rosa Huamán');
         await tocar(tester, find.text('Guardar y continuar'));
+        await alInicio(tester);
         expect(find.text('Faltan datos obligatorios'), findsOneWidget);
         expect(
           find.text('Escribe la dirección de la vivienda.'),
@@ -159,7 +169,7 @@ void main() {
     testWidgets('la titular cambia los datos', (tester) async {
       await abrir(tester, Rutas.ajustes, sesionTitular);
       expect(find.text('Rosa Huamán'), findsOneWidget);
-      expect(find.text('Vive solo(a)'), findsOneWidget);
+      expect(find.text('78 años · Vive solo(a)'), findsOneWidget);
       await tocar(tester, find.text('Rosa Huamán'));
       expect(find.text('Persona cuidada'), findsOneWidget);
       await tester.enterText(
