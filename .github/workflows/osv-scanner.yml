@@ -33,7 +33,7 @@ jobs:
           scan-args: |-
             --lockfile=pubspec.lock
             --format=json
-            --output=osv-results.json
+            --output-file=osv-results.json
       - name: Summary and gate
         run: |
           gate=""
