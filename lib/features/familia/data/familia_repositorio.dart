@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/red/cliente_api.dart';
 import '../../../core/red/problema_api.dart';
+import '../../../core/sesion/sesion.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../domain/familiar.dart';
 
@@ -14,6 +15,19 @@ abstract interface class FamiliaRepositorio {
   /// `POST /api/invitaciones` (owner): emails a link to create access (CA-08.1). Errors:
   /// `409 YA_ES_FAMILIAR`.
   Future<Invitacion> invitar(String correo);
+
+  /// `POST /api/invitaciones/{token}/aceptacion` (public): a new account with [nombre] and
+  /// [contrasena], or the signed-in one when both are null. Returns the `INVITADO` session of the
+  /// household (CA-08.2). Errors: `410 INVITACION_VENCIDA`.
+  Future<Sesion> aceptarInvitacion(
+    String token, {
+    String? nombre,
+    String? contrasena,
+  });
+
+  /// `DELETE /api/familiares/{usuarioId}` (owner): removes access to the alerts (CA-08.3). Errors:
+  /// `409 NO_SE_PUEDE_RETIRAR_TITULAR`.
+  Future<void> retirar(String usuarioId);
 
   /// `GET /api/hogar/aviso`.
   Future<ConfiguracionAviso> aviso();
@@ -42,6 +56,26 @@ class FamiliaRepositorioApi implements FamiliaRepositorio {
       data: {'correo': correo},
     );
     return Invitacion.desdeJson(r.data!);
+  });
+
+  @override
+  Future<Sesion> aceptarInvitacion(
+    String token, {
+    String? nombre,
+    String? contrasena,
+  }) => llamarApi(() async {
+    final r = await _dio.post<Map<String, dynamic>>(
+      '/api/invitaciones/${Uri.encodeComponent(token)}/aceptacion',
+      data: nombre == null
+          ? null
+          : {'nombre': nombre, 'contrasena': contrasena},
+    );
+    return Sesion.desdeJson(r.data!);
+  });
+
+  @override
+  Future<void> retirar(String usuarioId) => llamarApi(() async {
+    await _dio.delete<void>('/api/familiares/$usuarioId');
   });
 
   @override

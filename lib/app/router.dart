@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
+import '../features/familia/presentation/gestion_familia.dart';
+import '../features/familia/presentation/pantallas_invitacion.dart';
 import '../features/vivo/presentation/pantalla_accesos.dart';
 import '../features/vivo/presentation/pantalla_vivo.dart';
 import '../features/ajustes/presentation/pantalla_ajustes.dart';
@@ -29,7 +31,6 @@ import '../features/sesion/presentation/pantalla_registro.dart';
 import '../features/sesion/presentation/pantallas_recuperacion.dart';
 import 'barras_estado.dart';
 import 'navegacion.dart';
-import 'pantalla_pendiente.dart';
 import 'rutas.dart';
 
 /// First location; tests start elsewhere.
@@ -84,6 +85,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           token: state.uri.queryParameters['token'] ?? '',
           correo: state.uri.queryParameters['correo'],
         ),
+      ),
+      GoRoute(
+        path: '${Rutas.invitacion}/:token',
+        builder: (context, state) => PantallaAceptarInvitacion(
+          token: state.pathParameters['token']!,
+          titular: state.uri.queryParameters['titular'],
+          adultoMayor: state.uri.queryParameters['adultoMayor'],
+          correo: state.uri.queryParameters['correo'],
+        ),
+      ),
+      GoRoute(
+        path: Rutas.accesoCreado,
+        builder: (context, state) => const PantallaAccesoCreado(),
       ),
       GoRoute(
         path: Rutas.enlaceVencido,
@@ -162,7 +176,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Rutas.familia,
-                builder: (context, state) => const PantallaFamilia(),
+                builder: (context, state) => PantallaFamilia(
+                  alTocarMiembro: (context, miembro, indice) =>
+                      opcionesMiembro(context, miembro, indice: indice),
+                ),
               ),
             ],
           ),
@@ -200,8 +217,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.invitar,
-        builder: (context, state) =>
-            const PantallaPendiente('Invitar a un familiar'),
+        builder: (context, state) => const PantallaInvitar(),
       ),
       GoRoute(
         path: Rutas.accesos,

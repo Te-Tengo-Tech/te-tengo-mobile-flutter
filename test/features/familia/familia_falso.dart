@@ -1,5 +1,6 @@
 import 'package:te_tengo/core/red/problema_api.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
+import '../../apoyo/datos.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/familia/domain/familiar.dart';
 
@@ -29,6 +30,10 @@ class FamiliaRepositorioFalso implements FamiliaRepositorio {
   );
   final avisosGuardados = <ConfiguracionAviso>[];
   final invitaciones = <String>[];
+  final retirados = <String>[];
+  final aceptaciones = <(String, String?, String?)>[];
+  ProblemaApi? errorAceptar;
+  Sesion sesionAceptada = sesionInvitado;
 
   @override
   Future<List<Familiar>> listar() async => familiares;
@@ -38,6 +43,29 @@ class FamiliaRepositorioFalso implements FamiliaRepositorio {
     invitaciones.add(correo);
     if (errorInvitar != null) throw errorInvitar!;
     return Invitacion(id: 'i-1', correo: correo);
+  }
+
+  @override
+  Future<Sesion> aceptarInvitacion(
+    String token, {
+    String? nombre,
+    String? contrasena,
+  }) async {
+    aceptaciones.add((token, nombre, contrasena));
+    if (errorAceptar != null) throw errorAceptar!;
+    return sesionAceptada;
+  }
+
+  @override
+  Future<void> retirar(String usuarioId) async {
+    retirados.add(usuarioId);
+    familiares = [
+      for (final f in familiares)
+        if (f.usuarioId != usuarioId) f,
+    ];
+    if (avisoActual.secundarioId == usuarioId) {
+      avisoActual = avisoActual.con(sinSecundario: true);
+    }
   }
 
   @override
