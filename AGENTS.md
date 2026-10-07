@@ -16,8 +16,8 @@ Lee antes de cambiar algo:
 
 ## Dónde guiarte
 - **Qué hacer y en qué orden:** [docs/PLAN_DE_TRABAJO.md](docs/PLAN_DE_TRABAJO.md), que relaciona historias, pantallas y sprints.
-- **Cómo debe verse:** las **103 pantallas del prototipo** en . Ábrelas: son la referencia visual. Los textos exactos y la estructura están en  (busca el título de la pantalla).
-- **Cómo debe comportarse:** los criterios de aceptación en .
+- **Cómo debe verse:** las **103 pantallas del prototipo** en `docs/referencias/pantallas/NN-nombre.png`. Ábrelas: son la referencia visual. Los textos exactos y la estructura están en `docs/referencias/prototipo/prototipo.html` (busca el título de la pantalla).
+- **Cómo debe comportarse:** los criterios de aceptación en `docs/referencias/PRODUCT_BACKLOG.md`.
 
 ## Stack
 - **Flutter 3.44.8 y Dart 3.12.** Plataformas: Android e iOS.
