@@ -45,6 +45,9 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
   List<Alerta> alertas;
   final filtros = <FiltroAlertas>[];
   ProblemaApi? errorListar;
+  ProblemaApi? errorClip;
+  final clips = <String>[];
+  final descargas = <String>[];
 
   @override
   Future<PaginaAlertas> listar(FiltroAlertas filtro) async {
@@ -77,5 +80,14 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
       );
     }
     return a;
+  }
+
+  @override
+  Future<EnlaceClip> clip(String id, {bool descarga = false}) async {
+    (descarga ? descargas : clips).add(id);
+    if (errorClip != null) throw errorClip!;
+    return EnlaceClip(
+      url: 'https://clips.tetengo.pe/$id.mp4${descarga ? '?descarga' : ''}',
+    );
   }
 }

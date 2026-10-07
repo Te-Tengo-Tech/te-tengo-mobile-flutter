@@ -22,6 +22,7 @@ import '../../hogar/data/hogar_repositorio.dart';
 import '../../hogar/domain/hogar.dart';
 import '../data/alertas_repositorio.dart';
 import '../domain/alerta.dart';
+import 'clip_evento.dart';
 import 'linea_de_tiempo.dart';
 
 /// Alert ids already opened in this run, so an active alert opens by itself only once (CA-16.4).
@@ -159,6 +160,16 @@ class _Alerta extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     PasosNumerados(_pasos(adulto)),
+                    const SizedBox(height: 20),
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        'Clip del evento',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ClipEvento(alerta: alerta),
                     const SizedBox(height: 20),
                     Semantics(
                       header: true,

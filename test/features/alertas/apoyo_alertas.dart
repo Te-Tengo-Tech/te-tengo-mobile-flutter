@@ -4,11 +4,13 @@ import 'package:te_tengo/core/dispositivo/llamada.dart';
 import 'package:te_tengo/core/reloj.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
+import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 
 import '../../apoyo/app_de_prueba.dart';
+import '../../apoyo/clip_falso.dart';
 import '../../apoyo/datos.dart';
 import '../../apoyo/push_falso.dart';
 import '../camaras/repositorio_falso.dart';
@@ -42,6 +44,7 @@ Future<List<String?>> abrirConAlertas(
           () => ahora ?? DateTime(2026, 9, 23, 10, 42, 20),
         ),
         llamarProvider.overrideWithValue((t) async => llamadas.add(t)),
+        fabricaClipProvider.overrideWithValue(ClipFalso.new),
         ...overrides,
       ],
     ),
