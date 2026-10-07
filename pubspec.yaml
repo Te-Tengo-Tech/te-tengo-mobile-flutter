@@ -1,5 +1,5 @@
 name: te_tengo
-description: "App del familiar/cuidador de Te Tengo: alertas de caída, cámaras, familia e historial."
+description: "Te Tengo app for family members and caregivers: fall alerts, cameras, family and history."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
