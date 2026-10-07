@@ -8,6 +8,8 @@ import '../features/ajustes/presentation/pantalla_ajustes.dart';
 import '../features/arranque/pantalla_arranque.dart';
 import '../features/camaras/presentation/pantalla_camaras.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
+import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
+import '../features/hogar/presentation/pantalla_persona_setup.dart';
 import '../features/inicio/pantalla_inicio.dart';
 import '../features/sesion/presentation/pantalla_bienvenida.dart';
 import '../features/sesion/presentation/pantalla_cuenta_creada.dart';
@@ -77,7 +79,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.configPersona,
-        builder: (context, state) => const PantallaPendiente('Persona cuidada'),
+        builder: (context, state) => const PantallaPersonaSetup(),
+      ),
+      GoRoute(
+        path: Rutas.configConsentimiento,
+        builder: (context, state) => const PantallaPendiente('Consentimiento'),
+      ),
+      GoRoute(
+        path: Rutas.personaCuidada,
+        builder: (context, state) => const PantallaPersonaCuidada(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navegacion) =>
