@@ -15,6 +15,8 @@ import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/camaras_repositorio.dart';
 import '../domain/camara.dart';
+import '../../vivo/data/vista_en_vivo_repositorio.dart';
+import '../../vivo/presentation/pantalla_accesos.dart';
 import 'cabecera_camara.dart';
 import 'pausa_camara.dart';
 
@@ -107,6 +109,19 @@ class _Detalle extends ConsumerWidget {
                   queryParameters: {'camara': camara.id},
                 ).toString(),
               ),
+            ),
+            FilaLista(
+              inicio: const IconoFila(Ico.eye),
+              titulo: 'Registro de accesos',
+              subtitulo: switch (ref.watch(accesosVivoProvider)) {
+                AsyncData(value: final l) => resumenUltimoAcceso(
+                  l.firstOrNull,
+                  yo: ref.watch(sesionControllerProvider)?.usuario.id,
+                  hoy: ref.watch(relojProvider)(),
+                ),
+                _ => null,
+              },
+              alTocar: () => context.push(Rutas.accesos),
             ),
           ],
         ),

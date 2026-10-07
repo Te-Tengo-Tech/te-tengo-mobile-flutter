@@ -16,6 +16,9 @@ abstract interface class VistaEnVivoRepositorio {
 
   /// Closes it; the backend records who watched, when and for how long (CA-24.1).
   Future<void> cerrar(String sesionId);
+
+  /// Who watched, when and for how long, newest first (CA-24.2).
+  Future<List<AccesoVivo>> accesos();
 }
 
 class VistaEnVivoRepositorioApi implements VistaEnVivoRepositorio {
@@ -44,10 +47,28 @@ class VistaEnVivoRepositorioApi implements VistaEnVivoRepositorio {
       throw ProblemaApi.desde(e);
     }
   }
+
+  @override
+  Future<List<AccesoVivo>> accesos() async {
+    try {
+      final respuesta = await _dio.get<List<dynamic>>(
+        '/api/accesos-vista-en-vivo',
+      );
+      return (respuesta.data ?? [])
+          .map((j) => AccesoVivo.desdeJson(j as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ProblemaApi.desde(e);
+    }
+  }
 }
 
 final vistaEnVivoRepositorioProvider = Provider<VistaEnVivoRepositorio>(
   (ref) => VistaEnVivoRepositorioApi(ref.watch(clienteApiProvider)),
+);
+
+final accesosVivoProvider = FutureProvider<List<AccesoVivo>>(
+  (ref) => ref.watch(vistaEnVivoRepositorioProvider).accesos(),
 );
 
 /// Opens the stream of JPEG frames of a session.

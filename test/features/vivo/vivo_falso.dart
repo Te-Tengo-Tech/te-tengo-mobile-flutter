@@ -9,6 +9,7 @@ class VistaEnVivoRepositorioFalso implements VistaEnVivoRepositorio {
   final abiertas = <(String, String?)>[];
   final cerradas = <String>[];
   ProblemaApi? errorAbrir;
+  List<AccesoVivo> lista = [];
 
   @override
   Future<SesionVivo> abrir(String camaraId, {String? alertaId}) async {
@@ -22,6 +23,9 @@ class VistaEnVivoRepositorioFalso implements VistaEnVivoRepositorio {
 
   @override
   Future<void> cerrar(String sesionId) async => cerradas.add(sesionId);
+
+  @override
+  Future<List<AccesoVivo>> accesos() async => lista;
 }
 
 /// Frames pushed by the test.

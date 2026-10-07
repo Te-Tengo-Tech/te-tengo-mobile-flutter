@@ -21,6 +21,34 @@ class SesionVivo {
   );
 }
 
+/// One recorded access to the live view (`GET /api/accesos-vista-en-vivo`, CA-24.1).
+class AccesoVivo {
+  const AccesoVivo({
+    required this.usuarioId,
+    required this.nombre,
+    required this.inicio,
+    required this.duracionSegundos,
+    this.desdeAlerta = false,
+  });
+
+  final String usuarioId;
+  final String nombre;
+  final DateTime inicio;
+  final int duracionSegundos;
+  final bool desdeAlerta;
+
+  factory AccesoVivo.desdeJson(Map<String, dynamic> json) {
+    final usuario = json['usuario'] as Map<String, dynamic>;
+    return AccesoVivo(
+      usuarioId: usuario['id'] as String,
+      nombre: usuario['nombre'] as String,
+      inicio: fechaDesdeJson(json['inicio'])!,
+      duracionSegundos: (json['duracionSegundos'] as num).toInt(),
+      desdeAlerta: json['desdeAlerta'] as bool? ?? false,
+    );
+  }
+}
+
 /// The JPEG of a relayed frame `[8-byte big-endian ms timestamp][JPEG]`; null when too short.
 Uint8List? jpegDeFotograma(List<int> mensaje) {
   if (mensaje.length <= 8) return null;
