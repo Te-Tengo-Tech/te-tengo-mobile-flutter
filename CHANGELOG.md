@@ -19,6 +19,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T11 Connection status (US-07):** screens 28–31. Camera detail with icon-and-text status, «Qué revisar en la casa» (cable, PC on and internet) when disconnected, the in-app disconnection notice that opens the camera and the reconnection toast. Toasts and in-app notices now float at the top, as in the prototype.
 - **T12 Push foundation (US-16 CA-16.2):** `NotificacionesPush` interface with a `firebase_messaging` implementation (inactive until a Firebase project exists) and a test fake, device registration with `POST` and `DELETE /api/dispositivos` (on sign-in, token refresh and sign-out), routing of every contract push `tipo` to its screen, and in-app handling of camera pushes.
 - **T13 Fall alert (US-16):** screens 44–48. Full-screen red alert with severity tag, headline, room, time and elapsed time, «Llamar» and «Ver en vivo», «Qué hacer ahora» and the alert record; the active alert (`GET /api/alertas?estado=ACTIVA`) opens by itself, shows the failed-notification notice when `notificadaEn` is null (CA-16.4), and appears as a strip, a home card state and a badge on Historial.
+- **T14 Confirmation chip (US-13):** screen 46. «Comprobando si sigue en el suelo» turns into «Sigue en el suelo · confirmada» with the confirmed headline, notice and record line, from the `CAIDA_CONFIRMADA` push or the 10 s refresh of an open alert; elsewhere in the app the confirmation arrives as an in-app notice.
 ### Changed
 - Documentation translated to English.
 

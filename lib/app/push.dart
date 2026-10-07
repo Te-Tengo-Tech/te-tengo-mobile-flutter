@@ -1,16 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../core/notificaciones/dispositivos_repositorio.dart';
 import '../core/notificaciones/mensaje_push.dart';
 import '../core/notificaciones/notificaciones_push.dart';
+import '../core/formato.dart';
 import '../core/reloj.dart';
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
+import '../core/ui/avisos_flotantes.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/camaras/data/camaras_repositorio.dart';
 import '../features/camaras/presentation/avisos_camara.dart';
+import '../features/hogar/data/hogar_repositorio.dart';
 import 'router.dart';
 import 'rutas.dart';
 
@@ -99,6 +103,23 @@ class GestorPush {
           TipoPush.alertaActualizadaACaida:
         // A new alert takes the whole screen.
         if (m.alertaId != null) router.push(Rutas.alerta(m.alertaId!));
+      case TipoPush.caidaConfirmada:
+        // On the alert itself the chip changes; elsewhere an in-app notice tells it (CA-13.1).
+        final id = m.alertaId;
+        if (id == null || _enPantalla(router, Rutas.alerta(id))) break;
+        final nombre = _ref.read(nombreAdultoMayorProvider) ?? '';
+        _ref
+            .read(avisoFlotanteProvider.notifier)
+            .mostrar(
+              AvisoFlotante(
+                tipo: TipoFlotante.enApp,
+                titulo: '$nombre sigue en el suelo',
+                texto:
+                    'Caída confirmada a las '
+                    '${hora(_ref.read(relojProvider)())}. La alerta sigue activa.',
+                alTocar: () => router.push(Rutas.alerta(id)),
+              ),
+            );
       case TipoPush.camaraDesconectada:
         _ref
             .read(avisosCamaraProvider)
@@ -119,6 +140,9 @@ class GestorPush {
         break;
     }
   }
+
+  static bool _enPantalla(GoRouter router, String ruta) =>
+      router.routerDelegate.currentConfiguration.uri.path == ruta;
 
   void _refrescar(MensajePush m) {
     if (m.tipo.deCamara) _ref.invalidate(camarasProvider);
