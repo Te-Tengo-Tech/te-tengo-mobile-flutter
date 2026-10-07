@@ -33,7 +33,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 ## Tasks
 
 ### Foundation
-- [ ] **T01 App shell.**
+- [x] **T01 App shell.**
   - Bottom navigation with 4 tabs (Inicio, Historial, Familia, Ajustes; DESIGN.md "Components").
   - Splash screen 00 with the logo animation, a static final frame when `disableAnimations` is on.
   - Router guards: no session → welcome or sign-in; session without household → onboarding.
