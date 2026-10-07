@@ -24,6 +24,7 @@ import '../data/alertas_repositorio.dart';
 import '../domain/alerta.dart';
 import 'clip_evento.dart';
 import 'linea_de_tiempo.dart';
+import 'marcar_alerta.dart';
 
 /// Alert ids already opened in this run, so an active alert opens by itself only once (CA-16.4).
 class AlertasVistas extends Notifier<Set<String>> {
@@ -202,7 +203,11 @@ class _Alerta extends ConsumerWidget {
           ),
           child: SafeArea(
             top: false,
-            child: Boton('Marcar alerta', icono: Ico.check, alPresionar: () {}),
+            child: Boton(
+              'Marcar alerta',
+              icono: Ico.check,
+              alPresionar: () => marcarAlerta(context, alerta),
+            ),
           ),
         ),
       ),

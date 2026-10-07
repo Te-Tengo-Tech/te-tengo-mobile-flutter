@@ -12,7 +12,9 @@ import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
 import '../core/ui/avisos_flotantes.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
+import '../features/alertas/domain/alerta.dart';
 import '../features/camaras/data/camaras_repositorio.dart';
+import '../features/camaras/domain/camara.dart';
 import '../features/camaras/presentation/avisos_camara.dart';
 import '../features/hogar/data/hogar_repositorio.dart';
 import '../features/hogar/presentation/revocacion.dart';
@@ -125,6 +127,11 @@ class GestorPush {
                 alTocar: () => router.push(Rutas.alerta(id)),
               ),
             );
+      case TipoPush.alertaAtendida:
+        // CA-19.3: the others see who attended it and when.
+        final id = m.alertaId;
+        if (id == null || _enPantalla(router, Rutas.alerta(id))) break;
+        unawaited(_avisarAtendida(router, id));
       case TipoPush.datosEliminados:
         // CA-09.3: the revocation screen shows the recordings as deleted.
         _ref
@@ -148,6 +155,30 @@ class GestorPush {
             );
       default:
         break;
+    }
+  }
+
+  Future<void> _avisarAtendida(GoRouter router, String id) async {
+    try {
+      final a = await _ref.read(alertaProvider(id).future);
+      final quien = (a.atendidaPor ?? '').split(' ').first;
+      final cuando = a.atendidaEn ?? _ref.read(relojProvider)();
+      _ref
+          .read(avisoFlotanteProvider.notifier)
+          .mostrar(
+            AvisoFlotante(
+              tipo: TipoFlotante.enApp,
+              titulo: a.estado == EstadoAlerta.falsaAlarma
+                  ? '$quien la marcó como falsa alarma'
+                  : '$quien atendió la alerta',
+              texto:
+                  '${hora(cuando)} · ${a.tipo.nombre} '
+                  '${enHabitacion(a.habitacion)}.',
+              alTocar: () => router.push(Rutas.detalleAlerta(id)),
+            ),
+          );
+    } on Object {
+      // The alert list and the strip are refreshed anyway.
     }
   }
 

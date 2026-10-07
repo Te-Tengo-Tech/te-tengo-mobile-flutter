@@ -61,6 +61,12 @@ abstract interface class AlertasRepositorio {
   /// [descarga], the download disposition (CA-26.2). Errors: `404 CLIP_NO_DISPONIBLE` (CA-18.2),
   /// `410 CLIP_ELIMINADO` (CA-26.3).
   Future<EnlaceClip> clip(String id, {bool descarga = false});
+
+  /// `POST /api/alertas/{id}/atencion` (CA-19.1). Errors: `409 ALERTA_CERRADA`.
+  Future<Alerta> atender(String id);
+
+  /// `POST /api/alertas/{id}/falsa-alarma` (CA-19.2). Errors: `409 ALERTA_CERRADA`.
+  Future<Alerta> marcarFalsaAlarma(String id);
 }
 
 class AlertasRepositorioApi implements AlertasRepositorio {
@@ -92,6 +98,17 @@ class AlertasRepositorioApi implements AlertasRepositorio {
         );
         return EnlaceClip.desdeJson(r.data!);
       });
+
+  @override
+  Future<Alerta> atender(String id) => _marcar(id, 'atencion');
+
+  @override
+  Future<Alerta> marcarFalsaAlarma(String id) => _marcar(id, 'falsa-alarma');
+
+  Future<Alerta> _marcar(String id, String accion) => llamarApi(() async {
+    final r = await _dio.post<Map<String, dynamic>>('/api/alertas/$id/$accion');
+    return Alerta.desdeJson(r.data!);
+  });
 }
 
 final alertasRepositorioProvider = Provider<AlertasRepositorio>(
