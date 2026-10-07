@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/tema/colores.dart';
 import '../../app/tema/tema.dart';
 import 'aviso.dart';
+import 'avisos_flotantes.dart';
 import 'ilustraciones.dart';
 import 'iconos.dart';
 
@@ -180,52 +181,17 @@ class CirculoPaso extends StatelessWidget {
   );
 }
 
-/// Non-blocking notice (`.toast`): dark, with an icon, a title and an optional text.
+/// Non-blocking notice (`.toast`): dark, at the top, with an icon, a title and an optional text.
 void mostrarToast(
   BuildContext context, {
   required String titulo,
   String? texto,
   Ico icono = Ico.check,
   TonoAviso tono = TonoAviso.ok,
-}) {
-  final colorIcono = switch (tono) {
-    TonoAviso.ok => const Color(0xFF7FD9A8),
-    TonoAviso.advertencia => const Color(0xFFFFC76B),
-    _ => Colors.white,
-  };
-  final mensajero = ScaffoldMessenger.maybeOf(context);
-  if (mensajero == null) return;
-  mensajero
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        duration: const Duration(milliseconds: 3400),
-        content: Row(
-          children: [
-            Icono(icono, tamano: 22, color: colorIcono),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    titulo,
-                    style: estiloTexto(16, 700, color: Colors.white),
-                  ),
-                  if (texto != null && texto.isNotEmpty)
-                    Text(
-                      texto,
-                      style: estiloTexto(15, 400, color: Colors.white),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-}
+}) => mostrarAvisoFlotante(
+  context,
+  AvisoFlotante(titulo: titulo, texto: texto, icono: icono, tono: tono),
+);
 
 /// Setup header (`setupHead`): back button, title, «Paso N de 4» and the progress bar.
 class CabeceraConfiguracion extends StatelessWidget

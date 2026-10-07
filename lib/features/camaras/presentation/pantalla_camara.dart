@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
+import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
+import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
@@ -83,6 +85,8 @@ class _Detalle extends ConsumerWidget {
           estado: estado,
           ahora: ref.watch(relojProvider)(),
         ),
+        const SizedBox(height: 16),
+        ..._cuerpo(context, titular),
         const EncabezadoSeccion('Habitación'),
         ListaTarjeta(
           children: [
@@ -116,5 +120,69 @@ class _Detalle extends ConsumerWidget {
         ],
       ],
     );
+  }
+
+  /// What to do in each state (`S.camara`).
+  List<Widget> _cuerpo(BuildContext context, bool titular) {
+    final habitacion = camara.nombreHabitacion;
+    final senal = camara.ultimaSenal;
+    switch (estado) {
+      case EstadoVisible.detenida:
+        return [
+          Aviso(
+            tono: TonoAviso.error,
+            icono: Ico.lock,
+            titulo: 'Primero registra el consentimiento',
+            texto:
+                'La cámara está instalada, pero no envía video hasta que la '
+                'persona cuidada acepte el consentimiento informado.',
+            accion: titular
+                ? Boton(
+                    'Registrar consentimiento',
+                    pequeno: true,
+                    alPresionar: () => context.push(Rutas.consentimiento),
+                  )
+                : null,
+          ),
+        ];
+      case EstadoVisible.desconectada:
+        return [
+          Aviso(
+            tono: TonoAviso.advertencia,
+            icono: Ico.wifiOff,
+            titulo: senal == null
+                ? 'No recibimos señal'
+                : 'No recibimos señal desde las ${hora(senal)}',
+            texto:
+                'Mientras siga desconectada no detectamos caídas '
+                '${enHabitacion(habitacion)}. Te avisaremos cuando vuelva.',
+          ),
+          const EncabezadoSeccion('Qué revisar en la casa'),
+          const ListaTarjeta(
+            children: [
+              FilaLista(
+                inicio: IconoFila(Ico.cam),
+                titulo: 'El cable de la cámara',
+                subtitulo: 'Que esté bien conectado al puerto USB de la PC.',
+              ),
+              FilaLista(
+                inicio: IconoFila(Ico.pc),
+                titulo: 'La PC encendida',
+                subtitulo:
+                    'Que no esté apagada ni suspendida, con Te Tengo Captura '
+                    'abierto.',
+              ),
+              FilaLista(
+                inicio: IconoFila(Ico.wifi),
+                titulo: 'La conexión a internet',
+                subtitulo:
+                    'Que el módem o router de la casa tenga luz y funcione.',
+              ),
+            ],
+          ),
+        ];
+      default:
+        return const [];
+    }
   }
 }

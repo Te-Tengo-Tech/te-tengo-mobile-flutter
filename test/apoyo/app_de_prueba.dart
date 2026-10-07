@@ -8,6 +8,7 @@ import 'package:te_tengo/app/tema/tema.dart';
 import 'package:te_tengo/core/red/cliente_api.dart';
 import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
+import 'package:te_tengo/core/ui/avisos_flotantes.dart';
 
 import 'package:te_tengo/core/dispositivo/conectividad.dart';
 import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
@@ -31,7 +32,11 @@ Widget pantallaDePrueba(
     conectividadProvider.overrideWithValue(conectividad ?? ConectividadFalsa()),
     ...overrides,
   ],
-  child: MaterialApp(theme: temaTeTengo(), home: pantalla),
+  child: MaterialApp(
+    theme: temaTeTengo(),
+    home: pantalla,
+    builder: (context, hijo) => AnfitrionAvisos(child: hijo!),
+  ),
 );
 
 /// The whole app with its router, starting at [ubicacion].

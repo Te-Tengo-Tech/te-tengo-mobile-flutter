@@ -16,6 +16,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T08 Camera and room name (US-06):** screens 19–21 and 32. Camera ready step and camera detail with the full `Camara`, room rename with suggestions, preview and `PATCH /api/camaras/{id}` (`422` name errors, `403 SOLO_TITULAR`), owner-only with the read-only «Solo ver» treatment for invited members. The old camera list was replaced by the single-camera detail of the pilot.
 - **T09 Invite during onboarding (US-08):** screens 23 and 24. Setup step 4 with `POST /api/invitaciones` (own-email and `409 YA_ES_FAMILIAR` checks) and the «Todo listo» summary of camera, consent and family.
 - **T10 Home:** screens 25–27. Older adult status card with the color band of each state, camera row with icon and text and the «Ver en vivo» row, the disabled-notifications notice with `permission_handler` (CA-16.3) and the no-internet bar on every tab with `connectivity_plus`.
+- **T11 Connection status (US-07):** screens 28–31. Camera detail with icon-and-text status, «Qué revisar en la casa» (cable, PC on and internet) when disconnected, the in-app disconnection notice that opens the camera and the reconnection toast. Toasts and in-app notices now float at the top, as in the prototype.
 ### Changed
 - Documentation translated to English.
 

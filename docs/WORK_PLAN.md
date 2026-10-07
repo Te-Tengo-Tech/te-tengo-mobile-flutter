@@ -55,7 +55,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
   - Older adult status card with the color band.
   - Camera row and «Ver en vivo» row.
   - Banners for disabled notifications (CA-16.3) and no internet.
-- [ ] **T11 US-07 Connection status:** screens 28–31. Status with icon and text; «what to check» (cable, PC on, internet); reconnected notice.
+- [x] **T11 US-07 Connection status:** screens 28–31. Status with icon and text; «what to check» (cable, PC on, internet); reconnected notice.
 - [ ] **T12 Push foundation (US-16 CA-16.2):**
   - A `NotificacionesPush` interface with a fake implementation.
   - Device registration (`POST` and `DELETE /api/dispositivos`).
