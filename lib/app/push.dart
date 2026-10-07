@@ -166,6 +166,16 @@ class GestorPush {
               habitacion: habitacion,
               cuando: m.ocurridaEn ?? _ref.read(relojProvider)(),
             );
+      case TipoPush.deteccionNoConfiable:
+        _ref
+            .read(avisosCamaraProvider)
+            .noConfiable(
+              habitacion: habitacion,
+              nombre: _ref.read(nombreAdultoMayorProvider) ?? '',
+              abrir: m.camaraId == null
+                  ? null
+                  : () => router.push(Rutas.camara(m.camaraId!)),
+            );
       case TipoPush.pausaFinalizada:
         _ref
             .read(avisosCamaraProvider)

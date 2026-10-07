@@ -28,6 +28,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T20 Alert order and wait time (US-10):** screens 62–65 and 72. Familia tab with each member's role, «Orden de aviso» with `GET`/`PUT /api/hogar/aviso`: primary and secondary contact (swap and removal), 3, 5 (default) or 10 minutes with the example time, the single-member case and the no-secondary warning; read-only for invited members. The alert record names the primary contact.
 - **T21 Escalation views (US-20):** screens 58 and 59. The alert shows when and to whom it escalates, the escalated and no-secondary notices with «Agregar contacto secundario» for the owner, and foreground `ALERTA_ESCALADA`/`SIN_CONTACTO_SECUNDARIO` notices.
 - **T22 Pause camera (US-22):** screens 33–35. Pause sheet with 30 min, 1 h, 2 h and «Hasta mañana» (`POST /api/camaras/{id}/pausa`), paused state with the end time in the camera detail and home, «Reanudar ahora» (`DELETE`), and the `PAUSA_FINALIZADA` notice.
+- **T23 Unreliable detection (US-15):** screens 36 and 37. Foreground `DETECCION_NO_CONFIABLE` notice that opens the camera, and the camera detail with what to check (light and framing).
 ### Changed
 - Documentation translated to English.
 

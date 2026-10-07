@@ -10,6 +10,7 @@ class Camara {
     this.pausadaHasta,
     this.deteccionConfiable = true,
     this.instaladaEn,
+    this.noConfiableDesde,
   });
 
   final String id;
@@ -26,6 +27,9 @@ class Camara {
   /// Installation date; not in the contract (docs/BLOCKERS.md), read when present.
   final DateTime? instaladaEn;
 
+  /// Since when detection is unreliable; not in the contract (docs/BLOCKERS.md), read when present.
+  final DateTime? noConfiableDesde;
+
   bool get enPausa => pausadaHasta != null;
 
   factory Camara.desdeJson(Map<String, dynamic> json) => Camara(
@@ -36,6 +40,7 @@ class Camara {
     pausadaHasta: fechaDesdeJson(json['pausadaHasta']),
     deteccionConfiable: json['deteccionConfiable'] as bool? ?? true,
     instaladaEn: fechaDesdeJson(json['instaladaEn']),
+    noConfiableDesde: fechaDesdeJson(json['noConfiableDesde']),
   );
 
   /// State shown to the family. Precedence of the prototype (`camState`): without consent the camera
