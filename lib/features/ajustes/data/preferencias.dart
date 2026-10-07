@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/cache/cache_local.dart';
 
 /// What this phone is told about (screen 96). Falls and camera state are always on.
 class PreferenciasNotificaciones {
@@ -40,8 +44,37 @@ class AlmacenPreferenciasMemoria implements AlmacenPreferencias {
       _actual = preferencias;
 }
 
+/// Kept in the local database under a phone key, so signing out does not reset them.
+class AlmacenPreferenciasLocal implements AlmacenPreferencias {
+  AlmacenPreferenciasLocal(this._cache);
+
+  final CacheLocal _cache;
+  static const _clave = '${deDispositivo}preferencias';
+
+  @override
+  Future<PreferenciasNotificaciones> cargar() async {
+    try {
+      final guardado = await _cache.leer(_clave);
+      if (guardado == null) return const PreferenciasNotificaciones();
+      final json = jsonDecode(guardado) as Map<String, dynamic>;
+      return PreferenciasNotificaciones(
+        inestables: json['inestables'] as bool? ?? true,
+        finPausa: json['finPausa'] as bool? ?? true,
+      );
+    } on Object {
+      return const PreferenciasNotificaciones();
+    }
+  }
+
+  @override
+  Future<void> guardar(PreferenciasNotificaciones p) => _cache.guardar(
+    _clave,
+    jsonEncode({'inestables': p.inestables, 'finPausa': p.finPausa}),
+  );
+}
+
 final almacenPreferenciasProvider = Provider<AlmacenPreferencias>(
-  (ref) => AlmacenPreferenciasMemoria(),
+  (ref) => AlmacenPreferenciasLocal(ref.watch(cacheLocalProvider)),
 );
 
 class PreferenciasController extends AsyncNotifier<PreferenciasNotificaciones> {

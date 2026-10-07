@@ -87,7 +87,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 - [x] **T29 US-26 Recordings:** screens 89–91. Playback, download, removed by retention.
 - [x] **T30 US-27 Weekly summary:** screens 92 and 93. Counts by type and the trend against the previous week (amber for increases in falls or unstable movement, green for decreases).
 - [x] **T31 Settings:** screens 94 and 96. Notification preferences, privacy entry point.
-- [ ] **T32 Local cache:**
+- [x] **T32 Local cache:**
   - `drift` (SQLite) for the latest alerts, the viewed history, camera status and preferences (architecture: «Base de datos local del cliente»).
   - Show cached data when offline.
 - [ ] **T33 Hardening.**

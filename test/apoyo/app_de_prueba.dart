@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:te_tengo/app/app.dart';
 import 'package:te_tengo/app/router.dart';
 import 'package:te_tengo/app/tema/tema.dart';
+import 'package:te_tengo/core/cache/cache_local.dart';
 import 'package:te_tengo/core/red/cliente_api.dart';
 import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
@@ -32,6 +33,7 @@ Widget pantallaDePrueba(
   overrides: [
     almacenSesionProvider.overrideWithValue(AlmacenSesionMemoria(sesion)),
     adaptadorHttpProvider.overrideWithValue(AdaptadorFalso()),
+    cacheLocalProvider.overrideWithValue(CacheMemoria()),
     permisoNotificacionesProvider.overrideWithValue(permiso ?? PermisoFalso()),
     conectividadProvider.overrideWithValue(conectividad ?? ConectividadFalsa()),
     ...overrides,
@@ -53,6 +55,8 @@ Widget appDePrueba({
   Conectividad? conectividad,
   NotificacionesPush? push,
   DispositivosRepositorio? dispositivos,
+  CacheLocal? cache,
+  AdaptadorFalso? http,
 }) => ProviderScope(
   retry: (_, _) => null,
   overrides: [
@@ -65,7 +69,8 @@ Widget appDePrueba({
     dispositivosRepositorioProvider.overrideWithValue(
       dispositivos ?? DispositivosFalsos(),
     ),
-    adaptadorHttpProvider.overrideWithValue(AdaptadorFalso()),
+    adaptadorHttpProvider.overrideWithValue(http ?? AdaptadorFalso()),
+    cacheLocalProvider.overrideWithValue(cache ?? CacheMemoria()),
     permisoNotificacionesProvider.overrideWithValue(permiso ?? PermisoFalso()),
     conectividadProvider.overrideWithValue(conectividad ?? ConectividadFalsa()),
     ubicacionInicialProvider.overrideWithValue(ubicacion),

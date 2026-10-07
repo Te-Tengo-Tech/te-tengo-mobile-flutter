@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../cache/cache_local.dart';
+import '../cache/interceptor_cache.dart';
 import '../configuracion.dart';
 import '../sesion/almacen_sesion.dart';
 import '../sesion/sesion_controller.dart';
@@ -33,6 +35,12 @@ final clienteApiProvider = Provider<Dio>((ref) {
       refresco: refresco,
       alCambiar: (sesion) =>
           ref.read(sesionControllerProvider.notifier).actualizada(sesion),
+    ),
+  );
+  dio.interceptors.add(
+    InterceptorCache(
+      cache: ref.watch(cacheLocalProvider),
+      hogarId: () => almacen.actual?.hogarId,
     ),
   );
   return dio;
