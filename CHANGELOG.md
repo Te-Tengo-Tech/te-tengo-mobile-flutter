@@ -18,6 +18,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T10 Home:** screens 25–27. Older adult status card with the color band of each state, camera row with icon and text and the «Ver en vivo» row, the disabled-notifications notice with `permission_handler` (CA-16.3) and the no-internet bar on every tab with `connectivity_plus`.
 - **T11 Connection status (US-07):** screens 28–31. Camera detail with icon-and-text status, «Qué revisar en la casa» (cable, PC on and internet) when disconnected, the in-app disconnection notice that opens the camera and the reconnection toast. Toasts and in-app notices now float at the top, as in the prototype.
 - **T12 Push foundation (US-16 CA-16.2):** `NotificacionesPush` interface with a `firebase_messaging` implementation (inactive until a Firebase project exists) and a test fake, device registration with `POST` and `DELETE /api/dispositivos` (on sign-in, token refresh and sign-out), routing of every contract push `tipo` to its screen, and in-app handling of camera pushes.
+- **T13 Fall alert (US-16):** screens 44–48. Full-screen red alert with severity tag, headline, room, time and elapsed time, «Llamar» and «Ver en vivo», «Qué hacer ahora» and the alert record; the active alert (`GET /api/alertas?estado=ACTIVA`) opens by itself, shows the failed-notification notice when `notificadaEn` is null (CA-16.4), and appears as a strip, a home card state and a badge on Historial.
 ### Changed
 - Documentation translated to English.
 

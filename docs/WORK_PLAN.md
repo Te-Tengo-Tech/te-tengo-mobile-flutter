@@ -61,7 +61,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
   - Device registration (`POST` and `DELETE /api/dispositivos`).
   - Routing from push `tipo` (contract §7) to screens.
   - The `firebase_messaging` implementation goes behind the interface. Real setup is blocked until a Firebase project exists; see BLOCKERS.
-- [ ] **T13 US-16 Fall alert:** screens 44–48.
+- [x] **T13 US-16 Fall alert:** screens 44–48.
   - Full-screen red alert: room, time, elapsed time, call button, «Qué hacer ahora».
   - An active alert is visible on open even if the push failed (CA-16.4).
 - [ ] **T14 US-13 Confirmation chip:** screen 46. «Comprobando si sigue en el suelo» → «Sigue en el suelo · confirmada».

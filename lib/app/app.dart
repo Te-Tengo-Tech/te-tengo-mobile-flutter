@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/dispositivo/permiso_notificaciones.dart';
 import '../core/ui/avisos_flotantes.dart';
+import '../features/alertas/data/alertas_repositorio.dart';
 import 'push.dart';
 import 'router.dart';
 import 'tema/tema.dart';
@@ -25,7 +26,9 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
     super.initState();
     // Notification permission can change in the system settings while the app is in background.
     _ciclo = AppLifecycleListener(
-      onResume: () => ref.invalidate(notificacionesActivasProvider),
+      onResume: () => ref
+        ..invalidate(notificacionesActivasProvider)
+        ..invalidate(alertaActivaProvider),
     );
     unawaited(ref.read(gestorPushProvider).iniciar());
   }

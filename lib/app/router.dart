@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
 import '../features/ajustes/presentation/pantalla_ajustes.dart';
+import '../features/alertas/presentation/pantalla_alerta.dart';
 import '../features/arranque/pantalla_arranque.dart';
 import '../features/camaras/presentation/pantalla_camara.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
@@ -131,7 +132,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         builder: (context, state, navegacion) => ShellPestanas(
           navegacion: navegacion,
-          encima: const [BarraSinInternet()],
+          encima: const [BarraSinInternet(), FranjaAlertaActiva()],
         ),
         branches: [
           StatefulShellBranch(
@@ -171,7 +172,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/alerta/:id',
-        builder: (context, state) => const PantallaPendiente('Alerta'),
+        builder: (context, state) =>
+            PantallaAlerta(alertaId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/alertas/:id',
