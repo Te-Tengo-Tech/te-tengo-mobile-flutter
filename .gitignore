@@ -49,3 +49,6 @@ app.*.map.json
 /ios/Runner/GoogleService-Info.plist
 /lib/firebase_options.dart
 /firebase.json
+
+# Golden test diffs written when a golden comparison fails
+test/**/failures/
