@@ -8,6 +8,7 @@ import '../features/ajustes/presentation/pantalla_ajustes.dart';
 import '../features/arranque/pantalla_arranque.dart';
 import '../features/camaras/presentation/pantalla_camara.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
+import '../features/familia/presentation/pantallas_configuracion_familia.dart';
 import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
 import '../features/hogar/presentation/pantalla_persona_setup.dart';
 import '../features/inicio/presentation/pantalla_inicio.dart';
@@ -107,7 +108,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.configFamilia,
-        builder: (context, state) => const PantallaPendiente('Familia'),
+        builder: (context, state) => const PantallaInvitarSetup(),
+      ),
+      GoRoute(
+        path: Rutas.configListo,
+        builder: (context, state) =>
+            PantallaTodoListo(invitado: state.uri.queryParameters['invitado']),
       ),
       GoRoute(
         path: Rutas.consentimiento,
