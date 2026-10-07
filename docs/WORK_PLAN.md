@@ -64,7 +64,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 - [x] **T13 US-16 Fall alert:** screens 44–48.
   - Full-screen red alert: room, time, elapsed time, call button, «Qué hacer ahora».
   - An active alert is visible on open even if the push failed (CA-16.4).
-- [ ] **T14 US-13 Confirmation chip:** screen 46. «Comprobando si sigue en el suelo» → «Sigue en el suelo · confirmada».
+- [x] **T14 US-13 Confirmation chip:** screen 46. «Comprobando si sigue en el suelo» → «Sigue en el suelo · confirmada».
 - [ ] **T15 US-17 Unstable movement:** screens 49–52. Amber, medium severity; never shares color, icon or label with a fall; update when it becomes a fall (CA-17.3).
 - [ ] **T16 US-18 Clip:** screens 47 and 53. `GET /api/alertas/{id}/clip` with `video_player`; «video no disponible» on `404`.
 
