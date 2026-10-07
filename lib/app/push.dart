@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -100,6 +101,8 @@ class GestorPush {
           .read(dispositivosRepositorioProvider)
           .registrar(tokenPush: token, plataforma: _push.plataforma);
       _registrado = clave;
+      // To send a test message from the Firebase console (docs/FIREBASE.md).
+      if (kDebugMode) debugPrint('Token de push: $token');
     } on Object {
       // Retried on the next session change or token refresh.
     }
