@@ -1,38 +1,38 @@
 # te-tengo-mobile-flutter
 
-App móvil **Te Tengo** del familiar/cuidador: alertas de caída y de movimiento inestable, clip del evento, vista en vivo, cámara, consentimiento, familia e historial.
+**Te Tengo** mobile app for family members and caregivers: fall and unstable-movement alerts, the event clip, live view, camera, consent, family and history.
 
-| Stack | Versión |
+| Stack | Version |
 |---|---|
 | Flutter | 3.44.8 (Dart 3.12) |
-| Estado y navegación | Riverpod 3 · go_router 18 |
+| State and navigation | Riverpod 3 · go_router 18 |
 | HTTP | Dio 5 |
 
-## Puesta en marcha
+## Getting started
 ```bash
 flutter pub get
-flutter run --dart-define=TT_API_URL=http://10.0.2.2:8080   # backend local desde el emulador Android
+flutter run --dart-define=TT_API_URL=http://10.0.2.2:8080   # local backend from the Android emulator
 ```
 
-## Calidad
+## Quality
 ```bash
+dart format lib test
 flutter analyze
 flutter test
-dart format lib test
 ```
 
-## Documentación
-| Documento | Contenido |
+## Documentation
+| Document | Content |
 |---|---|
-| [AGENTS.md](AGENTS.md) | Reglas del repositorio, para personas y agentes de IA |
-| [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) | Estructura por funcionalidad y plan |
-| [docs/referencias/](docs/referencias/) | DESIGN.md, PRODUCT.md y el product backlog (copias) |
+| [AGENTS.md](AGENTS.md) | Repository rules for people and AI agents |
+| [docs/WORK_PLAN.md](docs/WORK_PLAN.md) | Ordered task checklist (stories ↔ screens) and the autonomous loop |
+| [docs/API_CONTRACT.md](docs/API_CONTRACT.md) | Backend API shared with `te-tengo-general-api` |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Feature-first structure and patterns |
+| [docs/references/](docs/references/) | 103 prototype screens, the prototype HTML, DESIGN.md, PRODUCT.md and the product backlog (Spanish sources) |
 
-## Trabajar con Claude Code en la nube
-`CLAUDE.md` importa `AGENTS.md`, y el hook `SessionStart` instala Flutter 3.44.8, porque la imagen no lo trae.
+## Claude Code in the cloud
+`CLAUDE.md` imports `AGENTS.md`, a `SessionStart` hook installs Flutter 3.44.8, and the `/work` command runs the work-plan loop. Open a cloud session on this repository and type `/work`.
 
 ---
 
-Proyecto de tesis, Ingeniería de Software, UPC. Autores: Jhosepmyr Gutierrez Soto y Elmer Riva Rodriguez.
-
-Tipografía Atkinson Hyperlegible: SIL Open Font License (`assets/fonts/OFL.txt`).
+Thesis project, Software Engineering, Universidad Peruana de Ciencias Aplicadas (UPC). Authors: Jhosepmyr Gutierrez Soto and Elmer Riva Rodriguez. Atkinson Hyperlegible typeface: SIL Open Font License (`assets/fonts/OFL.txt`).

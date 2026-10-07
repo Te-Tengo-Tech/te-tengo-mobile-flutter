@@ -19,9 +19,9 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - name: Formato
+      - name: Format
         run: dart format --output=none --set-exit-if-changed lib test
-      - name: Análisis
+      - name: Analyze
         run: flutter analyze
-      - name: Pruebas
+      - name: Test
         run: flutter test

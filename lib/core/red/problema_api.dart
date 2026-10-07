@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-/// Error del backend en formato RFC 9457 (`ProblemDetail`) con su `codigo` estable.
+/// Backend error in RFC 9457 format (`ProblemDetail`) with its stable `codigo`.
 class ProblemaApi implements Exception {
   const ProblemaApi({required this.codigo, required this.detalle, this.estado});
 

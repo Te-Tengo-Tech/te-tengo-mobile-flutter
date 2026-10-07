@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/tema/colores.dart';
 import '../domain/camara.dart';
 
-/// Estado de la cámara con icono, texto y color: el estado nunca depende solo del color.
+/// Camera status with icon, text and color: status never depends on color alone.
 class EstadoCamara extends StatelessWidget {
   const EstadoCamara({super.key, required this.estado});
 

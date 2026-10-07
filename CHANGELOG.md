@@ -1,11 +1,17 @@
-# Registro de cambios
+# Changelog
 
-Formato basado en [Keep a Changelog 1.1.0](https://keepachangelog.com/es-ES/1.1.0/).
+Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+### Added
+- Shared API contract with the backend (`docs/API_CONTRACT.md`), the work plan with its autonomous loop (`docs/WORK_PLAN.md`) and the `/work` command.
+- The 103 prototype screens and the prototype HTML as visual references.
+### Changed
+- Documentation translated to English.
 
 ## [0.1.0] - 2026-10-07
-### Agregado
-- **Base de la app:** Flutter 3.44.8 con Riverpod 3, go_router, Dio y almacenamiento seguro del token.
-- **Tema con los tokens de DESIGN.md:** colores semánticos y de marca, Atkinson Hyperlegible y radios de 22 y 16.
-- **Cliente del backend:** cabecera `Api-Version`, token de sesión y errores RFC 9457 (`ProblemaApi`).
-- **Funcionalidad de referencia `camaras`:** lista con estado en icono y texto, y cambio del nombre de la habitación con sugerencias, vista previa y validación (US-06 y US-07), con pruebas.
-- **Preparación para Claude Code en la nube** y CI.
+### Added
+- **App base:** Flutter 3.44.8 with Riverpod 3, go_router, Dio and secure token storage.
+- **Theme from the DESIGN.md tokens:** semantic and brand colors, Atkinson Hyperlegible, radii of 22 and 16.
+- **Backend client:** `Api-Version` header, session token and RFC 9457 errors (`ProblemaApi`).
+- **Reference feature `camaras`:** list with icon-and-text status, and room rename with suggestions, preview and validation (US-06, US-07), with tests.

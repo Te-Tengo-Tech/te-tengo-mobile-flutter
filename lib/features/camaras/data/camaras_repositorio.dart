@@ -5,7 +5,7 @@ import '../../../core/red/cliente_api.dart';
 import '../../../core/red/problema_api.dart';
 import '../domain/camara.dart';
 
-/// Acceso a las cámaras del hogar de la sesión.
+/// Access to the cameras of the session household.
 abstract interface class CamarasRepositorio {
   Future<List<Camara>> listar();
 

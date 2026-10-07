@@ -4,7 +4,7 @@ import 'colores.dart';
 
 const _fuente = 'AtkinsonHyperlegibleNext';
 
-/// Fuente monoespaciada para horas y datos tabulares (10:42).
+/// Monospaced font for times and tabular data (10:42).
 const fuenteMono = 'AtkinsonHyperlegibleMono';
 
 TextStyle _peso(double tamano, double peso, {Color color = Colores.tinta}) =>
@@ -15,7 +15,7 @@ TextStyle _peso(double tamano, double peso, {Color color = Colores.tinta}) =>
       fontVariations: [FontVariation('wght', peso)],
     );
 
-/// Tema de la app: base neutra y serena; el color semántico solo aparece cuando algo pide atención.
+/// App theme: calm neutral base; semantic color appears only when something needs attention.
 ThemeData temaTeTengo() {
   final esquema = ColorScheme.fromSeed(
     seedColor: Colores.morado,

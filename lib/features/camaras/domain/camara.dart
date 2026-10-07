@@ -1,4 +1,4 @@
-/// Cámara del hogar (mismo modelo que el módulo `camaras` del backend).
+/// Household camera (same model as the backend `camaras` module).
 class Camara {
   const Camara({
     required this.id,

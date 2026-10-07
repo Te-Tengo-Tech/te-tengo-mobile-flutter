@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Inicio provisional: la tarjeta de estado del adulto mayor llega con las historias del Sprint 3.
+/// Temporary home screen: the older adult status card arrives with the Sprint 3 stories.
 class PantallaInicio extends StatelessWidget {
   const PantallaInicio({super.key});
 

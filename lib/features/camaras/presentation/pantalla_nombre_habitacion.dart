@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/red/problema_api.dart';
 import '../data/camaras_repositorio.dart';
 
-/// US-06 / CA-06.2 y CA-06.3: cambiar el nombre de la habitación; vacío no se permite.
+/// US-06 / CA-06.2 and CA-06.3: rename the room; empty names are rejected.
 class PantallaNombreHabitacion extends ConsumerStatefulWidget {
   const PantallaNombreHabitacion({
     super.key,
@@ -16,7 +16,7 @@ class PantallaNombreHabitacion extends ConsumerStatefulWidget {
   final String camaraId;
   final String nombreActual;
 
-  /// Sugerencias del diseño.
+  /// Suggestions from the design.
   static const sugerencias = [
     'Sala',
     'Sala comedor',

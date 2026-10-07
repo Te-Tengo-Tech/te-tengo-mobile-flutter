@@ -61,7 +61,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # Atkinson Hyperlegible (SIL Open Font License, assets/fonts/OFL.txt): tipografía del diseño.
+  # Atkinson Hyperlegible (SIL Open Font License, assets/fonts/OFL.txt): the design typeface.
   fonts:
     - family: AtkinsonHyperlegibleNext
       fonts:

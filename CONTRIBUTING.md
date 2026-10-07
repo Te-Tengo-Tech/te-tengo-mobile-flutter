@@ -1,6 +1,6 @@
-# Cómo contribuir
+# Contributing
 
-1. **Rama desde `main`:** `feat/<funcionalidad>-<tema>`.
-2. **Antes de subir:** `dart format lib test`, `flutter analyze` (sin avisos) y `flutter test`.
-3. **Commits** en [Conventional Commits 1.0.0](https://www.conventionalcommits.org/es/v1.0.0/) y en español, **sin línea de coautor**.
-4. **Pull request** hacia `main`; la CI repite el análisis y las pruebas.
+1. **Branch from `main`:** `feat/<feature>-<topic>`.
+2. **Before pushing:** `dart format lib test`, `flutter analyze` (no issues) and `flutter test`.
+3. **Commits:** [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) in English, **no co-author line**.
+4. **Pull request** to `main`; CI repeats analysis and tests.

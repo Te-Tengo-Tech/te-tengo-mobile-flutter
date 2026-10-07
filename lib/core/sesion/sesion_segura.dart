@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Token de sesión en el almacenamiento seguro del sistema operativo (Keychain / Keystore).
+/// Session token in the operating system secure storage (Keychain / Keystore).
 ///
-/// El token trae el claim `hogar_id`: el backend filtra todo por ese hogar, así que la app nunca envía
-/// el hogar por su cuenta (multi-tenancy del backend).
+/// The token carries the `hogar_id` claim: the backend filters everything by that household, so the
+/// app never sends the household itself (backend multi-tenancy).
 class SesionSegura {
   SesionSegura(this._almacen);
 

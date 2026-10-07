@@ -1,61 +1,70 @@
 # AGENTS.md
 
-## Propósito
-App móvil **Te Tengo** del familiar/cuidador. Es el contenedor «Aplicación del familiar/cuidador» del modelo C4. Permite:
-- recibir alertas de caída y de movimiento inestable;
-- ver el clip y la vista en vivo;
-- gestionar la cámara, el consentimiento, la familia y el historial.
+## Purpose
+Mobile app **Te Tengo** for family members and caregivers. This repository is the "Aplicación del familiar/cuidador" container of the C4 model. The app lets them:
+- receive fall and unstable-movement alerts;
+- watch the event clip and the live view;
+- manage the camera, consent, family and history.
 
-Habla con el backend `te-tengo-general-api` por HTTPS/REST, con la cabecera `Api-Version: 1`.
+It talks to `te-tengo-general-api` over HTTPS/REST with `Api-Version: 1`.
 
-Lee antes de cambiar algo:
-- [docs/referencias/DESIGN.md](docs/referencias/DESIGN.md): tokens, tipografía, componentes, accesibilidad y textos exactos. **La interfaz debe seguirlo.**
-- [docs/referencias/PRODUCT.md](docs/referencias/PRODUCT.md): usuarios, flujos y reglas (titular frente a familiar invitado, solo lectura).
-- [docs/referencias/PRODUCT_BACKLOG.md](docs/referencias/PRODUCT_BACKLOG.md): historias y criterios. Cada criterio Dado/Cuando/Entonces se convierte en una prueba.
-- [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md): estructura por funcionalidad y patrones.
+## Where to look
+| Question | Source |
+|---|---|
+| What to build, and in which order | [docs/WORK_PLAN.md](docs/WORK_PLAN.md) — a checklist that maps every task to stories **and screens**; follow its autonomous loop |
+| Exact backend API (paths, JSON, error codes, push types) | [docs/API_CONTRACT.md](docs/API_CONTRACT.md) — **shared with the backend; consume it exactly** |
+| How each screen must look | `docs/references/screens/NN-name.png` (103 prototype screens). **Open the images: they are the visual reference.** |
+| Exact UI copy and structure | `docs/references/prototype/prototipo.html` (search for the screen title) |
+| Tokens, typography, components, accessibility | `docs/references/DESIGN.md` |
+| Product rules (owner vs invited member, read-only) | `docs/references/PRODUCT.md` |
+| Acceptance criteria (Given/When/Then) | `docs/references/PRODUCT_BACKLOG.md` |
+| Folder layout and patterns | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the reference feature `lib/features/camaras` |
 
-## Dónde guiarte
-- **Qué hacer y en qué orden:** [docs/PLAN_DE_TRABAJO.md](docs/PLAN_DE_TRABAJO.md), que relaciona historias, pantallas y sprints.
-- **Cómo debe verse:** las **103 pantallas del prototipo** en `docs/referencias/pantallas/NN-nombre.png`. Ábrelas: son la referencia visual. Los textos exactos y la estructura están en `docs/referencias/prototipo/prototipo.html` (busca el título de la pantalla).
-- **Cómo debe comportarse:** los criterios de aceptación en `docs/referencias/PRODUCT_BACKLOG.md`.
+The files under `docs/references/` are Spanish source documents from the thesis.
 
 ## Stack
-- **Flutter 3.44.8 y Dart 3.12.** Plataformas: Android e iOS.
-- **Riverpod 3** (estado e inyección), **go_router** (navegación), **Dio** (HTTP) y **flutter_secure_storage** (token).
-- **Pendientes,** con sus historias:
-  - `firebase_messaging` para las notificaciones push (requiere un proyecto Firebase);
-  - `drift` para la base de datos local (SQLite);
-  - `flutter_webrtc` o WebSocket para la vista en vivo;
-  - `video_player` para los clips.
+- **Flutter 3.44.8, Dart 3.12.** Targets: Android and iOS.
+- **Riverpod 3** (state and DI), **go_router** (navigation), **Dio** (HTTP) and **flutter_secure_storage** (token).
+- **Added by the tasks that need them:**
+  - `firebase_messaging` for push (needs a Firebase project; see BLOCKERS);
+  - `drift` for the local SQLite cache;
+  - `video_player` for clips;
+  - `web_socket_channel` for the live view.
 
-## Estructura
-```
-lib/
-├── app/          app.dart, router.dart y tema/ (colores.dart: tokens de DESIGN.md; tema.dart)
-├── core/         configuracion.dart (TT_API_URL), red/ (cliente Dio, ProblemaApi) y sesion/ (token seguro)
-└── features/     una carpeta por funcionalidad, con data/ (repositorio), domain/ (modelo) y presentation/ (pantallas y widgets)
-    └── camaras/  FUNCIONALIDAD DE REFERENCIA: copiar su estructura
-```
+## Rules
+- **UI language:** all user-facing text is **Spanish (Peru)**, copied from the prototype or DESIGN.md. Never show story IDs or prototype labels. Code identifiers follow the domain language (Spanish, matching the API); comments, docs and commits are **English**.
+- **Design:**
+  - Colors come from `Colores` only, never hard-coded.
+  - Red (`caida`) and amber (`inestable`, `aviso`) are reserved for real events.
+  - **Status is never shown by color alone:** always icon + text (`EstadoCamara`).
+- **Accessibility:**
+  - body text ≥ 16, touch targets ≥ 44 px;
+  - AA contrast (AAA on alert data);
+  - honor `MediaQuery.disableAnimations`.
+- **Typography:** Atkinson Hyperlegible Next everywhere; Atkinson Hyperlegible Mono (`fuenteMono`) for times and data.
+- **Multi-tenancy:** the session token carries `hogar_id`, and the backend filters by it. **The app never sends a household id**, except in `POST /api/sesiones/hogar` when switching households.
+- **Errors:** backend errors arrive as `ProblemaApi` with a stable `codigo` (RFC 9457). Show `detalle`; branch on `codigo`.
+- **Roles:**
+  - `INVITADO` sees the same alerts, clips, live view, history and summary as `TITULAR`;
+  - it can mark alerts and pause the camera;
+  - **it cannot edit** the profile, consent, camera name, family or alert order. Show the read-only treatment from DESIGN.md: lock icon, «Solo ver».
+- **Tests:**
+  - every screen gets widget tests with a fake repository (`overrideWithValue`), one per acceptance criterion;
+  - repositories get unit tests against a mocked Dio;
+  - no real network calls in tests.
 
-## Reglas
-- **Diseño:** los colores salen de `Colores` y nunca se escriben a mano. El rojo (`caida`) y el ámbar (`inestable`, `aviso`) se reservan para eventos reales, y **el estado nunca se muestra solo con color**: siempre con icono y texto (`EstadoCamara` es el ejemplo).
-- **Accesibilidad:** el cuerpo del texto mide al menos 16, los objetivos táctiles al menos 44 px, el contraste es AA (AAA en los datos de alerta) y se respeta `prefers-reduced-motion` (`MediaQuery.disableAnimations`).
-- **Tipografía:** Atkinson Hyperlegible Next en toda la interfaz; Atkinson Hyperlegible Mono (`fuenteMono`) para horas y datos.
-- **Textos de la interfaz** en español peruano, copiados de DESIGN.md y PRODUCT.md cuando existan. Nunca se muestran IDs de historias ni etiquetas de prototipo.
-- **Multi-tenancy:** el token de la sesión trae el claim `hogar_id` y el backend filtra todo por ese hogar. **La app nunca envía el hogar por su cuenta.** Si un usuario pertenece a varios hogares, cambiar de hogar significa pedir un token para ese hogar.
-- **Errores del backend:** llegan como `ProblemaApi`, con un `codigo` estable (RFC 9457). Se muestra `detalle` y se decide por `codigo`, no por el texto.
-- **Pruebas:** cada pantalla nueva necesita pruebas de widgets con un repositorio falso (`overrideWithValue`), una por criterio de aceptación. Nada de llamadas reales en las pruebas.
-
-## Comandos
-| Comando | Qué hace |
+## Commands
+| Command | Purpose |
 |---|---|
-| `flutter pub get` | Dependencias |
-| `flutter analyze` | Lint (debe quedar sin avisos) |
-| `flutter test` | Pruebas unitarias y de widgets |
-| `dart format lib test` | Formatear |
-| `flutter run --dart-define=TT_API_URL=http://10.0.2.2:8080` | Ejecutar contra el backend local (emulador Android) |
+| `flutter pub get` | Dependencies |
+| `dart format lib test` | Format |
+| `flutter analyze` | Lint (must report no issues) |
+| `flutter test` | Unit and widget tests |
+| `flutter run --dart-define=TT_API_URL=http://10.0.2.2:8080` | Run against the local backend (Android emulator) |
 
-## Acuerdos para agentes
-- **Antes de una pantalla nueva,** abre la funcionalidad `camaras` y copia su estructura, sus providers y la forma de sus pruebas.
-- **Cita la historia y el criterio** en el comentario de la pantalla (por ejemplo, `US-06 / CA-06.3`).
-- **Commits en Conventional Commits y en español,** sin línea de coautor.
+## Definition of done (every task)
+1. **The screens match their PNG references**: layout, order, states and Spanish copy.
+2. **The API calls match `docs/API_CONTRACT.md`** exactly.
+3. **Every acceptance criterion is covered by a test.**
+4. **`dart format`, `flutter analyze` (no issues) and `flutter test` pass.**
+5. **One Conventional Commit per task,** in English and with no co-author line (e.g. `feat(sesion): sign-in with lockout message (US-02)`), and the task is checked off in `docs/WORK_PLAN.md`.

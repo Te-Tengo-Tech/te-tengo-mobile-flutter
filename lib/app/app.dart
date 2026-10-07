@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'tema/tema.dart';
 
-/// Aplicación del familiar/cuidador (contenedor «Aplicación del familiar/cuidador» del modelo C4).
+/// Family member / caregiver app (the "Aplicación del familiar/cuidador" container of the C4 model).
 class TeTengoApp extends ConsumerWidget {
   const TeTengoApp({super.key});
 

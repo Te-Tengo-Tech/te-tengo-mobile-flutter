@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../configuracion.dart';
 import '../sesion/sesion_segura.dart';
 
-/// Cliente HTTP del backend: base URL, cabecera `Api-Version` y token de la sesión.
+/// Backend HTTP client: base URL, `Api-Version` header and session token.
 final clienteApiProvider = Provider<Dio>((ref) {
   final sesion = ref.watch(sesionSeguraProvider);
   final dio = Dio(

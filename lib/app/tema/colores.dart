@@ -1,9 +1,9 @@
 import 'package:flutter/painting.dart';
 
-/// Tokens de color del diseño (app-movil/DESIGN.md del repositorio de documentación).
+/// Design color tokens (docs/references/DESIGN.md).
 ///
-/// Regla: el rojo y el ámbar se reservan para eventos reales, y el estado nunca depende solo del
-/// color (siempre va con icono y texto).
+/// Rule: red and amber are reserved for real events, and status never depends on color alone (always
+/// with an icon and text).
 abstract final class Colores {
   static const fondo = Color(0xFFEEF0F4);
   static const fondo2 = Color(0xFFE4E6EC);
@@ -14,27 +14,27 @@ abstract final class Colores {
   static const linea = Color(0xFFD9D7E1);
   static const linea2 = Color(0xFFC7C3D3);
 
-  /// Marca y acción principal fuera de las alertas.
+  /// Brand and primary action outside alerts.
   static const morado = Color(0xFF4A2A85);
 
-  /// Alerta de caída (severidad alta).
+  /// Fall alert (high severity).
   static const caida = Color(0xFFBF2A1B);
 
-  /// Movimiento inestable (severidad media).
+  /// Unstable movement (medium severity).
   static const inestable = Color(0xFFF1B42F);
 
-  /// Estado normal, cámara en línea, recuperación.
+  /// Normal state, camera online, recovery.
   static const calma = Color(0xFF1C7A4C);
 
-  /// Avisos no urgentes (permisos, conexión).
+  /// Non-urgent notices (permissions, connectivity).
   static const aviso = Color(0xFF8F5400);
   static const avisoSuave = Color(0xFFFBEFD9);
 
-  /// Cámara en pausa.
+  /// Paused camera.
   static const pausa = Color(0xFF4E5B74);
   static const pausaSuave = Color(0xFFE6E9F0);
 
-  /// Solo de marca: nunca marcan un estado ni una alerta.
+  /// Brand only: never used for a state or an alert.
   static const coral = Color(0xFFE8765A);
   static const durazno = Color(0xFFFFB59C);
 }

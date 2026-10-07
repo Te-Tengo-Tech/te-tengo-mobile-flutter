@@ -7,7 +7,7 @@ import '../../../core/red/problema_api.dart';
 import '../data/camaras_repositorio.dart';
 import 'estado_camara.dart';
 
-/// US-06 / CA-06.1 y US-07 / CA-07.1: cámaras del hogar con su estado y la hora de la última señal.
+/// US-06 / CA-06.1 and US-07 / CA-07.1: household cameras with status and last-signal time.
 class PantallaCamaras extends ConsumerWidget {
   const PantallaCamaras({super.key});
 

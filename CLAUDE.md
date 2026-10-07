@@ -1,6 +1,10 @@
 @AGENTS.md
 
-## Notas para Claude Code
-- En la nube, el hook `SessionStart` (`scripts/cloud/preparar-entorno.sh`) instala Flutter 3.44.8 y corre `flutter pub get`. Si `flutter` no existe, revisa primero ese script.
-- En la nube no hay emulador: verifica con `flutter analyze` y `flutter test`, que incluye pruebas de widgets.
-- Respeta las reglas del usuario: textos y commits en español, Conventional Commits **sin** línea de coautor, y no inventar datos: los textos y valores salen de `docs/referencias/`.
+## Notes for Claude Code
+- **Working mode:** this repository is meant to be built autonomously from [docs/WORK_PLAN.md](docs/WORK_PLAN.md). When asked to "work", "continue" or `/work`, follow the loop in that file **until every task is checked or only blocked tasks remain. Do not stop after one task.**
+- **Cloud environment:** the `SessionStart` hook (`scripts/cloud/setup-environment.sh`) installs Flutter 3.44.8 and runs `flutter pub get`.
+  - There is no emulator in the cloud, so verify with `flutter analyze` and `flutter test`, including widget tests.
+  - Compare your widgets against the PNG screens by reading the images.
+- **User rules:**
+  - English for docs and commits; Conventional Commits with **no co-author line**.
+  - Spanish UI copy taken from the references; never invent copy or business values.
