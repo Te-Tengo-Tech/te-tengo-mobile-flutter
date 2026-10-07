@@ -21,7 +21,7 @@ import '../../hogar/data/hogar_repositorio.dart';
 import '../data/vista_en_vivo_repositorio.dart';
 import '../domain/vista_en_vivo.dart';
 
-/// Why the live view cannot open (`liveState`): CA-23.3 and CA-23.4.
+/// Why the live view cannot open (`liveState`): CA-23.3, CA-23.4 and, without consent, CA-05.2.
 enum _NoDisponible { desconectada, enPausa, detenida }
 
 /// Live view (screens 38–40, 54 and 74): the room in real time, how long it has been open, and the
@@ -123,6 +123,13 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             _noDisponible = _NoDisponible.enPausa;
             _pausadaHasta =
                 fechaDesdeJson(e.extras['pausadaHasta']) ?? _pausadaHasta;
+          case 'SIN_CONSENTIMIENTO':
+            // The consent was revoked after the household was loaded (CA-05.2): the camera does
+            // not stream, and the rest of the app learns it from a fresh household.
+            _noDisponible = _NoDisponible.detenida;
+            ref
+              ..invalidate(hogarProvider)
+              ..invalidate(camarasProvider);
           default:
             _problema = e;
         }

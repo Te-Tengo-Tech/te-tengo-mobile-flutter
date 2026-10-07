@@ -239,6 +239,32 @@ void main() {
     expect(find.text('Llamar a Rosa'), findsWidgets);
   });
 
+  testWidgets(
+    'CA-05.2: si el servidor responde SIN_CONSENTIMIENTO, la cámara está detenida',
+    (tester) async {
+      vivo.errorAbrir = const ProblemaApi(
+        codigo: 'SIN_CONSENTIMIENTO',
+        detalle: 'No hay un consentimiento vigente.',
+        estado: 409,
+      );
+      await abrir(tester, Rutas.camara('c1'));
+      await tocar(tester, find.text('Ver en vivo'));
+      expect(vivo.abiertas, hasLength(1));
+      expect(find.text('La cámara está detenida'), findsOneWidget);
+      expect(
+        find.text(
+          'Sin el consentimiento de Rosa la cámara no envía video, así que no '
+          'se puede ver en vivo.',
+          findRichText: true,
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('No hay un consentimiento vigente.'), findsNothing);
+      expect(transmision.urls, isEmpty);
+      expect(find.text('Llamar a Rosa'), findsNothing);
+    },
+  );
+
   testWidgets('CA-23.4: en pausa indica hasta qué hora y permite reanudar', (
     tester,
   ) async {
