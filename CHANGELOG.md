@@ -33,6 +33,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T25 Access log (US-24):** screens 41–43. «Registro de accesos» grouped by day, newest first, with «Desde una alerta» and the consent note (`GET /api/accesos-vista-en-vivo`), its empty state, and the last access in the camera detail, refreshed when a live view closes.
 - **T26 Family management (US-08):** screens 66–71. Invite screen with what the member can do (`POST /api/invitaciones`), invitation link that creates the invited access (`POST /api/invitaciones/{token}/aceptacion`) and «Listo, …», member options to change the alert order, and «Retirar acceso» with confirmation (`DELETE /api/familiares/{id}`).
 - **T27 Invited member (read-only):** screens 73 and 75–82. Ajustes shows «Eres familiar invitado» and the camera, alert order and privacy rows, with the lock and «Solo ver» on what only the owner changes; tests walk the invited member through every read-only screen (CA-08.4).
+- **T28 Recovery notice (US-21):** screen 57. Foreground `SE_LEVANTO` shows «Rosa se levantó · HH:MM · Se puso de pie en la Sala. Confirma cómo está.», also on the alert itself, which stays active.
 ### Changed
 - Documentation translated to English.
 
