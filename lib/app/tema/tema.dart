@@ -2,39 +2,81 @@ import 'package:flutter/material.dart';
 
 import 'colores.dart';
 
-const _fuente = 'AtkinsonHyperlegibleNext';
+const fuente = 'AtkinsonHyperlegibleNext';
 
 /// Monospaced font for times and tabular data (10:42).
 const fuenteMono = 'AtkinsonHyperlegibleMono';
 
-TextStyle _peso(double tamano, double peso, {Color color = Colores.tinta}) =>
+TextStyle estiloTexto(
+  double tamano,
+  double peso, {
+  Color color = Colores.tinta,
+}) => TextStyle(
+  fontFamily: fuente,
+  fontSize: tamano,
+  color: color,
+  fontWeight: _pesoFijo(peso),
+  fontVariations: [FontVariation('wght', peso)],
+);
+
+FontWeight _pesoFijo(double peso) => switch (peso) {
+  >= 800 => FontWeight.w800,
+  >= 700 => FontWeight.w700,
+  >= 600 => FontWeight.w600,
+  _ => FontWeight.w400,
+};
+
+/// Times and data (`.mono`).
+TextStyle estiloMono({double tamano = 16, double peso = 600, Color? color}) =>
     TextStyle(
-      fontFamily: _fuente,
+      fontFamily: fuenteMono,
       fontSize: tamano,
       color: color,
+      fontWeight: _pesoFijo(peso),
       fontVariations: [FontVariation('wght', peso)],
+      fontFeatures: const [FontFeature.tabularFigures()],
     );
 
+const _radioControl = BorderRadius.all(Radius.circular(16));
+
 /// App theme: calm neutral base; semantic color appears only when something needs attention.
+///
+/// Text scale (prototype classes): `headlineMedium` = `.t-title`, `titleLarge` = `.t-h2`,
+/// `titleMedium` = `.t-h3`, `bodyLarge` = `.t-body`, `bodyMedium` = `.t-small`,
+/// `bodySmall` = `.t-meta`. Body text is never below 16 (DESIGN.md accessibility).
 ThemeData temaTeTengo() {
   final esquema = ColorScheme.fromSeed(
     seedColor: Colores.morado,
     primary: Colores.morado,
+    onPrimary: Colors.white,
     error: Colores.caida,
     surface: Colores.tarjeta,
+    onSurface: Colores.tinta,
   );
+  final botonTexto = estiloTexto(18, 700);
   return ThemeData(
     useMaterial3: true,
     colorScheme: esquema,
     scaffoldBackgroundColor: Colores.fondo,
-    fontFamily: _fuente,
+    fontFamily: fuente,
+    materialTapTargetSize: MaterialTapTargetSize.padded,
     textTheme: TextTheme(
-      headlineMedium: _peso(28, 800),
-      titleLarge: _peso(22, 700),
-      titleMedium: _peso(18, 700),
-      bodyLarge: _peso(17, 400),
-      bodyMedium: _peso(16, 400, color: Colores.tinta2),
-      labelLarge: _peso(16, 700),
+      headlineLarge: estiloTexto(34, 800),
+      headlineMedium: estiloTexto(28, 800),
+      titleLarge: estiloTexto(22, 800),
+      titleMedium: estiloTexto(18, 700),
+      bodyLarge: estiloTexto(17, 400),
+      bodyMedium: estiloTexto(16, 400, color: Colores.tinta2),
+      bodySmall: estiloTexto(15, 400, color: Colores.tinta3),
+      labelLarge: estiloTexto(16, 700),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colores.fondo,
+      surfaceTintColor: Colors.transparent,
+      foregroundColor: Colores.tinta,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      titleTextStyle: estiloTexto(19, 800),
     ),
     cardTheme: const CardThemeData(
       color: Colores.tarjeta,
@@ -44,20 +86,97 @@ ThemeData temaTeTengo() {
         borderRadius: BorderRadius.all(Radius.circular(22)),
       ),
     ),
-    inputDecorationTheme: const InputDecorationTheme(
+    inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colores.tarjeta,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+      hintStyle: estiloTexto(17, 400, color: const Color(0xFF77708A)),
+      helperStyle: estiloTexto(15, 400, color: Colores.tinta3),
+      helperMaxLines: 3,
+      errorMaxLines: 3,
+      errorStyle: estiloTexto(15, 700, color: Colores.caidaTinta),
+      border: const OutlineInputBorder(
+        borderRadius: _radioControl,
+        borderSide: BorderSide(color: Colores.linea2, width: 1.5),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderRadius: _radioControl,
+        borderSide: BorderSide(color: Colores.linea2, width: 1.5),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: _radioControl,
+        borderSide: BorderSide(color: Colores.morado, width: 2),
+      ),
+      errorBorder: const OutlineInputBorder(
+        borderRadius: _radioControl,
+        borderSide: BorderSide(color: Colores.caida, width: 2),
+      ),
+      focusedErrorBorder: const OutlineInputBorder(
+        borderRadius: _radioControl,
+        borderSide: BorderSide(color: Colores.caida, width: 2.5),
+      ),
+      disabledBorder: const OutlineInputBorder(
+        borderRadius: _radioControl,
+        borderSide: BorderSide(color: Colores.linea2, width: 1.5),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(52),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
+        backgroundColor: Colores.morado,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor: Colores.linea,
+        disabledForegroundColor: Colores.tinta3,
+        minimumSize: const Size.fromHeight(56),
+        padding: const EdgeInsets.symmetric(horizontal: 22),
+        textStyle: botonTexto,
+        shape: const RoundedRectangleBorder(borderRadius: _radioControl),
       ),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: Colores.tarjeta,
+        foregroundColor: Colores.moradoTinta,
+        minimumSize: const Size.fromHeight(56),
+        padding: const EdgeInsets.symmetric(horizontal: 22),
+        textStyle: botonTexto,
+        side: const BorderSide(color: Colores.linea2, width: 1.5),
+        shape: const RoundedRectangleBorder(borderRadius: _radioControl),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: Colores.moradoTinta,
+        minimumSize: const Size(48, 48),
+        textStyle: botonTexto,
+        shape: const RoundedRectangleBorder(borderRadius: _radioControl),
+      ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: Colores.tinta,
+      behavior: SnackBarBehavior.floating,
+      contentTextStyle: estiloTexto(15, 400, color: Colors.white),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(18)),
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Colores.tarjeta,
+      surfaceTintColor: Colors.transparent,
+      showDragHandle: true,
+      dragHandleColor: Colores.linea2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: Colores.tarjeta,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(26)),
+      ),
+      titleTextStyle: estiloTexto(22, 800),
+      contentTextStyle: estiloTexto(16, 400, color: Colores.tinta2),
+    ),
+    dividerTheme: const DividerThemeData(color: Colores.linea, space: 1),
   );
 }
