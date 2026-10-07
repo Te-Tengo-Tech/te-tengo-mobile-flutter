@@ -21,6 +21,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T13 Fall alert (US-16):** screens 44–48. Full-screen red alert with severity tag, headline, room, time and elapsed time, «Llamar» and «Ver en vivo», «Qué hacer ahora» and the alert record; the active alert (`GET /api/alertas?estado=ACTIVA`) opens by itself, shows the failed-notification notice when `notificadaEn` is null (CA-16.4), and appears as a strip, a home card state and a badge on Historial.
 - **T14 Confirmation chip (US-13):** screen 46. «Comprobando si sigue en el suelo» turns into «Sigue en el suelo · confirmada» with the confirmed headline, notice and record line, from the `CAIDA_CONFIRMADA` push or the 10 s refresh of an open alert; elsewhere in the app the confirmation arrives as an in-app notice.
 - **T15 Unstable movement (US-17):** screens 49–52. Amber medium-severity alert with its own icon, label and steps (never shared with a fall), amber strip and home state, and the in-place update to a fall with «Empezó como movimiento inestable» on `ALERTA_ACTUALIZADA_A_CAIDA`.
+- **T16 Clip (US-18):** screens 47 and 53. `GET /api/alertas/{id}/clip` played with `video_player` behind a controller interface (room and pose poster while loading, play/pause, event mark, 0:00 / 0:12), and «Clip no disponible» when the alert says `NO_DISPONIBLE` or the clip returns `404`.
 ### Changed
 - Documentation translated to English.
 

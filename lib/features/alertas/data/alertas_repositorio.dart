@@ -56,6 +56,11 @@ abstract interface class AlertasRepositorio {
 
   /// `GET /api/alertas/{id}`. Errors: `404 ALERTA_NO_ENCONTRADA`.
   Future<Alerta> obtener(String id);
+
+  /// `GET /api/alertas/{id}/clip`: a short-lived URL of the 12 s clip (CA-18.1, CA-26.1); with
+  /// [descarga], the download disposition (CA-26.2). Errors: `404 CLIP_NO_DISPONIBLE` (CA-18.2),
+  /// `410 CLIP_ELIMINADO` (CA-26.3).
+  Future<EnlaceClip> clip(String id, {bool descarga = false});
 }
 
 class AlertasRepositorioApi implements AlertasRepositorio {
@@ -77,11 +82,42 @@ class AlertasRepositorioApi implements AlertasRepositorio {
     final r = await _dio.get<Map<String, dynamic>>('/api/alertas/$id');
     return Alerta.desdeJson(r.data!);
   });
+
+  @override
+  Future<EnlaceClip> clip(String id, {bool descarga = false}) =>
+      llamarApi(() async {
+        final r = await _dio.get<Map<String, dynamic>>(
+          '/api/alertas/$id/clip',
+          queryParameters: {if (descarga) 'descarga': true},
+        );
+        return EnlaceClip.desdeJson(r.data!);
+      });
 }
 
 final alertasRepositorioProvider = Provider<AlertasRepositorio>(
   (ref) => AlertasRepositorioApi(ref.watch(clienteApiProvider)),
 );
+
+/// Clip URL of an alert; a missing or deleted clip is reported as its state.
+final clipProvider = FutureProvider.family<ResultadoClip, String>((
+  ref,
+  id,
+) async {
+  try {
+    return ResultadoClip(
+      EstadoClip.disponible,
+      await ref.watch(alertasRepositorioProvider).clip(id),
+    );
+  } on ProblemaApi catch (e) {
+    if (e.codigo == 'CLIP_NO_DISPONIBLE') {
+      return const ResultadoClip(EstadoClip.noDisponible);
+    }
+    if (e.codigo == 'CLIP_ELIMINADO') {
+      return const ResultadoClip(EstadoClip.eliminado);
+    }
+    rethrow;
+  }
+});
 
 final alertaProvider = FutureProvider.family<Alerta, String>(
   (ref, id) => ref.watch(alertasRepositorioProvider).obtener(id),

@@ -135,3 +135,24 @@ class PaginaAlertas {
     total: json['total'] as int? ?? 0,
   );
 }
+
+/// `GET /api/alertas/{id}/clip`: pre-signed URL of the clip.
+class EnlaceClip {
+  const EnlaceClip({required this.url, this.expiraEn});
+
+  final String url;
+  final DateTime? expiraEn;
+
+  factory EnlaceClip.desdeJson(Map<String, dynamic> json) => EnlaceClip(
+    url: json['url'] as String,
+    expiraEn: fechaDesdeJson(json['expiraEn']),
+  );
+}
+
+/// Clip of an alert as the app can show it.
+class ResultadoClip {
+  const ResultadoClip(this.estado, [this.enlace]);
+
+  final EstadoClip estado;
+  final EnlaceClip? enlace;
+}
