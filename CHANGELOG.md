@@ -9,6 +9,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T01 App shell:** splash screen 00 with the logo animation (still final frame when animations are disabled), welcome screen 01, bottom bar with Inicio, Historial, Familia and Ajustes, and router guards (no session → welcome; no household → onboarding). Shared UI kit with the prototype icons, illustrations, notices, lists, fields and buttons.
 - **T02 Session state:** `SesionController` with the contract `Sesion` in secure storage, token refresh on `401 SESION_EXPIRADA` through a Dio interceptor, household switching (`GET /api/hogares`, `POST /api/sesiones/hogar`) and the shared `MensajeProblema` widget for RFC 9457 errors.
 - **T03 Register (US-01):** screens 02–05. `POST /api/cuentas` followed by `POST /api/sesiones`, field highlighting from client checks and from `400 VALIDACION.campos`, and the `409 CORREO_EN_USO` notice with sign-in and recovery links.
+- **T04 Sign in and sign out (US-02):** screens 06–08 and 13. `POST /api/sesiones`, wrong-credentials message with the remaining attempts, `423 CUENTA_BLOQUEADA` with the unlock time and disabled fields, and sign-out confirmation with `DELETE /api/sesiones/actual`, splash and the sign-in screen. Household data layer (`GET /api/hogar`).
 ### Changed
 - Documentation translated to English.
 

@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
+import '../features/ajustes/presentation/pantalla_ajustes.dart';
 import '../features/arranque/pantalla_arranque.dart';
 import '../features/camaras/presentation/pantalla_camaras.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
 import '../features/inicio/pantalla_inicio.dart';
 import '../features/sesion/presentation/pantalla_bienvenida.dart';
 import '../features/sesion/presentation/pantalla_cuenta_creada.dart';
+import '../features/sesion/presentation/pantalla_iniciar_sesion.dart';
 import '../features/sesion/presentation/pantalla_registro.dart';
 import 'navegacion.dart';
 import 'pantalla_pendiente.dart';
@@ -45,7 +47,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.iniciarSesion,
-        builder: (context, state) => const PantallaPendiente('Inicia sesión'),
+        builder: (context, state) => PantallaIniciarSesion(
+          correo: state.uri.queryParameters['correo'],
+          sesionCerrada: state.uri.queryParameters['cerrada'] == '1',
+        ),
       ),
       GoRoute(
         path: Rutas.configPersona,
@@ -84,7 +89,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Rutas.ajustes,
-                builder: (context, state) => const PantallaPendiente('Ajustes'),
+                builder: (context, state) => const PantallaAjustes(),
               ),
             ],
           ),

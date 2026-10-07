@@ -26,8 +26,9 @@ class HogarResumen {
 
 /// Session lifecycle endpoints (contract §1 and §2).
 abstract interface class SesionRepositorio {
-  /// `DELETE /api/sesiones/actual`: revokes the refresh token (CA-02.4).
-  Future<void> cerrar();
+  /// `DELETE /api/sesiones/actual`: revokes the refresh token (CA-02.4). The access token is passed
+  /// because the session is already forgotten on the phone.
+  Future<void> cerrar(String tokenAcceso);
 
   /// `GET /api/hogares`.
   Future<List<HogarResumen>> hogares();
@@ -42,8 +43,12 @@ class SesionRepositorioApi implements SesionRepositorio {
   final Dio _dio;
 
   @override
-  Future<void> cerrar() =>
-      llamarApi(() => _dio.delete<void>('/api/sesiones/actual'));
+  Future<void> cerrar(String tokenAcceso) => llamarApi(
+    () => _dio.delete<void>(
+      '/api/sesiones/actual',
+      options: Options(headers: {'Authorization': 'Bearer $tokenAcceso'}),
+    ),
+  );
 
   @override
   Future<List<HogarResumen>> hogares() => llamarApi(() async {
