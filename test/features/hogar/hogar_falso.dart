@@ -5,6 +5,7 @@ import 'package:te_tengo/features/hogar/domain/hogar.dart';
 
 const rosa = AdultoMayor(
   nombre: 'Rosa Huamán',
+  edad: 78,
   direccion: 'Jr. Los Pinos 482, San Miguel, Lima',
   convivencia: Convivencia.solo,
 );
@@ -56,10 +57,12 @@ class HogarRepositorioFalso implements HogarRepositorio {
 
   final consentimientos = <String>[];
   int revocaciones = 0;
+  ProblemaApi? errorRevocar;
 
   @override
   Future<void> revocarConsentimiento() async {
     revocaciones++;
+    if (errorRevocar != null) throw errorRevocar!;
     final c = hogar.consentimiento!;
     hogar = Hogar(
       hogarId: hogar.hogarId,

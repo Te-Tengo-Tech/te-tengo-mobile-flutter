@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/dispositivo/permiso_notificaciones.dart';
 import '../core/notificaciones/dispositivos_repositorio.dart';
 import '../core/notificaciones/mensaje_push.dart';
 import '../core/notificaciones/notificaciones_push.dart';
@@ -49,6 +51,7 @@ class GestorPush {
   String? _token;
   String? _registrado;
   bool _iniciado = false;
+  bool _permisoPedido = false;
 
   NotificacionesPush get _push => _ref.read(notificacionesPushProvider);
 
@@ -74,12 +77,20 @@ class GestorPush {
     if (inicial != null) abrir(inicial, desdeCerrada: true);
   }
 
-  /// `POST /api/dispositivos` once per household and token.
+  /// `POST /api/dispositivos` once per household and token. The first time there is a household,
+  /// it asks for the notification permission (CA-16.2). Without a token yet (no Firebase, or iOS
+  /// still waiting for APNs) it does nothing; it is called again when the session changes, the
+  /// token is refreshed, the app resumes or the user turns notifications on.
   Future<void> registrar() async {
     final sesion = _ref.read(sesionControllerProvider);
     if (sesion == null || !sesion.tieneHogar) {
       _registrado = null;
       return;
+    }
+    if (!_permisoPedido) {
+      _permisoPedido = true;
+      await _push.pedirPermiso();
+      _ref.invalidate(notificacionesActivasProvider);
     }
     final token = _token ??= await _push.token();
     if (token == null) return;
@@ -90,6 +101,8 @@ class GestorPush {
           .read(dispositivosRepositorioProvider)
           .registrar(tokenPush: token, plataforma: _push.plataforma);
       _registrado = clave;
+      // To send a test message from the Firebase console (docs/FIREBASE.md).
+      if (kDebugMode) debugPrint('Token de push: $token');
     } on Object {
       // Retried on the next session change or token refresh.
     }

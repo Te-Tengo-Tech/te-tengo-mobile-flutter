@@ -5,6 +5,7 @@ import 'package:te_tengo/app/push.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/notificaciones/dispositivos_repositorio.dart';
 import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
+import 'package:te_tengo/core/notificaciones/notificaciones_push.dart';
 import 'package:te_tengo/core/red/cliente_api.dart';
 import 'package:te_tengo/core/reloj.dart';
 import 'package:te_tengo/core/sesion/almacen_sesion.dart';
@@ -36,6 +37,76 @@ class _SesionesFalsas implements SesionRepositorio {
 }
 
 void main() {
+  group('obtenerTokenPush', () {
+    test('en Android pide el token de FCM directamente', () async {
+      var apns = 0;
+      final token = await obtenerTokenPush(
+        esIos: false,
+        tokenApns: () async {
+          apns++;
+          return null;
+        },
+        tokenFcm: () async => 'fcm-1',
+      );
+      expect(token, 'fcm-1');
+      expect(apns, 0);
+    });
+
+    test('en iOS espera el token de APNs antes de pedir el de FCM', () async {
+      final respuestas = <String?>[null, null, 'apns-1'];
+      final esperas = <Duration>[];
+      var fcm = 0;
+      final token = await obtenerTokenPush(
+        esIos: true,
+        tokenApns: () async => respuestas.removeAt(0),
+        tokenFcm: () async {
+          fcm++;
+          return 'fcm-1';
+        },
+        esperar: (d) async => esperas.add(d),
+      );
+      expect(token, 'fcm-1');
+      expect(esperas, [const Duration(seconds: 1), const Duration(seconds: 1)]);
+      expect(fcm, 1);
+    });
+
+    test('en iOS sin APNs no pide el token de FCM y devuelve null', () async {
+      var fcm = 0;
+      var apns = 0;
+      final token = await obtenerTokenPush(
+        esIos: true,
+        intentos: 3,
+        tokenApns: () async {
+          apns++;
+          return null;
+        },
+        tokenFcm: () async {
+          fcm++;
+          return 'fcm-1';
+        },
+        esperar: (_) async {},
+      );
+      expect(token, isNull);
+      expect(apns, 3);
+      expect(fcm, 0);
+    });
+
+    test('un error de Firebase deja la app sin token', () async {
+      final token = await obtenerTokenPush(
+        esIos: false,
+        tokenApns: () async => null,
+        tokenFcm: () async => throw Exception('apns-token-not-set'),
+      );
+      expect(token, isNull);
+    });
+  });
+
+  test('sin Firebase no hay token ni se pide el permiso', () async {
+    const inactivas = NotificacionesPushInactivas();
+    expect(await inactivas.pedirPermiso(), isFalse);
+    expect(await inactivas.token(), isNull);
+  });
+
   group('MensajePush', () {
     test('lee el payload de datos del contrato', () {
       final m = MensajePush.desdeDatos({
@@ -133,6 +204,69 @@ void main() {
       push.renovar('fcm-2');
       await tester.pumpAndSettle();
       expect(dispositivos.registrados, ['fcm-1|ANDROID', 'fcm-2|ANDROID']);
+    });
+
+    testWidgets('pide el permiso de notificaciones una sola vez, con hogar', (
+      tester,
+    ) async {
+      await abrir(tester);
+      expect(push.permisosPedidos, 1);
+      push.renovar('fcm-2');
+      await tester.pumpAndSettle();
+      expect(push.permisosPedidos, 1);
+    });
+
+    testWidgets('sin hogar no pide el permiso ni registra', (tester) async {
+      almacen = AlmacenSesionMemoria(sesionSinHogar);
+      await abrir(tester, ubicacion: Rutas.configPersona);
+      expect(push.permisosPedidos, 0);
+      expect(dispositivos.registrados, isEmpty);
+    });
+
+    testWidgets(
+      'si el token aún no existe (iOS espera a APNs), registra al volver a la app',
+      (tester) async {
+        push.tokenActual = null;
+        await abrir(tester);
+        expect(dispositivos.registrados, isEmpty);
+        push.tokenActual = 'fcm-tarde';
+        tester.binding
+          ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+          ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+          ..handleAppLifecycleStateChanged(AppLifecycleState.paused)
+          ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+          ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+          ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+        await tester.pumpAndSettle();
+        expect(dispositivos.registrados, ['fcm-tarde|ANDROID']);
+      },
+    );
+
+    testWidgets('sin Firebase configurado la app funciona sin registrar', (
+      tester,
+    ) async {
+      usarTelefono(tester);
+      await tester.pumpWidget(
+        appDePrueba(
+          ubicacion: Rutas.inicio,
+          almacen: almacen,
+          dispositivos: dispositivos,
+          push: const NotificacionesPushInactivas(),
+          overrides: [
+            camarasRepositorioProvider.overrideWithValue(
+              CamarasRepositorioFalso(),
+            ),
+            hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
+            familiaRepositorioProvider.overrideWithValue(
+              FamiliaRepositorioFalso(),
+            ),
+            sesionRepositorioProvider.overrideWithValue(_SesionesFalsas()),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(PantallaInicio), findsOneWidget);
+      expect(dispositivos.registrados, isEmpty);
     });
 
     testWidgets('sin sesión no registra; al iniciar sesión, sí', (

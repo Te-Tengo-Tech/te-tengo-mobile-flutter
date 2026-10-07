@@ -40,8 +40,13 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T31 Settings:** screens 94 and 96. Ajustes «Notificaciones» row and the preferences screen (permission state, always-on falls and camera state, per-phone switches for unstable movement and end of pause, escalation wait), applied to foreground pushes.
 - **T32 Local cache:** SQLite through `drift` (plain SQL, no code generation). An HTTP interceptor keeps the last answer of every household read (alerts and history pages, cameras, household, family, summary, access log), keyed by household, and serves it without connection; notification preferences persist per phone; sign-out clears the household data.
 - **T33 Hardening:** golden screenshots of 18 main screens with the real fonts, an accessibility sweep (44 px targets, labels, WCAG contrast, text at 200 % without overflow, with fixes to list rows, stamps and the alert time slot), the wordmark drawn as vector curves, and a test that every endpoint and push type of the contract is used.
+- **Firebase readiness:** the `com.google.gms.google-services` Gradle plugin and an Xcode build phase that pick up `google-services.json` / `GoogleService-Info.plist` only when present (both gitignored), the Push Notifications entitlement and the `remote-notification` background mode, the notification permission prompt once there is a household, an FCM token requested only after the APNs token on iOS, and re-registration on resume and when notifications are turned on. Setup and testing steps in `docs/FIREBASE.md`.
 ### Changed
 - Documentation translated to English.
+- The older adult form asks for «Edad» (50–120, prototype messages), shown as «Rosa Huamán, 78 años» and «78 años · Vive solo(a)»; the stored phone is sent back on profile updates. `edad`, `telefono`, `instaladaEn` and `noConfiableDesde` are now in the API contract.
+### Fixed
+- Live view: `409 SIN_CONSENTIMIENTO` shows «La cámara está detenida» and reloads the household (CA-05.2).
+- Revocation: `404 SIN_CONSENTIMIENTO` reloads Privacidad, which shows «Sin consentimiento», instead of an error toast; the card title no longer overflows on narrow screens.
 
 ## [0.1.0] - 2026-10-07
 ### Added

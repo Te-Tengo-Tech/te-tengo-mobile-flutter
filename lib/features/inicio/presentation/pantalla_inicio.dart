@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/push.dart';
 import '../../../app/rutas.dart';
 import '../../historial/presentation/pantalla_historial.dart';
 import '../../historial/presentation/resumen_semanal.dart';
@@ -184,6 +187,8 @@ class PantallaInicio extends ConsumerWidget {
 Future<void> activarNotificaciones(BuildContext context, WidgetRef ref) async {
   final activas = await ref.read(permisoNotificacionesProvider).activar();
   ref.invalidate(notificacionesActivasProvider);
+  // On iOS the push token only exists once notifications are allowed.
+  if (activas) unawaited(ref.read(gestorPushProvider).registrar());
   if (activas && context.mounted) {
     mostrarToast(
       context,
