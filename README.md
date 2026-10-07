@@ -1,5 +1,8 @@
 # te-tengo-mobile-flutter
 
+[![CI](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/ci.yml)
+[![OSV-Scanner](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/osv-scanner.yml/badge.svg)](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/osv-scanner.yml)
+
 **Te Tengo** mobile app for family members and caregivers: fall and unstable-movement alerts, the event clip, live view, camera, consent, family and history.
 
 | Stack | Version |
@@ -18,7 +21,7 @@ flutter run --dart-define=TT_API_URL=http://10.0.2.2:8080   # local backend from
 ```bash
 dart format lib test
 flutter analyze
-flutter test
+flutter test --coverage   # coverage/lcov.info
 ```
 
 ## Documentation

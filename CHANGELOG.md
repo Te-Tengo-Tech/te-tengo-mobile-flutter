@@ -4,6 +4,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 ### Added
+- CI: separate format/analyze and test jobs with lcov coverage artifact and summary, superseded runs cancelled; weekly OSV-Scanner scan of `pubspec.lock`; Dependabot, CODEOWNERS, issue and pull request templates, security policy and code of conduct.
 - Shared API contract with the backend (`docs/API_CONTRACT.md`), the work plan with its autonomous loop (`docs/WORK_PLAN.md`) and the `/work` command.
 - The 103 prototype screens and the prototype HTML as visual references.
 - **T01 App shell:** splash screen 00 with the logo animation (still final frame when animations are disabled), welcome screen 01, bottom bar with Inicio, Historial, Familia and Ajustes, and router guards (no session → welcome; no household → onboarding). Shared UI kit with the prototype icons, illustrations, notices, lists, fields and buttons.

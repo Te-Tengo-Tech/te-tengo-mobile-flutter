@@ -1,0 +1,65 @@
+name: Bug report
+description: Report a defect in the mobile app
+title: "fix: <short description>"
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What is wrong? Do not paste tokens, passwords or personal data.
+    validations:
+      required: true
+  - type: dropdown
+    id: feature
+    attributes:
+      label: Feature
+      options:
+        - sesion
+        - hogar
+        - camaras
+        - alertas
+        - vivo
+        - historial
+        - familia
+        - ajustes
+        - inicio
+        - arranque
+        - core / app
+        - build / ci
+        - unknown
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Sign in as TITULAR / INVITADO
+        2. Open ...
+        3. Tap ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual behavior
+      description: Reference the prototype screen (docs/references/screens/NN-name.png) or the acceptance criterion (CA-XX.Y) when it applies.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        - Device / emulator and OS version:
+        - Branch or commit:
+        - Backend: local / remote
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or logs
+    validations:
+      required: false
