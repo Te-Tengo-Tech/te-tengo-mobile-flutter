@@ -20,16 +20,18 @@ class SesionController extends Notifier<Sesion?> {
   /// Called by the HTTP client after refreshing the tokens, or with null when the refresh failed.
   void actualizada(Sesion? sesion) => state = sesion;
 
-  /// Signs out: revokes the refresh token in the backend (best effort) and forgets the session, so
-  /// a new sign-in is required (CA-02.4).
+  /// Signs out: forgets the session on this phone and revokes the refresh token in the backend
+  /// (best effort), so a new sign-in is required (CA-02.4).
   Future<void> cerrar() async {
+    final sesion = state;
+    await _almacen.borrar();
+    state = null;
+    if (sesion == null) return;
     try {
-      await ref.read(sesionRepositorioProvider).cerrar();
+      await ref.read(sesionRepositorioProvider).cerrar(sesion.tokenAcceso);
     } on Object {
       // Without network the session is still closed on this phone.
     }
-    await _almacen.borrar();
-    state = null;
   }
 
   /// Switches to another household of the user (`POST /api/sesiones/hogar`).
