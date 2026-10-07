@@ -2,6 +2,15 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services") apply false
+}
+
+// Push needs the Firebase project's config file, which is not committed (docs/FIREBASE.md).
+// Without it the app still builds and runs with push unavailable.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+} else {
+    logger.lifecycle("android/app/google-services.json not found: building without push (docs/FIREBASE.md)")
 }
 
 android {
