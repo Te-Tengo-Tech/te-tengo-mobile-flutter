@@ -124,8 +124,8 @@ void main() {
       ),
       findsOneWidget,
     );
+    await verHasta(tester, find.text('Qué revisar en la casa'));
     await verHasta(tester, find.text('El encuadre de la cámara'));
-    expect(find.text('Qué revisar en la casa'), findsOneWidget);
     expect(find.text('La luz de la habitación'), findsOneWidget);
     expect(
       find.text(

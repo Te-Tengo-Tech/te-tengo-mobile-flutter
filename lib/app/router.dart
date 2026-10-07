@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
+import '../features/vivo/presentation/pantalla_vivo.dart';
 import '../features/ajustes/presentation/pantalla_ajustes.dart';
 import '../features/alertas/presentation/pantalla_alerta.dart';
 import '../features/alertas/presentation/pantalla_detalle_alerta.dart';
@@ -203,7 +204,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.vivo,
-        builder: (context, state) => const PantallaPendiente('En vivo'),
+        builder: (context, state) => PantallaVivo(
+          camaraId: state.uri.queryParameters['camara'],
+          alertaId: state.uri.queryParameters['alerta'],
+        ),
       ),
       GoRoute(
         path: '/camara/:id',
