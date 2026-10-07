@@ -10,6 +10,10 @@ import '../domain/familiar.dart';
 abstract interface class FamiliaRepositorio {
   /// `GET /api/familiares`.
   Future<List<Familiar>> listar();
+
+  /// `POST /api/invitaciones` (owner): emails a link to create access (CA-08.1). Errors:
+  /// `409 YA_ES_FAMILIAR`.
+  Future<Invitacion> invitar(String correo);
 }
 
 class FamiliaRepositorioApi implements FamiliaRepositorio {
@@ -23,6 +27,15 @@ class FamiliaRepositorioApi implements FamiliaRepositorio {
     return (r.data ?? [])
         .map((j) => Familiar.desdeJson(j as Map<String, dynamic>))
         .toList();
+  });
+
+  @override
+  Future<Invitacion> invitar(String correo) => llamarApi(() async {
+    final r = await _dio.post<Map<String, dynamic>>(
+      '/api/invitaciones',
+      data: {'correo': correo},
+    );
+    return Invitacion.desdeJson(r.data!);
   });
 }
 

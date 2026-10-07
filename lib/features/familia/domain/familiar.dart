@@ -25,3 +25,20 @@ class Familiar {
     rol: Rol.desde(json['rol']),
   );
 }
+
+/// Invitation sent by email (`POST /api/invitaciones`).
+class Invitacion {
+  const Invitacion({required this.id, required this.correo, this.expiraEn});
+
+  final String id;
+  final String correo;
+  final DateTime? expiraEn;
+
+  factory Invitacion.desdeJson(Map<String, dynamic> json) => Invitacion(
+    id: json['id'] as String,
+    correo: json['correo'] as String,
+    expiraEn: json['expiraEn'] == null
+        ? null
+        : DateTime.parse(json['expiraEn'] as String).toLocal(),
+  );
+}
