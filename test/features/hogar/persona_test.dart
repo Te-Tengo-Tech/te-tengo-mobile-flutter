@@ -57,6 +57,7 @@ void main() {
         await abrir(tester, Rutas.configPersona, sesionSinHogar);
         expect(find.text('Paso 1 de 4'), findsOneWidget);
         await tester.enterText(campo('Nombre y apellido'), 'Rosa Huamán');
+        await tester.enterText(campo('Edad'), '78');
         await tester.enterText(
           campo('Dirección de la vivienda'),
           'Jr. Los Pinos 482, San Miguel, Lima',
@@ -65,6 +66,7 @@ void main() {
         await tocar(tester, find.text('Guardar y continuar'));
         final creado = repo.creados.single;
         expect(creado.nombre, 'Rosa Huamán');
+        expect(creado.edad, 78);
         expect(creado.direccion, 'Jr. Los Pinos 482, San Miguel, Lima');
         expect(creado.convivencia, Convivencia.solo);
         expect(almacen.actual?.hogarId, 'h-1');
@@ -82,6 +84,7 @@ void main() {
         );
         await abrir(tester, Rutas.configPersona, sesionSinHogar);
         await tester.enterText(campo('Nombre y apellido'), 'Rosa Huamán');
+        await tester.enterText(campo('Edad'), '78');
         await tester.enterText(
           campo('Dirección de la vivienda'),
           'Jr. Los Pinos 482',
@@ -108,10 +111,48 @@ void main() {
           findsOneWidget,
         );
         expect(find.text('Elige una opción.'), findsOneWidget);
+        expect(find.text('Escribe su edad.'), findsOneWidget);
         expect(find.text('Escribe su nombre y apellido.'), findsNothing);
         expect(repo.creados, isEmpty);
       },
     );
+
+    for (final edad in ['7', '49', '121']) {
+      testWidgets('CA-04.3: rechaza la edad $edad', (tester) async {
+        await abrir(tester, Rutas.configPersona, sesionSinHogar);
+        await tester.enterText(campo('Nombre y apellido'), 'Rosa Huamán');
+        await tester.enterText(campo('Edad'), edad);
+        await tester.enterText(
+          campo('Dirección de la vivienda'),
+          'Jr. Los Pinos 482',
+        );
+        await tocar(tester, find.text('Vive solo(a)'));
+        await tocar(tester, find.text('Guardar y continuar'));
+        expect(find.text('Escribe una edad válida, en años.'), findsOneWidget);
+        expect(repo.creados, isEmpty);
+      });
+    }
+
+    testWidgets('CA-04.3: resalta la edad que rechaza el backend', (
+      tester,
+    ) async {
+      repo.errorCrear = const ProblemaApi(
+        codigo: 'VALIDACION',
+        detalle: 'Revisa los datos.',
+        estado: 400,
+        campos: {'adultoMayor.edad': 'Escribe una edad válida, en años.'},
+      );
+      await abrir(tester, Rutas.configPersona, sesionSinHogar);
+      await tester.enterText(campo('Nombre y apellido'), 'Rosa Huamán');
+      await tester.enterText(campo('Edad'), '78');
+      await tester.enterText(
+        campo('Dirección de la vivienda'),
+        'Jr. Los Pinos 482',
+      );
+      await tocar(tester, find.text('Vive solo(a)'));
+      await tocar(tester, find.text('Guardar y continuar'));
+      expect(find.text('Escribe una edad válida, en años.'), findsOneWidget);
+    });
   });
 
   group('Ajustes › Persona cuidada', () {
@@ -130,7 +171,35 @@ void main() {
         repo.actualizados.single.direccion,
         'Av. La Marina 100, San Miguel',
       );
+      expect(repo.actualizados.single.edad, 78);
       expect(find.text('Cambios guardados'), findsOneWidget);
+    });
+
+    testWidgets('la titular cambia la edad y el teléfono se conserva', (
+      tester,
+    ) async {
+      repo = HogarRepositorioFalso(
+        Hogar(
+          hogarId: 'h-1',
+          adultoMayor: const AdultoMayor(
+            nombre: 'Rosa Huamán',
+            edad: 78,
+            direccion: 'Jr. Los Pinos 482, San Miguel, Lima',
+            convivencia: Convivencia.solo,
+            telefono: '987 654 321',
+          ),
+          rol: Rol.titular,
+          consentimiento: consentimientoVigente,
+        ),
+      );
+      await abrir(tester, Rutas.personaCuidada, sesionTitular);
+      expect(tester.widget<TextField>(campo('Edad')).controller!.text, '78');
+      await tester.enterText(campo('Edad'), '79');
+      await tocar(tester, find.text('Guardar cambios'));
+      final guardado = repo.actualizados.single;
+      expect(guardado.edad, 79);
+      // The form has no phone field: the PUT sends the stored one back.
+      expect(guardado.telefono, '987 654 321');
     });
 
     testWidgets('CA-04.2: indica que cada cuenta cuida a una sola persona', (
@@ -179,8 +248,10 @@ void main() {
       expect(http.peticiones.single.data, {
         'adultoMayor': {
           'nombre': 'Rosa Huamán',
+          'edad': 78,
           'direccion': 'Jr. Los Pinos 482, San Miguel, Lima',
           'convivencia': 'SOLO',
+          'telefono': null,
         },
       });
     });
@@ -211,15 +282,30 @@ void main() {
           '/api/hogar/adulto-mayor',
           const Respuesta(200, {
             'nombre': 'Rosa Huamán',
+            'edad': 79,
             'direccion': 'Av. 1',
             'convivencia': 'CON_CUIDADOR',
+            'telefono': '987 654 321',
           }),
         );
-      final a = await contenedor(
-        http,
-      ).read(hogarRepositorioProvider).actualizarAdultoMayor(rosa);
+      final a = await contenedor(http)
+          .read(hogarRepositorioProvider)
+          .actualizarAdultoMayor(
+            const AdultoMayor(
+              nombre: 'Rosa Huamán',
+              edad: 79,
+              direccion: 'Av. 1',
+              convivencia: Convivencia.solo,
+              telefono: '987 654 321',
+            ),
+          );
       expect(a.convivencia, Convivencia.conCuidador);
-      expect((http.peticiones.single.data as Map)['convivencia'], 'SOLO');
+      expect(a.edad, 79);
+      expect(a.telefono, '987 654 321');
+      final cuerpo = http.peticiones.single.data as Map;
+      expect(cuerpo['convivencia'], 'SOLO');
+      expect(cuerpo['edad'], 79);
+      expect(cuerpo['telefono'], '987 654 321');
     });
 
     test('GET /api/hogar lee el adulto mayor y el consentimiento', () async {
@@ -232,8 +318,10 @@ void main() {
             'rol': 'TITULAR',
             'adultoMayor': {
               'nombre': 'Rosa Huamán',
+              'edad': 78,
               'direccion': 'Jr. Los Pinos 482',
               'convivencia': 'CON_FAMILIAR',
+              'telefono': '987 654 321',
             },
             'consentimiento': {
               'otorgadoEn': '2026-08-03T14:12:00Z',
@@ -247,6 +335,8 @@ void main() {
       final h = await contenedor(http).read(hogarRepositorioProvider).obtener();
       expect(h.adultoMayor.nombrePila, 'Rosa');
       expect(h.adultoMayor.convivencia, Convivencia.conFamiliar);
+      expect(h.adultoMayor.edad, 78);
+      expect(h.adultoMayor.telefono, '987 654 321');
       expect(h.conConsentimiento, isTrue);
       expect(h.consentimiento!.registradoPor, 'Carmen Huamán');
     });

@@ -5,6 +5,7 @@ import 'package:te_tengo/features/hogar/domain/hogar.dart';
 
 const rosa = AdultoMayor(
   nombre: 'Rosa Huamán',
+  edad: 78,
   direccion: 'Jr. Los Pinos 482, San Miguel, Lima',
   convivencia: Convivencia.solo,
 );

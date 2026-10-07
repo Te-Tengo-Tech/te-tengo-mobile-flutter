@@ -24,10 +24,10 @@ class Camara {
   /// False after more than 5 minutes with only discarded frames (CA-15.3).
   final bool deteccionConfiable;
 
-  /// Installation date; not in the contract (docs/BLOCKERS.md), read when present.
+  /// When the project team installed the camera («Instalada el», CA-06.1).
   final DateTime? instaladaEn;
 
-  /// Since when detection is unreliable; not in the contract (docs/BLOCKERS.md), read when present.
+  /// Since when detection is unreliable (CA-15.3); null while it is reliable.
   final DateTime? noConfiableDesde;
 
   bool get enPausa => pausadaHasta != null;

@@ -21,10 +21,11 @@ enum Convivencia {
       Convivencia.values.where((c) => c.codigo == valor).firstOrNull;
 }
 
-/// The older adult cared for (`adultoMayor`).
+/// The older adult cared for (contract §2 `adultoMayor`).
 ///
-/// `edad` and `telefono` appear in the prototype but not in the contract (see docs/BLOCKERS.md): they
-/// are read when the backend sends them and never sent.
+/// `edad` is null only for households registered before the contract asked for it. `telefono` is
+/// optional: «Llamar a Rosa · 987 654 321» dials it, and the app has no field to capture it yet
+/// (docs/BLOCKERS.md), so it is sent back unchanged when the profile is saved.
 class AdultoMayor {
   const AdultoMayor({
     required this.nombre,
@@ -51,11 +52,14 @@ class AdultoMayor {
     telefono: json['telefono'] as String?,
   );
 
-  /// Body of `POST /api/hogar` and `PUT /api/hogar/adulto-mayor`.
+  /// Body of `POST /api/hogar` and `PUT /api/hogar/adulto-mayor`. The `PUT` replaces the whole
+  /// profile, so the phone is always sent.
   Map<String, Object?> aJson() => {
     'nombre': nombre,
+    'edad': edad,
     'direccion': direccion,
     'convivencia': convivencia?.codigo,
+    'telefono': telefono,
   };
 }
 

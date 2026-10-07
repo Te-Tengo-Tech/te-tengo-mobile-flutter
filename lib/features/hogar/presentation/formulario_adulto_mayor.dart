@@ -7,18 +7,36 @@ import '../domain/hogar.dart';
 class FormularioAdultoMayor {
   FormularioAdultoMayor([AdultoMayor? actual])
     : nombre = TextEditingController(text: actual?.nombre),
+      edad = TextEditingController(text: actual?.edad?.toString()),
       direccion = TextEditingController(text: actual?.direccion),
-      convivencia = actual?.convivencia;
+      convivencia = actual?.convivencia,
+      _telefono = actual?.telefono;
 
   final TextEditingController nombre;
+  final TextEditingController edad;
   final TextEditingController direccion;
   Convivencia? convivencia;
   Map<String, String> errores = {};
 
+  /// Kept as it is: the form has no phone field (docs/BLOCKERS.md).
+  final String? _telefono;
+
+  /// Age range of the prototype's profile form (2 or 3 digits, 50 to 120 years).
+  static const edadMinima = 50;
+  static const edadMaxima = 120;
+
   /// Client check with the prototype messages (CA-04.3). Returns true when complete.
   bool validar() {
+    final textoEdad = edad.text.trim();
+    final anios = int.tryParse(textoEdad);
     errores = {
       if (nombre.text.trim().isEmpty) 'nombre': 'Escribe su nombre y apellido.',
+      if (textoEdad.isEmpty)
+        'edad': 'Escribe su edad.'
+      else if (!RegExp(r'^\d{2,3}$').hasMatch(textoEdad) ||
+          anios! < edadMinima ||
+          anios > edadMaxima)
+        'edad': 'Escribe una edad válida, en años.',
       if (direccion.text.trim().isEmpty)
         'direccion': 'Escribe la dirección de la vivienda.',
       if (convivencia == null) 'convivencia': 'Elige una opción.',
@@ -33,12 +51,15 @@ class FormularioAdultoMayor {
 
   AdultoMayor get valor => AdultoMayor(
     nombre: nombre.text.trim(),
+    edad: int.tryParse(edad.text.trim()),
     direccion: direccion.text.trim(),
     convivencia: convivencia,
+    telefono: _telefono,
   );
 
   void dispose() {
     nombre.dispose();
+    edad.dispose();
     direccion.dispose();
   }
 }
@@ -68,6 +89,15 @@ class CamposAdultoMayor extends StatelessWidget {
           error: f.errores['nombre'],
           marcador: 'Ej.: Rosa Huamán',
           habilitado: habilitado,
+          accionTeclado: TextInputAction.next,
+        ),
+        CampoTexto(
+          etiqueta: 'Edad',
+          controlador: f.edad,
+          tipo: TipoCampo.numero,
+          error: f.errores['edad'],
+          habilitado: habilitado,
+          longitudMaxima: 3,
           accionTeclado: TextInputAction.next,
         ),
         CampoTexto(
