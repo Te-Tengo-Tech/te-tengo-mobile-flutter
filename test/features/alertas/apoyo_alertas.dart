@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/core/dispositivo/llamada.dart';
+import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
 import 'package:te_tengo/core/reloj.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
@@ -27,6 +28,7 @@ Future<List<String?>> abrirConAlertas(
   Sesion sesion = sesionTitular,
   NotificacionesPushFalsas? push,
   FamiliaRepositorioFalso? familia,
+  PermisoNotificaciones? permiso,
   List<Override> overrides = const [],
 }) async {
   final llamadas = <String?>[];
@@ -36,6 +38,7 @@ Future<List<String?>> abrirConAlertas(
       ubicacion: ubicacion,
       sesion: sesion,
       push: push,
+      permiso: permiso,
       overrides: [
         alertasRepositorioProvider.overrideWithValue(alertas),
         camarasRepositorioProvider.overrideWithValue(CamarasRepositorioFalso()),

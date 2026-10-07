@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
+import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
@@ -116,6 +117,16 @@ class PantallaAjustes extends ConsumerWidget {
                 chevron: titular,
                 alTocar: () => context.push(Rutas.ordenAviso),
               ),
+            FilaLista(
+              inicio: const IconoFila(Ico.bell),
+              titulo: 'Notificaciones',
+              subtitulo: switch (ref.watch(notificacionesActivasProvider)) {
+                AsyncData(value: true) => 'Activadas en este celular',
+                AsyncData(value: false) => 'Desactivadas en el celular',
+                _ => null,
+              },
+              alTocar: () => context.push(Rutas.notificaciones),
+            ),
             FilaLista(
               inicio: const IconoFila(Ico.shield),
               titulo: 'Privacidad y consentimiento',
