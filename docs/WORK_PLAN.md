@@ -90,7 +90,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 - [x] **T32 Local cache:**
   - `drift` (SQLite) for the latest alerts, the viewed history, camera status and preferences (architecture: «Base de datos local del cliente»).
   - Show cached data when offline.
-- [ ] **T33 Hardening.**
+- [x] **T33 Hardening.**
   - A golden or screenshot test per main screen.
   - An accessibility pass: semantics labels, tap targets, text scaling to 200 %.
   - A final check of every endpoint against `docs/API_CONTRACT.md`.

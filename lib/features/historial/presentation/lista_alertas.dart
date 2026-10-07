@@ -141,6 +141,8 @@ class FilaAlerta extends StatelessWidget {
   Widget build(BuildContext context) {
     final a = alerta;
     final quien = a.atendidaPor?.split(' ').first;
+    // With large text the stamp goes under the room instead of at the end of the row.
+    final grande = MediaQuery.textScalerOf(context).scale(16) > 24;
     return InkWell(
       onTap: () => context.push(
         a.activa ? Rutas.alerta(a.id) : Rutas.detalleAlerta(a.id),
@@ -151,8 +153,8 @@ class FilaAlerta extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
             children: [
-              SizedBox(
-                width: 52,
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 52),
                 child: Text(hora(a.ocurridaEn), style: estiloMono(tamano: 16)),
               ),
               const SizedBox(width: 4),
@@ -172,11 +174,11 @@ class FilaAlerta extends StatelessWidget {
                           : '${a.habitacion} · $quien',
                       style: estiloTexto(14, 400, color: Colores.tinta3),
                     ),
+                    if (grande) ...[const SizedBox(height: 6), SelloEstado(a)],
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              SelloEstado(a),
+              if (!grande) ...[const SizedBox(width: 8), SelloEstado(a)],
             ],
           ),
         ),
