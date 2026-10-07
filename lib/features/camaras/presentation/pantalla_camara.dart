@@ -16,6 +16,7 @@ import '../../hogar/data/hogar_repositorio.dart';
 import '../data/camaras_repositorio.dart';
 import '../domain/camara.dart';
 import 'cabecera_camara.dart';
+import 'pausa_camara.dart';
 
 /// Camera detail (screens 30–32): header with the state, what to do, live view and room name.
 class PantallaCamara extends ConsumerWidget {
@@ -86,7 +87,7 @@ class _Detalle extends ConsumerWidget {
           ahora: ref.watch(relojProvider)(),
         ),
         const SizedBox(height: 16),
-        ..._cuerpo(context, titular),
+        ..._cuerpo(context, ref, titular),
         const EncabezadoSeccion('Habitación'),
         ListaTarjeta(
           children: [
@@ -123,7 +124,7 @@ class _Detalle extends ConsumerWidget {
   }
 
   /// What to do in each state (`S.camara`).
-  List<Widget> _cuerpo(BuildContext context, bool titular) {
+  List<Widget> _cuerpo(BuildContext context, WidgetRef ref, bool titular) {
     final habitacion = camara.nombreHabitacion;
     final senal = camara.ultimaSenal;
     switch (estado) {
@@ -179,6 +180,39 @@ class _Detalle extends ConsumerWidget {
                     'Que el módem o router de la casa tenga luz y funcione.',
               ),
             ],
+          ),
+        ];
+      case EstadoVisible.enPausa:
+        return [
+          Aviso(
+            tono: TonoAviso.neutral,
+            icono: Ico.pause,
+            titulo:
+                'En pausa hasta las '
+                '${finDePausa(camara.pausadaHasta!, ref.watch(relojProvider)())}',
+            texto:
+                'No se detectan caídas y no se puede ver en vivo. Se reactivará '
+                'sola a esa hora y te avisaremos.',
+          ),
+          const SizedBox(height: 12),
+          Boton(
+            'Reanudar ahora',
+            estilo: EstiloBoton.secundario,
+            alPresionar: () => reanudarCamara(context, ref, camara),
+          ),
+        ];
+      case EstadoVisible.enLinea:
+        return [
+          Boton(
+            'Pausar esta cámara',
+            estilo: EstiloBoton.secundario,
+            icono: Ico.pause,
+            alPresionar: () => pausarCamara(context, camara),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Útil si hay visitas o una reunión familiar en esta habitación.',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ];
       default:

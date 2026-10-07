@@ -74,7 +74,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 - [x] **T19 US-25 History:** screens 83–88. `GET /api/alertas` with filters; empty state «Sin eventos registrados»; loading state.
 - [x] **T20 US-10 Alert order and wait time:** screens 62–65 and 72. 3, 5 (default) or 10 min; single-member case.
 - [x] **T21 US-20 Escalation views:** screens 58 and 59.
-- [ ] **T22 US-22 Pause camera:** screens 33–35. Options 30 min, 1 h, 2 h, «Hasta mañana» (contract `duracion`); paused state with the end time; resume.
+- [x] **T22 US-22 Pause camera:** screens 33–35. Options 30 min, 1 h, 2 h, «Hasta mañana» (contract `duracion`); paused state with the end time; resume.
 - [ ] **T23 US-15 Unreliable detection notice:** screens 36 and 37. «Revisa la luz y el encuadre».
 - [ ] **T24 US-23 Live view:** screens 38–40, 54 and 74.
   - Dark background, «EN VIVO · mm:ss», access-recorded reminder.
