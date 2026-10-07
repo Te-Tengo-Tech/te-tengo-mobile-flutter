@@ -130,6 +130,25 @@ class GestorPush {
                 alTocar: () => router.push(Rutas.alerta(id)),
               ),
             );
+      case TipoPush.seLevanto:
+        // CA-21.1: the follow-up notice, also on the alert itself (screen 57).
+        final id = m.alertaId;
+        final nombre = _ref.read(nombreAdultoMayorProvider) ?? '';
+        _ref
+            .read(avisoFlotanteProvider.notifier)
+            .mostrar(
+              AvisoFlotante(
+                tipo: TipoFlotante.enApp,
+                titulo: '$nombre se levantó',
+                texto:
+                    '${hora(m.ocurridaEn ?? _ref.read(relojProvider)())} · Se '
+                    'puso de pie${habitacion.isEmpty ? '' : ' ${enHabitacion(habitacion)}'}. '
+                    'Confirma cómo está.',
+                alTocar: id == null || _enPantalla(router, Rutas.alerta(id))
+                    ? null
+                    : () => router.push(Rutas.alerta(id)),
+              ),
+            );
       case TipoPush.alertaAtendida:
         // CA-19.3: the others see who attended it and when.
         final id = m.alertaId;
@@ -183,8 +202,6 @@ class GestorPush {
               habitacion: habitacion,
               cuando: m.ocurridaEn ?? _ref.read(relojProvider)(),
             );
-      default:
-        break;
     }
   }
 
