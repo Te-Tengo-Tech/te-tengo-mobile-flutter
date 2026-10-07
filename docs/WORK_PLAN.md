@@ -85,7 +85,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 - [x] **T27 Invited member (read-only):** screens 73 and 75–82. Lock icon and «Solo ver» per PRODUCT.md and DESIGN.md.
 - [x] **T28 US-21 Recovery notice:** screen 57. «Se levantó a las HH:MM».
 - [x] **T29 US-26 Recordings:** screens 89–91. Playback, download, removed by retention.
-- [ ] **T30 US-27 Weekly summary:** screens 92 and 93. Counts by type and the trend against the previous week (amber for increases in falls or unstable movement, green for decreases).
+- [x] **T30 US-27 Weekly summary:** screens 92 and 93. Counts by type and the trend against the previous week (amber for increases in falls or unstable movement, green for decreases).
 - [ ] **T31 Settings:** screens 94 and 96. Notification preferences, privacy entry point.
 - [ ] **T32 Local cache:**
   - `drift` (SQLite) for the latest alerts, the viewed history, camera status and preferences (architecture: «Base de datos local del cliente»).

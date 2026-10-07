@@ -19,6 +19,7 @@ import '../features/familia/data/familia_repositorio.dart';
 import '../features/familia/domain/familiar.dart';
 import '../features/camaras/presentation/avisos_camara.dart';
 import '../features/historial/data/historial_provider.dart';
+import '../features/historial/data/resumen_repositorio.dart';
 import '../features/hogar/data/hogar_repositorio.dart';
 import '../features/hogar/presentation/revocacion.dart';
 import 'router.dart';
@@ -293,7 +294,10 @@ class GestorPush {
     if (m.tipo.deAlerta || m.tipo == TipoPush.alertaAtendida) {
       _ref
         ..invalidate(alertaActivaProvider)
-        ..invalidate(historialProvider);
+        ..invalidate(historialProvider)
+        ..invalidate(resumenSemanalProvider)
+        ..invalidate(alertasDeSemanaProvider)
+        ..invalidate(ultimoEventoProvider);
       if (m.alertaId case final id?) _ref.invalidate(alertaProvider(id));
     }
   }

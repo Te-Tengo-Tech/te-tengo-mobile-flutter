@@ -63,6 +63,10 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
               (a) =>
                   filtro.desde == null || !a.ocurridaEn.isBefore(filtro.desde!),
             )
+            .where(
+              (a) =>
+                  filtro.hasta == null || a.ocurridaEn.isBefore(filtro.hasta!),
+            )
             .toList()
           ..sort((a, b) => b.ocurridaEn.compareTo(a.ocurridaEn));
     return PaginaAlertas(

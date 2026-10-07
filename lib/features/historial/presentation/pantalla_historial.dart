@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ui/chips.dart';
 import '../data/historial_provider.dart';
+import '../data/resumen_repositorio.dart';
 import 'lista_alertas.dart';
+import 'resumen_semanal.dart';
 
 enum SeccionHistorial { alertas, resumen }
 
@@ -22,10 +24,7 @@ final seccionHistorialProvider =
 
 /// Historial tab: alerts and weekly summary.
 class PantallaHistorial extends ConsumerWidget {
-  const PantallaHistorial({super.key, this.resumen});
-
-  /// Content of the «Resumen semanal» segment.
-  final Widget? resumen;
+  const PantallaHistorial({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +38,12 @@ class PantallaHistorial extends ConsumerWidget {
         return false;
       },
       child: RefreshIndicator(
-        onRefresh: () => ref.refresh(historialProvider.future),
+        onRefresh: () {
+          ref
+            ..invalidate(resumenSemanalProvider)
+            ..invalidate(alertasDeSemanaProvider);
+          return ref.refresh(historialProvider.future);
+        },
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
           children: [
@@ -65,7 +69,7 @@ class PantallaHistorial extends ConsumerWidget {
             if (seccion == SeccionHistorial.alertas)
               const ListaHistorial()
             else
-              ?resumen,
+              const VistaResumenSemanal(),
           ],
         ),
       ),
