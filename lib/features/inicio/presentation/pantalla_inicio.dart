@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
+import '../../historial/presentation/pantalla_historial.dart';
+import '../../historial/presentation/resumen_semanal.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
@@ -134,6 +136,18 @@ class PantallaInicio extends ConsumerWidget {
               ],
             ),
           ],
+          if (hogar.value?.conConsentimiento ?? false)
+            SemanaEnInicio(
+              alVerResumen: () {
+                ref
+                    .read(seccionHistorialProvider.notifier)
+                    .elegir(SeccionHistorial.resumen);
+                context.go(Rutas.historial);
+              },
+              alAbrir: (a) => context.push(
+                a.activa ? Rutas.alerta(a.id) : Rutas.detalleAlerta(a.id),
+              ),
+            ),
         ],
       ),
     );
