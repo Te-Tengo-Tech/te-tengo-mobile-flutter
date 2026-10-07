@@ -6,7 +6,7 @@ import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
 import '../features/ajustes/presentation/pantalla_ajustes.dart';
 import '../features/arranque/pantalla_arranque.dart';
-import '../features/camaras/presentation/pantalla_camaras.dart';
+import '../features/camaras/presentation/pantalla_camara.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
 import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
 import '../features/hogar/presentation/pantalla_persona_setup.dart';
@@ -102,6 +102,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => PantallaNombreHabitacion(
           camaraId: state.uri.queryParameters['id'] ?? '',
           nombreActual: state.uri.queryParameters['actual'] ?? '',
+          enConfiguracion: true,
         ),
       ),
       GoRoute(
@@ -160,11 +161,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
-        path: '/camaras',
-        builder: (context, state) => const PantallaCamaras(),
+        path: '/camara/:id',
+        builder: (context, state) =>
+            PantallaCamara(camaraId: state.pathParameters['id']!),
         routes: [
           GoRoute(
-            path: ':id/nombre',
+            path: 'nombre',
             builder: (context, state) => PantallaNombreHabitacion(
               camaraId: state.pathParameters['id']!,
               nombreActual: state.uri.queryParameters['actual'] ?? '',
