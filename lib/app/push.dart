@@ -15,6 +15,8 @@ import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/alertas/domain/alerta.dart';
 import '../features/camaras/data/camaras_repositorio.dart';
 import '../features/camaras/domain/camara.dart';
+import '../features/familia/data/familia_repositorio.dart';
+import '../features/familia/domain/familiar.dart';
 import '../features/camaras/presentation/avisos_camara.dart';
 import '../features/historial/data/historial_provider.dart';
 import '../features/hogar/data/hogar_repositorio.dart';
@@ -133,6 +135,16 @@ class GestorPush {
         final id = m.alertaId;
         if (id == null || _enPantalla(router, Rutas.alerta(id))) break;
         unawaited(_avisarAtendida(router, id));
+      case TipoPush.alertaEscalada || TipoPush.sinContactoSecundario:
+        final id = m.alertaId;
+        if (id == null || _enPantalla(router, Rutas.alerta(id))) break;
+        unawaited(
+          _avisarEscalamiento(
+            router,
+            id,
+            conSecundario: m.tipo == TipoPush.alertaEscalada,
+          ),
+        );
       case TipoPush.datosEliminados:
         // CA-09.3: the revocation screen shows the recordings as deleted.
         _ref
@@ -157,6 +169,57 @@ class GestorPush {
       default:
         break;
     }
+  }
+
+  /// Escalation notices (CA-20.1, CA-20.3).
+  Future<void> _avisarEscalamiento(
+    GoRouter router,
+    String id, {
+    required bool conSecundario,
+  }) async {
+    List<MiembroFamilia> miembros;
+    int? esperaGuardada;
+    try {
+      final aviso = await _ref.read(avisoProvider.future);
+      miembros = ordenarFamilia(
+        await _ref.read(familiaresProvider.future),
+        aviso,
+      );
+      esperaGuardada = aviso.esperaMinutos;
+    } catch (_) {
+      miembros = const [];
+    }
+    final secundario = miembros
+        .where((x) => x.papel == PapelAviso.secundario)
+        .firstOrNull
+        ?.familiar;
+    final yo = _ref.read(sesionControllerProvider)?.usuario.id;
+    final espera = esperaGuardada ?? ConfiguracionAviso.esperaPredeterminada;
+    final mia = conSecundario && secundario?.usuarioId == yo;
+    final (titulo, texto) = mia
+        ? (
+            'Nadie atendió la alerta: te toca',
+            'Pasaron $espera min sin respuesta. Eres el contacto secundario.',
+          )
+        : conSecundario
+        ? (
+            'Alerta escalada a ${secundario?.nombre ?? 'tu contacto secundario'}',
+            'Nadie la marcó en $espera min. Tú todavía puedes atenderla.',
+          )
+        : (
+            'No hay contacto secundario',
+            'Pasaron $espera min sin respuesta. La alerta sigue siendo tuya.',
+          );
+    _ref
+        .read(avisoFlotanteProvider.notifier)
+        .mostrar(
+          AvisoFlotante(
+            tipo: TipoFlotante.enApp,
+            titulo: titulo,
+            texto: texto,
+            alTocar: () => router.push(Rutas.alerta(id)),
+          ),
+        );
   }
 
   Future<void> _avisarAtendida(GoRouter router, String id) async {

@@ -26,6 +26,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T18 Mark alert (US-19):** screens 55, 56, 60 and 61. Bottom sheet «¿Cómo terminó esta alerta?» with «Atendida» or «Falsa alarma» (`POST /api/alertas/{id}/atencion` and `/falsa-alarma`, `409 ALERTA_CERRADA`), the alert detail with who marked it and when, the false-alarm treatment, and the notice to other members when someone attends it (`ALERTA_ATENDIDA`).
 - **T19 History (US-25):** screens 83–88. `GET /api/alertas` with `tipo`, `estado` and `desde` filters, alerts grouped by day with time, mark, room, who marked it and the state stamp, the filter sheet with the live «Ver N alertas» count and removable filter chips, «Ninguna alerta coincide», «Sin eventos registrados», a loading skeleton and paging on scroll.
 - **T20 Alert order and wait time (US-10):** screens 62–65 and 72. Familia tab with each member's role, «Orden de aviso» with `GET`/`PUT /api/hogar/aviso`: primary and secondary contact (swap and removal), 3, 5 (default) or 10 minutes with the example time, the single-member case and the no-secondary warning; read-only for invited members. The alert record names the primary contact.
+- **T21 Escalation views (US-20):** screens 58 and 59. The alert shows when and to whom it escalates, the escalated and no-secondary notices with «Agregar contacto secundario» for the owner, and foreground `ALERTA_ESCALADA`/`SIN_CONTACTO_SECUNDARIO` notices.
 ### Changed
 - Documentation translated to English.
 
