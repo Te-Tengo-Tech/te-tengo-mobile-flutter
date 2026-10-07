@@ -170,6 +170,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
+        path: '/alerta/:id',
+        builder: (context, state) => const PantallaPendiente('Alerta'),
+      ),
+      GoRoute(
+        path: '/alertas/:id',
+        builder: (context, state) => const PantallaPendiente('Alerta'),
+      ),
+      GoRoute(
+        path: Rutas.privacidad,
+        builder: (context, state) => const PantallaPendiente('Privacidad'),
+      ),
+      GoRoute(
         path: Rutas.vivo,
         builder: (context, state) => const PantallaPendiente('En vivo'),
       ),

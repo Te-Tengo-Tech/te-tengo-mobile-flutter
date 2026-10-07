@@ -56,7 +56,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
   - Camera row and «Ver en vivo» row.
   - Banners for disabled notifications (CA-16.3) and no internet.
 - [x] **T11 US-07 Connection status:** screens 28–31. Status with icon and text; «what to check» (cable, PC on, internet); reconnected notice.
-- [ ] **T12 Push foundation (US-16 CA-16.2):**
+- [x] **T12 Push foundation (US-16 CA-16.2):**
   - A `NotificacionesPush` interface with a fake implementation.
   - Device registration (`POST` and `DELETE /api/dispositivos`).
   - Routing from push `tipo` (contract §7) to screens.

@@ -13,7 +13,11 @@ import 'package:te_tengo/core/ui/avisos_flotantes.dart';
 import 'package:te_tengo/core/dispositivo/conectividad.dart';
 import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
 
+import 'package:te_tengo/core/notificaciones/dispositivos_repositorio.dart';
+import 'package:te_tengo/core/notificaciones/notificaciones_push.dart';
+
 import 'adaptador_falso.dart';
+import 'push_falso.dart';
 import 'dispositivo_falso.dart';
 
 /// A screen alone, inside the theme, with fake repositories in [overrides].
@@ -47,11 +51,19 @@ Widget appDePrueba({
   List<Override> overrides = const [],
   PermisoNotificaciones? permiso,
   Conectividad? conectividad,
+  NotificacionesPush? push,
+  DispositivosRepositorio? dispositivos,
 }) => ProviderScope(
   retry: (_, _) => null,
   overrides: [
     almacenSesionProvider.overrideWithValue(
       almacen ?? AlmacenSesionMemoria(sesion),
+    ),
+    notificacionesPushProvider.overrideWithValue(
+      push ?? NotificacionesPushFalsas(),
+    ),
+    dispositivosRepositorioProvider.overrideWithValue(
+      dispositivos ?? DispositivosFalsos(),
     ),
     adaptadorHttpProvider.overrideWithValue(AdaptadorFalso()),
     permisoNotificacionesProvider.overrideWithValue(permiso ?? PermisoFalso()),

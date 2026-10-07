@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../notificaciones/dispositivos_repositorio.dart';
+import '../notificaciones/notificaciones_push.dart';
 import 'almacen_sesion.dart';
 import 'sesion.dart';
 import 'sesion_repositorio.dart';
@@ -27,6 +29,17 @@ class SesionController extends Notifier<Sesion?> {
     await _almacen.borrar();
     state = null;
     if (sesion == null) return;
+    // This phone stops receiving the alerts (`DELETE /api/dispositivos/{tokenPush}`).
+    try {
+      final token = await ref.read(notificacionesPushProvider).token();
+      if (token != null) {
+        await ref
+            .read(dispositivosRepositorioProvider)
+            .eliminar(token, tokenAcceso: sesion.tokenAcceso);
+      }
+    } on Object {
+      // Best effort: the backend also drops devices of revoked sessions.
+    }
     try {
       await ref.read(sesionRepositorioProvider).cerrar(sesion.tokenAcceso);
     } on Object {
@@ -45,11 +58,6 @@ class SesionController extends Notifier<Sesion?> {
 
 final sesionControllerProvider = NotifierProvider<SesionController, Sesion?>(
   SesionController.new,
-);
-
-/// The current session; screens behind the guards can rely on it being present.
-final sesionActualProvider = Provider<Sesion>(
-  (ref) => ref.watch(sesionControllerProvider)!,
 );
 
 /// True when the user is the household owner (`TITULAR`).
