@@ -5,10 +5,18 @@ import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
 import 'package:te_tengo/core/notificaciones/notificaciones_push.dart';
 
 class NotificacionesPushFalsas implements NotificacionesPush {
-  NotificacionesPushFalsas({this.tokenActual, this.mensajeInicial});
+  NotificacionesPushFalsas({
+    this.tokenActual,
+    this.mensajeInicial,
+    this.permiso = true,
+  });
 
   String? tokenActual;
   MensajePush? mensajeInicial;
+
+  /// Answer of the system permission prompt.
+  bool permiso;
+  int permisosPedidos = 0;
   final _renovado = StreamController<String>.broadcast();
   final _recibidas = StreamController<MensajePush>.broadcast();
   final _abiertas = StreamController<MensajePush>.broadcast();
@@ -21,6 +29,12 @@ class NotificacionesPushFalsas implements NotificacionesPush {
   void recibir(MensajePush m) => _recibidas.add(m);
 
   void tocar(MensajePush m) => _abiertas.add(m);
+
+  @override
+  Future<bool> pedirPermiso() async {
+    permisosPedidos++;
+    return permiso;
+  }
 
   @override
   String get plataforma => 'ANDROID';

@@ -10,6 +10,10 @@ import 'mensaje_push.dart';
 
 /// Push notifications of the phone (FCM on Android, APNs on iOS through FCM).
 abstract interface class NotificacionesPush {
+  /// Asks the system for permission to show notifications (Android 13+ and iOS). Returns whether
+  /// they are allowed; false when push is unavailable, without asking.
+  Future<bool> pedirPermiso();
+
   /// Token to register with `POST /api/dispositivos`; null when push is unavailable.
   Future<String?> token();
 
@@ -33,6 +37,9 @@ class NotificacionesPushInactivas implements NotificacionesPush {
   const NotificacionesPushInactivas();
 
   @override
+  Future<bool> pedirPermiso() async => false;
+
+  @override
   Future<String?> token() async => null;
 
   @override
@@ -51,8 +58,41 @@ class NotificacionesPushInactivas implements NotificacionesPush {
   Future<MensajePush?> inicial() async => null;
 }
 
-/// `firebase_messaging` implementation. It needs `google-services.json` and
-/// `GoogleService-Info.plist`; when Firebase cannot start, it behaves as [NotificacionesPushInactivas].
+/// FCM token of this phone. On iOS, FCM can only issue it once APNs has given the app its own token,
+/// which arrives some time after launch (and only after the user allows notifications); until then
+/// `getToken` fails with `apns-token-not-set`. So on iOS it first waits for the APNs token, asking up
+/// to [intentos] times, [pausa] apart. Returns null when there is no token yet: the caller tries
+/// again later (when the app resumes or the permission is granted).
+Future<String?> obtenerTokenPush({
+  required bool esIos,
+  required Future<String?> Function() tokenApns,
+  required Future<String?> Function() tokenFcm,
+  int intentos = 10,
+  Duration pausa = const Duration(seconds: 1),
+  Future<void> Function(Duration) esperar = Future<void>.delayed,
+}) async {
+  try {
+    if (esIos) {
+      String? apns;
+      for (var i = 0; apns == null && i < intentos; i++) {
+        if (i > 0) await esperar(pausa);
+        apns = await tokenApns();
+      }
+      if (apns == null) {
+        debugPrint('Sin token de APNs todavía: el registro se reintentará.');
+        return null;
+      }
+    }
+    return await tokenFcm();
+  } on Object catch (e) {
+    debugPrint('Sin token de push: $e');
+    return null;
+  }
+}
+
+/// `firebase_messaging` implementation. It needs `android/app/google-services.json` and
+/// `ios/Runner/GoogleService-Info.plist` (docs/FIREBASE.md); when Firebase cannot start, it behaves
+/// as [NotificacionesPushInactivas].
 class NotificacionesFirebase implements NotificacionesPush {
   Future<FirebaseMessaging?>? _mensajeria;
 
@@ -75,15 +115,31 @@ class NotificacionesFirebase implements NotificacionesPush {
   String get plataforma => Platform.isIOS ? 'IOS' : 'ANDROID';
 
   @override
+  Future<bool> pedirPermiso() async {
+    final m = await _iniciar();
+    if (m == null) return false;
+    try {
+      final ajustes = await m.requestPermission();
+      return switch (ajustes.authorizationStatus) {
+        AuthorizationStatus.authorized ||
+        AuthorizationStatus.provisional => true,
+        _ => false,
+      };
+    } on Object catch (e) {
+      debugPrint('Sin permiso de notificaciones: $e');
+      return false;
+    }
+  }
+
+  @override
   Future<String?> token() async {
     final m = await _iniciar();
     if (m == null) return null;
-    try {
-      return await m.getToken();
-    } on Object catch (e) {
-      debugPrint('Sin token de push: $e');
-      return null;
-    }
+    return obtenerTokenPush(
+      esIos: Platform.isIOS,
+      tokenApns: m.getAPNSToken,
+      tokenFcm: m.getToken,
+    );
   }
 
   @override

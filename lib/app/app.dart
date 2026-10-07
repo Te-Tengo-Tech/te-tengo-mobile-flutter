@@ -26,9 +26,14 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
     super.initState();
     // Notification permission can change in the system settings while the app is in background.
     _ciclo = AppLifecycleListener(
-      onResume: () => ref
-        ..invalidate(notificacionesActivasProvider)
-        ..invalidate(alertaActivaProvider),
+      onResume: () {
+        ref
+          ..invalidate(notificacionesActivasProvider)
+          ..invalidate(alertaActivaProvider);
+        // A token that was not ready (iOS waits for APNs) or a permission granted in the system
+        // settings: register the phone now.
+        unawaited(ref.read(gestorPushProvider).registrar());
+      },
     );
     unawaited(ref.read(gestorPushProvider).iniciar());
   }
