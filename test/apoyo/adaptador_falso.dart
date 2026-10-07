@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -29,6 +30,9 @@ class Respuesta {
 /// records every request. No real network in tests.
 class AdaptadorFalso implements HttpClientAdapter {
   final peticiones = <RequestOptions>[];
+
+  /// Simulates a phone without connection: every request fails before reaching the backend.
+  bool sinConexion = false;
   final _respuestas = <String, List<Respuesta>>{};
 
   /// Queues [respuesta] for `metodo ruta`.
@@ -46,6 +50,7 @@ class AdaptadorFalso implements HttpClientAdapter {
     Future<void>? cancelacion,
   ) async {
     peticiones.add(opciones);
+    if (sinConexion) throw const SocketException('Sin conexión');
     final cola = _respuestas['${opciones.method} ${opciones.path}'];
     if (cola == null || cola.isEmpty) {
       throw StateError(

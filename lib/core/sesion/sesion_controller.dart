@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../notificaciones/dispositivos_repositorio.dart';
 import '../notificaciones/notificaciones_push.dart';
+import '../cache/cache_local.dart';
 import 'almacen_sesion.dart';
 import 'sesion.dart';
 import 'sesion_repositorio.dart';
@@ -28,6 +29,12 @@ class SesionController extends Notifier<Sesion?> {
     final sesion = state;
     await _almacen.borrar();
     state = null;
+    // The household data leaves this phone with the session.
+    try {
+      await ref.read(cacheLocalProvider).vaciar();
+    } on Object {
+      // Nothing cached yet.
+    }
     if (sesion == null) return;
     // This phone stops receiving the alerts (`DELETE /api/dispositivos/{tokenPush}`).
     try {
