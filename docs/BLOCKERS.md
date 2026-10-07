@@ -6,3 +6,4 @@ Tasks that cannot be finished without an outside decision or credential. Agents 
 |---|---|---|---|
 | Real push notifications | Firebase project (`google-services.json`, `GoogleService-Info.plist`) and an Apple Developer account for APNs | Team | — |
 | Live view transport | Team confirmation of the WebSocket JPEG relay proposed in the API contract | Team | — |
+| T05, T26 Email links | The contract does not define the links the backend emails. The app opens `tetengo://app/nueva-contrasena?token=…&correo=…` (password reset; `correo` optional) and `tetengo://app/invitacion/{token}` (invitation). HTTPS app links need a domain and its `assetlinks.json` / `apple-app-site-association` | Team | 2026-10-07 |

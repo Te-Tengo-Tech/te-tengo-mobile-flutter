@@ -21,6 +21,15 @@ abstract interface class CuentasRepositorio {
     required String correo,
     required String contrasena,
   });
+
+  /// `POST /api/recuperaciones`: always `202`, whether or not the account exists (CA-03.1, CA-03.2).
+  Future<void> solicitarRecuperacion(String correo);
+
+  /// `POST /api/recuperaciones/confirmacion`. Errors: `410 ENLACE_VENCIDO` (CA-03.3).
+  Future<void> confirmarRecuperacion({
+    required String token,
+    required String nuevaContrasena,
+  });
 }
 
 class CuentasRepositorioApi implements CuentasRepositorio {
@@ -52,6 +61,22 @@ class CuentasRepositorioApi implements CuentasRepositorio {
     );
     return Sesion.desdeJson(r.data!);
   });
+
+  @override
+  Future<void> solicitarRecuperacion(String correo) => llamarApi(
+    () => _dio.post<void>('/api/recuperaciones', data: {'correo': correo}),
+  );
+
+  @override
+  Future<void> confirmarRecuperacion({
+    required String token,
+    required String nuevaContrasena,
+  }) => llamarApi(
+    () => _dio.post<void>(
+      '/api/recuperaciones/confirmacion',
+      data: {'token': token, 'nuevaContrasena': nuevaContrasena},
+    ),
+  );
 }
 
 final cuentasRepositorioProvider = Provider<CuentasRepositorio>(
