@@ -1,0 +1,8 @@
+# Native launch screen: the brand purple of the splash screen (DESIGN.md, screen 00), so the app
+# does not flash white before Flutter draws the animated splash.
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#4A2A85"
+  android_12:
+    color: "#4A2A85"
+    icon_background_color: "#4A2A85"
