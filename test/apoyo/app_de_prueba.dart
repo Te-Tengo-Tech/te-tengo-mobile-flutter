@@ -9,18 +9,26 @@ import 'package:te_tengo/core/red/cliente_api.dart';
 import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
 
+import 'package:te_tengo/core/dispositivo/conectividad.dart';
+import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
+
 import 'adaptador_falso.dart';
+import 'dispositivo_falso.dart';
 
 /// A screen alone, inside the theme, with fake repositories in [overrides].
 Widget pantallaDePrueba(
   Widget pantalla, {
   List<Override> overrides = const [],
   Sesion? sesion,
+  PermisoNotificaciones? permiso,
+  Conectividad? conectividad,
 }) => ProviderScope(
   retry: (_, _) => null,
   overrides: [
     almacenSesionProvider.overrideWithValue(AlmacenSesionMemoria(sesion)),
     adaptadorHttpProvider.overrideWithValue(AdaptadorFalso()),
+    permisoNotificacionesProvider.overrideWithValue(permiso ?? PermisoFalso()),
+    conectividadProvider.overrideWithValue(conectividad ?? ConectividadFalsa()),
     ...overrides,
   ],
   child: MaterialApp(theme: temaTeTengo(), home: pantalla),
@@ -32,6 +40,8 @@ Widget appDePrueba({
   Sesion? sesion,
   AlmacenSesion? almacen,
   List<Override> overrides = const [],
+  PermisoNotificaciones? permiso,
+  Conectividad? conectividad,
 }) => ProviderScope(
   retry: (_, _) => null,
   overrides: [
@@ -39,6 +49,8 @@ Widget appDePrueba({
       almacen ?? AlmacenSesionMemoria(sesion),
     ),
     adaptadorHttpProvider.overrideWithValue(AdaptadorFalso()),
+    permisoNotificacionesProvider.overrideWithValue(permiso ?? PermisoFalso()),
+    conectividadProvider.overrideWithValue(conectividad ?? ConectividadFalsa()),
     ubicacionInicialProvider.overrideWithValue(ubicacion),
     ...overrides,
   ],

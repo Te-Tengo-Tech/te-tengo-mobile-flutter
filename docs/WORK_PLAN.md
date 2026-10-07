@@ -51,7 +51,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 - [x] **T07 US-05 Consent:** screens 16–18, 22 and 102. Both checkboxes are required; certificate with date and time and Law No. 29733; banner «sin consentimiento» on home.
 - [x] **T08 US-06 Camera and room name:** screens 19–21 and 32. Extend `features/camaras` to the full screens; renaming is owner-only (`403 SOLO_TITULAR` and read-only UI).
 - [x] **T09 US-08 Invite during onboarding:** screens 23 and 24. `POST /api/invitaciones`.
-- [ ] **T10 Home:** screens 25–27.
+- [x] **T10 Home:** screens 25–27.
   - Older adult status card with the color band.
   - Camera row and «Ver en vivo» row.
   - Banners for disabled notifications (CA-16.3) and no internet.
