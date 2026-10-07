@@ -32,6 +32,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T24 Live view (US-23):** screens 38–40, 54 and 74. Dark live screen with «EN VIVO · mm:ss» over the WebSocket JPEG relay (`POST /api/camaras/{id}/vista-en-vivo`, `DELETE /api/vista-en-vivo/{id}` on close), from home, the camera or an alert; unavailable views for a disconnected, paused or stopped camera; «Acceso registrado» on close.
 - **T25 Access log (US-24):** screens 41–43. «Registro de accesos» grouped by day, newest first, with «Desde una alerta» and the consent note (`GET /api/accesos-vista-en-vivo`), its empty state, and the last access in the camera detail, refreshed when a live view closes.
 - **T26 Family management (US-08):** screens 66–71. Invite screen with what the member can do (`POST /api/invitaciones`), invitation link that creates the invited access (`POST /api/invitaciones/{token}/aceptacion`) and «Listo, …», member options to change the alert order, and «Retirar acceso» with confirmation (`DELETE /api/familiares/{id}`).
+- **T27 Invited member (read-only):** screens 73 and 75–82. Ajustes shows «Eres familiar invitado» and the camera, alert order and privacy rows, with the lock and «Solo ver» on what only the owner changes; tests walk the invited member through every read-only screen (CA-08.4).
 ### Changed
 - Documentation translated to English.
 
