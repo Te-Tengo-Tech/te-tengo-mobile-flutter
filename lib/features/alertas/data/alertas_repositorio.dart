@@ -100,13 +100,18 @@ class AlertasRepositorioApi implements AlertasRepositorio {
       });
 
   @override
-  Future<Alerta> atender(String id) => _marcar(id, 'atencion');
+  Future<Alerta> atender(String id) => llamarApi(() async {
+    final r = await _dio.post<Map<String, dynamic>>(
+      '/api/alertas/$id/atencion',
+    );
+    return Alerta.desdeJson(r.data!);
+  });
 
   @override
-  Future<Alerta> marcarFalsaAlarma(String id) => _marcar(id, 'falsa-alarma');
-
-  Future<Alerta> _marcar(String id, String accion) => llamarApi(() async {
-    final r = await _dio.post<Map<String, dynamic>>('/api/alertas/$id/$accion');
+  Future<Alerta> marcarFalsaAlarma(String id) => llamarApi(() async {
+    final r = await _dio.post<Map<String, dynamic>>(
+      '/api/alertas/$id/falsa-alarma',
+    );
     return Alerta.desdeJson(r.data!);
   });
 }

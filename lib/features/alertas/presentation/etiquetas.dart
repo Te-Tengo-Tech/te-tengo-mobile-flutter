@@ -80,15 +80,17 @@ class SelloEstado extends StatelessWidget {
             Icono(icono, tamano: 14, color: color),
             const SizedBox(width: 6),
           ],
-          Text(
-            texto.toUpperCase(),
-            semanticsLabel: texto,
-            style: estiloTexto(13, 800, color: color).copyWith(
-              letterSpacing: .8,
-              decoration: alerta.estado == EstadoAlerta.falsaAlarma
-                  ? TextDecoration.lineThrough
-                  : null,
-              decorationThickness: 2,
+          Flexible(
+            child: Text(
+              texto.toUpperCase(),
+              semanticsLabel: texto,
+              style: estiloTexto(13, 800, color: color).copyWith(
+                letterSpacing: .8,
+                decoration: alerta.estado == EstadoAlerta.falsaAlarma
+                    ? TextDecoration.lineThrough
+                    : null,
+                decorationThickness: 2,
+              ),
             ),
           ),
         ],

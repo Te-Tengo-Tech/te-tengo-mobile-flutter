@@ -734,7 +734,15 @@ class _Datos extends StatelessWidget {
               VerticalDivider(width: 1, thickness: 1, color: separador),
               Expanded(
                 flex: 95,
-                child: dato('Hace', Text(hace, style: estiloValor)),
+                child: dato(
+                  'Hace',
+                  // «instantes» is one word: shrink it instead of breaking it.
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(hace, style: estiloValor, maxLines: 1),
+                  ),
+                ),
               ),
             ],
           ),

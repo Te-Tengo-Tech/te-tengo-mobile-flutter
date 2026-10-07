@@ -77,6 +77,9 @@ class FilaLista extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mostrarChevron = chevron ?? (alTocar != null && fin == null);
+    // With large text the trailing tag goes under the texts so nothing overflows.
+    final finDebajo =
+        fin != null && MediaQuery.textScalerOf(context).scale(16) > 24;
     final subtituloEstilo = estiloTexto(15, 400, color: Colores.tinta3);
     final contenido = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 64),
@@ -103,10 +106,11 @@ class FilaLista extends StatelessWidget {
                   else if (subtitulo != null)
                     Text(subtitulo!, style: subtituloEstilo),
                   ?debajo,
+                  if (finDebajo) ...[const SizedBox(height: 6), fin!],
                 ],
               ),
             ),
-            if (fin != null) ...[const SizedBox(width: 8), fin!],
+            if (fin != null && !finDebajo) ...[const SizedBox(width: 8), fin!],
             if (mostrarChevron) ...[
               const SizedBox(width: 8),
               const Icono(Ico.chevR, tamano: 22, color: Colores.tinta3),

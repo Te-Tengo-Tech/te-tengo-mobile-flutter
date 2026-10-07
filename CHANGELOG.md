@@ -38,6 +38,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T30 Weekly summary (US-27):** screens 92 and 93. «Resumen semanal» with week navigation, events per day, counts by kind and the trend against the previous week (`GET /api/resumen-semanal?semana=2026-W38`; amber for more falls or unstable movements, green for fewer), «Semana sin eventos», and «Esta semana» with «Último evento» on the home screen.
 - **T31 Settings:** screens 94 and 96. Ajustes «Notificaciones» row and the preferences screen (permission state, always-on falls and camera state, per-phone switches for unstable movement and end of pause, escalation wait), applied to foreground pushes.
 - **T32 Local cache:** SQLite through `drift` (plain SQL, no code generation). An HTTP interceptor keeps the last answer of every household read (alerts and history pages, cameras, household, family, summary, access log), keyed by household, and serves it without connection; notification preferences persist per phone; sign-out clears the household data.
+- **T33 Hardening:** golden screenshots of 18 main screens with the real fonts, an accessibility sweep (44 px targets, labels, WCAG contrast, text at 200 % without overflow, with fixes to list rows, stamps and the alert time slot), the wordmark drawn as vector curves, and a test that every endpoint and push type of the contract is used.
 ### Changed
 - Documentation translated to English.
 
