@@ -10,6 +10,12 @@ abstract interface class CamarasRepositorio {
   Future<List<Camara>> listar();
 
   Future<Camara> renombrar(String camaraId, String nombreHabitacion);
+
+  /// Stops capture and detection for a while (CA-22.1).
+  Future<Camara> pausar(String camaraId, DuracionPausa duracion);
+
+  /// Ends the pause now.
+  Future<Camara> reanudar(String camaraId);
 }
 
 class CamarasRepositorioApi implements CamarasRepositorio {
@@ -35,6 +41,31 @@ class CamarasRepositorioApi implements CamarasRepositorio {
       final respuesta = await _dio.patch<Map<String, dynamic>>(
         '/api/camaras/$camaraId',
         data: {'nombreHabitacion': nombreHabitacion},
+      );
+      return Camara.desdeJson(respuesta.data!);
+    } on DioException catch (e) {
+      throw ProblemaApi.desde(e);
+    }
+  }
+
+  @override
+  Future<Camara> pausar(String camaraId, DuracionPausa duracion) async {
+    try {
+      final respuesta = await _dio.post<Map<String, dynamic>>(
+        '/api/camaras/$camaraId/pausa',
+        data: {'duracion': duracion.codigo},
+      );
+      return Camara.desdeJson(respuesta.data!);
+    } on DioException catch (e) {
+      throw ProblemaApi.desde(e);
+    }
+  }
+
+  @override
+  Future<Camara> reanudar(String camaraId) async {
+    try {
+      final respuesta = await _dio.delete<Map<String, dynamic>>(
+        '/api/camaras/$camaraId/pausa',
       );
       return Camara.desdeJson(respuesta.data!);
     } on DioException catch (e) {

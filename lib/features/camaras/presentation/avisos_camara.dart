@@ -45,6 +45,22 @@ class AvisosCamara {
           ),
         );
   }
+
+  /// «La cámara de la Sala se reactivó» when a pause ends by itself (screen 35, CA-22.3).
+  void reactivada({required String habitacion, required DateTime cuando}) {
+    _ref.invalidate(camarasProvider);
+    _ref
+        .read(avisoFlotanteProvider.notifier)
+        .mostrar(
+          AvisoFlotante(
+            tipo: TipoFlotante.enApp,
+            icono: Ico.cam,
+            tono: TonoAviso.ok,
+            titulo: 'La cámara ${deHabitacion(habitacion)} se reactivó',
+            texto: 'Terminó la pausa a las ${hora(cuando)}.',
+          ),
+        );
+  }
 }
 
 final avisosCamaraProvider = Provider<AvisosCamara>(AvisosCamara.new);

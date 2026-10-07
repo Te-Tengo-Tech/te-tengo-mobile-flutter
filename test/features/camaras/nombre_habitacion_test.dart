@@ -139,6 +139,12 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.camara('c1'), sesion: sesionInvitado);
+    await verHasta(
+      tester,
+      find.text(
+        'Solo Carmen (titular) puede cambiar el nombre de la habitación.',
+      ),
+    );
     expect(find.text('Nombre que aparece en las alertas'), findsOneWidget);
     expect(find.text('Solo ver'), findsOneWidget);
     expect(

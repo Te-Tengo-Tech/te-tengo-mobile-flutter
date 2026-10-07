@@ -166,6 +166,13 @@ class GestorPush {
               habitacion: habitacion,
               cuando: m.ocurridaEn ?? _ref.read(relojProvider)(),
             );
+      case TipoPush.pausaFinalizada:
+        _ref
+            .read(avisosCamaraProvider)
+            .reactivada(
+              habitacion: habitacion,
+              cuando: m.ocurridaEn ?? _ref.read(relojProvider)(),
+            );
       default:
         break;
     }
