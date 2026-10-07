@@ -71,7 +71,7 @@ abstract final class Rutas {
 
   /// Router guards:
   /// - no session → welcome (public screens stay reachable);
-  /// - session without household → onboarding;
+  /// - session without household → onboarding (after registering, «Tu cuenta está lista»);
   /// - signed-in user on an auth screen → home.
   static String? redirigir(Sesion? sesion, String ubicacion) {
     if (_bajo(ubicacion, arranque)) return null;
@@ -80,7 +80,9 @@ abstract final class Rutas {
     }
     if (_bajo(ubicacion, invitacion)) return null;
     if (!sesion.tieneHogar) {
-      return _sinHogar.any((r) => _bajo(ubicacion, r)) ? null : configPersona;
+      if (_sinHogar.any((r) => _bajo(ubicacion, r))) return null;
+      // Just registered: confirm the account before the setup steps.
+      return _bajo(ubicacion, registro) ? cuentaCreada : configPersona;
     }
     if (_soloSinSesion.any((r) => _bajo(ubicacion, r)) ||
         ubicacion == '/' ||

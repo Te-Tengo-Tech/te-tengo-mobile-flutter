@@ -9,6 +9,8 @@ import '../features/camaras/presentation/pantalla_camaras.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
 import '../features/inicio/pantalla_inicio.dart';
 import '../features/sesion/presentation/pantalla_bienvenida.dart';
+import '../features/sesion/presentation/pantalla_cuenta_creada.dart';
+import '../features/sesion/presentation/pantalla_registro.dart';
 import 'navegacion.dart';
 import 'pantalla_pendiente.dart';
 import 'rutas.dart';
@@ -35,7 +37,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.registro,
-        builder: (context, state) => const PantallaPendiente('Crear cuenta'),
+        builder: (context, state) => const PantallaRegistro(),
+      ),
+      GoRoute(
+        path: Rutas.cuentaCreada,
+        builder: (context, state) => const PantallaCuentaCreada(),
       ),
       GoRoute(
         path: Rutas.iniciarSesion,
