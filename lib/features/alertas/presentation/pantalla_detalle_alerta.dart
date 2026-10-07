@@ -129,7 +129,13 @@ class TarjetaDetalle extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [EtiquetaTipo(a.tipo), const Spacer(), SelloEstado(a)]),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [EtiquetaTipo(a.tipo), SelloEstado(a)],
+          ),
           const SizedBox(height: 12),
           Text(
             '${a.tipo.nombre} ${enHabitacion(a.habitacion)}',

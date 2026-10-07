@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/tema/colores.dart';
-import '../../../app/tema/tema.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
+import '../../../core/ui/chips.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
@@ -160,9 +160,9 @@ class _PantallaNombreHabitacionState
                 runSpacing: 8,
                 children: [
                   for (final s in PantallaNombreHabitacion.sugerencias)
-                    _Sugerencia(
+                    ChipOpcion(
                       texto: s,
-                      elegida: nombre == s,
+                      elegido: nombre == s,
                       alTocar: () => setState(() {
                         _control.text = s;
                         _error = null;
@@ -212,50 +212,4 @@ class _PantallaNombreHabitacionState
       ),
     );
   }
-}
-
-/// Suggestion chip (`.chip`): selected ones are filled in ink.
-class _Sugerencia extends StatelessWidget {
-  const _Sugerencia({
-    required this.texto,
-    required this.elegida,
-    required this.alTocar,
-  });
-
-  final String texto;
-  final bool elegida;
-  final VoidCallback alTocar;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    selected: elegida,
-    child: Material(
-      color: elegida ? Colores.tinta : Colores.tarjeta,
-      shape: StadiumBorder(
-        side: BorderSide(
-          color: elegida ? Colores.tinta : Colores.linea2,
-          width: 1.5,
-        ),
-      ),
-      child: InkWell(
-        customBorder: const StadiumBorder(),
-        onTap: alTocar,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 44),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Text(
-              texto,
-              style: estiloTexto(
-                16,
-                600,
-                color: elegida ? Colors.white : Colores.tinta,
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
 }

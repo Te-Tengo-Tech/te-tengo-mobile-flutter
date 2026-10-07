@@ -16,6 +16,7 @@ import '../features/alertas/domain/alerta.dart';
 import '../features/camaras/data/camaras_repositorio.dart';
 import '../features/camaras/domain/camara.dart';
 import '../features/camaras/presentation/avisos_camara.dart';
+import '../features/historial/data/historial_provider.dart';
 import '../features/hogar/data/hogar_repositorio.dart';
 import '../features/hogar/presentation/revocacion.dart';
 import 'router.dart';
@@ -193,7 +194,9 @@ class GestorPush {
         ..invalidate(camarasProvider);
     }
     if (m.tipo.deAlerta || m.tipo == TipoPush.alertaAtendida) {
-      _ref.invalidate(alertaActivaProvider);
+      _ref
+        ..invalidate(alertaActivaProvider)
+        ..invalidate(historialProvider);
       if (m.alertaId case final id?) _ref.invalidate(alertaProvider(id));
     }
   }

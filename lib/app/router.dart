@@ -11,6 +11,7 @@ import '../features/arranque/pantalla_arranque.dart';
 import '../features/camaras/presentation/pantalla_camara.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
 import '../features/familia/presentation/pantallas_configuracion_familia.dart';
+import '../features/historial/presentation/pantalla_historial.dart';
 import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
 import '../features/hogar/presentation/pantalla_persona_setup.dart';
 import '../features/inicio/presentation/pantalla_inicio.dart';
@@ -149,8 +150,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Rutas.historial,
-                builder: (context, state) =>
-                    const PantallaPendiente('Historial'),
+                builder: (context, state) => const PantallaHistorial(),
               ),
             ],
           ),
