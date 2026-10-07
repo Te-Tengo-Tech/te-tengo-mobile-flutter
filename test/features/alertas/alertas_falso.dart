@@ -13,6 +13,7 @@ Alerta caidaSala({
   TipoAlerta tipo = TipoAlerta.caida,
   bool origenInestable = false,
   String? atendidaPor,
+  String? atendidaPorId,
   DateTime? atendidaEn,
   DateTime? escaladaEn,
   EstadoClip clip = EstadoClip.disponible,
@@ -33,6 +34,7 @@ Alerta caidaSala({
     recuperadaEn: recuperadaEn,
     origenInestable: origenInestable,
     atendidaPor: atendidaPor,
+    atendidaPorId: atendidaPorId,
     atendidaEn: atendidaEn,
     escaladaEn: escaladaEn,
     clip: clip,
@@ -89,5 +91,45 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
     return EnlaceClip(
       url: 'https://clips.tetengo.pe/$id.mp4${descarga ? '?descarga' : ''}',
     );
+  }
+
+  final marcadas = <String, EstadoAlerta>{};
+  ProblemaApi? errorMarcar;
+
+  /// Who marks the alerts in this fake.
+  String marcaNombre = 'Carmen Huamán';
+  String marcaId = 'u-carmen';
+  DateTime marcaEn = DateTime(2026, 9, 23, 10, 46);
+
+  @override
+  Future<Alerta> atender(String id) => _marcar(id, EstadoAlerta.atendida);
+
+  @override
+  Future<Alerta> marcarFalsaAlarma(String id) =>
+      _marcar(id, EstadoAlerta.falsaAlarma);
+
+  Future<Alerta> _marcar(String id, EstadoAlerta estado) async {
+    if (errorMarcar != null) throw errorMarcar!;
+    marcadas[id] = estado;
+    final a = await obtener(id);
+    final marcada = Alerta(
+      id: a.id,
+      tipo: a.tipo,
+      estado: estado,
+      confirmada: a.confirmada,
+      camaraId: a.camaraId,
+      habitacion: a.habitacion,
+      ocurridaEn: a.ocurridaEn,
+      notificadaEn: a.notificadaEn,
+      recuperadaEn: a.recuperadaEn,
+      atendidaPor: marcaNombre,
+      atendidaPorId: marcaId,
+      atendidaEn: marcaEn,
+      escaladaEn: a.escaladaEn,
+      origenInestable: a.origenInestable,
+      clip: a.clip,
+    );
+    alertas = [for (final x in alertas) x.id == id ? marcada : x];
+    return marcada;
   }
 }

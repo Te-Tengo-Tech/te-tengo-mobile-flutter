@@ -55,6 +55,7 @@ class Alerta {
     this.notificadaEn,
     this.recuperadaEn,
     this.atendidaPor,
+    this.atendidaPorId,
     this.atendidaEn,
     this.escaladaEn,
     this.origenInestable = false,
@@ -79,6 +80,7 @@ class Alerta {
 
   /// Name of who attended or marked it (CA-19.1, CA-19.3).
   final String? atendidaPor;
+  final String? atendidaPorId;
   final DateTime? atendidaEn;
 
   /// Sent to the secondary contact (CA-20.1).
@@ -113,6 +115,7 @@ class Alerta {
       notificadaEn: fechaDesdeJson(json['notificadaEn']),
       recuperadaEn: fechaDesdeJson(json['recuperadaEn']),
       atendidaPor: atendidaPor is Map ? atendidaPor['nombre'] as String? : null,
+      atendidaPorId: atendidaPor is Map ? atendidaPor['id'] as String? : null,
       atendidaEn: fechaDesdeJson(json['atendidaEn']),
       escaladaEn: fechaDesdeJson(json['escaladaEn']),
       origenInestable: json['origenInestable'] as bool? ?? false,

@@ -23,6 +23,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T15 Unstable movement (US-17):** screens 49–52. Amber medium-severity alert with its own icon, label and steps (never shared with a fall), amber strip and home state, and the in-place update to a fall with «Empezó como movimiento inestable» on `ALERTA_ACTUALIZADA_A_CAIDA`.
 - **T16 Clip (US-18):** screens 47 and 53. `GET /api/alertas/{id}/clip` played with `video_player` behind a controller interface (room and pose poster while loading, play/pause, event mark, 0:00 / 0:12), and «Clip no disponible» when the alert says `NO_DISPONIBLE` or the clip returns `404`.
 - **T17 Revoke consent (US-09):** screens 97–101. Privacy screen with the certificate and how data is cared for, confirmation dialog that keeps everything active when declined (CA-09.2), `DELETE /api/hogar/consentimiento`, and the deleting → deleted progress completed by the `DATOS_ELIMINADOS` push (CA-09.3); invited members see the read-only notice.
+- **T18 Mark alert (US-19):** screens 55, 56, 60 and 61. Bottom sheet «¿Cómo terminó esta alerta?» with «Atendida» or «Falsa alarma» (`POST /api/alertas/{id}/atencion` and `/falsa-alarma`, `409 ALERTA_CERRADA`), the alert detail with who marked it and when, the false-alarm treatment, and the notice to other members when someone attends it (`ALERTA_ATENDIDA`).
 ### Changed
 - Documentation translated to English.
 
