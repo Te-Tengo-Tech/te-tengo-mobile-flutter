@@ -65,7 +65,7 @@ class _Detalle extends ConsumerWidget {
     final a = alerta;
     final yo = ref.watch(sesionControllerProvider)?.usuario;
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
-    final familia = ref.watch(familiaresProvider).value ?? const [];
+    final miembros = ref.watch(miembrosProvider).value ?? const [];
     final otro =
         !a.activa &&
         a.atendidaPor != null &&
@@ -100,7 +100,9 @@ class _Detalle extends ConsumerWidget {
             itemsDeAlerta(
               a,
               nombreAdultoMayor: nombre,
-              avisados: [for (final f in familia) f.nombrePila],
+              avisados: avisadosDe(miembros),
+              secundario: secundarioDe(miembros),
+              esperaMinutos: esperaDe(ref),
             ),
           ),
         ),

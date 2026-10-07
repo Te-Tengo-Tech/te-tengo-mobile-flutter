@@ -14,6 +14,12 @@ abstract interface class FamiliaRepositorio {
   /// `POST /api/invitaciones` (owner): emails a link to create access (CA-08.1). Errors:
   /// `409 YA_ES_FAMILIAR`.
   Future<Invitacion> invitar(String correo);
+
+  /// `GET /api/hogar/aviso`.
+  Future<ConfiguracionAviso> aviso();
+
+  /// `PUT /api/hogar/aviso` (owner). Errors: `422 ESPERA_INVALIDA`, `422 CONTACTO_NO_ES_FAMILIAR`.
+  Future<ConfiguracionAviso> guardarAviso(ConfiguracionAviso aviso);
 }
 
 class FamiliaRepositorioApi implements FamiliaRepositorio {
@@ -37,6 +43,24 @@ class FamiliaRepositorioApi implements FamiliaRepositorio {
     );
     return Invitacion.desdeJson(r.data!);
   });
+
+  @override
+  Future<ConfiguracionAviso> aviso() => llamarApi(() async {
+    final r = await _dio.get<Map<String, dynamic>>('/api/hogar/aviso');
+    return ConfiguracionAviso.desdeJson(r.data!);
+  });
+
+  @override
+  Future<ConfiguracionAviso> guardarAviso(ConfiguracionAviso aviso) =>
+      llamarApi(() async {
+        final r = await _dio.put<Map<String, dynamic>>(
+          '/api/hogar/aviso',
+          data: aviso.aJson(),
+        );
+        // The contract answers `200`; the body may be empty.
+        final datos = r.data;
+        return datos == null ? aviso : ConfiguracionAviso.desdeJson(datos);
+      });
 }
 
 final familiaRepositorioProvider = Provider<FamiliaRepositorio>(
@@ -54,4 +78,46 @@ final nombreTitularProvider = Provider<String?>((ref) {
   if (sesion?.esTitular ?? false) return sesion!.usuario.nombrePila;
   final familia = ref.watch(familiaresProvider).value;
   return familia?.where((f) => f.esTitular).firstOrNull?.nombrePila;
+});
+
+final avisoProvider = FutureProvider<ConfiguracionAviso>((ref) {
+  ref.watch(sesionControllerProvider.select((s) => s?.hogarId));
+  return ref.watch(familiaRepositorioProvider).aviso();
+});
+
+/// Members with their role in the alert order, principal first (`famOrder`).
+class MiembroFamilia {
+  const MiembroFamilia(this.familiar, this.papel);
+
+  final Familiar familiar;
+  final PapelAviso papel;
+}
+
+List<MiembroFamilia> ordenarFamilia(
+  List<Familiar> familia,
+  ConfiguracionAviso? aviso,
+) {
+  PapelAviso papel(Familiar f) => f.usuarioId == aviso?.principalId
+      ? PapelAviso.principal
+      : f.usuarioId == aviso?.secundarioId
+      ? PapelAviso.secundario
+      : PapelAviso.familiar;
+  return [for (final f in familia) MiembroFamilia(f, papel(f))]
+    ..sort((a, b) => a.papel.index.compareTo(b.papel.index));
+}
+
+final miembrosProvider = Provider<AsyncValue<List<MiembroFamilia>>>((ref) {
+  final familia = ref.watch(familiaresProvider);
+  final aviso = ref.watch(avisoProvider);
+  return switch ((familia, aviso)) {
+    (AsyncData(value: final f), AsyncData(value: final a)) => AsyncData(
+      ordenarFamilia(f, a),
+    ),
+    (AsyncError(:final error, :final stackTrace), _) ||
+    (
+      _,
+      AsyncError(:final error, :final stackTrace),
+    ) => AsyncError(error, stackTrace),
+    _ => const AsyncLoading(),
+  };
 });

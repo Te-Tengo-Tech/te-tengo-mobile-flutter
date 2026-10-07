@@ -118,7 +118,7 @@ class _Alerta extends ConsumerWidget {
     final tinta = caida ? Colors.white : Colores.tinta;
     final adulto = hogar.adultoMayor;
     final nombre = adulto.nombrePila;
-    final familia = ref.watch(familiaresProvider).value ?? const [];
+    final miembros = ref.watch(miembrosProvider).value ?? const [];
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: caida ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -185,7 +185,9 @@ class _Alerta extends ConsumerWidget {
                         itemsDeAlerta(
                           alerta,
                           nombreAdultoMayor: nombre,
-                          avisados: [for (final f in familia) f.nombrePila],
+                          avisados: avisadosDe(miembros),
+                          secundario: secundarioDe(miembros),
+                          esperaMinutos: esperaDe(ref),
                         ),
                       ),
                     ),

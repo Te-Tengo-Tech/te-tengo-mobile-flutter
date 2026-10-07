@@ -23,6 +23,11 @@ class FamiliaRepositorioFalso implements FamiliaRepositorio {
 
   List<Familiar> familiares;
   ProblemaApi? errorInvitar;
+  ConfiguracionAviso avisoActual = const ConfiguracionAviso(
+    principalId: 'u-carmen',
+    secundarioId: 'u-luis',
+  );
+  final avisosGuardados = <ConfiguracionAviso>[];
   final invitaciones = <String>[];
 
   @override
@@ -33,5 +38,14 @@ class FamiliaRepositorioFalso implements FamiliaRepositorio {
     invitaciones.add(correo);
     if (errorInvitar != null) throw errorInvitar!;
     return Invitacion(id: 'i-1', correo: correo);
+  }
+
+  @override
+  Future<ConfiguracionAviso> aviso() async => avisoActual;
+
+  @override
+  Future<ConfiguracionAviso> guardarAviso(ConfiguracionAviso aviso) async {
+    avisosGuardados.add(aviso);
+    return avisoActual = aviso;
   }
 }
