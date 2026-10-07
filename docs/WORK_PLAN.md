@@ -81,7 +81,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
   - Unavailable when disconnected or paused.
   - Transport per the contract (see BLOCKERS).
 - [x] **T25 US-24 Access log:** screens 41–43. «Acceso registrado» toast; list newest first; empty state.
-- [ ] **T26 US-08 Family management:** screens 66–71. Invitation sent, accept invitation, member options, remove access.
+- [x] **T26 US-08 Family management:** screens 66–71. Invitation sent, accept invitation, member options, remove access.
 - [ ] **T27 Invited member (read-only):** screens 73 and 75–82. Lock icon and «Solo ver» per PRODUCT.md and DESIGN.md.
 - [ ] **T28 US-21 Recovery notice:** screen 57. «Se levantó a las HH:MM».
 - [ ] **T29 US-26 Recordings:** screens 89–91. Playback, download, removed by retention.

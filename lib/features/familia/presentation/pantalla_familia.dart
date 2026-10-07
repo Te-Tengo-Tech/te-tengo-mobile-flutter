@@ -20,7 +20,7 @@ class PantallaFamilia extends ConsumerWidget {
   const PantallaFamilia({super.key, this.alTocarMiembro});
 
   /// Member options of the owner (US-08, screen 70).
-  final void Function(BuildContext, MiembroFamilia)? alTocarMiembro;
+  final void Function(BuildContext, MiembroFamilia, int indice)? alTocarMiembro;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -91,7 +91,7 @@ class PantallaFamilia extends ConsumerWidget {
               indice: i,
               esYo: lista[i].familiar.usuarioId == yo,
               alTocar: titular && alTocarMiembro != null
-                  ? () => alTocarMiembro!(context, lista[i])
+                  ? () => alTocarMiembro!(context, lista[i], i)
                   : null,
             ),
         ],

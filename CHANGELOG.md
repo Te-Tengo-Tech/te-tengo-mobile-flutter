@@ -31,6 +31,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T23 Unreliable detection (US-15):** screens 36 and 37. Foreground `DETECCION_NO_CONFIABLE` notice that opens the camera, and the camera detail with what to check (light and framing).
 - **T24 Live view (US-23):** screens 38–40, 54 and 74. Dark live screen with «EN VIVO · mm:ss» over the WebSocket JPEG relay (`POST /api/camaras/{id}/vista-en-vivo`, `DELETE /api/vista-en-vivo/{id}` on close), from home, the camera or an alert; unavailable views for a disconnected, paused or stopped camera; «Acceso registrado» on close.
 - **T25 Access log (US-24):** screens 41–43. «Registro de accesos» grouped by day, newest first, with «Desde una alerta» and the consent note (`GET /api/accesos-vista-en-vivo`), its empty state, and the last access in the camera detail, refreshed when a live view closes.
+- **T26 Family management (US-08):** screens 66–71. Invite screen with what the member can do (`POST /api/invitaciones`), invitation link that creates the invited access (`POST /api/invitaciones/{token}/aceptacion`) and «Listo, …», member options to change the alert order, and «Retirar acceso» with confirmation (`DELETE /api/familiares/{id}`).
 ### Changed
 - Documentation translated to English.
 
