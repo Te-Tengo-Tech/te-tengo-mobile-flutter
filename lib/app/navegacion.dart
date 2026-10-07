@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/ui/iconos.dart';
+import '../features/alertas/data/alertas_repositorio.dart';
+import '../features/alertas/presentation/pantalla_alerta.dart';
+import 'rutas.dart';
 import 'tema/colores.dart';
 import 'tema/tema.dart';
 
 /// Bottom bar with 4 tabs: Inicio, Historial, Familia and Ajustes (DESIGN.md, Components). It is
 /// the same for the owner and for an invited member.
-class ShellPestanas extends StatelessWidget {
+class ShellPestanas extends ConsumerWidget {
   const ShellPestanas({
     super.key,
     required this.navegacion,
     this.encima = const [],
-    this.alertasActivas = 0,
   });
 
   final StatefulNavigationShell navegacion;
 
   /// Bars shown above every tab (no internet, active alert).
   final List<Widget> encima;
-
-  /// Badge on «Historial» while an alert is active.
-  final int alertasActivas;
 
   static const _pestanas = [
     ('Inicio', Ico.home),
@@ -31,7 +31,18 @@ class ShellPestanas extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // An active alert opens by itself once, even if its push failed (CA-16.4).
+    ref.listen(alertaActivaProvider, (_, siguiente) {
+      final alerta = siguiente.value;
+      if (alerta == null) return;
+      if (ref.read(alertasVistasProvider).contains(alerta.id)) return;
+      ref.read(alertasVistasProvider.notifier).marcar(alerta.id);
+      context.push(Rutas.alerta(alerta.id));
+    });
+    final alertasActivas = ref.watch(alertaActivaProvider).value == null
+        ? 0
+        : 1;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -73,8 +84,8 @@ class ShellPestanas extends StatelessWidget {
                 NavigationDestination(
                   label: _pestanas[i].$1,
                   tooltip: '',
-                  icon: _icono(i, Colores.tinta3),
-                  selectedIcon: _icono(i, Colores.moradoTinta),
+                  icon: _icono(i, Colores.tinta3, alertasActivas),
+                  selectedIcon: _icono(i, Colores.moradoTinta, alertasActivas),
                 ),
             ],
           ),
@@ -83,7 +94,7 @@ class ShellPestanas extends StatelessWidget {
     );
   }
 
-  Widget _icono(int i, Color color) {
+  Widget _icono(int i, Color color, int alertasActivas) {
     final icono = Icono(_pestanas[i].$2, tamano: 26, color: color);
     if (i != 1 || alertasActivas == 0) return icono;
     return Badge(

@@ -118,7 +118,11 @@ class Boton extends StatelessWidget {
               ),
               child: Opacity(
                 opacity: habilitado || cargando ? 1 : 0.6,
-                child: Center(widthFactor: pequeno ? 1 : null, child: hijo),
+                child: Center(
+                  widthFactor: pequeno ? 1 : null,
+                  heightFactor: 1,
+                  child: hijo,
+                ),
               ),
             ),
           ),

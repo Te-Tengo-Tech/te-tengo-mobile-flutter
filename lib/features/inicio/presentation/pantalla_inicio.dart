@@ -12,6 +12,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../alertas/data/alertas_repositorio.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../camaras/presentation/fila_camara.dart';
@@ -34,11 +35,13 @@ class PantallaInicio extends ConsumerWidget {
     final texto = Theme.of(context).textTheme;
     final hoy = ref.watch(relojProvider)();
     final notificaciones = ref.watch(notificacionesActivasProvider).value;
+    final alerta = ref.watch(alertaActivaProvider).value;
     return RefreshIndicator(
       onRefresh: () async {
         ref
           ..invalidate(hogarProvider)
           ..invalidate(camarasProvider)
+          ..invalidate(alertaActivaProvider)
           ..invalidate(notificacionesActivasProvider);
         await ref.read(hogarProvider.future);
       },
@@ -74,13 +77,21 @@ class PantallaInicio extends ConsumerWidget {
           switch (hogar) {
             AsyncData(value: final h) => TarjetaAdultoMayor(
               adulto: h.adultoMayor,
-              estado: estadoTarjeta(h, camara),
-              accion: _accionTarjeta(
-                context,
-                h.conConsentimiento,
-                camara,
-                titular: sesion.esTitular,
-              ),
+              estado: estadoTarjeta(h, camara, alerta: alerta),
+              accion: alerta != null
+                  ? Boton(
+                      'Ver la alerta',
+                      estilo: alerta.esCaida
+                          ? EstiloBoton.peligro
+                          : EstiloBoton.tinta,
+                      alPresionar: () => context.push(Rutas.alerta(alerta.id)),
+                    )
+                  : _accionTarjeta(
+                      context,
+                      h.conConsentimiento,
+                      camara,
+                      titular: sesion.esTitular,
+                    ),
             ),
             AsyncError(:final error) => MensajeProblema(error),
             _ => const Padding(

@@ -6,6 +6,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/tarjeta.dart';
+import '../../alertas/domain/alerta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../hogar/domain/hogar.dart';
 
@@ -26,10 +27,26 @@ class EstadoTarjeta {
   final String texto;
 }
 
-/// Status of the home card from the household and its camera.
-EstadoTarjeta estadoTarjeta(Hogar hogar, Camara? camara) {
+/// Status of the home card from the household, its camera and the active alert.
+EstadoTarjeta estadoTarjeta(Hogar hogar, Camara? camara, {Alerta? alerta}) {
   final nombre = hogar.adultoMayor.nombrePila;
   final habitacion = camara?.nombreHabitacion ?? '';
+  if (alerta != null) {
+    final caida = alerta.esCaida;
+    return EstadoTarjeta(
+      banda: caida ? Banda.caida : Banda.inestable,
+      icono: caida ? Ico.fall : Ico.unsteady,
+      color: caida ? Colores.caidaTinta : Colores.inestableTinta,
+      titulo: !caida
+          ? 'Movimiento inestable activo'
+          : alerta.sigueEnElSuelo
+          ? 'Caída confirmada'
+          : 'Alerta de caída activa',
+      texto:
+          '${alerta.tipo.nombre} ${enHabitacion(alerta.habitacion)} a las '
+          '${hora(alerta.ocurridaEn)}. Aún nadie la marcó como atendida.',
+    );
+  }
   if (!hogar.conConsentimiento) {
     return EstadoTarjeta(
       banda: Banda.pausa,
