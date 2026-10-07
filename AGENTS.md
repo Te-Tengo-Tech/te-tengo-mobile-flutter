@@ -14,6 +14,11 @@ Lee antes de cambiar algo:
 - [docs/referencias/PRODUCT_BACKLOG.md](docs/referencias/PRODUCT_BACKLOG.md): historias y criterios. Cada criterio Dado/Cuando/Entonces se convierte en una prueba.
 - [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md): estructura por funcionalidad y patrones.
 
+## Dónde guiarte
+- **Qué hacer y en qué orden:** [docs/PLAN_DE_TRABAJO.md](docs/PLAN_DE_TRABAJO.md), que relaciona historias, pantallas y sprints.
+- **Cómo debe verse:** las **103 pantallas del prototipo** en . Ábrelas: son la referencia visual. Los textos exactos y la estructura están en  (busca el título de la pantalla).
+- **Cómo debe comportarse:** los criterios de aceptación en .
+
 ## Stack
 - **Flutter 3.44.8 y Dart 3.12.** Plataformas: Android e iOS.
 - **Riverpod 3** (estado e inyección), **go_router** (navegación), **Dio** (HTTP) y **flutter_secure_storage** (token).
