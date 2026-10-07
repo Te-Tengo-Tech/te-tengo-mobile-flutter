@@ -84,9 +84,7 @@ abstract final class Rutas {
       // Just registered: confirm the account before the setup steps.
       return _bajo(ubicacion, registro) ? cuentaCreada : configPersona;
     }
-    if (_soloSinSesion.any((r) => _bajo(ubicacion, r)) ||
-        ubicacion == '/' ||
-        _bajo(ubicacion, configPersona)) {
+    if (_soloSinSesion.any((r) => _bajo(ubicacion, r)) || ubicacion == '/') {
       return inicio;
     }
     return null;

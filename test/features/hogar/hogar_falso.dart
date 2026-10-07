@@ -1,3 +1,4 @@
+import 'package:te_tengo/core/red/problema_api.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/hogar/domain/hogar.dart';
@@ -27,7 +28,42 @@ class HogarRepositorioFalso implements HogarRepositorio {
   HogarRepositorioFalso([Hogar? hogar]) : hogar = hogar ?? hogarDeRosa();
 
   Hogar hogar;
+  ProblemaApi? errorCrear;
+  ProblemaApi? errorActualizar;
+  Sesion sesionCreada = const Sesion(
+    tokenAcceso: 'acceso-hogar',
+    tokenRefresco: 'refresco-hogar',
+    usuario: Usuario(
+      id: 'u-carmen',
+      nombre: 'Carmen Huamán',
+      correo: 'carmen.huaman@gmail.com',
+    ),
+    hogarId: 'h-1',
+    rol: Rol.titular,
+  );
+  final creados = <AdultoMayor>[];
+  final actualizados = <AdultoMayor>[];
 
   @override
   Future<Hogar> obtener() async => hogar;
+
+  @override
+  Future<Sesion> crear(AdultoMayor adultoMayor) async {
+    creados.add(adultoMayor);
+    if (errorCrear != null) throw errorCrear!;
+    return sesionCreada;
+  }
+
+  @override
+  Future<AdultoMayor> actualizarAdultoMayor(AdultoMayor adultoMayor) async {
+    actualizados.add(adultoMayor);
+    if (errorActualizar != null) throw errorActualizar!;
+    hogar = Hogar(
+      hogarId: hogar.hogarId,
+      adultoMayor: adultoMayor,
+      rol: hogar.rol,
+      consentimiento: hogar.consentimiento,
+    );
+    return adultoMayor;
+  }
 }

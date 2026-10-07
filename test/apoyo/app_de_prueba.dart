@@ -52,10 +52,22 @@ void usarTelefono(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
-/// Scrolls [finder] into view and taps it.
+/// Scrolls [finder] into view (building lazy list items) and taps it.
 Future<void> tocar(WidgetTester tester, Finder finder) async {
+  await verHasta(tester, finder);
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
   await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
+/// Scrolls the main list until [finder] is built.
+Future<void> verHasta(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isNotEmpty) return;
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find.byType(Scrollable).first,
+  );
   await tester.pumpAndSettle();
 }
