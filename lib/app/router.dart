@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
+import '../features/vivo/presentation/pantalla_accesos.dart';
 import '../features/vivo/presentation/pantalla_vivo.dart';
 import '../features/ajustes/presentation/pantalla_ajustes.dart';
 import '../features/alertas/presentation/pantalla_alerta.dart';
@@ -201,6 +202,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Rutas.invitar,
         builder: (context, state) =>
             const PantallaPendiente('Invitar a un familiar'),
+      ),
+      GoRoute(
+        path: Rutas.accesos,
+        builder: (context, state) => const PantallaAccesos(),
       ),
       GoRoute(
         path: Rutas.vivo,

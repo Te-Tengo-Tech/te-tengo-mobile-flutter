@@ -137,7 +137,14 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     final sesion = _sesion;
     _sesion = null;
     if (sesion == null) return;
-    unawaited(_repositorio.cerrar(sesion.sesionId).catchError((_) {}));
+    // The widget is gone when the DELETE finishes: refresh the log through the container.
+    final contenedor = ProviderScope.containerOf(context, listen: false);
+    unawaited(
+      _repositorio
+          .cerrar(sesion.sesionId)
+          .then((_) => contenedor.invalidate(accesosVivoProvider))
+          .catchError((_) {}),
+    );
     final habitacion = _camara?.nombreHabitacion ?? '';
     ref
         .read(avisoFlotanteProvider.notifier)
