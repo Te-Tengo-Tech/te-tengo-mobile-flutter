@@ -52,7 +52,11 @@ class PantallaCamaras extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 4),
-                          EstadoCamara(estado: camara.estado),
+                          EstadoCamara(
+                            estado: camara.estadoVisible(
+                              conConsentimiento: true,
+                            ),
+                          ),
                           if (senal != null)
                             Text(
                               'Última señal: ${senal.hour.toString().padLeft(2, '0')}:'

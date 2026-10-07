@@ -1,10 +1,20 @@
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/camaras/domain/camara.dart';
 
-class CamarasRepositorioFalso implements CamarasRepositorio {
-  CamarasRepositorioFalso(this.camaras);
+/// The pilot camera: one USB webcam in the living room.
+final camaraSala = Camara(
+  id: 'c1',
+  nombreHabitacion: 'Sala',
+  estado: EstadoConexion.enLinea,
+  ultimaSenal: DateTime(2026, 9, 23, 10, 42),
+  instaladaEn: DateTime(2026, 9, 22),
+);
 
-  final List<Camara> camaras;
+class CamarasRepositorioFalso implements CamarasRepositorio {
+  CamarasRepositorioFalso([List<Camara>? camaras])
+    : camaras = camaras ?? [camaraSala];
+
+  List<Camara> camaras;
   final renombradas = <String, String>{};
 
   @override

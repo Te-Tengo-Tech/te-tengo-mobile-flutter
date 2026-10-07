@@ -12,6 +12,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **T04 Sign in and sign out (US-02):** screens 06–08 and 13. `POST /api/sesiones`, wrong-credentials message with the remaining attempts, `423 CUENTA_BLOQUEADA` with the unlock time and disabled fields, and sign-out confirmation with `DELETE /api/sesiones/actual`, splash and the sign-in screen. Household data layer (`GET /api/hogar`).
 - **T05 Password recovery (US-03):** screens 09–12. `POST /api/recuperaciones` with the same generic message for any email, resend countdown, reset deep link (`tetengo://app/nueva-contrasena?token=…`) with `POST /api/recuperaciones/confirmacion`, and the expired-link screen on `410 ENLACE_VENCIDO`.
 - **T06 Older adult profile (US-04):** screens 14, 15 and 95. Setup step 1 with `POST /api/hogar` (stores the returned `Sesion`), the contract `convivencia` options, `409 HOGAR_YA_REGISTRADO` and the one-person-per-account notice, and the profile in Ajustes with `PUT /api/hogar/adulto-mayor` (read-only for invited members). Family data layer (`GET /api/familiares`).
+- **T07 Consent (US-05):** screens 16–18, 22 and 102. Consent summary with the live-view clause, both checkboxes required, `POST /api/hogar/consentimiento`, the certificate with date, time and Law No. 29733, the camera setup step without consent, and the «Detección detenida» home card. `Camara` now carries `pausadaHasta` and `deteccionConfiable` with the visible states of DESIGN.md.
 ### Changed
 - Documentation translated to English.
 
