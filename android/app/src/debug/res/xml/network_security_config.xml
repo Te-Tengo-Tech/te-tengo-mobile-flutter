@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: the local backend and streaming service run on plain HTTP
+     (http://10.0.2.2:8888 from the emulator). ExoPlayer follows this file, so the live view
+     needs it; release builds keep cleartext traffic blocked. For a phone on the LAN, add the
+     computer's address here locally. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>
