@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +12,7 @@ import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/botones.dart';
+import '../../../core/ui/chips.dart';
 import '../../../core/ui/iconos.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../camaras/data/camaras_repositorio.dart';
@@ -20,6 +20,7 @@ import '../../camaras/domain/camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/vista_en_vivo_repositorio.dart';
 import '../domain/vista_en_vivo.dart';
+import 'reproductor_vivo.dart';
 
 /// Why the live view cannot open (`liveState`): CA-23.3, CA-23.4 and, without consent, CA-05.2.
 enum _NoDisponible { desconectada, enPausa, detenida }
@@ -36,6 +37,15 @@ class PantallaVivo extends ConsumerStatefulWidget {
   ConsumerState<PantallaVivo> createState() => _PantallaVivoState();
 }
 
+/// Waiting longer than this for the first frame counts as a lost stream [implementation choice].
+const esperaPrimerFotograma = Duration(seconds: 20);
+
+/// A stream whose position stops advancing this long is lost [implementation choice].
+const esperaSinImagen = Duration(seconds: 10);
+
+/// Pause between attempts to open the playlist while the camera starts publishing.
+const pausaEntreIntentos = Duration(seconds: 2);
+
 class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   Camara? _camara;
   SesionVivo? _sesion;
@@ -43,11 +53,38 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   _NoDisponible? _noDisponible;
   DateTime? _pausadaHasta;
   ProblemaApi? _problema;
-  Uint8List? _fotograma;
+
+  /// When the stream was lost; the view offers to open a new session.
+  DateTime? _cortadaEn;
+
+  /// What the stream shows, and the mode chosen here, sent when a new session opens.
+  ModoVista _modo = ModoVista.video;
+  ModoVista? _modoElegido;
+  bool _cambiandoModo = false;
+
+  /// Seconds of the current session, and of the sessions already closed on this screen.
   int _segundos = 0;
+  int _segundosVistos = 0;
+  bool _huboSesion = false;
+
+  ReproductorVivo? _reproductor;
+
+  /// The first frame of the current session arrived.
+  bool _enVivo = false;
+  int _esperando = 0;
+  int _sinAvance = 0;
+  Duration? _ultimaPosicion;
   Timer? _reloj;
-  StreamSubscription<Uint8List>? _transmision;
+  Timer? _reintento;
+
+  /// Bumped to drop an opening in flight (the screen closed or went to the background).
+  int _intento = 0;
+  bool _oculta = false;
+  bool _abrirAlVolver = false;
+
   late final VistaEnVivoRepositorio _repositorio;
+  late final ProviderContainer _contenedor;
+  late final AppLifecycleListener _ciclo;
 
   bool get _desdeAlerta => widget.alertaId != null;
 
@@ -55,13 +92,19 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   void initState() {
     super.initState();
     _repositorio = ref.read(vistaEnVivoRepositorioProvider);
+    // The DELETE may finish after the widget is gone: refresh the log through the container.
+    _contenedor = ProviderScope.containerOf(context, listen: false);
+    _ciclo = AppLifecycleListener(onHide: _alOcultar, onShow: _alMostrar);
     unawaited(_abrir());
   }
 
   Future<void> _abrir() async {
+    final intento = ++_intento;
+    bool vigente() => mounted && intento == _intento;
     setState(() {
       _problema = null;
       _noDisponible = null;
+      _cortadaEn = null;
     });
     try {
       final hogar = await ref.read(hogarProvider.future);
@@ -75,7 +118,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
       final camara =
           camaras.where((c) => c.id == camaraId).firstOrNull ??
           camaras.firstOrNull;
-      if (!mounted || camara == null) return;
+      if (!vigente() || camara == null) return;
       setState(() {
         _camara = camara;
         _pausadaHasta = camara.pausadaHasta;
@@ -94,27 +137,27 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
       final sesion = await _repositorio.abrir(
         camara.id,
         alertaId: widget.alertaId,
+        modo: _modoElegido,
       );
-      if (!mounted) {
-        unawaited(_repositorio.cerrar(sesion.sesionId).catchError((_) {}));
-        return;
-      }
+      if (!vigente()) return _cerrarSesion(sesion);
       setState(() {
         _sesion = sesion;
+        _huboSesion = true;
+        _modo = sesion.modo;
         _inicio = ref.read(relojProvider)();
+        _segundos = 0;
+        _enVivo = false;
+        _esperando = 0;
+        _sinAvance = 0;
+        _ultimaPosicion = null;
       });
       _reloj = Timer.periodic(
         const Duration(seconds: 1),
-        (_) => setState(() => _segundos++),
+        (_) => _cadaSegundo(),
       );
-      _transmision = ref
-          .read(transmisionProvider)(sesion.urlTransmision)
-          .listen(
-            (f) => setState(() => _fotograma = f),
-            onError: (Object _) {},
-          );
+      unawaited(_conectar(sesion));
     } on ProblemaApi catch (e) {
-      if (!mounted) return;
+      if (!vigente()) return;
       setState(() {
         switch (e.codigo) {
           case 'CAMARA_DESCONECTADA':
@@ -137,21 +180,118 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     }
   }
 
-  /// Stops the stream and closes the session, which records the access (CA-24.1).
-  void _terminar() {
+  /// Plays the session's stream. Until the camera publishes, the playlist does not exist yet, so
+  /// a failed start is retried until [esperaPrimerFotograma] runs out.
+  Future<void> _conectar(SesionVivo sesion) async {
+    final reproductor = ref.read(fabricaReproductorVivoProvider)(
+      sesion.urlTransmision,
+    );
+    _reproductor = reproductor;
+    reproductor.addListener(_alCambiarReproductor);
+    try {
+      await reproductor.iniciar();
+    } on Object {
+      _reintentar(reproductor);
+    }
+  }
+
+  void _reintentar(ReproductorVivo reproductor) {
+    final sesion = _sesion;
+    if (!mounted || _reproductor != reproductor || sesion == null) return;
+    _soltarReproductor();
+    _reintento = Timer(pausaEntreIntentos, () {
+      if (mounted && _sesion == sesion) unawaited(_conectar(sesion));
+    });
+  }
+
+  void _alCambiarReproductor() {
+    final r = _reproductor;
+    if (r == null || !mounted) return;
+    if (r.cortado) return _enVivo ? _perder() : _reintentar(r);
+    setState(() => _enVivo = _enVivo || r.listo);
+  }
+
+  /// The «EN VIVO» clock, and the watchdog for a stream that never starts or stalls.
+  void _cadaSegundo() {
+    if (_sesion == null) return;
+    setState(() => _segundos++);
+    final r = _reproductor;
+    if (!_enVivo || r == null) {
+      if (++_esperando >= esperaPrimerFotograma.inSeconds) _perder();
+      return;
+    }
+    if (r.posicion == _ultimaPosicion) {
+      if (++_sinAvance >= esperaSinImagen.inSeconds) _perder();
+    } else {
+      _sinAvance = 0;
+      _ultimaPosicion = r.posicion;
+    }
+  }
+
+  /// The stream failed, stalled or never started: the session ends and the view offers a new one.
+  void _perder() {
+    if (_sesion == null) return;
+    _detener();
+    setState(() {
+      _noDisponible = _NoDisponible.desconectada;
+      _cortadaEn = ref.read(relojProvider)();
+    });
+  }
+
+  void _soltarReproductor() {
+    final r = _reproductor;
+    _reproductor = null;
+    _enVivo = false;
+    if (r == null) return;
+    r.removeListener(_alCambiarReproductor);
+    // It may be the one notifying right now: dispose it once the notification is over.
+    scheduleMicrotask(r.dispose);
+  }
+
+  /// Stops playback and ends the session, which records the access (CA-24.1).
+  void _detener() {
     _reloj?.cancel();
-    unawaited(_transmision?.cancel());
+    _reloj = null;
+    _reintento?.cancel();
+    _reintento = null;
+    _soltarReproductor();
     final sesion = _sesion;
     _sesion = null;
     if (sesion == null) return;
-    // The widget is gone when the DELETE finishes: refresh the log through the container.
-    final contenedor = ProviderScope.containerOf(context, listen: false);
-    unawaited(
-      _repositorio
-          .cerrar(sesion.sesionId)
-          .then((_) => contenedor.invalidate(accesosVivoProvider))
-          .catchError((_) {}),
-    );
+    _segundosVistos += _segundos;
+    _segundos = 0;
+    _cerrarSesion(sesion);
+  }
+
+  void _cerrarSesion(SesionVivo sesion) => unawaited(
+    _repositorio
+        .cerrar(sesion.sesionId)
+        .then((_) => _contenedor.invalidate(accesosVivoProvider))
+        .catchError((Object _) {}),
+  );
+
+  /// Nobody watches an app in the background: end the session, and open a new one on return.
+  void _alOcultar() {
+    if (_oculta) return;
+    _oculta = true;
+    _abrirAlVolver =
+        _noDisponible == null && _problema == null && _camara != null;
+    _intento++;
+    _detener();
+    setState(() {});
+  }
+
+  void _alMostrar() {
+    if (!_oculta) return;
+    _oculta = false;
+    if (_abrirAlVolver) unawaited(_abrir());
+  }
+
+  /// Leaving the screen: end the session and confirm the access was recorded.
+  void _terminar() {
+    _intento++;
+    _detener();
+    if (!_huboSesion) return;
     final habitacion = _camara?.nombreHabitacion ?? '';
     ref
         .read(avisoFlotanteProvider.notifier)
@@ -160,10 +300,32 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             titulo: 'Acceso registrado',
             texto:
                 'Viste ${conArticulo(habitacion)} en vivo durante '
-                '${duracion(Duration(seconds: _segundos))}.',
+                '${duracion(Duration(seconds: _segundosVistos))}.',
             icono: Ico.eye,
           ),
         );
+  }
+
+  Future<void> _cambiarModo(ModoVista modo) async {
+    final sesion = _sesion;
+    if (sesion == null || modo == _modo) return;
+    setState(() {
+      _cambiandoModo = true;
+      _problema = null;
+    });
+    try {
+      final nuevo = await _repositorio.cambiarModo(sesion.sesionId, modo);
+      if (mounted) {
+        setState(() {
+          _modo = nuevo;
+          _modoElegido = nuevo;
+        });
+      }
+    } on ProblemaApi catch (e) {
+      if (mounted) setState(() => _problema = e);
+    } finally {
+      if (mounted) setState(() => _cambiandoModo = false);
+    }
   }
 
   Future<void> _reanudar() async {
@@ -180,12 +342,10 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
 
   @override
   void dispose() {
-    _reloj?.cancel();
-    unawaited(_transmision?.cancel());
-    // Left without popping (e.g. replaced): still close the session.
-    if (_sesion case final s?) {
-      unawaited(_repositorio.cerrar(s.sesionId).catchError((_) {}));
-    }
+    _ciclo.dispose();
+    // Left without popping (e.g. replaced): still end the session.
+    _intento++;
+    _detener();
     super.dispose();
   }
 
@@ -224,13 +384,13 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
                 habitacion: habitacion,
                 nombre: nombre,
                 desdeAlerta: _desdeAlerta,
-                ultimaSenal: _camara?.ultimaSenal,
+                ultimaSenal: _cortadaEn ?? _camara?.ultimaSenal,
                 pausadaHasta: _pausadaHasta,
                 ahora: ref.watch(relojProvider)(),
               )
             else
               _Imagen(
-                fotograma: _fotograma,
+                reproductor: _enVivo ? _reproductor : null,
                 segundos: viendo ? _segundos : null,
                 habitacion: habitacion,
               ),
@@ -243,12 +403,18 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             ],
             if (viendo) ...[
               const SizedBox(height: 16),
+              _Modos(
+                modo: _modo,
+                alElegir: _cambiandoModo ? null : _cambiarModo,
+              ),
+              const SizedBox(height: 16),
               Text(
-                _desdeAlerta
-                    ? 'Ves la habitación y la postura detectada. La '
-                          'transmisión no se graba.'
-                    : 'Ves ${conArticulo(habitacion)} y la postura de $nombre '
-                          'en este momento. La transmisión no se graba.',
+                queSeVe(
+                  _modo,
+                  habitacion: habitacion,
+                  nombre: nombre,
+                  desdeAlerta: _desdeAlerta,
+                ),
                 style: estiloTexto(16, 400, color: Colores.nocheTexto),
               ),
               const SizedBox(height: 8),
@@ -285,6 +451,16 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
               ),
             ],
             const SizedBox(height: 16),
+            if (_cortadaEn != null) ...[
+              Boton(
+                'Ver en vivo',
+                icono: Ico.refresh,
+                estilo: EstiloBoton.blanco,
+                colorTexto: Colores.tinta,
+                alPresionar: _abrir,
+              ),
+              const SizedBox(height: 12),
+            ],
             if (viendo || _desdeAlerta) ...[
               Boton(
                 'Llamar a $nombre',
@@ -317,32 +493,93 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   }
 }
 
-/// The frame with the «EN VIVO · mm:ss» tag.
+/// What the viewer sees in each mode, worded from the prototype's «Ves la Sala y la postura de
+/// Rosa en este momento» (see docs/BLOCKERS.md).
+String queSeVe(
+  ModoVista modo, {
+  required String habitacion,
+  required String nombre,
+  required bool desdeAlerta,
+}) {
+  final que = switch (modo) {
+    ModoVista.video =>
+      desdeAlerta
+          ? 'Ves la habitación.'
+          : 'Ves ${conArticulo(habitacion)} en este momento.',
+    ModoVista.videoConPostura =>
+      desdeAlerta
+          ? 'Ves la habitación y la postura detectada.'
+          : 'Ves ${conArticulo(habitacion)} y la postura de $nombre en este '
+                'momento.',
+    ModoVista.soloPostura =>
+      desdeAlerta
+          ? 'Ves la postura detectada.'
+          : 'Ves la postura de $nombre en este momento.',
+  };
+  return '$que La transmisión no se graba.';
+}
+
+/// The three modes of the stream as chips; the chosen one is filled and checked.
+class _Modos extends StatelessWidget {
+  const _Modos({required this.modo, required this.alElegir});
+
+  final ModoVista modo;
+
+  /// Null while a change is on its way.
+  final ValueChanged<ModoVista>? alElegir;
+
+  static const _textos = {
+    ModoVista.video: 'Video',
+    ModoVista.videoConPostura: 'Video y postura',
+    ModoVista.soloPostura: 'Solo postura',
+  };
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: [
+      for (final m in ModoVista.values)
+        ChipOpcion(
+          texto: _textos[m]!,
+          elegido: m == modo,
+          icono: m == modo ? Ico.check : null,
+          alTocar: alElegir == null ? null : () => alElegir!(m),
+        ),
+    ],
+  );
+}
+
+/// The live frame, whole at its own aspect ratio, with the «EN VIVO · mm:ss» tag.
 class _Imagen extends StatelessWidget {
   const _Imagen({
-    required this.fotograma,
+    required this.reproductor,
     required this.segundos,
     required this.habitacion,
   });
 
-  final Uint8List? fotograma;
+  /// Set once the first frame arrived.
+  final ReproductorVivo? reproductor;
   final int? segundos;
   final String habitacion;
 
   @override
   Widget build(BuildContext context) {
-    final f = fotograma;
+    final r = reproductor;
     final s = segundos;
+    final relacion = r == null || r.relacionAspecto <= 0
+        ? 3 / 4
+        : r.relacionAspecto;
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: AspectRatio(
-        aspectRatio: 3 / 4,
+        aspectRatio: relacion,
         child: Stack(
           fit: StackFit.expand,
           children: [
             ColoredBox(
               color: Colores.nocheRaya,
-              child: f == null
+              child: r == null
                   ? const Center(
                       child: Icono(
                         Ico.video,
@@ -350,12 +587,10 @@ class _Imagen extends StatelessWidget {
                         color: Colores.nocheTexto,
                       ),
                     )
-                  : Image.memory(
-                      f,
-                      fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                      semanticLabel: 'En vivo · $habitacion',
-                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  : Semantics(
+                      image: true,
+                      label: 'En vivo · $habitacion',
+                      child: r.vista(),
                     ),
             ),
             if (s != null)

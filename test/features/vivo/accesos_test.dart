@@ -10,6 +10,7 @@ import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
 import 'package:te_tengo/features/vivo/domain/vista_en_vivo.dart';
+import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
 import 'package:te_tengo/features/vivo/presentation/pantalla_accesos.dart';
 
 import '../../apoyo/adaptador_falso.dart';
@@ -42,7 +43,9 @@ void main() {
             AlertasRepositorioFalso(),
           ),
           vistaEnVivoRepositorioProvider.overrideWithValue(vivo),
-          transmisionProvider.overrideWithValue(TransmisionFalsa().abrir),
+          fabricaReproductorVivoProvider.overrideWithValue(
+            FabricaReproductorFalsa().crear,
+          ),
           relojProvider.overrideWithValue(() => DateTime(2026, 9, 23, 10, 44)),
         ],
       ),

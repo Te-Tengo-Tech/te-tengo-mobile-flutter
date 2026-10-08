@@ -13,6 +13,7 @@ import 'package:te_tengo/features/historial/domain/resumen_semanal.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
 import 'package:te_tengo/features/vivo/domain/vista_en_vivo.dart';
+import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
 
 import '../apoyo/app_de_prueba.dart';
 import '../apoyo/clip_falso.dart';
@@ -98,7 +99,9 @@ Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
         alertasRepositorioProvider.overrideWithValue(alertas),
         resumenRepositorioProvider.overrideWithValue(_ResumenFalso()),
         vistaEnVivoRepositorioProvider.overrideWithValue(vivo),
-        transmisionProvider.overrideWithValue(TransmisionFalsa().abrir),
+        fabricaReproductorVivoProvider.overrideWithValue(
+          FabricaReproductorFalsa().crear,
+        ),
         fabricaClipProvider.overrideWithValue(ClipFalso.new),
         llamarProvider.overrideWithValue((_) async {}),
         relojProvider.overrideWithValue(() => DateTime(2026, 9, 23, 10, 42, 6)),
