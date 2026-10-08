@@ -4,6 +4,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 ### Added
+- Android release pipeline: release signing with the upload key from `android/key.properties` (template `key.properties.example`; debug key when absent), and the `Release Android` workflow, which builds the release AAB from the `pubspec.yaml` version and uploads it to Google Play's internal track on `mobile-v*` tags or manual runs; it is inert without its secrets. Setup, Play App Signing, testing rules and store policy forms: `docs/RELEASE_ANDROID.md`.
 - CI: separate format/analyze and test jobs with lcov coverage artifact and summary, superseded runs cancelled; weekly OSV-Scanner scan of `pubspec.lock`; Dependabot, CODEOWNERS, issue and pull request templates, security policy and code of conduct.
 - Shared API contract with the backend (`docs/API_CONTRACT.md`), the work plan with its autonomous loop (`docs/WORK_PLAN.md`) and the `/work` command.
 - The 103 prototype screens and the prototype HTML as visual references.

@@ -1,0 +1,171 @@
+name: Release Android
+
+# Builds the release Android App Bundle (AAB) and uploads it to Google Play's **internal** testing
+# track (docs/RELEASE_ANDROID.md). Every publishing step is inert until its secrets exist: without
+# them the workflow still builds the AAB (debug-signed when there is no upload key), keeps it as a
+# run artifact and explains on the run page what is missing.
+#
+# Secrets (Settings → Secrets and variables → Actions):
+#   GOOGLE_SERVICES_JSON         base64 of android/app/google-services.json (Firebase, push)
+#   ANDROID_KEYSTORE_BASE64      base64 of the upload keystore (.jks)
+#   ANDROID_KEYSTORE_PASSWORD    keystore password
+#   ANDROID_KEY_ALIAS            key alias (e.g. upload)
+#   ANDROID_KEY_PASSWORD         key password
+#   PLAY_SERVICE_ACCOUNT_JSON    JSON key of the Google Cloud service account invited to Play Console
+# Variable:
+#   TT_API_URL                   HTTPS URL of the production API, compiled into the app
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: versionCode override (blank = the +N of pubspec.yaml). Each Play upload needs a higher one.
+        default: ""
+      release_status:
+        description: Play release status. Use draft while the app itself is still a draft in Play Console.
+        type: choice
+        options: [completed, draft]
+        default: completed
+  push:
+    tags:
+      - "mobile-v*"
+  # Pull requests that touch the Android build only build the AAB, to keep the release path green.
+  pull_request:
+    paths:
+      - android/**
+      - pubspec.yaml
+      - pubspec.lock
+      - .github/workflows/release-android.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-android-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  PACKAGE_NAME: tech.tetengo.te_tengo
+
+jobs:
+  build:
+    name: Build AAB${{ github.event_name != 'pull_request' && ' and upload to Play (internal)' || '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      TT_API_URL: ${{ vars.TT_API_URL }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the release configuration
+        id: config
+        run: |
+          faltan=()
+          [ -n "$GOOGLE_SERVICES_JSON" ] && echo "firebase=true" >> "$GITHUB_OUTPUT" || faltan+=("GOOGLE_SERVICES_JSON secret (push notifications)")
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "upload_key=true" >> "$GITHUB_OUTPUT"
+          else
+            faltan+=("ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD secrets (upload key; the AAB is debug-signed without them)")
+          fi
+          [ -n "$PLAY_SERVICE_ACCOUNT_JSON" ] || faltan+=("PLAY_SERVICE_ACCOUNT_JSON secret (Play Console service account)")
+          [ -n "$TT_API_URL" ] || faltan+=("TT_API_URL repository variable (the app would point to http://10.0.2.2:8080)")
+          if [ ${#faltan[@]} -eq 0 ]; then
+            echo "play=true" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_EVENT_NAME" != pull_request ]; then
+            echo "::notice title=Google Play upload skipped::Missing: $(IFS=';'; echo "${faltan[*]}"). The AAB is still built and kept as an artifact. Setup: docs/RELEASE_ANDROID.md"
+            {
+              echo "### Google Play upload skipped"
+              echo "The AAB is built and kept as a run artifact. Missing configuration (docs/RELEASE_ANDROID.md):"
+              printf -- '- %s\n' "${faltan[@]}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Read the version from pubspec.yaml
+        id: version
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | tr -d '\r')
+          name=${version%%+*}
+          code=${version#*+}
+          [ -n "$BUILD_NUMBER" ] && code=$BUILD_NUMBER
+          if [[ "$GITHUB_REF" == refs/tags/mobile-v* ]] && [ "${GITHUB_REF#refs/tags/mobile-v}" != "$name" ]; then
+            echo "::error::Tag ${GITHUB_REF#refs/tags/} does not match pubspec.yaml version $name"
+            exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Version $name ($code)"
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+
+      - name: Firebase config (google-services.json)
+        if: steps.config.outputs.firebase == 'true'
+        run: echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+      - name: Upload key (key.properties)
+        if: steps.config.outputs.upload_key == 'true'
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          {
+            echo "storeFile=upload-keystore.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > android/key.properties
+
+      - name: Dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Build the release AAB
+        env:
+          API_URL: ${{ vars.TT_API_URL || 'http://10.0.2.2:8080' }}
+        run: |
+          timeout 40m flutter build appbundle --release \
+            --build-name="${{ steps.version.outputs.name }}" \
+            --build-number="${{ steps.version.outputs.code }}" \
+            --dart-define=TT_API_URL="$API_URL"
+      - name: Remove the signing material
+        if: always()
+        run: rm -f android/key.properties android/app/upload-keystore.jks android/app/google-services.json
+
+      - name: Upload the AAB as an artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: te-tengo-${{ steps.version.outputs.name }}-${{ steps.version.outputs.code }}${{ steps.config.outputs.upload_key != 'true' && '-debug-signed' || '' }}-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: ${{ github.event_name == 'pull_request' && 3 || 30 }}
+
+      - name: Upload to Google Play (internal testing)
+        id: play
+        if: github.event_name != 'pull_request' && steps.config.outputs.play == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.PACKAGE_NAME }}
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          releaseName: ${{ steps.version.outputs.name }} (${{ steps.version.outputs.code }})
+          track: internal
+          status: ${{ inputs.release_status || 'completed' }}
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Android ${{ steps.version.outputs.name }} (${{ steps.version.outputs.code }})"
+            echo "- Signing: ${{ steps.config.outputs.upload_key == 'true' && 'upload key' || 'debug key (not accepted by Google Play)' }}"
+            echo "- Push (google-services.json): ${{ steps.config.outputs.firebase == 'true' && 'included' || 'not included' }}"
+            echo "- Google Play internal track: ${{ steps.play.outcome == 'success' && 'uploaded' || 'not uploaded' }}"
+          } >> "$GITHUB_STEP_SUMMARY"
