@@ -133,8 +133,10 @@ Alerta = {
 - `tendencia` compares each type with the previous week (CA-27.3).
 
 ## 7. Push notifications
-- **Device registration:** `POST /api/dispositivos {tokenPush, plataforma: "ANDROID" | "IOS"}` → `201`, and `DELETE /api/dispositivos/{tokenPush}` → `204` (member).
-- **Delivery:** the backend sends through Amazon SNS (FCM on Android, APNs on iOS) to every member device. Fall pushes must arrive **in less than 10 s** from the moment the person is on the floor, with the room and the time (CA-16.1, CA-16.2). On failure the backend logs the error and retries (CA-16.4).
+- **Device registration:** `POST /api/dispositivos {tokenPush, plataforma: "ANDROID" | "IOS" | "WEB"}` → `201`, and `DELETE /api/dispositivos/{tokenPush}` → `204` (member).
+  - `WEB`: the installable web app (PWA), used by iPhones without the App Store build. `tokenPush` is an FCM registration token for Web Push, like the other two.
+- **Delivery:** the backend sends through Amazon SNS (FCM on Android, APNs on iOS) to every member device.
+  - `WEB` tokens are FCM tokens too: they are delivered through FCM (the FCM HTTP v1 API, or an SNS FCM platform application), never APNs. Every push to a `WEB` token must carry a visible notification (`notification`, or `webpush.notification`, with the title and body): browsers, and iOS above all, cancel the subscription of an app that receives pushes without showing one. Fall pushes must arrive **in less than 10 s** from the moment the person is on the floor, with the room and the time (CA-16.1, CA-16.2). On failure the backend logs the error and retries (CA-16.4).
 
 Data payload: `{tipo, alertaId?, camaraId?, habitacion?, ocurridaEn}`. `tipo` is one of:
 

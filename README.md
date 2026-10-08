@@ -34,6 +34,7 @@ flutter test --coverage   # coverage/lcov.info
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Feature-first structure and patterns |
 | [docs/RELEASE_ANDROID.md](docs/RELEASE_ANDROID.md) | Release AAB, upload key, Google Play internal testing, store policy forms and the iOS plan |
 | [docs/FIREBASE.md](docs/FIREBASE.md) | Firebase project, config files, APNs key and how to test push on simulators and emulators |
+| [docs/WEB_PWA.md](docs/WEB_PWA.md) | The installable web app: hosting under `/app/`, service worker, web push, iPhone limits and how to test |
 | [docs/references/](docs/references/) | 103 prototype screens, the prototype HTML, DESIGN.md, PRODUCT.md and the product backlog (Spanish sources) |
 
 ## Claude Code in the cloud

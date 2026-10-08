@@ -23,7 +23,7 @@
 
 | Workflow | Trigger | Jobs |
 |---|---|---|
-| [CI](.github/workflows/ci.yml) | Push to `main`/`develop`, every PR | `Format and analyze` (`dart format`, `flutter analyze`); `Tests and coverage` (`flutter test --coverage`, lcov artifact, coverage per feature on the run page, golden diffs uploaded on failure) |
+| [CI](.github/workflows/ci.yml) | Push to `main`/`develop`, every PR | `Format and analyze` (`dart format`, `flutter analyze`); `Tests and coverage` (`flutter test --coverage`, lcov artifact, coverage per feature on the run page, golden diffs uploaded on failure); `Web (PWA)` (`flutter build web --base-href /app/` with the Firebase web config from repository variables, `te-tengo-web` artifact; [docs/WEB_PWA.md](docs/WEB_PWA.md)) |
 | [OSV-Scanner](.github/workflows/osv-scanner.yml) | Weekly, manual, PRs that change `pubspec.*` | Scans `pubspec.lock`; scheduled runs fail on high or critical |
 | [Release Android](.github/workflows/release-android.yml) | Manual, tags `mobile-v*`, PRs that change `android/` or `pubspec.*` | Builds the release AAB (artifact); on manual runs and tags uploads it to Google Play's internal track when the signing and Play secrets exist, otherwise skips with a notice ([docs/RELEASE_ANDROID.md](docs/RELEASE_ANDROID.md)) |
 
