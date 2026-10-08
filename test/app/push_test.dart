@@ -12,6 +12,7 @@ import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion_controller.dart';
 import 'package:te_tengo/core/sesion/sesion_repositorio.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
+import 'package:te_tengo/core/web/entorno.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
@@ -20,6 +21,7 @@ import 'package:te_tengo/features/inicio/presentation/pantalla_inicio.dart';
 import '../apoyo/adaptador_falso.dart';
 import '../apoyo/app_de_prueba.dart';
 import '../apoyo/datos.dart';
+import '../apoyo/dispositivo_falso.dart';
 import '../apoyo/push_falso.dart';
 import '../features/camaras/repositorio_falso.dart';
 import '../features/familia/familia_falso.dart';
@@ -164,12 +166,15 @@ void main() {
     Future<void> abrir(
       WidgetTester tester, {
       String ubicacion = Rutas.inicio,
+      EntornoNavegador? entorno,
+      PermisoFalso? permiso,
     }) async {
       usarTelefono(tester);
       await tester.pumpWidget(
         appDePrueba(
           ubicacion: ubicacion,
           almacen: almacen,
+          permiso: permiso,
           push: push,
           dispositivos: dispositivos,
           overrides: [
@@ -184,6 +189,8 @@ void main() {
             relojProvider.overrideWithValue(
               () => DateTime(2026, 9, 23, 10, 42),
             ),
+            if (entorno != null)
+              entornoNavegadorProvider.overrideWithValue(entorno),
           ],
         ),
       );
@@ -215,6 +222,26 @@ void main() {
       await tester.pumpAndSettle();
       expect(push.permisosPedidos, 1);
     });
+
+    testWidgets(
+      'en la web no pide el permiso por su cuenta: espera el toque y luego registra',
+      (tester) async {
+        // Safari only shows the prompt inside a tap («Activar notificaciones» in Inicio).
+        push.tokenActual = null;
+        await abrir(
+          tester,
+          entorno: const EntornoNavegador(esWeb: true, instalada: true),
+          permiso: PermisoFalso(activas: false),
+        );
+        expect(push.permisosPedidos, 0);
+        expect(dispositivos.registrados, isEmpty);
+        push.tokenActual = 'fcm-web';
+        await tester.tap(find.text('Activar notificaciones'));
+        await tester.pumpAndSettle();
+        expect(push.permisosPedidos, 0);
+        expect(dispositivos.registrados, ['fcm-web|ANDROID']);
+      },
+    );
 
     testWidgets('sin hogar no pide el permiso ni registra', (tester) async {
       almacen = AlmacenSesionMemoria(sesionSinHogar);

@@ -23,7 +23,7 @@ It talks to `te-tengo-general-api` over HTTPS/REST with `Api-Version: 1`.
 The files under `docs/references/` are Spanish source documents from the thesis.
 
 ## Stack
-- **Flutter 3.44.8, Dart 3.12.** Targets: Android and iOS.
+- **Flutter 3.44.8, Dart 3.12.** Targets: Android, iOS and the web (an installable PWA for iPhones without the App Store build; [docs/WEB_PWA.md](docs/WEB_PWA.md)).
 - **Riverpod 3** (state and DI), **go_router** (navigation), **Dio** (HTTP) and **flutter_secure_storage** (token).
 - **Added by the tasks that need them:**
   - `firebase_messaging` for push (needs a Firebase project; see BLOCKERS);

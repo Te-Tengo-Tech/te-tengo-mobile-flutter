@@ -17,6 +17,8 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../core/web/entorno.dart';
+import '../../instalar/presentation/instalar_app.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
@@ -41,6 +43,7 @@ class PantallaInicio extends ConsumerWidget {
     final hoy = ref.watch(relojProvider)();
     final notificaciones = ref.watch(notificacionesActivasProvider).value;
     final alerta = ref.watch(alertaActivaProvider).value;
+    final debeInstalar = ref.watch(entornoNavegadorProvider).debeInstalar;
     return RefreshIndicator(
       onRefresh: () async {
         ref
@@ -62,7 +65,10 @@ class PantallaInicio extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 14),
-          if (notificaciones == false) ...[
+          // On an iPhone browser tab notifications cannot be turned on: install first.
+          if (debeInstalar)
+            const AvisoInstalarApp()
+          else if (notificaciones == false) ...[
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.bellOff,

@@ -14,7 +14,8 @@ lib/
 │                 barras_estado.dart (offline bar, active-alert strip), tema/ (Colores = DESIGN.md tokens)
 ├── core/         configuracion.dart (TT_API_URL), red/ (Dio client, ProblemaApi, session interceptor),
 │                 sesion/ (secure token, SesionController), cache/ (drift SQLite + offline interceptor),
-│                 notificaciones/ (push, device registration), dispositivo/ (permission, connectivity, dialer),
+│                 notificaciones/ (push, device registration, firebase_web.dart), dispositivo/ (permission,
+│                 connectivity, dialer), web/ (browser bridges and EntornoNavegador, conditional imports),
 │                 ui/ (shared widgets: buttons, lists, notices, icons, illustrations, logo)
 └── features/     one folder per feature: data/, domain/, presentation/
     └── camaras/  REFERENCE FEATURE
@@ -36,6 +37,7 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `familia` | US-08, US-10 | Done: invite, accept, member options, remove access, alert order and wait |
 | `historial` | US-25, US-27 | Done: filtered history with paging, weekly summary with trend |
 | `ajustes` | US-08 (read-only), US-16 | Done: settings for owner and invited member, notification preferences |
+| `instalar` | — | Web only: «Agrega Te Tengo a tu pantalla de inicio» notice and guide on iPhone browser tabs |
 
 ## Quality
 - Widget tests per acceptance criterion with fake repositories; repository tests against a fake Dio adapter.
@@ -45,6 +47,14 @@ points in [BLOCKERS.md](BLOCKERS.md).
 
 ## Communication
 - **REST:** `te-tengo-general-api` through `clienteApiProvider`, which sets the base URL, `Api-Version: 1` and `Authorization: Bearer`.
-- **Push:** Amazon SNS delivers through FCM (Android) and APNs (iOS); `firebase_messaging` obtains the device token, which is registered with `POST /api/dispositivos`.
+- **Push:** Amazon SNS delivers through FCM (Android) and APNs (iOS); `firebase_messaging` obtains the device token, which is registered with `POST /api/dispositivos`. The web app registers an FCM Web Push token as `WEB`.
+
+## Web build (PWA)
+The same code runs in the browser for iPhones without the App Store build ([WEB_PWA.md](WEB_PWA.md)).
+Platform code is behind conditional imports (`if (dart.library.js_interop)`): `core/web/navegador.dart`
+(service worker, browser permission, tapped pushes, downloads) and `core/cache/cache_dispositivo.dart`
+(drift's SQLite file on the phones, `localStorage` in the browser), so the phone builds never compile
+web code and the web build never imports `dart:ffi`. `entornoNavegadorProvider` tells screens whether
+they run in a browser and whether an iPhone tab must be installed first; tests override it.
 - **Live view:** on demand, the LL-HLS stream of the API contract played with `video_player` behind the `ReproductorVivo` interface; the session ends when the screen closes or the app goes to the background.
 - **Local cache:** `drift` (SQLite) keeps the last answers per household and serves them offline; sign-out clears them.

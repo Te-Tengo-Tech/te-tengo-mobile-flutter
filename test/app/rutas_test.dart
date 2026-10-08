@@ -21,6 +21,12 @@ void main() {
       expect(Rutas.redirigir(null, Rutas.nuevaContrasena), isNull);
       expect(Rutas.redirigir(null, '${Rutas.invitacion}/abc'), isNull);
     });
+
+    test('deja ver cómo instalar la app web en el iPhone', () {
+      expect(Rutas.redirigir(null, Rutas.instalar), isNull);
+      expect(Rutas.redirigir(sesionSinHogar, Rutas.instalar), isNull);
+      expect(Rutas.redirigir(sesionTitular, Rutas.instalar), isNull);
+    });
   });
 
   group('sesión sin hogar', () {

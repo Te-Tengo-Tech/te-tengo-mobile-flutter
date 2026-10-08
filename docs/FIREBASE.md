@@ -1,7 +1,9 @@
 # Firebase and push notifications
 
-The app receives alerts through Firebase Cloud Messaging (FCM) on Android and on iOS (FCM relays to
-APNs). The code is ready; what each developer needs is the Firebase project's two config files.
+The app receives alerts through Firebase Cloud Messaging (FCM) on Android, on iOS (FCM relays to
+APNs) and in the web app (FCM Web Push, see [WEB_PWA.md](WEB_PWA.md)). The code is ready; what each
+developer needs is the Firebase project's two config files, and for the web build the web app config
+and VAPID key as `--dart-define`s.
 
 ## How the app uses it
 - **Startup:** `NotificacionesFirebase` calls `Firebase.initializeApp()`, which reads the native config
@@ -60,6 +62,22 @@ document how it was set up, and what remains (the APNs key).
      real iPhone fails with it. Simulator builds are not affected.
 5. Share the two config files with the team through a private channel (not the repository, unless
    the team decided to commit them).
+
+## Web app (PWA)
+The web build does not use config files: `Firebase.initializeApp` gets `FirebaseOptions` from
+`--dart-define`s, and the service worker `web/firebase-messaging-sw.js` gets the same values in its
+registration URL. Details, define names and limits on iOS: [WEB_PWA.md](WEB_PWA.md).
+
+Set up once in the Firebase console (project `te-tengo-9ad70`):
+1. *Project settings › General › Your apps › Add app › Web*: «Te Tengo Web» (done). Firebase
+   Hosting is not needed.
+2. *Project settings › Cloud Messaging › Web configuration › Web Push certificates › Generate key
+   pair* (done): the public key is `TT_FCM_VAPID_KEY`.
+3. If the browser API key is restricted (*Google Cloud console › APIs & Services › Credentials*),
+   allow the referrers `https://<landing host>/app/*` and `http://localhost:*/*`, and keep the
+   *Firebase Installations API* and *FCM Registration API* in its API list.
+4. The backend sends to `WEB` tokens through the *Firebase Cloud Messaging API (V1)*, already
+   enabled for the Android and iOS tokens.
 
 ## Set up a developer machine
 Copy the files to these exact paths:

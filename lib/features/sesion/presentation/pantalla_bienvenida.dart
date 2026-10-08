@@ -8,6 +8,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/ilustraciones.dart';
 import '../../../core/ui/marca.dart';
+import '../../instalar/presentation/instalar_app.dart';
 
 /// Welcome (screen 01).
 class PantallaBienvenida extends StatelessWidget {
@@ -32,6 +33,9 @@ class PantallaBienvenida extends StatelessWidget {
                       child: Logotipo(),
                     ),
                     const SizedBox(height: 20),
+                    // Web app on an iPhone tab: install it before signing in, because the
+                    // home-screen app does not share Safari's session.
+                    const AvisoInstalarApp(separacion: 20),
                     const _Ilustracion(),
                     const SizedBox(height: 20),
                     Text(

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+  <!--
+    Replaced by `flutter build web --base-href /te-tengo-descargas/app/` (GitHub Pages sub-path).
+    Every relative URL below (manifest, icons, service worker) resolves against it. See docs/WEB_PWA.md.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Te Tengo. Cerca de los tuyos, aunque estés lejos.">
+  <meta name="theme-color" content="#4A2A85">
+
+  <!-- Installable web app (Android) and iOS home-screen web app: push only works once installed. -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Te Tengo">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <title>Te Tengo</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!--
+    Live view on browsers without native HLS (Chrome, Firefox, Android): video_player_web_hls plays the
+    LL-HLS playlist with hls.js. Safari plays it natively. The stub keeps clips and native HLS working
+    when the CDN cannot be reached; the deferred library replaces it once loaded.
+  -->
+  <script>window.Hls = window.Hls || { isSupported: function () { return false; } };</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1.7.3/dist/hls.min.js"
+          integrity="sha384-cciJ0zi8d1uMKC2zJd7jvPY4HQt7W4ByUI/FlMkltvBi31aW61rcpVBhpmW8/NwX"
+          crossorigin="anonymous"></script>
+
+  <style>
+    /* Brand purple of the splash (screen 00) while Flutter loads. */
+    html, body { margin: 0; height: 100%; background: #4A2A85; }
+  </style>
+</head>
+<body>
+  <!-- Custom bootstrap: it loads Flutter without its deprecated service worker (docs/WEB_PWA.md). -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

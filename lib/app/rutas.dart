@@ -16,6 +16,9 @@ abstract final class Rutas {
   /// Invitation deep link: `/invitacion/{token}`.
   static const invitacion = '/invitacion';
 
+  /// Web app on an iPhone browser tab: how to add it to the home screen (docs/WEB_PWA.md).
+  static const instalar = '/instalar';
+
   // Onboarding (a session without a household reaches only the first two).
   static const cuentaCreada = '/cuenta-creada';
   static const configPersona = '/configuracion/persona';
@@ -74,7 +77,7 @@ abstract final class Rutas {
   /// - session without household → onboarding (after registering, «Tu cuenta está lista»);
   /// - signed-in user on an auth screen → home.
   static String? redirigir(Sesion? sesion, String ubicacion) {
-    if (_bajo(ubicacion, arranque)) return null;
+    if (_bajo(ubicacion, arranque) || _bajo(ubicacion, instalar)) return null;
     if (sesion == null) {
       return _publicas.any((r) => _bajo(ubicacion, r)) ? null : bienvenida;
     }
