@@ -29,7 +29,10 @@ if (hasUploadKey) {
 
 android {
     namespace = "tech.tetengo.te_tengo"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android requires compiling against API 37 (checkReleaseAarMetadata fails
+    // with Flutter 3.44's default of 36). compileSdk only exposes newer APIs: targetSdk and minSdk,
+    // which change runtime behavior and supported devices, stay at Flutter's defaults.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
