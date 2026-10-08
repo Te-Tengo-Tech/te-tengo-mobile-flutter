@@ -25,7 +25,7 @@
 |---|---|---|
 | [CI](.github/workflows/ci.yml) | Push to `main`/`develop`, every PR | `Format and analyze` (`dart format`, `flutter analyze`); `Tests and coverage` (`flutter test --coverage`, lcov artifact, coverage per feature on the run page, golden diffs uploaded on failure) |
 | [OSV-Scanner](.github/workflows/osv-scanner.yml) | Weekly, manual, PRs that change `pubspec.*` | Scans `pubspec.lock`; scheduled runs fail on high or critical |
-| [Release Android](.github/workflows/release-android.yml) | Manual, tags `mobile-v*`, PRs that change `android/` or `pubspec.*` | Builds the release AAB (artifact); on manual runs and tags uploads it to Google Play's internal track when the signing and Play secrets exist, otherwise skips with a notice ([docs/RELEASE_ANDROID.md](docs/RELEASE_ANDROID.md)) |
+| [Release Android](.github/workflows/release-android.yml) | Manual, tags `mobile-v*`, PRs that change `android/` or `pubspec.*` | Builds the release AAB and the universal APK `te-tengo.apk` for sideloading (artifacts, debug-signed with a notice when the key secrets are missing); on manual runs and tags uploads the AAB to Google Play's internal track when the signing and Play secrets exist, otherwise skips with a notice ([docs/RELEASE_ANDROID.md](docs/RELEASE_ANDROID.md)) |
 
 A new push cancels the superseded CI run of the same branch. Dependabot opens weekly update PRs to `develop`.
 
