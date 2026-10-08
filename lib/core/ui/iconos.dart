@@ -54,7 +54,8 @@ enum Ico {
   up,
   down,
   equal,
-  sun;
+  sun,
+  share;
 
   String get _trazo => _trazos[this]!;
 }
@@ -143,6 +144,9 @@ const _trazos = <Ico, String>{
   Ico.pc:
       '<rect x="3" y="4" width="18" height="12" rx="2.5"/><path d="M9 20h6M12 16v4"/>',
   Ico.up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+  // Safari's share button, for the «Agregar a la pantalla de inicio» guide (web only).
+  Ico.share:
+      '<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M8.5 10.5h-2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-2"/>',
   Ico.down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
   Ico.equal: '<path d="M5 9.5h14M5 14.5h14"/>',
   Ico.sun:

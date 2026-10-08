@@ -13,6 +13,7 @@ import '../core/reloj.dart';
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
 import '../core/ui/avisos_flotantes.dart';
+import '../core/web/entorno.dart';
 import '../features/ajustes/data/preferencias.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/alertas/domain/alerta.dart';
@@ -78,7 +79,7 @@ class GestorPush {
   }
 
   /// `POST /api/dispositivos` once per household and token. The first time there is a household,
-  /// it asks for the notification permission (CA-16.2). Without a token yet (no Firebase, or iOS
+  /// it asks for the notification permission (CA-16.2), except on the web. Without a token yet (no Firebase, or iOS
   /// still waiting for APNs) it does nothing; it is called again when the session changes, the
   /// token is refreshed, the app resumes or the user turns notifications on.
   Future<void> registrar() async {
@@ -87,7 +88,9 @@ class GestorPush {
       _registrado = null;
       return;
     }
-    if (!_permisoPedido) {
+    // On the web the browser only asks from a tap: «Activar notificaciones» in Inicio asks, and
+    // then calls this again.
+    if (!_permisoPedido && !_ref.read(entornoNavegadorProvider).esWeb) {
       _permisoPedido = true;
       await _push.pedirPermiso();
       _ref.invalidate(notificacionesActivasProvider);

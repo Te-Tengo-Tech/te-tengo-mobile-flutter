@@ -10,10 +10,12 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../core/web/entorno.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../inicio/presentation/pantalla_inicio.dart';
+import '../../instalar/presentation/instalar_app.dart';
 import '../data/preferencias.dart';
 
 /// Screen 96: whether this phone may show notifications and what it is told about.
@@ -37,7 +39,9 @@ class PantallaNotificaciones extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          if (activas == false)
+          if (ref.watch(entornoNavegadorProvider).debeInstalar)
+            const AvisoInstalarApp(separacion: 0)
+          else if (activas == false)
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.bellOff,
