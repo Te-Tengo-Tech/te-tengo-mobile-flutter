@@ -4,18 +4,18 @@ This document covers the two ways the app reaches testers' phones:
 - **Direct APK (sideload), the path for the pilot.** A signed universal APK, `te-tengo.apk`, downloaded from the landing page and installed without the Play Store. See *[Sideload distribution](#sideload-distribution-no-play-store)*.
 - **Google Play's internal testing track,** optional, once the team has a Play Console account.
 
-The workflow [`release-android.yml`](../.github/workflows/release-android.yml) builds both from the same commit and signs both with the same release key: the Android App Bundle (AAB) for Play and the universal APK. The steps under *One-time setup* are done by hand, once, by the account owner.
+The workflow [`release-android.yml`](../.github/workflows/release-android.yml) builds both from the same commit and signs both with the same release key: the Android App Bundle (AAB) for Play and, through the reusable [`build-apk.yml`](../.github/workflows/build-apk.yml), the universal APK. The steps under *One-time setup* are done by hand, once, by the account owner.
 
 ## How the pipeline works
 | Trigger | What happens |
 |---|---|
 | Pull request touching `android/`, `pubspec.*` or the workflow | Builds the release AAB and APK (debug-signed) to keep the release path green; nothing is uploaded |
-| Manual run (*Actions → Release Android → Run workflow*) | Builds the AAB and the APK, keeps both as run artifacts (`…-aab`, and `…-apk` with `te-tengo.apk` and its SHA-256) and, when configured, uploads the AAB to the **internal** track. Optional inputs: `build_number` (versionCode override) and `release_status` (`completed` or `draft`) |
+| Manual run (*Actions → Release Android → Run workflow*) | Builds the AAB and the APK, keeps both as run artifacts (`…-aab`, and `te-tengo-apk` with `te-tengo.apk` and `te-tengo.apk.sha256`) and, when configured, uploads the AAB to the **internal** track. Optional inputs: `build_number` (versionCode override) and `release_status` (`completed` or `draft`) |
 | Tag `mobile-v<version>`, e.g. `mobile-v1.0.0` | Same as a manual run. The tag must match `version:` in `pubspec.yaml` |
 
 - **Version.** It comes from `pubspec.yaml`, as `version: <versionName>+<versionCode>`. Google Play rejects a versionCode it has already seen, and Android refuses to install an APK over a newer one, so **bump the `+N` before every release**, or pass `build_number` in a manual run.
 - **Inert without secrets.** Each missing secret is listed in a notice on the run page, and the Play step is skipped. Without the release key, the AAB and the APK are signed with the runner's throwaway debug key: fine for checking the build, rejected by Play, and an APK that no later build can update.
-- **The run summary** shows the signing mode and the SHA-256 of the APK's signing certificate (from `apksigner verify --print-certs`). Every release must show the same fingerprint.
+- **The run summary** of the APK job shows the signing mode, the SHA-256 of the APK and the SHA-256 of its signing certificate (from `apksigner verify --print-certs`). Every release must show the same certificate fingerprint.
 
 ### Secrets and variables (*Settings → Secrets and variables → Actions*)
 | Name | Kind | Content |
@@ -49,11 +49,34 @@ With the GitHub CLI: `base64 -i upload-keystore.jks | gh secret set ANDROID_KEYS
 For the pilot, the app is distributed as a single **universal APK** from the landing page. No Play Console account, fee or review is involved.
 
 ### Where the APK is published
-- **The public repository** [`Te-Tengo-Tech/te-tengo-descargas`](https://github.com/Te-Tengo-Tech/te-tengo-descargas) builds this repository at a chosen ref with the same release key, and publishes a GitHub Release after the owner approves it. Its README explains the secrets it needs.
-- **The stable download URL,** which the landing page links to, always serves the latest published release:
-  <https://github.com/Te-Tengo-Tech/te-tengo-descargas/releases/latest/download/te-tengo.apk>
-- **Its checksum and certificate.** `te-tengo.apk.sha256` sits next to it, and the release notes show the SHA-256 of the signing certificate.
-- **Why another repository.** This repository is private, so its release assets and run artifacts are only reachable by organization members.
+- **Who publishes it.** The landing's publish workflow (repository `te-tengo-landing-astro`) builds the APK and **uploads `te-tengo.apk` and `te-tengo.apk.sha256` to Cloudflare R2**. The landing page links to that stable URL, which always serves the latest published APK.
+- **Why not from here.** This repository is private, so its run artifacts and release assets are only reachable by organization members.
+- **How the APK is built:** the reusable workflow [`build-apk.yml`](../.github/workflows/build-apk.yml) (`workflow_call`).
+  - **What it does.** It checks out this repository at a given `ref`, builds `flutter build apk --release` and verifies the signature with `apksigner`. It keeps `te-tengo.apk` and `te-tengo.apk.sha256` as an artifact of the **calling** run, named `te-tengo-apk` by default.
+  - **Outputs:** `artifact_name`, `version_name`, `version_code`, `signed`, `certificate_sha256` and `apk_sha256`.
+  - **Who calls it.** `release-android.yml` uses it, and the landing calls it the same way:
+  ```yaml
+  jobs:
+    apk:
+      uses: Te-Tengo-Tech/te-tengo-mobile-flutter/.github/workflows/build-apk.yml@develop
+      with:
+        ref: develop            # branch, tag or commit to build
+        build_number: "7"       # optional: must grow with every published APK
+      secrets: inherit
+    publicar:
+      needs: apk
+      if: needs.apk.outputs.signed == 'true'   # never publish a debug-signed APK
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/download-artifact@v8
+          with:
+            name: ${{ needs.apk.outputs.artifact_name }}
+        # then upload te-tengo.apk and te-tengo.apk.sha256 to R2
+  ```
+- **What the calling repository needs:**
+  - **Secrets:** `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`, with the **same** release key as here. Optionally `GOOGLE_SERVICES_JSON`, and `TT_API_URL` as a secret or variable.
+  - **`MOBILE_REPO_TOKEN`:** a fine-grained token with read-only *Contents* on this repository, used to check it out.
+  - **Access from this repository:** *Settings → Actions → General → Access* must be set to «Accessible from repositories in the Te-Tengo-Tech organization».
 
 ### Installing it (what testers do)
 1. **Open the landing page on the phone** and tap the Android download. Chrome may warn that the file can be harmful: choose «Descargar de todas formas».
@@ -63,7 +86,7 @@ For the pilot, the app is distributed as a single **universal APK** from the lan
 5. **Turn the install source off again.** Optional, but recommended: disable «Permitir de esta fuente» once installed.
 6. **Open Te Tengo and accept notifications** when it asks, so alerts arrive.
 
-Optional check before installing: compare the file's SHA-256 with `te-tengo.apk.sha256` on the release page.
+Optional check before installing: compare the file's SHA-256 with `te-tengo.apk.sha256`, published next to it.
 
 ### How updates work
 - **No automatic updates.** A sideloaded app is not updated by the Play Store. Testers update by downloading `te-tengo.apk` again from the same link and installing it over the current app: «¿Quieres actualizar esta app?» → «Actualizar». The session, settings and cached data are kept.
@@ -79,7 +102,7 @@ Optional check before installing: compare the file's SHA-256 with `te-tengo.apk.
 - **Corporate or child-managed phones** may block unknown sources altogether. Install those from Play, or on another phone.
 
 ## One-time setup (account owner)
-0. **Release key, needed for both channels.** Create it as in *Local release build*, step 1, and save it as the four `ANDROID_*` secrets in this repository and in `te-tengo-descargas`. Keep two backups of the `.jks` and its passwords outside GitHub. Steps 1 to 7 below are only needed for Google Play.
+0. **Release key, needed for both channels.** Create it as in *Local release build*, step 1, and save it as the four `ANDROID_*` secrets in this repository and in the landing repository (`te-tengo-landing-astro`), which publishes the APK. Keep two backups of the `.jks` and its passwords outside GitHub. Steps 1 to 7 below are only needed for Google Play.
 1. **Google Play Console developer account.**
    - **Cost and verification.** A one-time **US$25** fee, plus identity verification with an ID document, at <https://play.google.com/console/signup>.
    - **Personal or organization.** A *personal* account is enough for the thesis. An *organization* account needs a D-U-N-S number, but is exempt from the testing rule below.
