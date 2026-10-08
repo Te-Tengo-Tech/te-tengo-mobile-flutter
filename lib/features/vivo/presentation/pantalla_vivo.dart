@@ -73,7 +73,6 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   bool _enVivo = false;
   int _esperando = 0;
   int _sinAvance = 0;
-  Duration? _ultimaPosicion;
   Timer? _reloj;
   Timer? _reintento;
 
@@ -149,7 +148,6 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
         _enVivo = false;
         _esperando = 0;
         _sinAvance = 0;
-        _ultimaPosicion = null;
       });
       _reloj = Timer.periodic(
         const Duration(seconds: 1),
@@ -220,11 +218,10 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
       if (++_esperando >= esperaPrimerFotograma.inSeconds) _perder();
       return;
     }
-    if (r.posicion == _ultimaPosicion) {
+    if (r.detenido) {
       if (++_sinAvance >= esperaSinImagen.inSeconds) _perder();
     } else {
       _sinAvance = 0;
-      _ultimaPosicion = r.posicion;
     }
   }
 

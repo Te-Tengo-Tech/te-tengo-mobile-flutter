@@ -66,9 +66,8 @@ class ReproductorVivoFalso extends ChangeNotifier implements ReproductorVivo {
   bool _cortado = false;
   bool desechado = false;
 
-  /// While false the position advances on every read, like a live stream.
+  /// The stream stalls: the player keeps waiting for data.
   bool congelado = false;
-  var _posicion = Duration.zero;
 
   @override
   Future<void> iniciar() async {
@@ -94,10 +93,7 @@ class ReproductorVivoFalso extends ChangeNotifier implements ReproductorVivo {
   bool get cortado => _cortado;
 
   @override
-  Duration get posicion {
-    if (!congelado) _posicion += const Duration(seconds: 1);
-    return _posicion;
-  }
+  bool get detenido => congelado;
 
   /// A 640 × 480 frame, like the agent's 480p.
   @override

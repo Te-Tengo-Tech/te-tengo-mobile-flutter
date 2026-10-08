@@ -10,11 +10,11 @@ abstract interface class ReproductorVivo implements Listenable {
   /// The first frame is ready to show.
   bool get listo;
 
-  /// Playback failed or the stream ended after it started.
+  /// Playback failed (a live stream has no end; stalls are reported by [detenido]).
   bool get cortado;
 
-  /// Playback position; it stops advancing when the stream stalls.
-  Duration get posicion;
+  /// The player is waiting for data or not playing: true for as long as the stream is stalled.
+  bool get detenido;
 
   /// Width / height of the frames: the whole frame is shown, never cropped.
   double get relacionAspecto;
@@ -48,11 +48,14 @@ class ReproductorHls extends ChangeNotifier implements ReproductorVivo {
   @override
   bool get listo => _video.value.isInitialized && !_video.value.hasError;
 
+  // A live stream never ends: on iOS `video_player` reports a 1 ms duration for live HLS and
+  // flags `isCompleted` as soon as the position passes it, so only an error counts as a cut. For
+  // the same reason the position does not advance, so a stall is read from buffering instead.
   @override
-  bool get cortado => _video.value.hasError || _video.value.isCompleted;
+  bool get cortado => _video.value.hasError;
 
   @override
-  Duration get posicion => _video.value.position;
+  bool get detenido => _video.value.isBuffering || !_video.value.isPlaying;
 
   @override
   double get relacionAspecto => _video.value.aspectRatio;
