@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../core/formato.dart';
+import '../../../core/web/navegador.dart';
 import '../domain/alerta.dart';
 
 /// Saves the file behind a short-lived pre-signed [url] as [nombre]; returns the saved name.
@@ -31,6 +33,13 @@ Future<String> guardarEnDocumentos(Uri url, String nombre) async {
   return nombre;
 }
 
+/// In the browser (the PWA) the download is the browser's own: it goes to its downloads folder
+/// (Archivos › Descargas on an iPhone).
+Future<String> guardarEnNavegador(Uri url, String nombre) async {
+  descargarEnNavegador(url, nombre);
+  return nombre;
+}
+
 final guardarArchivoProvider = Provider<GuardarArchivo>(
-  (ref) => guardarEnDocumentos,
+  (ref) => kIsWeb ? guardarEnNavegador : guardarEnDocumentos,
 );
