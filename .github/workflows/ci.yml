@@ -120,7 +120,7 @@ jobs:
           done
           grep -q "<base href=\"$BASE_HREF\">" build/web/index.html
           # Flutter's deprecated service worker must not be registered by the bootstrap.
-          ! grep -q serviceWorkerSettings build/web/flutter_bootstrap.js
+          ! grep -q serviceWorkerVersion build/web/flutter_bootstrap.js
       - name: Upload the web build
         uses: actions/upload-artifact@v7
         with:
