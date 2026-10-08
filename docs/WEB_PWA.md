@@ -107,13 +107,14 @@ Variables*); the `Web (PWA)` job passes the ones that exist.
 | Notification permission | `permission_handler` | the browser's `Notification.permission` |
 
 ## Backend and infrastructure requirements
-- **CORS:** the API must allow the PWA origin (`https://<landing host>`, and `http://localhost:<port>`
-  for development) with the `Authorization`, `Content-Type` and `Api-Version` headers. Today the
-  local backend answers `403` to a preflight from `localhost`. MediaMTX must allow it too for hls.js
-  (`hlsAllowOrigin`, `*` by default).
-- `plataforma: "WEB"` in `POST /api/dispositivos`, delivered through FCM with a visible notification
-  (contract §7). Optionally `webpush.fcm_options.link` = `https://<landing host>/app/`.
-- E-mail links in the format above.
+The API side is in te-tengo-general-api#12 (contract §§ Conventions, 4 and 7); each environment
+configures it:
+- **CORS:** `TT_CORS_ORIGENES` with the PWA origin (`https://<landing host>`; `http://localhost:*`
+  locally). Without it a browser preflight gets `403` and the PWA cannot sign in.
+- **E-mail links:** `TT_ENLACE_BASE=https://<landing host>/app/#`, which gives the hash links above.
+- **Web push:** the push service's web configuration; `plataforma: "WEB"` tokens get an FCM web push
+  with the same title, body and data, and are skipped without it.
+- **Live view:** MediaMTX `hlsAllowOrigins` with the PWA origin, for hls.js.
 
 ## Test it
 **Locally in Chrome** (`localhost` is a secure context, so the worker and push work without HTTPS):
