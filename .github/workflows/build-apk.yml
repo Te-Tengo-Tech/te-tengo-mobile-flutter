@@ -1,0 +1,227 @@
+name: Build APK
+
+# Reusable workflow: builds the universal release APK `te-tengo.apk` (all ABIs in one file, for
+# sideload distribution) and keeps it, with `te-tengo.apk.sha256`, as a workflow artifact of the
+# calling run (docs/RELEASE_ANDROID.md). It is signed with the release key when the four keystore
+# secrets are passed, and with the runner's throwaway debug key otherwise, with a notice.
+#
+# Called from this repository by release-android.yml, and from other repositories of the
+# organization (the landing's publish workflow) as:
+#
+#   jobs:
+#     apk:
+#       uses: Te-Tengo-Tech/te-tengo-mobile-flutter/.github/workflows/build-apk.yml@develop
+#       with:
+#         ref: develop            # branch, tag or commit of this repository to build
+#       secrets: inherit          # or pass the secrets below one by one
+#     publish:
+#       needs: apk
+#       steps:
+#         - uses: actions/download-artifact@v8
+#           with: { name: "${{ needs.apk.outputs.artifact_name }}" }
+#
+# From another repository, MOBILE_REPO_TOKEN (read-only Contents on this repository) is required to
+# check this repository out, and this repository must allow access from the organization's
+# repositories (Settings → Actions → General → Access).
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Ref of te-tengo-mobile-flutter to build. Blank = the calling commit in this repository, develop elsewhere.
+        type: string
+        default: ""
+      build_name:
+        description: versionName override (blank = pubspec.yaml)
+        type: string
+        default: ""
+      build_number:
+        description: versionCode override (blank = the +N of pubspec.yaml). Sideloaded updates need a higher one.
+        type: string
+        default: ""
+      artifact_name:
+        description: Name of the artifact that holds te-tengo.apk and te-tengo.apk.sha256
+        type: string
+        default: te-tengo-apk
+      retention_days:
+        type: number
+        default: 30
+    secrets:
+      ANDROID_KEYSTORE_BASE64:
+        required: false
+      ANDROID_KEYSTORE_PASSWORD:
+        required: false
+      ANDROID_KEY_ALIAS:
+        required: false
+      ANDROID_KEY_PASSWORD:
+        required: false
+      GOOGLE_SERVICES_JSON:
+        required: false
+      TT_API_URL:
+        required: false
+      MOBILE_REPO_TOKEN:
+        required: false
+    outputs:
+      artifact_name:
+        description: Name of the artifact with te-tengo.apk
+        value: ${{ inputs.artifact_name }}
+      version_name:
+        value: ${{ jobs.apk.outputs.version_name }}
+      version_code:
+        value: ${{ jobs.apk.outputs.version_code }}
+      signed:
+        description: true when signed with the release key, false when debug-signed
+        value: ${{ jobs.apk.outputs.signed }}
+      certificate_sha256:
+        description: SHA-256 of the APK signing certificate
+        value: ${{ jobs.apk.outputs.certificate_sha256 }}
+      apk_sha256:
+        value: ${{ jobs.apk.outputs.apk_sha256 }}
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    name: Build universal APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    outputs:
+      version_name: ${{ steps.version.outputs.name }}
+      version_code: ${{ steps.version.outputs.code }}
+      signed: ${{ steps.config.outputs.release_key }}
+      certificate_sha256: ${{ steps.verify.outputs.certificate }}
+      apk_sha256: ${{ steps.verify.outputs.apk_sha256 }}
+    env:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      # In a called workflow, vars are the calling repository's.
+      TT_API_URL: ${{ secrets.TT_API_URL || vars.TT_API_URL }}
+      BUILD_NAME: ${{ inputs.build_name }}
+      BUILD_NUMBER: ${{ inputs.build_number }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          repository: Te-Tengo-Tech/te-tengo-mobile-flutter
+          # Blank in this repository = the event's commit; from another repository, develop.
+          ref: ${{ inputs.ref || (github.repository != 'Te-Tengo-Tech/te-tengo-mobile-flutter' && 'develop' || '') }}
+          token: ${{ secrets.MOBILE_REPO_TOKEN || github.token }}
+          persist-credentials: false
+
+      - name: Check the configuration
+        id: config
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "release_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release_key=false" >> "$GITHUB_OUTPUT"
+            if [ "$GITHUB_EVENT_NAME" != pull_request ]; then
+              echo "::notice title=APK debug-signed::The release keystore secrets (ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD) were not passed, so the APK is signed with this runner's throwaway debug key. Never publish it: no later build can update it. Setup: docs/RELEASE_ANDROID.md"
+            fi
+          fi
+          [ -n "$GOOGLE_SERVICES_JSON" ] && echo "firebase=true" >> "$GITHUB_OUTPUT"
+          if [ -z "$TT_API_URL" ] && [ "$GITHUB_EVENT_NAME" != pull_request ]; then
+            echo "::notice title=No TT_API_URL::The APK points to http://10.0.2.2:8080 (the emulator's local backend)."
+          fi
+
+      - name: Version
+        id: version
+        run: |
+          version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | tr -d '\r')
+          name=${BUILD_NAME:-${version%%+*}}
+          code=${BUILD_NUMBER:-${version#*+}}
+          if [[ ! "$code" =~ ^[0-9]+$ ]]; then
+            echo "::error::versionCode '$code' is not a positive integer"
+            exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Version $name ($code)"
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+
+      - name: Firebase config (google-services.json)
+        if: steps.config.outputs.firebase == 'true'
+        run: echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+      - name: Release key (key.properties)
+        if: steps.config.outputs.release_key == 'true'
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          {
+            echo "storeFile=upload-keystore.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > android/key.properties
+
+      - name: Dependencies
+        run: flutter pub get --enforce-lockfile
+      # One universal APK (no --split-per-abi): a single file that installs on any phone.
+      - name: Build the universal release APK
+        env:
+          API_URL: ${{ secrets.TT_API_URL || vars.TT_API_URL || 'http://10.0.2.2:8080' }}
+          NAME: ${{ steps.version.outputs.name }}
+          CODE: ${{ steps.version.outputs.code }}
+        run: |
+          timeout 40m flutter build apk --release \
+            --build-name="$NAME" --build-number="$CODE" \
+            --dart-define=TT_API_URL="$API_URL"
+      - name: Remove the signing material
+        if: always()
+        run: rm -f android/key.properties android/app/upload-keystore.jks android/app/google-services.json
+
+      - name: Verify the signature
+        id: verify
+        run: |
+          set -euo pipefail
+          apksigner=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name apksigner | sort -V | tail -n 1)
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/te-tengo.apk
+          "$apksigner" verify --print-certs dist/te-tengo.apk | tee "$RUNNER_TEMP/apksigner.txt"
+          certificate=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$RUNNER_TEMP/apksigner.txt")
+          (cd dist && sha256sum te-tengo.apk > te-tengo.apk.sha256)
+          echo "certificate=$certificate" >> "$GITHUB_OUTPUT"
+          echo "apk_sha256=$(cut -d' ' -f1 dist/te-tengo.apk.sha256)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the APK as an artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: |
+            dist/te-tengo.apk
+            dist/te-tengo.apk.sha256
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention_days }}
+
+      - name: Summary
+        if: always()
+        env:
+          NAME: ${{ steps.version.outputs.name }}
+          CODE: ${{ steps.version.outputs.code }}
+          RELEASE_KEY: ${{ steps.config.outputs.release_key }}
+          CERTIFICATE: ${{ steps.verify.outputs.certificate }}
+          APK_SHA256: ${{ steps.verify.outputs.apk_sha256 }}
+        run: |
+          {
+            echo "## APK te-tengo.apk $NAME ($CODE)"
+            if [ "$RELEASE_KEY" = true ]; then
+              echo "- Signing: release key"
+            else
+              echo "- Signing: **debug key**, do not publish (a sideloaded APK cannot be updated by a build signed with another key)"
+            fi
+            echo "- Signing certificate SHA-256: \`${CERTIFICATE:-n/a}\`"
+            echo "- APK SHA-256: \`${APK_SHA256:-n/a}\`"
+            echo "- API: ${TT_API_URL:-http://10.0.2.2:8080 (default)}"
+          } >> "$GITHUB_STEP_SUMMARY"
