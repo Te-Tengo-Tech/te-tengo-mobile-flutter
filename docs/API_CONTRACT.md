@@ -77,16 +77,22 @@
 | `PATCH /api/camaras/{id}` | owner | `{nombreHabitacion}` (1–40 chars) → `200 Camara`; later alerts use the new name (CA-06.2) | `422 CAMARA_NOMBRE_VACIO` (CA-06.3) · `422 CAMARA_NOMBRE_MUY_LARGO` · `404 CAMARA_NO_ENCONTRADA` |
 | `POST /api/camaras/{id}/pausa` | member | `{duracion: "MIN_30" \| "HORA_1" \| "HORAS_2" \| "HASTA_MANANA"}`, the options of the prototype's pause screen; `HASTA_MANANA` means the next 07:00 in the household time zone, `America/Lima` **[implementation choice]**. → `200 Camara` with `pausadaHasta`. Stops capture and detection (CA-22.1); resumes automatically and sends push `PAUSA_FINALIZADA` (CA-22.3) | `422 DURACION_INVALIDA` |
 | `DELETE /api/camaras/{id}/pausa` | member | → `200 Camara` (resume now) | — |
-| `POST /api/camaras/{id}/vista-en-vivo` | member | `{alertaId \| null, modo?}` → `201 {sesionId, urlTransmision, expiraEn, modo}` (CA-23.1, CA-23.2). `modo` is optional: without it the camera keeps the mode it streams in | `400 VALIDACION` when `alertaId` is not an alert of that camera · `409 CAMARA_DESCONECTADA` (CA-23.3) · `409 CAMARA_EN_PAUSA {pausadaHasta}` (CA-23.4) · `409 SIN_CONSENTIMIENTO`: without a current consent the camera does not stream (CA-05.2) |
-| `PATCH /api/vista-en-vivo/{sesionId}` | member | `{modo}` → `200 {sesionId, modo}`. Changes what the camera's stream shows | — |
-| `DELETE /api/vista-en-vivo/{sesionId}` | member | → `204`. Ends the session and records who watched, when it started and how long (CA-24.1) | — |
+| `POST /api/camaras/{id}/vista-en-vivo` | member | `{alertaId \| null, modo?}` → `201 {sesionId, urlTransmision, expiraEn, modo}` (CA-23.1, CA-23.2). `alertaId`: the alert the live view is opened from, which must be of that camera. `modo`: see "Live view" below; omitted keeps the camera's current mode (`VIDEO` when nobody is watching) | `409 CAMARA_DESCONECTADA` (CA-23.3) · `409 CAMARA_EN_PAUSA {pausadaHasta}` (CA-23.4) · `409 SIN_CONSENTIMIENTO`: without a current consent the camera does not stream (CA-05.2) · `400 VALIDACION` with `campos.alertaId` (alert of another camera or unknown) or `campos.modo` |
+| `PATCH /api/vista-en-vivo/{sesionId}` | member | `{modo}` → `200 {sesionId, modo}`. Only the session's viewer, while it is open; the mode applies to the camera's stream, so every viewer sees it | `400 VALIDACION` with `campos.modo` · `404 SESION_NO_ENCONTRADA`: unknown, of another member, or already ended **[implementation choice]** |
+| `DELETE /api/vista-en-vivo/{sesionId}` | member | → `204`. Ends the session and records who watched, when it started and how long (CA-24.1). Closing someone else's session, or one that already ended, changes nothing | — |
 | `GET /api/accesos-vista-en-vivo` | member | → `200 [{usuario: {id, nombre}, inicio, duracionSegundos, desdeAlerta: boolean}]`, newest first (CA-24.2). Empty list when none (CA-24.3) | — |
 
-**Live stream (decision of 2026-10-07):** the live view is real video served by the live streaming service (MediaMTX).
-- `urlTransmision` is an LL-HLS playlist, `<HLS base>/camaras/<camaraId>/index.m3u8?token=<viewerToken>`; the app plays it with `video_player`. The viewer token authorizes the reads of that camera's path while the session is active, so the app sends no extra header. Locally the base is `http://localhost:8888`; in production it is `https://<host>/vivo`.
-- The agent publishes H.264 video without audio (its 480p frames at about 8 fps).
-- `modo`: `VIDEO` (default, the camera frame) · `VIDEO_CON_POSTURA` (the frame with the detected skeleton on top) · `SOLO_POSTURA` (only the skeleton on a plain background: no camera pixels leave the home). The agent draws it on the frames it publishes, so the mode applies to the camera's stream and every viewer sees it **[implementation choice]**.
-- A session also ends without `DELETE` when the streaming service has not authorized a read for it in 30 s, and lasts at most 10 min; both are **[implementation choice]** and the access is recorded either way (US-24). The app then opens a new session.
+**Live view (MediaMTX).** Decided by the project owner on 2026-10-07; it replaces the earlier WebSocket JPEG relay proposal.
+- **Playback:** `urlTransmision` is an LL-HLS playlist served by MediaMTX, the system's live streaming service: `<HLS base>/camaras/<camaraId>/index.m3u8?token=<viewer token>`. The app plays it with `video_player`. HLS base: `http://localhost:8888` locally; `https://<host>/vivo` in production. Apple's players only accept low-latency HLS over HTTPS, so the local stack serves standard (fMP4) HLS, a few seconds behind; production serves LL-HLS through Caddy's HTTPS.
+- **Viewer token:** it belongs to one session. It can be used many times (HLS makes many requests) until the session ends. A read without a token, with an unknown token or after the session ended gets `401` from MediaMTX.
+- **Video:** H.264 at 480p and about 8 fps, no audio.
+- **`expiraEn`:** the maximum end of the session, 10 min after it opened **[implementation choice]**. Then the app opens a new session.
+- **Session end without `DELETE`:** the API ends a session when its viewer has not read the stream for 30 s **[implementation choice]**, and records the duration until the last read (US-24).
+- **Pause or revoked consent:** every session of the camera ends at once, and MediaMTX disconnects the viewers.
+- **`modo`:** what the household agent draws on the frames it publishes. It applies to the camera's stream, so all viewers see the same mode **[implementation choice]**.
+  - `VIDEO` (default): the camera frame.
+  - `VIDEO_CON_POSTURA`: the frame with the skeleton drawn on top.
+  - `SOLO_POSTURA`: the skeleton on a plain neutral background, in the brand colours. No camera pixels: no image of the home leaves the PC.
 
 ## 5. Alerts and clips (`alertas`) — US-13, US-16 to US-21, US-26
 ```
