@@ -32,7 +32,7 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `camaras` | US-06, US-07, US-15, US-22 | Done (reference): status, rename, connection notices, unreliable detection, pause and resume |
 | `inicio` | US-16 | Done: home card per state, notifications banner, camera, «Esta semana» |
 | `alertas` | US-13, US-14, US-16 to US-21, US-26 | Done: fall and unstable alerts, confirmation, clip, marking, escalation, recovery, recordings download |
-| `vivo` | US-23, US-24 | Done: live view over the WebSocket relay, access log |
+| `vivo` | US-23, US-24 | Done: live view over LL-HLS with the stream mode, access log |
 | `familia` | US-08, US-10 | Done: invite, accept, member options, remove access, alert order and wait |
 | `historial` | US-25, US-27 | Done: filtered history with paging, weekly summary with trend |
 | `ajustes` | US-08 (read-only), US-16 | Done: settings for owner and invited member, notification preferences |
@@ -46,5 +46,5 @@ points in [BLOCKERS.md](BLOCKERS.md).
 ## Communication
 - **REST:** `te-tengo-general-api` through `clienteApiProvider`, which sets the base URL, `Api-Version: 1` and `Authorization: Bearer`.
 - **Push:** Amazon SNS delivers through FCM (Android) and APNs (iOS); `firebase_messaging` obtains the device token, which is registered with `POST /api/dispositivos`.
-- **Live view:** on demand, using the transport in the API contract (`web_socket_channel`, JPEG frames).
+- **Live view:** on demand, the LL-HLS stream of the API contract played with `video_player` behind the `ReproductorVivo` interface; the session ends when the screen closes or the app goes to the background.
 - **Local cache:** `drift` (SQLite) keeps the last answers per household and serves them offline; sign-out clears them.

@@ -28,8 +28,7 @@ The files under `docs/references/` are Spanish source documents from the thesis.
 - **Added by the tasks that need them:**
   - `firebase_messaging` for push (needs a Firebase project; see BLOCKERS);
   - `drift` for the local SQLite cache;
-  - `video_player` for clips;
-  - `web_socket_channel` for the live view.
+  - `video_player` for clips and the live view (LL-HLS).
 
 ## Rules
 - **UI language:** all user-facing text is **Spanish (Peru)**, copied from the prototype or DESIGN.md. Never show story IDs or prototype labels. Code identifiers follow the domain language (Spanish, matching the API); comments, docs and commits are **English**.
