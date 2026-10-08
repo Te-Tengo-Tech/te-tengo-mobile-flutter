@@ -25,6 +25,13 @@
 			</array>
 		</dict>
 	</array>
+	<!-- Plain HTTP only to local hosts (localhost, .local names) for the local live stream;
+	     production serves it over HTTPS. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tel</string>

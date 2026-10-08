@@ -45,7 +45,6 @@ dependencies:
   firebase_core: ^4.15.0
   firebase_messaging: ^16.7.0
   video_player: ^2.14.1
-  web_socket_channel: ^3.0.3
   path_provider: ^2.1.6
   drift: ^2.35.1
 dev_dependencies:
