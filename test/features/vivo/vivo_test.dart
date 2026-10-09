@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -383,6 +384,81 @@ void main() {
     expect(vivo.cerradas, isEmpty);
   });
 
+  testWidgets('cambia un reproductor que no termina de iniciar por otro, hasta '
+      'que llega la imagen', (tester) async {
+    // Like the web player on a playlist that answered 404 before the camera published.
+    reproductores.cuelguesAlIniciar = 2;
+    await abrir(tester, Rutas.camara('c1'));
+    await tocar(tester, find.text('Ver en vivo'));
+    expect(reproductores.creados, hasLength(1));
+    await esperar(tester, esperaInicio.inSeconds);
+    expect(reproductores.creados.single.desechado, isTrue);
+    await esperar(tester, pausaEntreIntentos.inSeconds);
+    expect(reproductores.creados, hasLength(2));
+    expect(find.byKey(const Key('video-en-vivo')), findsNothing);
+    await esperar(
+      tester,
+      esperaInicio.inSeconds + pausaEntreIntentos.inSeconds,
+    );
+    // The third player starts within esperaPrimerFotograma: the session goes on.
+    expect(reproductores.creados, hasLength(3));
+    expect(reproductores.creados.take(2).every((r) => r.desechado), isTrue);
+    expect(reproductores.ultimo.desechado, isFalse);
+    expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
+    await esperar(tester, esperaPrimerFotograma.inSeconds);
+    expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
+    expect(reproductores.creados, hasLength(3));
+    expect(vivo.abiertas, hasLength(1));
+    expect(vivo.cerradas, isEmpty);
+  });
+
+  group('comprobarLista', () {
+    const lista = 'https://api.tetengo.pe/vivo/camaras/c1/index.m3u8?token=t';
+    late AdaptadorFalso http;
+    late Dio dio;
+
+    setUp(() {
+      http = AdaptadorFalso();
+      dio = Dio()..httpClientAdapter = http;
+    });
+
+    test('con la lista servida sigue', () async {
+      http.cuando('GET', lista, const Respuesta(200, '#EXTM3U'));
+      await comprobarLista(dio, Uri.parse(lista));
+      expect(http.hechas('GET', lista), hasLength(1));
+    });
+
+    test('mientras la cámara no publica (404) falla', () async {
+      http.cuando('GET', lista, const Respuesta(404));
+      await expectLater(
+        comprobarLista(dio, Uri.parse(lista)),
+        throwsA(
+          isA<ListaNoDisponible>().having((e) => e.estado, 'estado', 404),
+        ),
+      );
+    });
+
+    test(
+      'si la petición no llega a responder, deja probar al reproductor',
+      () async {
+        http.sinConexion = true;
+        await comprobarLista(dio, Uri.parse(lista));
+      },
+    );
+
+    test(
+      'ReproductorHls no crea el reproductor de la plataforma sin lista',
+      () async {
+        http.cuando('GET', lista, const Respuesta(404));
+        final r = ReproductorHls(Uri.parse(lista), dio: dio);
+        addTearDown(r.dispose);
+        // With no platform plugin in tests, reaching video_player would fail differently.
+        await expectLater(r.iniciar(), throwsA(isA<ListaNoDisponible>()));
+        expect(r.listo, isFalse);
+      },
+    );
+  });
+
   group('si la transmisión se corta', () {
     Future<void> verCorte(WidgetTester tester) async {
       expect(vivo.cerradas, ['v-1']);
@@ -403,7 +479,8 @@ void main() {
       // A session that ended cannot resume: «Ver en vivo» opens a new one.
       reproductores
         ..conImagen = true
-        ..fallasAlIniciar = 0;
+        ..fallasAlIniciar = 0
+        ..cuelguesAlIniciar = 0;
       await tocar(tester, find.text('Ver en vivo'));
       expect(vivo.abiertas, hasLength(2));
       expect(reproductores.ultimo.url.queryParameters['token'], 't-v-2');
@@ -439,6 +516,27 @@ void main() {
       expect(vivo.cerradas, isEmpty);
       await esperar(tester, 1);
       await verCorte(tester);
+    });
+
+    testWidgets('porque ningún reproductor termina de iniciar a tiempo', (
+      tester,
+    ) async {
+      reproductores.cuelguesAlIniciar = 1000;
+      await abrir(tester, Rutas.camara('c1'));
+      await tocar(tester, find.text('Ver en vivo'));
+      await esperar(tester, esperaPrimerFotograma.inSeconds - 1);
+      expect(vivo.cerradas, isEmpty);
+      // One attempt every esperaInicio + pausaEntreIntentos: 0 s, 8 s and 16 s.
+      expect(reproductores.creados, hasLength(3));
+      await esperar(tester, 1);
+      expect(reproductores.creados.every((r) => r.desechado), isTrue);
+      await verCorte(tester);
+      // The last attempt's time limit runs out during the new session and leaves it alone.
+      await esperar(tester, esperaInicio.inSeconds);
+      expect(reproductores.creados, hasLength(4));
+      expect(reproductores.ultimo.desechado, isFalse);
+      expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
+      expect(vivo.cerradas, ['v-1']);
     });
 
     testWidgets('al salir confirma el acceso registrado', (tester) async {
