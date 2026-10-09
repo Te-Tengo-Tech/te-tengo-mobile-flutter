@@ -46,6 +46,10 @@ const esperaSinImagen = Duration(seconds: 10);
 /// Pause between attempts to open the playlist while the camera starts publishing.
 const pausaEntreIntentos = Duration(seconds: 2);
 
+/// Longest one attempt to start the player may take before it is dropped and another one starts
+/// [implementation choice].
+const esperaInicio = Duration(seconds: 6);
+
 class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   Camara? _camara;
   SesionVivo? _sesion;
@@ -179,7 +183,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   }
 
   /// Plays the session's stream. Until the camera publishes, the playlist does not exist yet, so
-  /// a failed start is retried until [esperaPrimerFotograma] runs out.
+  /// a start that fails, or hangs for [esperaInicio], is retried with a new player until
+  /// [esperaPrimerFotograma] runs out.
   Future<void> _conectar(SesionVivo sesion) async {
     final reproductor = ref.read(fabricaReproductorVivoProvider)(
       sesion.urlTransmision,
@@ -187,7 +192,10 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     _reproductor = reproductor;
     reproductor.addListener(_alCambiarReproductor);
     try {
-      await reproductor.iniciar();
+      await reproductor.iniciar().timeout(esperaInicio);
+    } on TimeoutException {
+      // Slow to finish, but already showing the stream: keep it.
+      if (!reproductor.listo) _reintentar(reproductor);
     } on Object {
       _reintentar(reproductor);
     }

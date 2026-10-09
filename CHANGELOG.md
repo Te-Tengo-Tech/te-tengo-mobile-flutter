@@ -4,6 +4,11 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-09
+### Fixed
+- **Live view that never started in the PWA when the camera began publishing after the session opened.** Until the camera publishes, MediaMTX answers `404` for the playlist; `video_player_web_hls` 1.3.0 swallows hls.js's fatal error for it, so the player's `initialize()` never completed and no retry ran until the 20 s watchdog ended the session. The app now asks for the playlist every 2 s and creates the player only once it is served, and each start attempt is limited to 6 s (`esperaInicio`) before a new player is tried, within the 20 s the screen waits for the first frame. Android and iOS use the same start-up.
+- **Frozen live view in Chrome and Edge 142+.** Chromium now reports native HLS, so the plugin used Chromium's new built-in player, which fails on MediaMTX's LL-HLS (`DEMUXER_ERROR_COULD_NOT_PARSE`) and left the hls.js fallback paused on the first frame. `web/index.html` reports no native HLS in Chromium browsers once hls.js is loaded, so they play with hls.js as intended; Safari keeps its own player. See `docs/WEB_PWA.md`.
+
 ## [0.2.0] - 2026-10-09
 ### Changed
 - **Release pipeline: release candidates, staging from the release branch, produccion from `main`, tag at the end** ([docs/RELEASES.md](docs/RELEASES.md)). It replaces `release-android.yml`, `release-ios.yml`, `etiquetar.yml` and the landing's `publicar.yml`.
