@@ -11,12 +11,19 @@ class VistaEnVivoRepositorioFalso implements VistaEnVivoRepositorio {
   final modosPedidos = <ModoVista?>[];
   final cambios = <(String, ModoVista)>[];
   final cerradas = <String>[];
+  final preparadas = <String>[];
   ProblemaApi? errorAbrir;
   ProblemaApi? errorCambiar;
+
+  /// The sessions also offer WebRTC (`urlWebrtc`), as an API with `TT_VIVO_URL_WEBRTC` does.
+  bool conWebrtc = false;
 
   /// The mode the camera streams in, answered by the POST.
   ModoVista modo = ModoVista.video;
   List<AccesoVivo> lista = [];
+
+  @override
+  Future<void> preparar(String camaraId) async => preparadas.add(camaraId);
 
   @override
   Future<SesionVivo> abrir(
@@ -34,6 +41,11 @@ class VistaEnVivoRepositorioFalso implements VistaEnVivoRepositorio {
       urlTransmision: Uri.parse(
         'https://api.tetengo.pe/vivo/camaras/$camaraId/index.m3u8?token=t-$id',
       ),
+      urlWebrtc: conWebrtc
+          ? Uri.parse(
+              'https://api.tetengo.pe/vivo-webrtc/camaras/$camaraId/whep?token=t-$id',
+            )
+          : null,
       modo: this.modo,
     );
   }
@@ -124,11 +136,15 @@ class ReproductorVivoFalso extends ChangeNotifier implements ReproductorVivo {
 class FabricaReproductorFalsa {
   final creados = <ReproductorVivoFalso>[];
 
+  /// The viewer token each WebRTC player got.
+  final tokens = <String?>[];
+
   /// Whether new players show a frame as soon as they start.
   bool conImagen = true;
 
-  /// How many of the next players fail to start.
+  /// How many of the next players fail to start, and with what.
   int fallasAlIniciar = 0;
+  Object Function() falla = () => StateError('404');
 
   /// How many of the next players never finish starting.
   int cuelguesAlIniciar = 0;
@@ -136,7 +152,7 @@ class FabricaReproductorFalsa {
   ReproductorVivoFalso get ultimo => creados.last;
 
   ReproductorVivo crear(Uri url) {
-    final falla = fallasAlIniciar > 0 ? StateError('404') : null;
+    final falla = fallasAlIniciar > 0 ? this.falla() : null;
     if (fallasAlIniciar > 0) fallasAlIniciar--;
     final cuelga = cuelguesAlIniciar > 0;
     if (cuelga) cuelguesAlIniciar--;
@@ -148,5 +164,11 @@ class FabricaReproductorFalsa {
     );
     creados.add(r);
     return r;
+  }
+
+  /// A WebRTC (WHEP) player: the same fake, driven the same way.
+  ReproductorVivo crearWebrtc(Uri endpoint, String? token) {
+    tokens.add(token);
+    return crear(endpoint);
   }
 }

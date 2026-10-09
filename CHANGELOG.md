@@ -4,6 +4,11 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-09
+### Added
+- **Live view over WebRTC (WHEP), with LL-HLS as the fallback.** When the session response carries `urlWebrtc`, the app plays the stream over WebRTC first, well under a second behind instead of the 2–5 s of LL-HLS: `flutter_webrtc` on Android, iOS and the web (the browser's `RTCPeerConnection`), receive-only video, one WHEP `POST` with all the viewer's candidates, no TURN, the viewer token only in the `token` query parameter (contract §4), and the WHEP session deleted when the view closes. While the camera is not publishing yet (`404`) the offer is sent again every 0.5 s, for up to 8 s from the session's start (`esperaPublicacionWebrtc`). A rejected offer, an answer slower than 4 s, no first frame within 4 s of the answer, a broken peer connection or 3 s without frames switch the same session to LL-HLS, with its existing start-up and watchdogs (after a break mid-stream, LL-HLS has 10 s, `esperaRescateHls`, to show a frame); a new session tries WebRTC again. Without `urlWebrtc` (an older API, or WebRTC turned off) nothing changes. Contract: `docs/API_CONTRACT.md` §4.
+- **`preparar`:** the camera detail and an open alert send `POST /api/vista-en-vivo/preparar {camaraId}` once when they open, so the household agent gets ready before «Ver en vivo» is tapped; no image leaves the home until a session opens. Errors (an older API or agent, a paused camera) are ignored.
+
 ## [0.2.1] - 2026-10-09
 ### Fixed
 - **Live view that never started in the PWA when the camera began publishing after the session opened.** Until the camera publishes, MediaMTX answers `404` for the playlist; `video_player_web_hls` 1.3.0 swallows hls.js's fatal error for it, so the player's `initialize()` never completed and no retry ran until the 20 s watchdog ended the session. The app now asks for the playlist every 2 s and creates the player only once it is served, and each start attempt is limited to 6 s (`esperaInicio`) before a new player is tried, within the 20 s the screen waits for the first frame. Android and iOS use the same start-up.

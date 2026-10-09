@@ -18,10 +18,12 @@ import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/camaras/domain/camara.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:te_tengo/features/vivo/data/cliente_whep.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
 import 'package:te_tengo/features/vivo/domain/vista_en_vivo.dart';
 import 'package:te_tengo/features/vivo/presentation/pantalla_vivo.dart';
 import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
+import 'package:te_tengo/features/vivo/presentation/reproductor_webrtc.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -37,6 +39,7 @@ void main() {
   late CamarasRepositorioFalso camaras;
   late VistaEnVivoRepositorioFalso vivo;
   late FabricaReproductorFalsa reproductores;
+  late FabricaReproductorFalsa webrtc;
   late List<String?> llamadas;
 
   Future<void> abrir(
@@ -61,6 +64,9 @@ void main() {
           ),
           vistaEnVivoRepositorioProvider.overrideWithValue(vivo),
           fabricaReproductorVivoProvider.overrideWithValue(reproductores.crear),
+          fabricaReproductorWebrtcProvider.overrideWithValue(
+            webrtc.crearWebrtc,
+          ),
           relojProvider.overrideWithValue(
             () => DateTime(2026, 9, 23, 10, 42, 6),
           ),
@@ -93,6 +99,7 @@ void main() {
     camaras = CamarasRepositorioFalso();
     vivo = VistaEnVivoRepositorioFalso();
     reproductores = FabricaReproductorFalsa();
+    webrtc = FabricaReproductorFalsa();
     llamadas = [];
   });
 
@@ -667,6 +674,206 @@ void main() {
     expect(vivo.abiertas, isEmpty);
   });
 
+  group('WebRTC (WHEP) con LL-HLS de respaldo', () {
+    const whep =
+        'https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep?token=t-v-1';
+
+    setUp(() => vivo.conWebrtc = true);
+
+    Future<void> verEnVivo(WidgetTester tester) async {
+      await abrir(tester, Rutas.camara('c1'));
+      await tocar(tester, find.text('Ver en vivo'));
+    }
+
+    /// The session went on over LL-HLS: one session, the WebRTC players gone, the HLS one showing.
+    void verHls() {
+      expect(webrtc.creados.every((r) => r.desechado), isTrue);
+      expect(reproductores.creados, hasLength(1));
+      expect(
+        reproductores.ultimo.url.toString(),
+        'https://api.tetengo.pe/vivo/camaras/c1/index.m3u8?token=t-v-1',
+      );
+      expect(reproductores.ultimo.desechado, isFalse);
+      expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
+      expect(vivo.abiertas, hasLength(1));
+      expect(vivo.cerradas, isEmpty);
+    }
+
+    testWidgets('con urlWebrtc ve en vivo por WebRTC', (tester) async {
+      await verEnVivo(tester);
+      expect(webrtc.creados, hasLength(1));
+      expect(webrtc.ultimo.url.toString(), whep);
+      expect(webrtc.tokens, ['t-v-1']);
+      expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
+      await esperar(tester, esperaPrimerFotograma.inSeconds + 5);
+      expect(reproductores.creados, isEmpty);
+      expect(webrtc.creados, hasLength(1));
+      expect(webrtc.ultimo.desechado, isFalse);
+      expect(
+        find.textContaining('EN VIVO · 00:25', findRichText: true),
+        findsOneWidget,
+      );
+      await tocar(tester, find.text('Cerrar la vista en vivo'));
+      expect(webrtc.ultimo.desechado, isTrue);
+      expect(vivo.cerradas, ['v-1']);
+    });
+
+    testWidgets('sin urlWebrtc ve en vivo solo por LL-HLS', (tester) async {
+      vivo.conWebrtc = false;
+      await verEnVivo(tester);
+      expect(webrtc.creados, isEmpty);
+      expect(reproductores.creados, hasLength(1));
+      expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
+    });
+
+    testWidgets('si WebRTC no muestra imagen a tiempo pasa a LL-HLS', (
+      tester,
+    ) async {
+      webrtc.conImagen = false;
+      await verEnVivo(tester);
+      expect(find.byKey(const Key('video-en-vivo')), findsNothing);
+      await esperar(tester, esperaWebrtc.inSeconds - 1);
+      expect(reproductores.creados, isEmpty);
+      await esperar(tester, 1);
+      verHls();
+      // The session stays on LL-HLS.
+      await esperar(tester, esperaPrimerFotograma.inSeconds);
+      expect(webrtc.creados, hasLength(1));
+      expect(reproductores.creados, hasLength(1));
+    });
+
+    testWidgets('si la oferta WebRTC no recibe respuesta pasa a LL-HLS', (
+      tester,
+    ) async {
+      webrtc.cuelguesAlIniciar = 1;
+      await verEnVivo(tester);
+      await esperar(tester, esperaWebrtc.inSeconds);
+      verHls();
+    });
+
+    testWidgets('si MediaMTX rechaza la oferta pasa a LL-HLS en el acto', (
+      tester,
+    ) async {
+      webrtc
+        ..fallasAlIniciar = 1
+        ..falla = () => const OfertaRechazada(400);
+      await verEnVivo(tester);
+      verHls();
+    });
+
+    testWidgets(
+      'mientras la cámara empieza a publicar (404) vuelve a ofrecer',
+      (tester) async {
+        webrtc
+          ..fallasAlIniciar = 2
+          ..falla = () => const OfertaRechazada(404);
+        await verEnVivo(tester);
+        expect(find.byKey(const Key('video-en-vivo')), findsNothing);
+        await tester.pump(pausaEntreOfertas);
+        await tester.pump(pausaEntreOfertas);
+        expect(webrtc.creados, hasLength(3));
+        expect(webrtc.creados.take(2).every((r) => r.desechado), isTrue);
+        expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
+        expect(reproductores.creados, isEmpty);
+      },
+    );
+
+    testWidgets('si WebRTC responde 404 demasiado tiempo pasa a LL-HLS', (
+      tester,
+    ) async {
+      // A route that always answers 404 (e.g. a proxy without WebRTC) must not cost the live view.
+      webrtc
+        ..fallasAlIniciar = 1000
+        ..falla = () => const OfertaRechazada(404);
+      await verEnVivo(tester);
+      await esperar(tester, esperaPublicacionWebrtc.inSeconds - 1);
+      expect(reproductores.creados, isEmpty);
+      await esperar(tester, 1);
+      await tester.pump(pausaEntreOfertas);
+      verHls();
+    });
+
+    testWidgets('si WebRTC se corta a mitad sigue la misma sesión por LL-HLS', (
+      tester,
+    ) async {
+      await verEnVivo(tester);
+      await esperar(tester, 5);
+      webrtc.ultimo.cortar();
+      await tester.pump();
+      verHls();
+      expect(
+        find.textContaining('EN VIVO · 00:05', findRichText: true),
+        findsOneWidget,
+      );
+      // An HLS cut afterwards ends the session as before, and a new one tries WebRTC again.
+      reproductores.ultimo.cortar();
+      await tester.pumpAndSettle();
+      expect(vivo.cerradas, ['v-1']);
+      await tocar(tester, find.text('Ver en vivo'));
+      expect(webrtc.creados, hasLength(2));
+      expect(webrtc.tokens.last, 't-v-2');
+      expect(reproductores.creados, hasLength(1));
+    });
+
+    testWidgets('si la imagen WebRTC se congela pasa a LL-HLS', (tester) async {
+      await verEnVivo(tester);
+      webrtc.ultimo.congelado = true;
+      await esperar(tester, esperaSinImagenWebrtc.inSeconds - 1);
+      expect(reproductores.creados, isEmpty);
+      await esperar(tester, 1);
+      verHls();
+    });
+
+    testWidgets('si WebRTC se corta a mitad, LL-HLS tiene esperaRescateHls', (
+      tester,
+    ) async {
+      reproductores.conImagen = false;
+      await verEnVivo(tester);
+      await esperar(tester, 3);
+      webrtc.ultimo.cortar();
+      await tester.pump();
+      await esperar(tester, esperaRescateHls.inSeconds - 1);
+      expect(vivo.cerradas, isEmpty);
+      await esperar(tester, 1);
+      expect(vivo.cerradas, ['v-1']);
+      expect(
+        find.text('La cámara de la Sala no está disponible'),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group('preparar', () {
+    testWidgets('la pantalla de la cámara pide preparar una vez al abrirse', (
+      tester,
+    ) async {
+      await abrir(tester, Rutas.camara('c1'));
+      await verHasta(tester, find.text('Disponible ahora'));
+      await esperar(tester, 5);
+      expect(vivo.preparadas, ['c1']);
+      await tocar(tester, find.text('Ver en vivo'));
+      expect(vivo.preparadas, ['c1']);
+      expect(vivo.abiertas, [('c1', null)]);
+    });
+
+    testWidgets('una alerta abierta pide preparar su cámara una vez', (
+      tester,
+    ) async {
+      await abrir(
+        tester,
+        Rutas.alerta('a-1'),
+        alertas: AlertasRepositorioFalso([caidaSala()]),
+      );
+      await esperar(tester, 2 * PantallaAlerta.refresco.inSeconds + 1);
+      expect(vivo.preparadas, ['c1']);
+    });
+
+    testWidgets('el inicio no pide preparar', (tester) async {
+      await abrir(tester, Rutas.inicio);
+      expect(vivo.preparadas, isEmpty);
+    });
+  });
+
   group('VistaEnVivoRepositorioApi', () {
     late AdaptadorFalso http;
     late VistaEnVivoRepositorio repo;
@@ -736,6 +943,49 @@ void main() {
               ),
         ),
       );
+    });
+
+    test('urlWebrtc cuando la API ofrece WebRTC', () async {
+      const whep =
+          'https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep?token=abc';
+      http
+        ..cuando(
+          'POST',
+          '/api/camaras/c1/vista-en-vivo',
+          const Respuesta(201, {
+            'sesionId': 'v-9',
+            'urlTransmision': url,
+            'urlWebrtc': whep,
+          }),
+        )
+        ..cuando(
+          'POST',
+          '/api/camaras/c1/vista-en-vivo',
+          const Respuesta(201, {
+            'sesionId': 'v-10',
+            'urlTransmision': url,
+            'urlWebrtc': null,
+          }),
+        );
+      final s = await repo.abrir('c1');
+      expect(s.urlWebrtc.toString(), whep);
+      expect(s.tokenEspectador, 'abc');
+      // Null or absent (an older API): HLS only.
+      final sinWebrtc = await repo.abrir('c1');
+      expect(sinWebrtc.urlWebrtc, isNull);
+      expect(sinWebrtc.tokenEspectador, 'abc');
+    });
+
+    test('POST /api/vista-en-vivo/preparar', () async {
+      http.cuando(
+        'POST',
+        '/api/vista-en-vivo/preparar',
+        const Respuesta(204, null),
+      );
+      await repo.preparar('c1');
+      expect(http.peticiones.single.method, 'POST');
+      expect(http.peticiones.single.path, '/api/vista-en-vivo/preparar');
+      expect(http.peticiones.single.data, {'camaraId': 'c1'});
     });
 
     test('sin modo en la respuesta es VIDEO', () async {
