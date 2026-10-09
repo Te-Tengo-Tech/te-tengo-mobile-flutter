@@ -111,11 +111,21 @@ that `release.yml` deploys. With `ENABLE_PWA` on, a release fails at once if a r
 |---|---|---|
 | Session token | Keychain / Keystore | `flutter_secure_storage` web: AES-GCM (WebCrypto) in `localStorage`, key stored next to it. Needs HTTPS or `localhost`. Weaker than the OS store: any script of the origin could read it |
 | Offline cache | drift SQLite file | `localStorage` (`tt_cache|…` keys; a full storage only loses the cache) |
-| Live view | `video_player` (AVPlayer, ExoPlayer) | Safari plays the HLS natively; other browsers through `video_player_web_hls` and hls.js 1.7.3 (pinned on jsDelivr with SRI, loaded deferred; without it clips and native HLS still play). The page and the stream must both be HTTPS (no mixed content) |
+| Live view | `video_player` (AVPlayer, ExoPlayer) | Safari plays the HLS natively; Chrome, Edge, Firefox and Android through `video_player_web_hls` and hls.js 1.7.3 (pinned on jsDelivr with SRI, loaded deferred; without it clips and native HLS still play). Chromium 142+ also reports native HLS, but its new built-in player fails on MediaMTX's LL-HLS (`MediaError` 4, `DEMUXER_ERROR_COULD_NOT_PARSE`) and the plugin's hls.js fallback then stays paused on the first frame, so `web/index.html` reports no native HLS in Chromium browsers once hls.js is loaded. The page and the stream must both be HTTPS (no mixed content) |
 | Clips | `video_player` | `<video>` with the pre-signed URL (no CORS needed) |
 | Recording download | file in Documents / Downloads | the browser's download (`Content-Disposition: attachment` from `descarga=true`) |
 | «Llamar» | dialer | `tel:` link in the same window (the iPhone dialer opens) |
 | Notification permission | `permission_handler` | the browser's `Notification.permission` |
+
+**Live view start (every platform).** Until the camera publishes, MediaMTX answers `404` for the
+playlist. The app asks for it every 2 s and only creates the player once it is served; each start
+attempt is limited to 6 s, within the 20 s the screen waits for the first frame
+(`ReproductorHls.iniciar`, `PantallaVivo._conectar`). This avoids two bugs of
+`video_player_web_hls` 1.3.0, the latest release: it swallows hls.js's fatal error for a `404`
+playlist (dynamic access on a JS object throws `NoSuchMethodError`, caught and only printed as
+«Error parsing hlsError»), so `initialize()` never completes; and its `dispose()` does not destroy
+hls.js, which keeps loading until MediaMTX answers `401` after the session ends. If the request
+itself fails (no connection, or an origin missing from `hlsAllowOrigins`), the player is tried anyway.
 
 ## Backend and infrastructure requirements
 The API side is in te-tengo-general-api#12 (contract §§ Conventions, 4 and 7); each environment
@@ -126,8 +136,8 @@ configures it:
   above.
 - **Web push:** the push service's web configuration; `plataforma: "WEB"` tokens get an FCM web push
   with the same title, body and data, and are skipped without it.
-- **Live view:** MediaMTX `hlsAllowOrigins` with the PWA origin (`https://app.tetengo.reqsai.tech`),
-  for hls.js.
+- **Live view:** MediaMTX `hlsAllowOrigins` with the PWA origins (`https://app.tetengo.reqsai.tech`
+  and the staging alias), for hls.js and for the app's first request to the playlist.
 
 ## Test it
 **Locally in Chrome** (`localhost` is a secure context, so the worker and push work without HTTPS):

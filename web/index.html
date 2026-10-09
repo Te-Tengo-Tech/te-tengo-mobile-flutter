@@ -26,11 +26,26 @@
   <link rel="manifest" href="manifest.json">
 
   <!--
-    Live view on browsers without native HLS (Chrome, Firefox, Android): video_player_web_hls plays the
-    LL-HLS playlist with hls.js. Safari plays it natively. The stub keeps clips and native HLS working
-    when the CDN cannot be reached; the deferred library replaces it once loaded.
+    Live view: video_player_web_hls plays the LL-HLS playlist with hls.js in Chrome, Edge, Firefox and
+    Android, and Safari plays it natively. The stub keeps clips and native HLS working when the CDN
+    cannot be reached; the deferred library replaces it once loaded.
+    Chromium 142+ reports native HLS too, so the plugin would use Chromium's new built-in player, which
+    fails on MediaMTX's LL-HLS (MediaError 4, DEMUXER_ERROR_COULD_NOT_PARSE) and then leaves the
+    hls.js fallback paused on the first frame. Chromium browsers (the only ones with
+    navigator.userAgentData) therefore report no native HLS once hls.js is loaded. See docs/WEB_PWA.md.
   -->
-  <script>window.Hls = window.Hls || { isSupported: function () { return false; } };</script>
+  <script>
+    window.Hls = window.Hls || { isSupported: function () { return false; } };
+    (function () {
+      var nativo = HTMLMediaElement.prototype.canPlayType;
+      HTMLMediaElement.prototype.canPlayType = function (tipo) {
+        if (/mpegurl/i.test(String(tipo)) && navigator.userAgentData && window.Hls.isSupported()) {
+          return '';
+        }
+        return nativo.call(this, tipo);
+      };
+    })();
+  </script>
   <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1.7.3/dist/hls.min.js"
           integrity="sha384-cciJ0zi8d1uMKC2zJd7jvPY4HQt7W4ByUI/FlMkltvBi31aW61rcpVBhpmW8/NwX"
           crossorigin="anonymous"></script>

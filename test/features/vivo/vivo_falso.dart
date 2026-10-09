@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:te_tengo/core/red/problema_api.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
@@ -52,7 +54,12 @@ class VistaEnVivoRepositorioFalso implements VistaEnVivoRepositorio {
 
 /// A live stream without the platform plugin, driven by the test.
 class ReproductorVivoFalso extends ChangeNotifier implements ReproductorVivo {
-  ReproductorVivoFalso(this.url, {required this.conImagen, this.falla});
+  ReproductorVivoFalso(
+    this.url, {
+    required this.conImagen,
+    this.falla,
+    this.cuelga = false,
+  });
 
   final Uri url;
 
@@ -61,6 +68,9 @@ class ReproductorVivoFalso extends ChangeNotifier implements ReproductorVivo {
 
   /// `iniciar` throws it, like a playlist the camera is not publishing yet.
   final Object? falla;
+
+  /// `iniciar` never completes, like `video_player_web_hls` 1.3.0 on a playlist that answered 404.
+  final bool cuelga;
 
   bool _listo = false;
   bool _cortado = false;
@@ -71,6 +81,7 @@ class ReproductorVivoFalso extends ChangeNotifier implements ReproductorVivo {
 
   @override
   Future<void> iniciar() async {
+    if (cuelga) return Completer<void>().future;
     if (falla != null) throw falla!;
     if (conImagen) mostrarImagen();
   }
@@ -119,12 +130,22 @@ class FabricaReproductorFalsa {
   /// How many of the next players fail to start.
   int fallasAlIniciar = 0;
 
+  /// How many of the next players never finish starting.
+  int cuelguesAlIniciar = 0;
+
   ReproductorVivoFalso get ultimo => creados.last;
 
   ReproductorVivo crear(Uri url) {
     final falla = fallasAlIniciar > 0 ? StateError('404') : null;
     if (fallasAlIniciar > 0) fallasAlIniciar--;
-    final r = ReproductorVivoFalso(url, conImagen: conImagen, falla: falla);
+    final cuelga = cuelguesAlIniciar > 0;
+    if (cuelga) cuelguesAlIniciar--;
+    final r = ReproductorVivoFalso(
+      url,
+      conImagen: conImagen,
+      falla: falla,
+      cuelga: cuelga,
+    );
     creados.add(r);
     return r;
   }
