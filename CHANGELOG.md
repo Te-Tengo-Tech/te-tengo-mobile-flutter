@@ -3,6 +3,8 @@
 Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+
+## [0.2.0] - 2026-10-09
 ### Changed
 - **Release pipeline: release candidates, staging from the release branch, produccion from `main`, tag at the end** ([docs/RELEASES.md](docs/RELEASES.md)). It replaces `release-android.yml`, `release-ios.yml`, `etiquetar.yml` and the landing's `publicar.yml`.
   - A push to `release/x.y.z` or `hotfix/x.y.z` (`release.yml`) builds once: signed APK, PWA, AAB with `ENABLE_PLAY_STORE`, IPA with `ENABLE_IOS`. It stores the files as the GitHub pre-release `vx.y.z-rc.N`, whose notes record the commit, git tree, build number, SHA-256 of every asset (`SHA256SUMS`) and the channels that were on. After an approval it deploys that candidate to **staging** (environment `staging`, `ENABLE_STAGING`: PWA alias `https://staging.te-tengo-app.pages.dev`, APK R2 `staging/te-tengo.apk`), then opens or updates the pull request `release: x.y.z` to `main`.
