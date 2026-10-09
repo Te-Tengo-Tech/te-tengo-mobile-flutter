@@ -1,7 +1,7 @@
 // Te Tengo service worker: the web app's only worker (docs/WEB_PWA.md).
 //
-// - Registered from Dart (lib/core/web/navegador_web.dart) at the base href scope, for example
-//   https://te-tengo-tech.github.io/te-tengo-descargas/app/. Flutter's own flutter_service_worker.js
+// - Registered from Dart (lib/core/web/navegador_web.dart) at the base href scope: / on
+//   https://app.tetengo.reqsai.tech/. Flutter's own flutter_service_worker.js
 //   is deprecated and not registered (web/flutter_bootstrap.js).
 // - Offline: network first for the app files, falling back to the last copy kept.
 // - Push: FCM web push when the URL carries the Firebase web config

@@ -6,37 +6,43 @@ screen; from iOS 16.4 a home-screen web app can receive push notifications. Andr
 browsers can install it too.
 
 ## Hosting and base href
-- Served by **Cloudflare Pages** from the landing repository `te-tengo-landing-astro`, at
-  `https://<landing host>/app/`. The CI job `Web (PWA)` builds it and uploads the `te-tengo-web`
-  artifact (the contents of `build/web`), which the landing repository copies into its `/app/` folder.
-- The base href is a build flag, `/app/` by default: `flutter build web --base-href /app/`. Any other
-  sub-path works the same (it was tested under `/te-tengo-descargas/app/` too); in CI set the
+- Served at the **root of its own origin, `https://app.tetengo.reqsai.tech/`**: the Cloudflare Pages
+  project `te-tengo-app`, separate from the landing (`https://tetengo.reqsai.tech`, project
+  `te-tengo-landing`). The landing repository `te-tengo-landing-astro` builds and deploys it with its
+  `publicar.yml` (`flutter build web --base-href /`), adding its own `_headers` and `robots.txt`
+  (`deploy/app/` there); see *Release flow* in the [README](../README.md). The old address
+  `https://tetengo.reqsai.tech/app/…` redirects there with a `301`, keeping the `#fragment`.
+- The CI job `Web (PWA)` of this repository builds it the same way and uploads the `te-tengo-web`
+  artifact (the contents of `build/web`) to check the build; it is not what gets deployed.
+- The base href is a build flag, `/` for the app origin: `flutter build web --base-href /`. A
+  sub-path works the same (it was tested under `/app/` and `/te-tengo-descargas/app/`); in CI set the
   repository variable `TT_WEB_BASE_HREF`. Every URL in `web/` (manifest, icons, service worker) is
   relative, so nothing else changes.
-- `--no-web-resources-cdn` serves CanvasKit from `/app/` instead of Google's CDN, so the service
-  worker can keep it for offline use.
+- `--no-web-resources-cdn` serves CanvasKit from the app origin instead of Google's CDN, so the
+  service worker can keep it for offline use.
 
 ## Routing and e-mail links
-The app uses Flutter's default **hash URLs**: `https://<landing host>/app/#/inicio`.
-- Why: the PWA is a sub-folder of the landing's Pages project. Path URLs (`/app/inicio`) need the
-  landing repository to rewrite every `/app/*` path to `/app/index.html` (a `_redirects` line
-  `/app/* /app/index.html 200` at the landing's output root). Hash URLs need nothing from the landing,
-  work on any static host, and a reload never 404s.
+The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#/inicio`.
+- Why: hash URLs need no rewrite rule on the host, work on any static host, and a reload never 404s.
+  They also survive the `301` from the old `/app/` address of the landing, since the browser keeps the
+  fragment across a redirect.
 - **E-mail links the API must send** (the routes are the same as the app's `tetengo://app/…` links):
-  - password reset: `https://<landing host>/app/#/nueva-contrasena?token=<token>&correo=<email>`;
-  - invitation: `https://<landing host>/app/#/invitacion/<token>?titular=<name>&adultoMayor=<name>&correo=<email>`.
+  - password reset: `https://app.tetengo.reqsai.tech/#/nueva-contrasena?token=<token>&correo=<email>`;
+  - invitation: `https://app.tetengo.reqsai.tech/#/invitacion/<token>?titular=<name>&adultoMayor=<name>&correo=<email>`.
   Query values are percent-encoded; the optional ones can be left out. Both screens are public, so
   they open without a session (verified in Chrome and iOS Safari).
-- To switch to path URLs later: add the `_redirects` line above in the landing repository, call
-  `usePathUrlStrategy()` (package `flutter_web_plugins`) before `runApp`, and change the e-mail links.
+- To switch to path URLs later: add a `_redirects` line `/* /index.html 200` to the app's Pages files
+  (`deploy/app/` in the landing repository), call `usePathUrlStrategy()` (package
+  `flutter_web_plugins`) before `runApp`, and change the e-mail links.
 
 ## Service worker: one worker for caching and push
 - Flutter's own `flutter_service_worker.js` is **deprecated** (flutter/flutter#156910); in Flutter
-  3.44 the generated file only unregisters itself. If it were registered at `/app/` it would remove
-  the FCM worker of the same scope, so `web/flutter_bootstrap.js` loads Flutter **without**
+  3.44 the generated file only unregisters itself. If it were registered at `/` it would remove the
+  FCM worker of the same scope, so `web/flutter_bootstrap.js` loads Flutter **without**
   `serviceWorkerSettings`, and the file in `build/web` is never used.
 - `web/firebase-messaging-sw.js` is the only worker, registered from Dart at startup
-  (`registrarTrabajadorServicio` in `lib/core/web/navegador_web.dart`) with scope `/app/`. It:
+  (`registrarTrabajadorServicio` in `lib/core/web/navegador_web.dart`) with the base href as its
+  scope, `/` on `https://app.tetengo.reqsai.tech/`. It:
   - caches the app **network first**: online, every file comes fresh; offline, the last copy kept
     (the app shell is cached on install, so the second visit already opens offline). API, Firebase
     and CDN requests are never cached by it;
@@ -44,20 +50,20 @@ The app uses Flutter's default **hash URLs**: `https://<landing host>/app/#/inic
     (`firebase-messaging-sw.js?apiKey=…&appId=…&messagingSenderId=…&projectId=…`): the worker is a
     static file, so the page passes the build's `--dart-define` values in the registration URL;
   - opens the right screen when a notification is tapped: it focuses an open window and posts the
-    push data to it, or opens `/app/?tt_push=<data>`; Dart turns the data into the route
+    push data to it, or opens `/?tt_push=<data>` (relative to the scope); Dart turns the data into the route
     (`rutaDePush`), as on Android and iOS.
 - `FIREBASE_SDK` in the worker must equal the Firebase JS SDK version of `firebase_core_web`
   (`supportedFirebaseJsSdkVersion`, now 12.19.0). Check it when Dependabot upgrades FlutterFire.
-- Cloudflare Pages already answers with `Cache-Control: public, max-age=0, must-revalidate`, and
-  browsers always revalidate the worker script, so no `_headers` rule is needed. If the landing adds
-  long cache rules, exclude `/app/*`.
+- The app's Pages files (`deploy/app/_headers` in the landing repository) send
+  `Cache-Control: no-cache` for everything, and browsers always revalidate the worker script, so a new
+  deployment is picked up on the next visit. Do not add long cache rules there.
 
 ## Push on the web
 | Step | What happens |
 |---|---|
 | Startup | Firebase starts with `FirebaseOptions` from the defines (below). Without them, or in a browser without Web Push (an iPhone Safari tab), push is unavailable and the rest of the app works |
 | Permission | Never asked on its own: Safari ignores a prompt that does not come from a tap. Inicio shows «Activa las notificaciones» and the **«Activar notificaciones»** button asks (`Notification.requestPermission` is its first call) |
-| Token | `getToken(vapidKey, serviceWorkerScriptPath)`: the worker of `/app/`, not the origin root where the Firebase SDK looks by default |
+| Token | `getToken(vapidKey, serviceWorkerScriptPath)`: the worker registered at the base href (here the origin root, `/`); passed explicitly so a sub-path build keeps working |
 | Registration | `POST /api/dispositivos {tokenPush, plataforma: "WEB"}` (contract §7), again on each household change and sign-in; `DELETE` on sign-out |
 | Foreground push | `onMessage`, the same in-app notices as on the phones |
 | Tapped push | through the worker (above); firebase_messaging has no `onMessageOpenedApp` on the web |
@@ -75,12 +81,13 @@ The values are public (they ship in the page) but are **not committed**. The own
 
 Flutter reads `.env` files directly:
 ```bash
-flutter build web --release --base-href /app/ --no-web-resources-cdn \
+flutter build web --release --base-href / --no-web-resources-cdn \
   --dart-define-from-file=$HOME/.config/te-tengo/firebase-web.env \
   --dart-define=TT_API_URL=https://<api host>
 ```
 In CI, add the same names as **repository variables** (*Settings › Secrets and variables › Actions ›
-Variables*); the `Web (PWA)` job passes the ones that exist.
+Variables*); the `Web (PWA)` job passes the ones that exist. The deployed build uses the variables of
+the same names in the landing repository.
 
 ## What the iPhone allows (iOS 16.4+)
 - **Push only for the home-screen app.** In a Safari tab there is no `Notification` API: the app
@@ -109,32 +116,32 @@ Variables*); the `Web (PWA)` job passes the ones that exist.
 ## Backend and infrastructure requirements
 The API side is in te-tengo-general-api#12 (contract §§ Conventions, 4 and 7); each environment
 configures it:
-- **CORS:** `TT_CORS_ORIGENES` with the PWA origin (`https://<landing host>`; `http://localhost:*`
-  locally). Without it a browser preflight gets `403` and the PWA cannot sign in.
-- **E-mail links:** `TT_ENLACE_BASE=https://<landing host>/app/#`, which gives the hash links above.
+- **CORS:** `TT_CORS_ORIGENES` with the PWA origin, `https://app.tetengo.reqsai.tech`
+  (`http://localhost:*` locally). Without it a browser preflight gets `403` and the PWA cannot sign in.
+- **E-mail links:** `TT_ENLACE_BASE=https://app.tetengo.reqsai.tech/#`, which gives the hash links
+  above.
 - **Web push:** the push service's web configuration; `plataforma: "WEB"` tokens get an FCM web push
   with the same title, body and data, and are skipped without it.
-- **Live view:** MediaMTX `hlsAllowOrigins` with the PWA origin, for hls.js.
+- **Live view:** MediaMTX `hlsAllowOrigins` with the PWA origin (`https://app.tetengo.reqsai.tech`),
+  for hls.js.
 
 ## Test it
 **Locally in Chrome** (`localhost` is a secure context, so the worker and push work without HTTPS):
 ```bash
-flutter build web --release --base-href /app/ --no-web-resources-cdn \
+flutter build web --release --base-href / --no-web-resources-cdn \
   --dart-define-from-file=$HOME/.config/te-tengo/firebase-web.env
-mkdir -p /tmp/tt-site && ln -sfn "$PWD/build/web" /tmp/tt-site/app
-python3 -m http.server 8123 --directory /tmp/tt-site
+python3 -m http.server 8123 --directory build/web
 ```
-Open `http://localhost:8123/app/`. DevTools › *Application* shows the manifest, the icons and
-`firebase-messaging-sw.js` activated with scope `/app/`. After signing in, «Activar notificaciones»
+Open `http://localhost:8123/`. DevTools › *Application* shows the manifest, the icons and
+`firebase-messaging-sw.js` activated with scope `/`. After signing in, «Activar notificaciones»
 asks for permission and the token is registered (`select token_push from dispositivos where
 plataforma = 'WEB'`, or `Token de push: …` in a debug build); send a test message to it from the
 Firebase console (*Messaging › Send test message*).
 
-**iOS Simulator** (Safari, no push): `xcrun simctl openurl booted http://localhost:8123/app/`. The
+**iOS Simulator** (Safari, no push): `xcrun simctl openurl booted http://localhost:8123/`. The
 welcome screen shows the install notice; *··· › Compartir › Ver más › Agregar a inicio* installs it,
 and the icon opens it without Safari's bars and without the notice.
 
-**Real iPhone** (push needs HTTPS and the installed app): use a Cloudflare Pages preview deployment
-of the landing, or a tunnel to the local server (`cloudflared tunnel --url http://localhost:8123`);
-open `https://…/app/` in Safari, add it to the home screen, open it from the icon, sign in, tap
+**Real iPhone** (push needs HTTPS and the installed app): use `https://app.tetengo.reqsai.tech/`, or a
+tunnel to the local server (`cloudflared tunnel --url http://localhost:8123`); open it in Safari, add it to the home screen, open it from the icon, sign in, tap
 «Activar notificaciones» and send a test message to the registered token.

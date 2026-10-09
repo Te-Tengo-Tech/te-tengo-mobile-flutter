@@ -69,9 +69,10 @@ jobs:
     name: Web (PWA)
     runs-on: ubuntu-latest
     env:
-      # Served from the landing site (te-tengo-landing-astro on Cloudflare Pages) under /app/.
-      # Override with the repository variable TT_WEB_BASE_HREF (docs/WEB_PWA.md).
-      BASE_HREF: ${{ vars.TT_WEB_BASE_HREF || '/app/' }}
+      # Served at the root of its own origin, https://app.tetengo.reqsai.tech/ (the Cloudflare Pages
+      # project te-tengo-app, deployed by the landing's publicar.yml). Override with the repository
+      # variable TT_WEB_BASE_HREF (docs/WEB_PWA.md).
+      BASE_HREF: ${{ vars.TT_WEB_BASE_HREF || '/' }}
     steps:
       - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2

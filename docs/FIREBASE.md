@@ -74,7 +74,7 @@ Set up once in the Firebase console (project `te-tengo-9ad70`):
 2. *Project settings › Cloud Messaging › Web configuration › Web Push certificates › Generate key
    pair* (done): the public key is `TT_FCM_VAPID_KEY`.
 3. If the browser API key is restricted (*Google Cloud console › APIs & Services › Credentials*),
-   allow the referrers `https://<landing host>/app/*` and `http://localhost:*/*`, and keep the
+   allow the referrers `https://app.tetengo.reqsai.tech/*` and `http://localhost:*/*`, and keep the
    *Firebase Installations API* and *FCM Registration API* in its API list.
 4. The backend sends to `WEB` tokens through the *Firebase Cloud Messaging API (V1)*, already
    enabled for the Android and iOS tokens.
