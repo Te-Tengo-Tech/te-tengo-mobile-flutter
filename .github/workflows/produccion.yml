@@ -306,7 +306,7 @@ jobs:
       - name: Download the candidate's IPA and check its SHA-256
         run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/ipa" te-tengo.ipa
       - name: Upload to TestFlight
-        uses: apple-actions/upload-testflight-build@14df18fee5a4ff3b76971dd382f033494a0194e9 # v5.5.0
+        uses: apple-actions/upload-testflight-build@65a84cdb671ee2ccfa93710cd58e8f7b5d251967 # v5.5.1
         with:
           app-path: ${{ runner.temp }}/ipa/te-tengo.ipa
           app-type: ios
