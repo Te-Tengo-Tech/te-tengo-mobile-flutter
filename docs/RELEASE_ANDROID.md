@@ -10,8 +10,8 @@ The workflow [`release-android.yml`](../.github/workflows/release-android.yml) b
 | Trigger | What happens |
 |---|---|
 | Pull request touching `android/`, `pubspec.*` or the workflow | Builds the release AAB and APK (debug-signed) to keep the release path green; nothing is uploaded |
-| Manual run (*Actions → Release Android → Run workflow*) | Builds the AAB and the APK, keeps both as run artifacts (`…-aab`, and `te-tengo-apk` with `te-tengo.apk` and `te-tengo.apk.sha256`) and, when configured, uploads the AAB to the **internal** track. Optional inputs: `build_number` (versionCode override) and `release_status` (`completed` or `draft`) |
-| Tag `mobile-v<version>`, e.g. `mobile-v1.0.0` | Same as a manual run. The tag must match `version:` in `pubspec.yaml` |
+| Push to `main` (a merged `release/*` or `hotfix/*` pull request) | Builds the AAB and the APK and keeps both as run artifacts (`…-aab`, and `te-tengo-apk` with `te-tengo.apk` and `te-tengo.apk.sha256`). When configured, the `Upload to Google Play (internal)` job then **waits for an approval on the `produccion` environment** and uploads the AAB to the **internal** track |
+| Manual run (*Actions → Release Android → Run workflow*) | The same. From `main` the Play upload waits for approval; from any other branch it only builds, because the environment only accepts `main`. Optional inputs: `build_number` (versionCode override) and `release_status` (`completed` or `draft`) |
 
 - **Version.** It comes from `pubspec.yaml`, as `version: <versionName>+<versionCode>`. Google Play rejects a versionCode it has already seen, and Android refuses to install an APK over a newer one, so **bump the `+N` before every release**, or pass `build_number` in a manual run.
 - **Inert without secrets.** Each missing secret is listed in a notice on the run page, and the Play step is skipped. Without the release key, the AAB and the APK are signed with the runner's throwaway debug key: fine for checking the build, rejected by Play, and an APK that no later build can update.
@@ -50,7 +50,8 @@ For the pilot, the app is distributed as a single **universal APK** from the lan
 
 ### Where the APK is published
 - **Who publishes it.** The landing's publish workflow (repository `te-tengo-landing-astro`) builds the APK and **uploads `te-tengo.apk` and `te-tengo.apk.sha256` to Cloudflare R2**. The landing page links to that stable URL, which always serves the latest published APK.
-- **Why not from here.** This repository is private, so its run artifacts and release assets are only reachable by organization members.
+- **Why not from here.** Run artifacts expire and are only downloadable by signed-in GitHub users; the landing needs a stable public URL.
+- **When.** A release that reaches `main` publishes it: once `CI` passes there, [`notificar-landing.yml`](../.github/workflows/notificar-landing.yml) sends `repository_dispatch` `publicar-movil` with the commit SHA and the `pubspec.yaml` version, and the landing's run waits for an approval on its `produccion` environment before uploading (README, *Release flow*).
 - **How the APK is built:** the reusable workflow [`build-apk.yml`](../.github/workflows/build-apk.yml) (`workflow_call`).
   - **What it does.** It checks out this repository at a given `ref`, builds `flutter build apk --release` and verifies the signature with `apksigner`. It keeps `te-tengo.apk` and `te-tengo.apk.sha256` as an artifact of the **calling** run, named `te-tengo-apk` by default.
   - **Outputs:** `artifact_name`, `version_name`, `version_code`, `signed`, `certificate_sha256` and `apk_sha256`.
@@ -76,7 +77,7 @@ For the pilot, the app is distributed as a single **universal APK** from the lan
 - **What the calling repository needs:**
   - **Secrets:** `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`, with the **same** release key as here. Optionally `GOOGLE_SERVICES_JSON`, and `TT_API_URL` as a secret or variable.
   - **`MOBILE_REPO_TOKEN`:** a fine-grained token with read-only *Contents* on this repository, used to check it out.
-  - **Access from this repository:** *Settings → Actions → General → Access* must be set to «Accessible from repositories in the Te-Tengo-Tech organization».
+  - **Access from this repository:** none to configure. The repository is public, so any repository can call its reusable workflows (the *Settings → Actions → General → Access* setting only exists for private repositories).
 
 ### Installing it (what testers do)
 1. **Open the landing page on the phone** and tap the Android download. Chrome may warn that the file can be harmful: choose «Descargar de todas formas».
