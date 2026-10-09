@@ -10,10 +10,11 @@ browsers can install it too.
   project `te-tengo-app`, separate from the landing (`https://tetengo.reqsai.tech`, project
   `te-tengo-landing`). This repository builds and deploys it: the reusable
   [`build-web.yml`](../.github/workflows/build-web.yml) runs `flutter build web --base-href /` and adds
-  the Pages files of [`deploy/pwa/`](../deploy/pwa/) (`_headers`, `robots.txt`), and
-  [`release.yml`](../.github/workflows/release.yml) deploys that same artifact to the alias
-  `https://staging.te-tengo-app.pages.dev` and then to production, each after an approval and a smoke
-  check ([RELEASES.md](RELEASES.md)). The old address `https://tetengo.reqsai.tech/app/…` redirects
+  the Pages files of [`deploy/pwa/`](../deploy/pwa/) (`_headers`, `robots.txt`).
+  [`release.yml`](../.github/workflows/release.yml) stores that build as `te-tengo-pwa.tar.gz` in the
+  release candidate and deploys it to the alias `https://staging.te-tengo-app.pages.dev`;
+  [`produccion.yml`](../.github/workflows/produccion.yml) deploys the same archive to production from
+  `main`. Each deploy follows an approval and a smoke check ([RELEASES.md](RELEASES.md)). The old address `https://tetengo.reqsai.tech/app/…` redirects
   there with a `301`, keeping the `#fragment`.
 - The CI job `Web (PWA)` runs the same build on every pull request and uploads the `te-tengo-web`
   artifact; it is a check, not what gets deployed.
