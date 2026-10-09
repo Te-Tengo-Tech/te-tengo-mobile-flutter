@@ -1,0 +1,106 @@
+name: Build PWA
+
+# Reusable workflow: builds the web app, the installable PWA (docs/WEB_PWA.md), and keeps it as a
+# workflow artifact of the calling run, ready to deploy as is to Cloudflare Pages:
+#   - `flutter build web --release --no-web-resources-cdn` with the given base href (`/` for the root
+#     of https://app.tetengo.reqsai.tech/);
+#   - the public build config from repository variables as --dart-define values: TT_API_URL, the
+#     Firebase web config TT_FIREBASE_WEB_* and the web push key TT_FCM_VAPID_KEY. Missing ones are
+#     left out: the build still works, with push unavailable;
+#   - the Pages files of deploy/pwa/ (_headers, robots.txt) copied into the output.
+#
+# Called by ci.yml (a build check on every pull request) and release.yml (the build that staging and
+# produccion deploy).
+on:
+  workflow_call:
+    inputs:
+      base_href:
+        description: Base href of the build ("/" = the root of its origin)
+        type: string
+        default: /
+      artifact_name:
+        description: Name of the artifact with the contents of build/web
+        type: string
+        default: te-tengo-pwa
+      retention_days:
+        type: number
+        default: 14
+    outputs:
+      artifact_name:
+        description: Name of the artifact with the PWA
+        value: ${{ inputs.artifact_name }}
+      defines:
+        description: Names of the --dart-define values compiled in, comma-separated
+        value: ${{ jobs.web.outputs.defines }}
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Build PWA
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    outputs:
+      defines: ${{ steps.defines.outputs.names }}
+    env:
+      BASE_HREF: ${{ inputs.base_href }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+      - name: Dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Build config from repository variables
+        id: defines
+        # Public values (they ship in the page) kept as repository variables, not in git.
+        env:
+          TT_API_URL: ${{ vars.TT_API_URL }}
+          TT_FIREBASE_WEB_API_KEY: ${{ vars.TT_FIREBASE_WEB_API_KEY }}
+          TT_FIREBASE_WEB_AUTH_DOMAIN: ${{ vars.TT_FIREBASE_WEB_AUTH_DOMAIN }}
+          TT_FIREBASE_WEB_PROJECT_ID: ${{ vars.TT_FIREBASE_WEB_PROJECT_ID }}
+          TT_FIREBASE_WEB_STORAGE_BUCKET: ${{ vars.TT_FIREBASE_WEB_STORAGE_BUCKET }}
+          TT_FIREBASE_WEB_MESSAGING_SENDER_ID: ${{ vars.TT_FIREBASE_WEB_MESSAGING_SENDER_ID }}
+          TT_FIREBASE_WEB_APP_ID: ${{ vars.TT_FIREBASE_WEB_APP_ID }}
+          TT_FIREBASE_WEB_MEASUREMENT_ID: ${{ vars.TT_FIREBASE_WEB_MEASUREMENT_ID }}
+          TT_FCM_VAPID_KEY: ${{ vars.TT_FCM_VAPID_KEY }}
+        run: |
+          set -euo pipefail
+          jq -n 'env | with_entries(select((.key | test("^(TT_API_URL|TT_FIREBASE_WEB_[A-Z_]+|TT_FCM_VAPID_KEY)$")) and .value != ""))' \
+            > "$RUNNER_TEMP/web-defines.json"
+          names=$(jq -r 'keys | join(", ")' "$RUNNER_TEMP/web-defines.json")
+          echo "names=$names" >> "$GITHUB_OUTPUT"
+          echo "Defines set: ${names:-none}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Build
+        run: >-
+          timeout 20m flutter build web --release
+          --base-href "$BASE_HREF"
+          --no-web-resources-cdn
+          --dart-define-from-file="$RUNNER_TEMP/web-defines.json"
+      - name: Add the Cloudflare Pages files
+        run: cp deploy/pwa/_headers deploy/pwa/robots.txt build/web/
+      - name: Check the PWA files
+        run: |
+          for f in index.html manifest.json flutter_bootstrap.js firebase-messaging-sw.js version.json \
+            _headers robots.txt icons/Icon-192.png icons/Icon-512.png icons/Icon-maskable-512.png \
+            icons/apple-touch-icon.png; do
+            test -s "build/web/$f" || { echo "::error::missing build/web/$f"; exit 1; }
+          done
+          grep -q "<base href=\"$BASE_HREF\">" build/web/index.html
+          # The custom bootstrap loads Flutter without its deprecated service worker settings.
+          grep -qx '_flutter.loader.load();' build/web/flutter_bootstrap.js
+          echo "Version: $(jq -c . build/web/version.json)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the PWA as an artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: build/web
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention_days }}

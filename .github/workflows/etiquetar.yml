@@ -1,0 +1,104 @@
+name: Tag the release
+
+# Runs when a release reaches main (the merged pull request release/x.y.z → main that release.yml
+# opened, or a hotfix). It deploys nothing: staging and produccion were deployed from the release
+# branch (docs/RELEASES.md).
+#   1. Tag vX.Y.Z on this commit and create its GitHub Release, with the CHANGELOG section of X.Y.Z as
+#      notes. X.Y.Z is the version of pubspec.yaml without its +N build number, which the notes give.
+#      Skipped when the tag already exists.
+#   2. Open the back-merge pull request main → develop, `chore: merge release X.Y.Z back into develop`,
+#      unless one is open already or develop already has every commit of main.
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: etiquetar-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  etiquetar:
+    name: Tag, GitHub Release and back-merge pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            pubspec.yaml
+            CHANGELOG.md
+          sparse-checkout-cone-mode: false
+
+      - name: Read the version from pubspec.yaml
+        id: version
+        run: |
+          version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | tr -d '\r' | head -n1)
+          if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+)$ ]]; then
+            echo "::error title=Unexpected version::pubspec.yaml version '$version' is not <major>.<minor>.<patch>+<build>."
+            exit 1
+          fi
+          {
+            echo "name=${BASH_REMATCH[1]}"
+            echo "code=${BASH_REMATCH[2]}"
+            echo "tag=v${BASH_REMATCH[1]}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Tag and GitHub Release
+        env:
+          NAME: ${{ steps.version.outputs.name }}
+          CODE: ${{ steps.version.outputs.code }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" > /dev/null 2>&1; then
+            echo "::notice title=Tag exists::$TAG already exists; no tag or GitHub Release created."
+            echo "### $TAG already exists, nothing tagged" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # The section `## [X.Y.Z] …` of CHANGELOG.md, up to the next `## [`.
+          section=$(awk -v head="## [$NAME]" '
+            index($0, head) == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md)
+          if [ -z "$(printf '%s' "$section" | tr -d '[:space:]')" ]; then
+            echo "::warning title=No CHANGELOG section::CHANGELOG.md has no section '## [$NAME]'; the release notes only give the version."
+            section="No CHANGELOG section for $NAME."
+          fi
+          notes="$RUNNER_TEMP/notes.md"
+          {
+            echo "Te Tengo mobile app $NAME, build number $CODE (Android versionCode and iOS CFBundleVersion)."
+            echo
+            printf '%s\n' "$section"
+          } > "$notes"
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$TAG" --notes-file "$notes"
+          echo "### Tagged $TAG (build $CODE) and created its GitHub Release" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open the back-merge pull request into develop
+        env:
+          NAME: ${{ steps.version.outputs.name }}
+        run: |
+          set -euo pipefail
+          ahead=$(gh api "repos/$GITHUB_REPOSITORY/compare/develop...$GITHUB_SHA" --jq .ahead_by)
+          if [ "$ahead" = 0 ]; then
+            echo "### develop already has every commit of main; no back-merge needed" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          url=$(gh pr list --repo "$GITHUB_REPOSITORY" --base develop --head main --state open --json url --jq '.[0].url // ""')
+          if [ -n "$url" ]; then
+            echo "### Back-merge pull request already open: $url" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base develop --head main \
+            --title "chore: merge release $NAME back into develop" \
+            --body "Brings release $NAME (tag \`v$NAME\`) from \`main\` back into \`develop\`. Merge it with a merge commit, not a squash, so both branches share the release history.")
+          echo "### Opened $url" >> "$GITHUB_STEP_SUMMARY"

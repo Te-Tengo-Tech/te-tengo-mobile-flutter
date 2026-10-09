@@ -1,8 +1,10 @@
 name: CI
 
+# Release and hotfix branches run it too, so their head commit carries the checks that the
+# rulesets require on the pull request release/* → main opened by release.yml.
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, "release/**", "hotfix/**"]
   pull_request:
 
 permissions:
@@ -66,66 +68,14 @@ jobs:
           retention-days: 7
 
   web:
+    # The same reusable build that release.yml deploys (Cloudflare Pages project te-tengo-app, served
+    # at the root of https://app.tetengo.reqsai.tech/). Override the base href with the repository
+    # variable TT_WEB_BASE_HREF (docs/WEB_PWA.md).
     name: Web (PWA)
-    runs-on: ubuntu-latest
-    env:
-      # Served at the root of its own origin, https://app.tetengo.reqsai.tech/ (the Cloudflare Pages
-      # project te-tengo-app, deployed by the landing's publicar.yml). Override with the repository
-      # variable TT_WEB_BASE_HREF (docs/WEB_PWA.md).
-      BASE_HREF: ${{ vars.TT_WEB_BASE_HREF || '/' }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.44.8
-          channel: stable
-          cache: true
-      - name: Dependencies
-        run: flutter pub get --enforce-lockfile
-      - name: Build config from repository variables
-        # Public values (they ship in the page) kept as repository variables, not in git. Missing
-        # ones are left out: the build still works, with push unavailable (docs/WEB_PWA.md).
-        env:
-          TT_API_URL: ${{ vars.TT_API_URL }}
-          TT_FIREBASE_WEB_API_KEY: ${{ vars.TT_FIREBASE_WEB_API_KEY }}
-          TT_FIREBASE_WEB_AUTH_DOMAIN: ${{ vars.TT_FIREBASE_WEB_AUTH_DOMAIN }}
-          TT_FIREBASE_WEB_PROJECT_ID: ${{ vars.TT_FIREBASE_WEB_PROJECT_ID }}
-          TT_FIREBASE_WEB_STORAGE_BUCKET: ${{ vars.TT_FIREBASE_WEB_STORAGE_BUCKET }}
-          TT_FIREBASE_WEB_MESSAGING_SENDER_ID: ${{ vars.TT_FIREBASE_WEB_MESSAGING_SENDER_ID }}
-          TT_FIREBASE_WEB_APP_ID: ${{ vars.TT_FIREBASE_WEB_APP_ID }}
-          TT_FIREBASE_WEB_MEASUREMENT_ID: ${{ vars.TT_FIREBASE_WEB_MEASUREMENT_ID }}
-          TT_FCM_VAPID_KEY: ${{ vars.TT_FCM_VAPID_KEY }}
-        run: |
-          echo '{}' > web-defines.json
-          for name in TT_API_URL TT_FIREBASE_WEB_API_KEY TT_FIREBASE_WEB_AUTH_DOMAIN \
-            TT_FIREBASE_WEB_PROJECT_ID TT_FIREBASE_WEB_STORAGE_BUCKET \
-            TT_FIREBASE_WEB_MESSAGING_SENDER_ID TT_FIREBASE_WEB_APP_ID \
-            TT_FIREBASE_WEB_MEASUREMENT_ID TT_FCM_VAPID_KEY; do
-            if [ -n "${!name}" ]; then
-              jq --arg k "$name" --arg v "${!name}" '.[$k] = $v' web-defines.json > tmp.json
-              mv tmp.json web-defines.json
-            fi
-          done
-          echo "Defines set: $(jq -r 'keys | join(", ")' web-defines.json)" >> "$GITHUB_STEP_SUMMARY"
-      - name: Build
-        run: >-
-          flutter build web --release
-          --base-href "$BASE_HREF"
-          --no-web-resources-cdn
-          --dart-define-from-file=web-defines.json
-      - name: Check the PWA files
-        run: |
-          for f in index.html manifest.json flutter_bootstrap.js firebase-messaging-sw.js \
-            icons/Icon-192.png icons/Icon-512.png icons/Icon-maskable-512.png icons/apple-touch-icon.png; do
-            test -s "build/web/$f" || { echo "::error::missing build/web/$f"; exit 1; }
-          done
-          grep -q "<base href=\"$BASE_HREF\">" build/web/index.html
-          # The custom bootstrap loads Flutter without its deprecated service worker settings.
-          grep -qx '_flutter.loader.load();' build/web/flutter_bootstrap.js
-      - name: Upload the web build
-        uses: actions/upload-artifact@v7
-        with:
-          name: te-tengo-web
-          path: build/web
-          if-no-files-found: error
-          retention-days: 14
+    uses: ./.github/workflows/build-web.yml
+    permissions:
+      contents: read
+    with:
+      base_href: ${{ vars.TT_WEB_BASE_HREF || '/' }}
+      artifact_name: te-tengo-web
+      retention_days: 14
