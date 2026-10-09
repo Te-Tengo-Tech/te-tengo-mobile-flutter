@@ -7,6 +7,11 @@ name: Notify the landing
 # for an approval on its `produccion` environment before uploading the APK to R2 and deploying the PWA
 # to https://app.tetengo.reqsai.tech (README, "Release flow").
 #
+# Switches: ORGANIZATION variables ENABLE_PWA and ENABLE_APK (Te-Tengo-Tech → Settings → Secrets and
+# variables → Actions → Variables; docs/RELEASES.md). The dispatch is sent when at least one of them is
+# 'true' and skipped when neither is (unset counts as off). The landing checks each one again and
+# publishes only the channels that are on.
+#
 # Secret (Settings → Secrets and variables → Actions):
 #   DISPATCH_TOKEN   fine-grained personal access token, resource owner Te-Tengo-Tech, only the
 #                    repository te-tengo-landing-astro, permission Contents: Read and write. Without
@@ -32,13 +37,15 @@ jobs:
     name: Dispatch publicar-movil to the landing
     # workflow_run: only a successful CI run of a push to main of this repository (a pull request from
     # a fork's own main branch also reports head_branch main, so the event and repository are checked).
+    # Skipped when both landing channels (PWA and APK) are switched off.
     if: >-
-      (github.event_name == 'workflow_run'
+      (vars.ENABLE_PWA == 'true' || vars.ENABLE_APK == 'true')
+      && ((github.event_name == 'workflow_run'
       && github.event.workflow_run.conclusion == 'success'
       && github.event.workflow_run.event == 'push'
       && github.event.workflow_run.head_branch == 'main'
       && github.event.workflow_run.head_repository.full_name == github.repository)
-      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
