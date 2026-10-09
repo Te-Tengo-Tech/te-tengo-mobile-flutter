@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,6 +9,10 @@ import '../domain/vista_en_vivo.dart';
 
 /// Live view sessions of the household cameras (US-23).
 abstract interface class VistaEnVivoRepositorio {
+  /// Asks the camera's household agent to get ready for a live view (`204`): it warms what stays on
+  /// the PC, and no image leaves it until a session opens. Same rules as [abrir].
+  Future<void> preparar(String camaraId);
+
   /// Opens a session; `409 CAMARA_DESCONECTADA` or `409 CAMARA_EN_PAUSA` when unavailable.
   /// Without [modo] the camera keeps the mode it streams in.
   Future<SesionVivo> abrir(
@@ -29,6 +35,18 @@ class VistaEnVivoRepositorioApi implements VistaEnVivoRepositorio {
   VistaEnVivoRepositorioApi(this._dio);
 
   final Dio _dio;
+
+  @override
+  Future<void> preparar(String camaraId) async {
+    try {
+      await _dio.post<void>(
+        '/api/vista-en-vivo/preparar',
+        data: {'camaraId': camaraId},
+      );
+    } on DioException catch (e) {
+      throw ProblemaApi.desde(e);
+    }
+  }
 
   @override
   Future<SesionVivo> abrir(
@@ -86,6 +104,16 @@ class VistaEnVivoRepositorioApi implements VistaEnVivoRepositorio {
 
 final vistaEnVivoRepositorioProvider = Provider<VistaEnVivoRepositorio>(
   (ref) => VistaEnVivoRepositorioApi(ref.watch(clienteApiProvider)),
+);
+
+/// Sends [VistaEnVivoRepositorio.preparar] for a screen the live view is likely opened from. Only
+/// a head start: an old API or agent, a paused camera or no connection change nothing, so errors
+/// are ignored.
+void prepararVivo(WidgetRef ref, String camaraId) => unawaited(
+  ref
+      .read(vistaEnVivoRepositorioProvider)
+      .preparar(camaraId)
+      .catchError((Object _) {}),
 );
 
 final accesosVivoProvider = FutureProvider<List<AccesoVivo>>(

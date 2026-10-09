@@ -22,6 +22,7 @@ import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../hogar/domain/hogar.dart';
+import '../../vivo/data/vista_en_vivo_repositorio.dart';
 import '../data/alertas_repositorio.dart';
 import '../domain/alerta.dart';
 import 'clip_evento.dart';
@@ -58,6 +59,7 @@ class PantallaAlerta extends ConsumerStatefulWidget {
 
 class _PantallaAlertaState extends ConsumerState<PantallaAlerta> {
   Timer? _reloj;
+  bool _preparada = false;
 
   @override
   void initState() {
@@ -65,6 +67,13 @@ class _PantallaAlertaState extends ConsumerState<PantallaAlerta> {
     Future.microtask(
       () => ref.read(alertasVistasProvider.notifier).marcar(widget.alertaId),
     );
+    // Whoever opens an alert is likely to watch the room: the camera gets ready, once.
+    ref.listenManual(alertaProvider(widget.alertaId), (_, a) {
+      if (a.value case final a? when a.activa && !_preparada) {
+        _preparada = true;
+        prepararVivo(ref, a.camaraId);
+      }
+    }, fireImmediately: true);
     _reloj = Timer.periodic(PantallaAlerta.refresco, (_) {
       if (ref.read(alertaProvider(widget.alertaId)).value?.activa ?? false) {
         ref.invalidate(alertaProvider(widget.alertaId));

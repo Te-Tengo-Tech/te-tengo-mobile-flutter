@@ -25,6 +25,7 @@ class SesionVivo {
   const SesionVivo({
     required this.sesionId,
     required this.urlTransmision,
+    this.urlWebrtc,
     this.expiraEn,
     this.modo = ModoVista.video,
   });
@@ -33,15 +34,29 @@ class SesionVivo {
 
   /// LL-HLS playlist of the camera, authorized by the viewer token in its query.
   final Uri urlTransmision;
+
+  /// WHEP endpoint of the same stream (WebRTC, well under a second behind); null when the server
+  /// does not offer WebRTC, and then the app plays [urlTransmision].
+  final Uri? urlWebrtc;
   final DateTime? expiraEn;
   final ModoVista modo;
 
   factory SesionVivo.desdeJson(Map<String, dynamic> json) => SesionVivo(
     sesionId: json['sesionId'] as String,
     urlTransmision: Uri.parse(json['urlTransmision'] as String),
+    urlWebrtc: switch (json['urlWebrtc']) {
+      final String url when url.isNotEmpty => Uri.parse(url),
+      _ => null,
+    },
     expiraEn: fechaDesdeJson(json['expiraEn']),
     modo: ModoVista.desdeCodigo(json['modo']),
   );
+
+  /// The session's viewer token: the `token` query parameter of [urlWebrtc], or else of
+  /// [urlTransmision] (the same token authorizes both, contract §4).
+  String? get tokenEspectador =>
+      urlWebrtc?.queryParameters['token'] ??
+      urlTransmision.queryParameters['token'];
 }
 
 /// One recorded access to the live view (`GET /api/accesos-vista-en-vivo`, CA-24.1).
