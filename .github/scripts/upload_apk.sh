@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Uploads te-tengo.apk and te-tengo.apk.sha256 (the te-tengo-apk artifact of build-apk.yml) to the
-# public R2 bucket and checks that its public URL serves them. Used by release.yml.
+# Uploads te-tengo.apk and te-tengo.apk.sha256 (assets of the release candidate, built by
+# build-apk.yml) to the public R2 bucket and checks that its public URL serves them. Used by
+# release.yml (staging), produccion.yml and rollback.yml.
 #
 #   upload_apk.sh <artifact dir> <key prefix>
 #

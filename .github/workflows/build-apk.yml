@@ -5,8 +5,8 @@ name: Build APK
 # calling run (docs/RELEASE_ANDROID.md). It is signed with the release key when the four keystore
 # secrets are passed, and with the runner's throwaway debug key otherwise, with a notice.
 #
-# Called by release.yml, whose staging and produccion jobs upload this same artifact to Cloudflare R2
-# (docs/RELEASES.md):
+# Called by release.yml, which stores this same file in the release candidate (a GitHub pre-release)
+# that staging and produccion upload to Cloudflare R2 (docs/RELEASES.md):
 #
 #   jobs:
 #     apk:

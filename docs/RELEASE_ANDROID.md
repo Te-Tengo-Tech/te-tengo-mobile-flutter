@@ -4,15 +4,16 @@ This document covers the two ways the app reaches testers' phones:
 - **Direct APK (sideload), the path for the pilot.** A signed universal APK, `te-tengo.apk`, downloaded from the landing page and installed without the Play Store. See *[Sideload distribution](#sideload-distribution-no-play-store)*.
 - **Google Play's internal testing track,** optional, once the team has a Play Console account. It is switched on by the organization variable `ENABLE_PLAY_STORE` ([RELEASES.md](RELEASES.md) lists every channel and switch).
 
-The release pipeline [`release.yml`](../.github/workflows/release.yml) builds both from the same commit and signs both with the same release key: the universal APK, through the reusable [`build-apk.yml`](../.github/workflows/build-apk.yml), and the Android App Bundle (AAB) for Play. [RELEASES.md](RELEASES.md) describes the whole pipeline. The steps under *One-time setup* are done by hand, once, by the account owner.
+The release pipeline [`release.yml`](../.github/workflows/release.yml) builds both once, from the same commit, and signs both with the same release key: the universal APK, through the reusable [`build-apk.yml`](../.github/workflows/build-apk.yml), and the Android App Bundle (AAB) for Play. It stores them in the release candidate `vx.y.z-rc.N` (a GitHub pre-release), and [`produccion.yml`](../.github/workflows/produccion.yml) publishes those same files from `main`. [RELEASES.md](RELEASES.md) describes the whole pipeline. The steps under *One-time setup* are done by hand, once, by the account owner.
 
 ## How the pipeline works
 | Trigger | What happens |
 |---|---|
 | Pull request touching `android/`, `pubspec.*`, `release.yml` or `build-apk.yml` | Builds the APK, and the AAB when `ENABLE_PLAY_STORE` is `true`, to keep the release path green; nothing is uploaded |
-| Push to `release/x.y.z` or `hotfix/x.y.z` | Builds the APK as the `te-tengo-apk` run artifact (`te-tengo.apk` and `te-tengo.apk.sha256`) and, with `ENABLE_PLAY_STORE` set to `true`, the AAB (`te-tengo-<version>-<build>-aab`). After an approval on `staging`, `Staging · APK` uploads the APK to R2 `staging/te-tengo.apk` (`ENABLE_STAGING` and `ENABLE_APK`). After an approval on `produccion`, `Produccion · APK` uploads it to R2 `te-tengo.apk` (`ENABLE_APK`) and `Produccion · Google Play (internal)` uploads the AAB to the **internal** track (`ENABLE_PLAY_STORE`) |
+| Push to `release/x.y.z` or `hotfix/x.y.z` | Builds the APK (`te-tengo.apk` and `te-tengo.apk.sha256`) and, with `ENABLE_PLAY_STORE` set to `true`, the AAB, and stores them as assets of the pre-release `vx.y.z-rc.N` (`te-tengo.aab` for the AAB). After an approval on `staging`, `Staging · APK` uploads the candidate's APK to R2 `staging/te-tengo.apk` (`ENABLE_STAGING` and `ENABLE_APK`) |
+| Push to `main` (the merged release pull request) | After an approval on `produccion`, `Produccion · APK` uploads **the same APK** to R2 `te-tengo.apk` (`ENABLE_APK`) and `Produccion · Google Play (internal)` uploads **the same AAB** to the **internal** track (`ENABLE_PLAY_STORE`); each checks the file's SHA-256 against the candidate first |
 
-- **Version.** It comes from `pubspec.yaml`, as `version: <versionName>+<versionCode>`. Google Play rejects a versionCode it has already seen, and Android refuses to install an APK over a newer one, so **bump the `+N` before every release**.
+- **Version.** The versionName is the `x.y.z` of `pubspec.yaml` (`version: <versionName>+<N>`). The **versionCode is computed for each candidate**, one higher than any earlier candidate's and never below `N`, and passed with `--build-number` ([RELEASES.md](RELEASES.md#build-number)). Google Play rejects a versionCode it has already seen, and Android refuses to install an APK over a newer one, so nobody bumps it by hand.
 - **The switch decides, not the secrets.** With `ENABLE_PLAY_STORE` off (`false` or unset) nothing is uploaded to Play. With it, or `ENABLE_APK`, set to `true`, a missing release key, `GOOGLE_SERVICES_JSON`, `PLAY_SERVICE_ACCOUNT_JSON` (Play) or `TT_API_URL` **fails the run** before the build, with an error that names it. Without the release key, a pull request build signs the APK and the AAB with the runner's throwaway debug key: fine for checking the build, rejected by Play, and an APK that no later build can update. The R2 upload jobs refuse a debug-signed APK.
 - **The run summary** of the APK job shows the signing mode, the SHA-256 of the APK and the SHA-256 of its signing certificate (from `apksigner verify --print-certs`). Every release must show the same certificate fingerprint.
 
@@ -50,9 +51,13 @@ With the GitHub CLI: `base64 -i upload-keystore.jks | gh secret set ANDROID_KEYS
 For the pilot, the app is distributed as a single **universal APK** from the landing page. No Play Console account, fee or review is involved.
 
 ### Where the APK is published
-- **Who publishes it.** This repository's [`release.yml`](../.github/workflows/release.yml) **uploads `te-tengo.apk` and `te-tengo.apk.sha256` to the public Cloudflare R2 bucket `te-tengo-descargas`**: first under `staging/` (`Staging · APK`), then at the root (`Produccion · APK`), each after an approval and followed by a smoke check. The landing page links to the stable root URL, which always serves the latest published APK.
+- **Who publishes it.** This repository **uploads `te-tengo.apk` and `te-tengo.apk.sha256` to the public Cloudflare R2 bucket `te-tengo-descargas`**, always the file stored in the release candidate:
+  - first under `staging/` (`Staging · APK` in [`release.yml`](../.github/workflows/release.yml), from the release branch);
+  - then at the root (`Produccion · APK` in [`produccion.yml`](../.github/workflows/produccion.yml), from `main`).
+
+  Each upload follows an approval and is followed by a smoke check. The landing page links to the stable root URL, which always serves the latest published APK. The same file is also an asset of the GitHub Release `vx.y.z`.
 - **Why R2.** Run artifacts expire and are only downloadable by signed-in GitHub users; testers need a stable public URL.
-- **When.** On a push to `release/x.y.z` or `hotfix/x.y.z`, with the organization variable `ENABLE_APK` set to `true` (and `ENABLE_STAGING` for the staging copy). See [RELEASES.md](RELEASES.md).
+- **When.** Staging on a push to `release/x.y.z` or `hotfix/x.y.z`, production when that branch is merged into `main`, with the organization variable `ENABLE_APK` set to `true` (and `ENABLE_STAGING` for the staging copy). See [RELEASES.md](RELEASES.md).
 - **How the APK is built:** the reusable workflow [`build-apk.yml`](../.github/workflows/build-apk.yml) (`workflow_call`).
   - **What it does.** It checks out this repository (or a given `ref`), builds `flutter build apk --release` and verifies the signature with `apksigner`. It keeps `te-tengo.apk` and `te-tengo.apk.sha256` as an artifact of the **calling** run, named `te-tengo-apk` by default.
   - **Outputs:** `artifact_name`, `version_name`, `version_code`, `signed`, `certificate_sha256` and `apk_sha256`.
@@ -75,7 +80,7 @@ To try a release before production, install `<DESCARGAS_BASE_URL>/staging/te-ten
 - **The team announces new versions** through the pilot's channel (WhatsApp or e-mail). An in-app «Hay una versión nueva» notice would need a backend field and copy in the prototype first, so it is future work.
 - **An update only installs when both rules hold:**
   - **The same signing key.** The APK must be signed with the same release key as the installed one. With another key, Android shows «App no instalada» (signatures conflict) and the tester would have to uninstall first, losing the session. This is why debug-signed builds must never be published, and why **losing the keystore** means every tester reinstalls.
-  - **A higher versionCode.** The `+N` in `pubspec.yaml`, or `build_number`, must be higher than the installed build.
+  - **A higher versionCode.** The pipeline gives every candidate a higher one; a local build uses the `+N` of `pubspec.yaml`, or `build_number`, which must be higher than the installed build. This is also why a rollback of the APK only serves new installs ([RELEASES.md](RELEASES.md#rollback-rollbackyml-manual)).
 - **Play and sideload do not mix.** With Play App Signing, Google signs the APKs it serves with its own app signing key, not the release key. A Play install and a sideloaded APK therefore cannot update each other. If the app later moves to Play, either have testers uninstall once, or, when creating the app in Play Console, choose to **use the existing release key as the app signing key** (*Use a different key → export and upload a key from Java keystore*), instead of letting Google generate one.
 
 ### Limits and risks
@@ -135,4 +140,4 @@ Play Console requires these under *Policy and programs → App content* before a
 - **Notifications.** The app asks for `POST_NOTIFICATIONS` (Android 13+). No special declaration is needed, because it uses no exact alarms and no full-screen intents.
 
 ## iOS (TestFlight)
-The iOS build and its TestFlight upload are the `IPA` and `Produccion · TestFlight` jobs of [`release.yml`](../.github/workflows/release.yml), switched by the organization variable `ENABLE_IOS`. The Apple Developer Program costs 99 USD per year. Setup, secrets and signing: [RELEASES.md](RELEASES.md#turn-on-testflight).
+The iOS build is the `IPA` job of [`release.yml`](../.github/workflows/release.yml), stored in the candidate, and its TestFlight upload is `Produccion · TestFlight` in [`produccion.yml`](../.github/workflows/produccion.yml); both are switched by the organization variable `ENABLE_IOS`. The Apple Developer Program costs 99 USD per year. Setup, secrets and signing: [RELEASES.md](RELEASES.md#turn-on-testflight).
