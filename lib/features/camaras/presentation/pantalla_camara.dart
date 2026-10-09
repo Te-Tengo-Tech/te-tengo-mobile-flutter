@@ -17,6 +17,7 @@ import '../data/camaras_repositorio.dart';
 import '../domain/camara.dart';
 import '../../vivo/data/vista_en_vivo_repositorio.dart';
 import '../../vivo/presentation/pantalla_accesos.dart';
+import '../../vivo/presentation/preparar_vivo.dart';
 import 'cabecera_camara.dart';
 import 'pausa_camara.dart';
 
@@ -38,29 +39,32 @@ class PantallaCamara extends ConsumerWidget {
       await ref.read(camarasProvider.future);
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          camara == null ? 'Cámara' : 'Cámara · ${camara.nombreHabitacion}',
-        ),
-      ),
-      body: switch ((camaras, hogar)) {
-        (AsyncError(:final error), _) || (_, AsyncError(:final error)) =>
-          ErrorDePantalla(error: error, alReintentar: recargar),
-        (AsyncData(), AsyncData(value: final h)) when camara != null =>
-          RefreshIndicator(
-            onRefresh: recargar,
-            child: _Detalle(
-              camara: camara,
-              estado: camara.estadoVisible(
-                conConsentimiento: h.conConsentimiento,
-              ),
-              nombreAdultoMayor: h.adultoMayor.nombrePila,
-            ),
+    return PrepararVivo(
+      camaraId: camaraId,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            camara == null ? 'Cámara' : 'Cámara · ${camara.nombreHabitacion}',
           ),
-        (AsyncData(), AsyncData()) => const SizedBox.shrink(),
-        _ => const Center(child: CircularProgressIndicator()),
-      },
+        ),
+        body: switch ((camaras, hogar)) {
+          (AsyncError(:final error), _) || (_, AsyncError(:final error)) =>
+            ErrorDePantalla(error: error, alReintentar: recargar),
+          (AsyncData(), AsyncData(value: final h)) when camara != null =>
+            RefreshIndicator(
+              onRefresh: recargar,
+              child: _Detalle(
+                camara: camara,
+                estado: camara.estadoVisible(
+                  conConsentimiento: h.conConsentimiento,
+                ),
+                nombreAdultoMayor: h.adultoMayor.nombrePila,
+              ),
+            ),
+          (AsyncData(), AsyncData()) => const SizedBox.shrink(),
+          _ => const Center(child: CircularProgressIndicator()),
+        },
+      ),
     );
   }
 }
