@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Deploys a PWA build (the te-tengo-pwa artifact of build-web.yml) to the Cloudflare Pages project
-# $PAGES_PROJECT and checks that the public URL serves it. Used by release.yml.
+# Deploys a PWA build (the contents of te-tengo-pwa.tar.gz, an asset of the release candidate) to the
+# Cloudflare Pages project $PAGES_PROJECT and checks that the public URL serves it. Used by
+# release.yml (staging), produccion.yml and rollback.yml.
 #
 #   deploy_pwa.sh <build dir> <pages branch> <public url>
 #
@@ -10,12 +11,13 @@
 # number of this build (Flutter writes version.json from pubspec.yaml), retried for up to 2 minutes.
 #
 # Environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (secrets), PAGES_PROJECT, WRANGLER_VERSION,
-# GITHUB_SHA, GITHUB_STEP_SUMMARY.
+# GITHUB_STEP_SUMMARY; DEPLOY_COMMIT (the commit the build came from; default GITHUB_SHA).
 set -euo pipefail
 
 dir=$1
 branch=$2
 url=${3%/}
+commit=${DEPLOY_COMMIT:-$GITHUB_SHA}
 
 if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
   echo "::error title=Cloudflare secrets missing::CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must be repository secrets (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit; docs/RELEASES.md)."
@@ -33,7 +35,7 @@ fi
 
 log=$(mktemp)
 wrangler pages deploy "$dir" --project-name="$PAGES_PROJECT" --branch="$branch" \
-  --commit-hash="$GITHUB_SHA" --commit-message="te-tengo-mobile-flutter ${GITHUB_SHA:0:12}" \
+  --commit-hash="$commit" --commit-message="te-tengo-mobile-flutter ${commit:0:12}" \
   --commit-dirty=true | tee "$log"
 deployment=$(grep -oE 'https://[a-z0-9.-]+\.pages\.dev' "$log" | head -n1 || true)
 
