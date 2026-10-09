@@ -3,6 +3,8 @@
 Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+
+## [0.2.0] - 2026-10-08
 ### Changed
 - Release flow: a release merged into `main` is published after an approval on the `produccion` environment (required reviewers, `main` only). The new `notificar-landing.yml` sends `repository_dispatch` `publicar-movil` with `{ref, version}` to `te-tengo-landing-astro` when `CI` succeeds on a push to `main` (needs the `DISPATCH_TOKEN` secret; a notice without it). `release-android.yml` runs on push to `main` instead of `mobile-v*` tags and uploads to Google Play in a separate `Upload to Google Play (internal)` job in `produccion`, after the AAB is built.
 - The PWA is served at the root of its own origin, `https://app.tetengo.reqsai.tech/`, instead of `/app/` of the landing: the CI `Web (PWA)` job builds with base href `/`, and `docs/WEB_PWA.md`, `docs/FIREBASE.md` and `docs/BLOCKERS.md` give the new e-mail link base (`TT_ENLACE_BASE=https://app.tetengo.reqsai.tech/#`), CORS and HLS origin, API key referrer and service worker scope (`/`).
