@@ -8,12 +8,15 @@ browsers can install it too.
 ## Hosting and base href
 - Served at the **root of its own origin, `https://app.tetengo.reqsai.tech/`**: the Cloudflare Pages
   project `te-tengo-app`, separate from the landing (`https://tetengo.reqsai.tech`, project
-  `te-tengo-landing`). The landing repository `te-tengo-landing-astro` builds and deploys it with its
-  `publicar.yml` (`flutter build web --base-href /`), adding its own `_headers` and `robots.txt`
-  (`deploy/app/` there); see *Release flow* in the [README](../README.md). The old address
-  `https://tetengo.reqsai.tech/app/…` redirects there with a `301`, keeping the `#fragment`.
-- The CI job `Web (PWA)` of this repository builds it the same way and uploads the `te-tengo-web`
-  artifact (the contents of `build/web`) to check the build; it is not what gets deployed.
+  `te-tengo-landing`). This repository builds and deploys it: the reusable
+  [`build-web.yml`](../.github/workflows/build-web.yml) runs `flutter build web --base-href /` and adds
+  the Pages files of [`deploy/pwa/`](../deploy/pwa/) (`_headers`, `robots.txt`), and
+  [`release.yml`](../.github/workflows/release.yml) deploys that same artifact to the alias
+  `https://staging.te-tengo-app.pages.dev` and then to production, each after an approval and a smoke
+  check ([RELEASES.md](RELEASES.md)). The old address `https://tetengo.reqsai.tech/app/…` redirects
+  there with a `301`, keeping the `#fragment`.
+- The CI job `Web (PWA)` runs the same build on every pull request and uploads the `te-tengo-web`
+  artifact; it is a check, not what gets deployed.
 - The base href is a build flag, `/` for the app origin: `flutter build web --base-href /`. A
   sub-path works the same (it was tested under `/app/` and `/te-tengo-descargas/app/`); in CI set the
   repository variable `TT_WEB_BASE_HREF`. Every URL in `web/` (manifest, icons, service worker) is
@@ -32,7 +35,7 @@ The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#
   Query values are percent-encoded; the optional ones can be left out. Both screens are public, so
   they open without a session (verified in Chrome and iOS Safari).
 - To switch to path URLs later: add a `_redirects` line `/* /index.html 200` to the app's Pages files
-  (`deploy/app/` in the landing repository), call `usePathUrlStrategy()` (package
+  (`deploy/pwa/`), call `usePathUrlStrategy()` (package
   `flutter_web_plugins`) before `runApp`, and change the e-mail links.
 
 ## Service worker: one worker for caching and push
@@ -54,7 +57,7 @@ The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#
     (`rutaDePush`), as on Android and iOS.
 - `FIREBASE_SDK` in the worker must equal the Firebase JS SDK version of `firebase_core_web`
   (`supportedFirebaseJsSdkVersion`, now 12.19.0). Check it when Dependabot upgrades FlutterFire.
-- The app's Pages files (`deploy/app/_headers` in the landing repository) send
+- The app's Pages files (`deploy/pwa/_headers`) send
   `Cache-Control: no-cache` for everything, and browsers always revalidate the worker script, so a new
   deployment is picked up on the next visit. Do not add long cache rules there.
 
@@ -85,9 +88,9 @@ flutter build web --release --base-href / --no-web-resources-cdn \
   --dart-define-from-file=$HOME/.config/te-tengo/firebase-web.env \
   --dart-define=TT_API_URL=https://<api host>
 ```
-In CI, add the same names as **repository variables** (*Settings › Secrets and variables › Actions ›
-Variables*); the `Web (PWA)` job passes the ones that exist. The deployed build uses the variables of
-the same names in the landing repository.
+In CI, the same names are **repository variables** (*Settings › Secrets and variables › Actions ›
+Variables*); `build-web.yml` passes the ones that exist, both in the `Web (PWA)` check and in the build
+that `release.yml` deploys. With `ENABLE_PWA` on, a release fails at once if a required one is missing.
 
 ## What the iPhone allows (iOS 16.4+)
 - **Push only for the home-screen app.** In a Safari tab there is no `Notification` API: the app

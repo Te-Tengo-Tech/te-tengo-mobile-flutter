@@ -5,24 +5,24 @@ name: Build APK
 # calling run (docs/RELEASE_ANDROID.md). It is signed with the release key when the four keystore
 # secrets are passed, and with the runner's throwaway debug key otherwise, with a notice.
 #
-# Called from this repository by release-android.yml, and from other repositories of the
-# organization (the landing's publish workflow) as:
+# Called by release.yml, whose staging and produccion jobs upload this same artifact to Cloudflare R2
+# (docs/RELEASES.md):
 #
 #   jobs:
 #     apk:
-#       uses: Te-Tengo-Tech/te-tengo-mobile-flutter/.github/workflows/build-apk.yml@develop
+#       uses: ./.github/workflows/build-apk.yml
 #       with:
-#         ref: develop            # branch, tag or commit of this repository to build
-#       secrets: inherit          # or pass the secrets below one by one
+#         artifact_name: te-tengo-apk
+#       secrets: inherit
 #     publish:
 #       needs: apk
+#       if: needs.apk.outputs.signed == 'true'   # never publish a debug-signed APK
 #       steps:
 #         - uses: actions/download-artifact@v8
 #           with: { name: "${{ needs.apk.outputs.artifact_name }}" }
 #
-# From another repository, MOBILE_REPO_TOKEN (read-only Contents on this repository) is required to
-# check this repository out, and this repository must allow access from the organization's
-# repositories (Settings → Actions → General → Access).
+# It can also build another ref, or be called from another repository of the organization (`ref`
+# input; MOBILE_REPO_TOKEN, read-only Contents on this repository, to check it out).
 on:
   workflow_call:
     inputs:
