@@ -1,0 +1,13 @@
+# Release key for release builds (docs/RELEASE_ANDROID.md): the Google Play upload key and the key
+# that signs the sideloaded APK. Copy to android/key.properties, which is gitignored, and never commit
+# the real file or the keystore. Without it, release builds are signed with the debug key: Google Play
+# rejects them, and testers cannot update a sideloaded APK with a build signed by another key.
+#
+# Create the keystore once (keep a backup and the passwords in the team's password manager):
+#   keytool -genkeypair -v -keystore android/app/upload-keystore.jks -storetype JKS \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+storePassword=<keystore password>
+keyPassword=<key password>
+keyAlias=upload
+# Path relative to android/app/
+storeFile=upload-keystore.jks

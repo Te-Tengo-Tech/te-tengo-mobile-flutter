@@ -4,4 +4,6 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Plain HTTP to local hosts only, for the local live stream (see the file). -->
+    <application android:networkSecurityConfig="@xml/network_security_config"/>
 </manifest>

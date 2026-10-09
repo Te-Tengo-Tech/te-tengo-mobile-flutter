@@ -1,6 +1,9 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  # iOS builds check out Swift packages (with Dart examples) under build/.
+  exclude:
+    - build/**
   language:
     strict-casts: true
     strict-raw-types: true

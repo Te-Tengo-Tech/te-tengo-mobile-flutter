@@ -1,0 +1,905 @@
+name: Release
+run-name: >-
+  ${{ github.event_name == 'pull_request'
+  && format('Release build check (#{0})', github.event.pull_request.number)
+  || format('Release candidate {0}', github.ref_name) }}
+
+# Release candidate and staging of the mobile app (docs/RELEASES.md): build once, store the files as a
+# release candidate, test them on staging, then open the pull request release → main. Produccion runs
+# on main (produccion.yml) and publishes these same files without rebuilding.
+#
+# A push to release/x.y.z or hotfix/x.y.z runs:
+#   1. build (no environment):
+#        - `Version and configuration` reads x.y.z from pubspec.yaml (it must match the branch), numbers
+#          the candidate x.y.z-rc.N and its build number B (below), checks every secret and variable of
+#          the channels that are on (an error names each missing one, before any build) and writes the
+#          plan to the summary;
+#        - `APK`: the signed universal APK te-tengo.apk (reusable build-apk.yml);
+#        - `PWA`: the web build with base href / and its Pages files (reusable build-web.yml);
+#        - `AAB`: only when ENABLE_PLAY_STORE is 'true';
+#        - `IPA`: only when ENABLE_IOS is 'true' (macOS runner, manual signing).
+#      Every file carries the final version x.y.z and build number B inside; "rc" is only a label.
+#   2. `Release candidate`: creates the GitHub pre-release vx.y.z-rc.N on this commit with every file as
+#      an asset (te-tengo.apk, te-tengo.apk.sha256, te-tengo-pwa.tar.gz, te-tengo.aab, te-tengo.ipa) and
+#      SHA256SUMS. Its notes record the commit, the git tree, B, the SHA-256 of each asset and the
+#      channels checked (.github/scripts/candidata.sh). Pre-releases do not expire, unlike artifacts.
+#   3. staging (environment `staging`, approval), when ENABLE_STAGING is 'true', with the candidate's
+#      assets after checking their SHA-256:
+#        - PWA → Pages project te-tengo-app, alias `staging` (https://staging.te-tengo-app.pages.dev);
+#        - APK → R2 `staging/te-tengo.apk`;
+#      each with a smoke check. Both wait together, so one approval covers them.
+#   4. `Pull request to main`: records the staging result in the candidate, then opens `release: x.y.z`
+#      (release/x.y.z → main), or updates its description to the new candidate.
+# A new push to the branch builds the next candidate, rc.N+1, with a higher B.
+# A pull request that changes the Android build or this workflow only builds the APK (and the AAB when
+# ENABLE_PLAY_STORE is 'true'), as a check.
+#
+# BUILD NUMBER B (Android versionCode, iOS CFBundleVersion, PWA version.json): computed, not typed.
+# B = 1 + the highest B recorded by any candidate of any version, and never below the +N of
+# pubspec.yaml, which stays a floor the team can raise. It is passed with --build-number, so every
+# candidate gets a higher B without a commit, and no two candidates share one (Google Play and
+# TestFlight reject a repeated build number; Android refuses to install over a higher one).
+#
+# SWITCHES: organization variables, on only when exactly 'true'; a job whose switch is off is skipped
+# and the plan in the summary says why: ENABLE_STAGING, ENABLE_PWA, ENABLE_APK, ENABLE_PLAY_STORE,
+# ENABLE_IOS. The channels that are on are recorded in the candidate: produccion refuses to publish a
+# channel that was off (so neither checked nor staged) when the candidate was built.
+#
+# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (PWA and APK); ANDROID_KEYSTORE_BASE64,
+# ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD, GOOGLE_SERVICES_JSON (APK and
+# AAB); PLAY_SERVICE_ACCOUNT_JSON (Play); IOS_DIST_CERT_P12_BASE64, IOS_DIST_CERT_PASSWORD,
+# IOS_PROVISIONING_PROFILE_BASE64, GOOGLE_SERVICE_INFO_PLIST, APP_STORE_CONNECT_KEY_ID,
+# APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_PRIVATE_KEY (TestFlight).
+# Variables: TT_API_URL; TT_FIREBASE_WEB_* and TT_FCM_VAPID_KEY (PWA); DESCARGAS_BASE_URL (APK);
+# optional DESCARGAS_R2_BUCKET (default te-tengo-descargas).
+on:
+  push:
+    branches: ["release/**", "hotfix/**"]
+  pull_request:
+    paths:
+      - android/**
+      - pubspec.yaml
+      - pubspec.lock
+      - .github/workflows/release.yml
+      - .github/workflows/build-apk.yml
+
+permissions: {}
+
+# One run per branch at a time. A new push waits for the running one (a deploy is never cancelled; a
+# run waiting for approval can be rejected to let the new one start), and replaces any run still queued.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  WRANGLER_VERSION: 4.149.0
+  NODE_VERSION: "24"
+  PAGES_PROJECT: te-tengo-app
+  # Xcode 26 or later is required for App Store Connect uploads since 28 April 2026
+  # (https://developer.apple.com/news/upcoming-requirements/). Installed versions of the image:
+  # https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+  XCODE_VERSION: "26.6"
+
+jobs:
+  # ── 1. Build ────────────────────────────────────────────────────────────────────────────────────
+  preparar:
+    name: Version and configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      name: ${{ steps.version.outputs.name }}
+      code: ${{ steps.numero.outputs.build || steps.version.outputs.code }}
+      rc: ${{ steps.numero.outputs.rc }}
+      tag: ${{ steps.numero.outputs.tag }}
+      canales: ${{ steps.config.outputs.canales }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            pubspec.yaml
+            .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Read the version from pubspec.yaml
+        id: version
+        run: |
+          version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | tr -d '\r' | head -n1)
+          if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+)$ ]]; then
+            echo "::error title=Unexpected version::pubspec.yaml version '$version' is not <major>.<minor>.<patch>+<build>."
+            exit 1
+          fi
+          name=${BASH_REMATCH[1]}
+          code=${BASH_REMATCH[2]}
+          # release/x.y.z and hotfix/x.y.z must release the version they are named after.
+          suffix=${GITHUB_REF_NAME#*/}
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$suffix" != "$name" ]; then
+            echo "::error title=Branch and version differ::$GITHUB_REF_NAME must be named release/x.y.z or hotfix/x.y.z after the pubspec.yaml version ($version). Rename the branch or bump the version on it."
+            exit 1
+          fi
+          {
+            echo "name=$name"
+            echo "code=$code"
+          } >> "$GITHUB_OUTPUT"
+          echo "Version $name (pubspec.yaml build $code)"
+
+      - name: Number the candidate and its build number
+        id: numero
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: ${{ steps.version.outputs.name }}
+          CODE: ${{ steps.version.outputs.code }}
+        run: .github/scripts/candidata.sh numerar "$NAME" "$CODE"
+
+      - name: Check the configuration of the channels that are on
+        id: config
+        if: github.event_name == 'push'
+        # Only whether each secret is set reaches this step, never its value.
+        env:
+          ENABLE_STAGING: ${{ vars.ENABLE_STAGING }}
+          ENABLE_PWA: ${{ vars.ENABLE_PWA }}
+          ENABLE_APK: ${{ vars.ENABLE_APK }}
+          ENABLE_PLAY_STORE: ${{ vars.ENABLE_PLAY_STORE }}
+          ENABLE_IOS: ${{ vars.ENABLE_IOS }}
+          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+          HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
+          HAS_GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON != '' }}
+          HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+          IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 != '' }}
+          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD != '' }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 != '' }}
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST != '' }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID != '' }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID != '' }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY != '' }}
+          TT_API_URL: ${{ vars.TT_API_URL || secrets.TT_API_URL }}
+          DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
+          TT_FIREBASE_WEB_API_KEY: ${{ vars.TT_FIREBASE_WEB_API_KEY }}
+          TT_FIREBASE_WEB_APP_ID: ${{ vars.TT_FIREBASE_WEB_APP_ID }}
+          TT_FIREBASE_WEB_MESSAGING_SENDER_ID: ${{ vars.TT_FIREBASE_WEB_MESSAGING_SENDER_ID }}
+          TT_FIREBASE_WEB_PROJECT_ID: ${{ vars.TT_FIREBASE_WEB_PROJECT_ID }}
+          TT_FCM_VAPID_KEY: ${{ vars.TT_FCM_VAPID_KEY }}
+        run: |
+          errors=()
+          # falta <switch> <what is missing>
+          falta() { errors+=("$1|$2"); }
+          cloudflare="CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit)"
+          keystore="ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD secrets (the release key; a debug-signed build cannot be updated or uploaded)"
+          api="TT_API_URL variable (the app would point to http://10.0.2.2:8080)"
+          canales=()
+          if [ "$ENABLE_PWA" = true ]; then
+            canales+=(pwa)
+            [ "$HAS_CLOUDFLARE" = true ] || falta ENABLE_PWA "$cloudflare"
+            [ -n "$TT_API_URL" ] || falta ENABLE_PWA "$api"
+            for name in TT_FIREBASE_WEB_API_KEY TT_FIREBASE_WEB_APP_ID TT_FIREBASE_WEB_MESSAGING_SENDER_ID \
+              TT_FIREBASE_WEB_PROJECT_ID TT_FCM_VAPID_KEY; do
+              [ -n "${!name}" ] || falta ENABLE_PWA "$name variable (web push; docs/WEB_PWA.md)"
+            done
+          fi
+          if [ "$ENABLE_APK" = true ]; then
+            canales+=(apk)
+            [ "$HAS_CLOUDFLARE" = true ] || falta ENABLE_APK "$cloudflare"
+            [ "$HAS_KEYSTORE" = true ] || falta ENABLE_APK "$keystore"
+            [ "$HAS_GOOGLE_SERVICES" = true ] || falta ENABLE_APK "GOOGLE_SERVICES_JSON secret (push notifications)"
+            [ -n "$TT_API_URL" ] || falta ENABLE_APK "$api"
+            [ -n "$DESCARGAS_BASE_URL" ] || falta ENABLE_APK "DESCARGAS_BASE_URL variable (public URL of the R2 bucket, for the smoke check)"
+          fi
+          if [ "$ENABLE_PLAY_STORE" = true ]; then
+            canales+=(play)
+            [ "$HAS_KEYSTORE" = true ] || falta ENABLE_PLAY_STORE "$keystore"
+            [ "$HAS_GOOGLE_SERVICES" = true ] || falta ENABLE_PLAY_STORE "GOOGLE_SERVICES_JSON secret (push notifications)"
+            [ "$HAS_PLAY" = true ] || falta ENABLE_PLAY_STORE "PLAY_SERVICE_ACCOUNT_JSON secret (Play Console service account)"
+            [ -n "$TT_API_URL" ] || falta ENABLE_PLAY_STORE "$api"
+          fi
+          if [ "$ENABLE_IOS" = true ]; then
+            canales+=(ios)
+            for name in IOS_DIST_CERT_P12_BASE64 IOS_DIST_CERT_PASSWORD IOS_PROVISIONING_PROFILE_BASE64 \
+              GOOGLE_SERVICE_INFO_PLIST APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID \
+              APP_STORE_CONNECT_PRIVATE_KEY; do
+              [ "${!name}" = true ] || falta ENABLE_IOS "$name secret"
+            done
+            [ -n "$TT_API_URL" ] || falta ENABLE_IOS "$api"
+          fi
+          if [ ${#errors[@]} -gt 0 ]; then
+            {
+              echo "### A channel is on but not configured"
+              echo "Add what is missing (docs/RELEASES.md) or set its organization variable to false:"
+            } >> "$GITHUB_STEP_SUMMARY"
+            for e in "${errors[@]}"; do
+              switch=${e%%|*}
+              what=${e#*|}
+              echo "::error title=$switch is 'true' but not configured::Missing: $what. Add it (docs/RELEASES.md) or set the organization variable $switch to false."
+              echo "- \`$switch\`: $what" >> "$GITHUB_STEP_SUMMARY"
+            done
+            exit 1
+          fi
+          (IFS=,; echo "canales=${canales[*]}") >> "$GITHUB_OUTPUT"
+
+      - name: Plan
+        env:
+          NAME: ${{ steps.version.outputs.name }}
+          CODE: ${{ steps.numero.outputs.build || steps.version.outputs.code }}
+          TAG: ${{ steps.numero.outputs.tag }}
+          ENABLE_STAGING: ${{ vars.ENABLE_STAGING }}
+          ENABLE_PWA: ${{ vars.ENABLE_PWA }}
+          ENABLE_APK: ${{ vars.ENABLE_APK }}
+          ENABLE_PLAY_STORE: ${{ vars.ENABLE_PLAY_STORE }}
+          ENABLE_IOS: ${{ vars.ENABLE_IOS }}
+          DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
+        run: |
+          # estado <what happens> <switch>... : the first switch that is not 'true' explains a skip.
+          estado() {
+            local action=$1 switch
+            shift
+            if [ "$GITHUB_EVENT_NAME" != push ] && [ "$action" != built ]; then
+              echo "skipped (pull request: build check only)"
+              return
+            fi
+            for switch in "$@"; do
+              if [ "${!switch}" != true ]; then
+                echo "skipped (\`$switch\` is not \`true\`)"
+                return
+              fi
+            done
+            echo "$action"
+          }
+          if [ "$GITHUB_EVENT_NAME" = push ]; then pwa_build=built; else pwa_build="skipped (pull request: CI builds it)"; fi
+          if [ "$GITHUB_EVENT_NAME" = push ]; then ipa_build=$(estado built ENABLE_IOS); else ipa_build="skipped (pull request)"; fi
+          base=${DESCARGAS_BASE_URL:-<DESCARGAS_BASE_URL>}
+          stg="after approval on \`staging\`"
+          {
+            if [ "$GITHUB_EVENT_NAME" = push ]; then
+              echo "## Candidate \`$TAG\`: version $NAME, build number $CODE, from \`$GITHUB_REF_NAME\` (\`${GITHUB_SHA:0:12}\`)"
+            else
+              echo "## Build check: version $NAME, build number $CODE"
+            fi
+            echo
+            echo "| Stage | Channel | Target | This run |"
+            echo "|---|---|---|---|"
+            echo "| build | APK | \`te-tengo.apk\` | built |"
+            echo "| build | PWA | \`te-tengo-pwa.tar.gz\` | $pwa_build |"
+            echo "| build | AAB | \`te-tengo.aab\` | $(estado built ENABLE_PLAY_STORE) |"
+            echo "| build | IPA | \`te-tengo.ipa\` | $ipa_build |"
+            echo "| candidate | GitHub pre-release | \`${TAG:-vX.Y.Z-rc.N}\` with every file above and \`SHA256SUMS\` | $(estado 'created after the builds') |"
+            echo "| staging | PWA | https://staging.te-tengo-app.pages.dev | $(estado "$stg" ENABLE_STAGING ENABLE_PWA) |"
+            echo "| staging | APK | $base/staging/te-tengo.apk | $(estado "$stg" ENABLE_STAGING ENABLE_APK) |"
+            echo "| main | Pull request | \`$GITHUB_REF_NAME\` → \`main\` | $(estado 'opened or updated after staging') |"
+            echo
+            echo "Produccion (PWA, APK, Google Play, TestFlight) runs when the pull request is merged into \`main\` (\`produccion.yml\`), with this candidate's files."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  apk:
+    # The universal release APK for sideloading: te-tengo.apk and te-tengo.apk.sha256.
+    name: APK
+    needs: preparar
+    uses: ./.github/workflows/build-apk.yml
+    permissions:
+      contents: read
+    with:
+      build_name: ${{ needs.preparar.outputs.name }}
+      build_number: ${{ needs.preparar.outputs.code }}
+      artifact_name: te-tengo-apk
+      # The candidate job copies it to the pre-release right after the builds.
+      retention_days: ${{ github.event_name == 'pull_request' && 3 || 7 }}
+    secrets: inherit
+
+  web:
+    name: PWA
+    needs: preparar
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/build-web.yml
+    permissions:
+      contents: read
+    with:
+      base_href: /
+      build_name: ${{ needs.preparar.outputs.name }}
+      build_number: ${{ needs.preparar.outputs.code }}
+      artifact_name: te-tengo-pwa
+      retention_days: 7
+
+  aab:
+    name: AAB
+    needs: preparar
+    if: vars.ENABLE_PLAY_STORE == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    outputs:
+      package: ${{ steps.package.outputs.package }}
+      artifact: ${{ steps.artifact.outputs.name }}
+      signed: ${{ steps.key.outputs.release_key }}
+    env:
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      NAME: ${{ needs.preparar.outputs.name }}
+      CODE: ${{ needs.preparar.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Package name
+        id: package
+        run: |
+          # The Play package name is the applicationId of the Android build.
+          package=$(sed -n 's/^[[:space:]]*applicationId[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' android/app/build.gradle.kts)
+          if [ "$(printf '%s\n' "$package" | grep -c .)" != 1 ]; then
+            echo "::error::Expected one applicationId in android/app/build.gradle.kts, found '$package'"
+            exit 1
+          fi
+          echo "package=$package" >> "$GITHUB_OUTPUT"
+          echo "Version $NAME ($CODE), package $package"
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+
+      - name: Firebase config (google-services.json)
+        if: env.GOOGLE_SERVICES_JSON != ''
+        run: echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+      - name: Release key (key.properties)
+        id: key
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
+            echo "release_key=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=AAB debug-signed::The release keystore secrets are missing, so the AAB is signed with this runner's throwaway debug key, which Google Play rejects."
+            exit 0
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          {
+            echo "storeFile=upload-keystore.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > android/key.properties
+          echo "release_key=true" >> "$GITHUB_OUTPUT"
+
+      - name: Dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Build the release AAB
+        env:
+          API_URL: ${{ vars.TT_API_URL || secrets.TT_API_URL || 'http://10.0.2.2:8080' }}
+        run: |
+          timeout 40m flutter build appbundle --release \
+            --build-name="$NAME" --build-number="$CODE" \
+            --dart-define=TT_API_URL="$API_URL"
+      - name: Remove the signing material
+        if: always()
+        run: rm -f android/key.properties android/app/upload-keystore.jks android/app/google-services.json
+
+      - name: Artifact name
+        id: artifact
+        env:
+          SUFFIX: ${{ steps.key.outputs.release_key != 'true' && '-debug-signed' || '' }}
+        run: echo "name=te-tengo-$NAME-$CODE$SUFFIX-aab" >> "$GITHUB_OUTPUT"
+      - name: Upload the AAB as an artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          # The candidate job copies it to the pre-release right after the builds.
+          retention-days: ${{ github.event_name == 'pull_request' && 3 || 7 }}
+
+  ipa:
+    name: IPA
+    needs: preparar
+    if: github.event_name == 'push' && vars.ENABLE_IOS == 'true'
+    runs-on: macos-26
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    outputs:
+      bundle_id: ${{ steps.bundle.outputs.bundle_id }}
+      artifact: ${{ steps.verify.outputs.artifact }}
+      ipa: ${{ steps.verify.outputs.ipa }}
+    env:
+      NAME: ${{ needs.preparar.outputs.name }}
+      CODE: ${{ needs.preparar.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Bundle ID
+        id: bundle
+        run: |
+          # The app's bundle ID is the Runner target's PRODUCT_BUNDLE_IDENTIFIER (RunnerTests excluded).
+          bundle_id=$(grep -o 'PRODUCT_BUNDLE_IDENTIFIER = [^;]*;' ios/Runner.xcodeproj/project.pbxproj \
+            | sed 's/^PRODUCT_BUNDLE_IDENTIFIER = //; s/;$//; s/"//g' | grep -v '\.RunnerTests$' | sort -u)
+          if [ "$(printf '%s\n' "$bundle_id" | grep -c .)" != 1 ]; then
+            echo "::error::Expected one Runner bundle ID in ios/Runner.xcodeproj/project.pbxproj, found: $bundle_id"
+            exit 1
+          fi
+          echo "bundle_id=$bundle_id" >> "$GITHUB_OUTPUT"
+          echo "Version $NAME ($CODE), bundle ID $bundle_id"
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select --switch "/Applications/Xcode_${XCODE_VERSION}.app"
+          xcodebuild -version
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+
+      # Manual signing with a temporary keychain, as in GitHub's guide "Installing an Apple certificate
+      # on macOS runners for Xcode development"
+      # (https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/sign-xcode-applications).
+      - name: Signing (certificate, profile and export options)
+        id: signing
+        env:
+          IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          BUNDLE_ID: ${{ steps.bundle.outputs.bundle_id }}
+        run: |
+          keychain="$RUNNER_TEMP/te-tengo-signing.keychain-db"
+          cert="$RUNNER_TEMP/distribution.p12"
+          profile="$RUNNER_TEMP/distribution.mobileprovision"
+          profile_plist="$RUNNER_TEMP/profile.plist"
+          export_options="$RUNNER_TEMP/ExportOptions.plist"
+          echo "SIGNING_KEYCHAIN=$keychain" >> "$GITHUB_ENV"
+
+          # 1. Certificate into a temporary keychain with a random password.
+          keychain_password=$(openssl rand -hex 24)
+          printf '%s' "$IOS_DIST_CERT_P12_BASE64" | base64 --decode > "$cert"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          if ! security import "$cert" -P "$IOS_DIST_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$keychain"; then
+            echo "::error title=Certificate not imported::IOS_DIST_CERT_P12_BASE64 / IOS_DIST_CERT_PASSWORD could not be imported. Export the .p12 from Keychain Access (docs/RELEASES.md)."
+            exit 1
+          fi
+          rm -f "$cert"
+          security set-key-partition-list -S apple-tool:,apple: -k "$keychain_password" "$keychain" > /dev/null
+          keychains=("$keychain")
+          while IFS= read -r line; do
+            line=${line#*\"}
+            line=${line%\"*}
+            [ -n "$line" ] && keychains+=("$line")
+          done < <(security list-keychains -d user)
+          security list-keychains -d user -s "${keychains[@]}"
+
+          # 2. Provisioning profile: an App Store profile of this bundle ID, with push, not expired.
+          printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$profile"
+          security cms -D -i "$profile" > "$profile_plist"
+          uuid=$(plutil -extract UUID raw "$profile_plist")
+          profile_name=$(plutil -extract Name raw "$profile_plist")
+          team=$(plutil -extract TeamIdentifier.0 raw "$profile_plist")
+          app_id=$(plutil -extract Entitlements.application-identifier raw "$profile_plist")
+          aps=$(plutil -extract Entitlements.aps-environment raw "$profile_plist" 2> /dev/null || true)
+          expires=$(plutil -extract ExpirationDate raw "$profile_plist")
+          errors=()
+          [ "$app_id" = "$team.$BUNDLE_ID" ] || errors+=("the profile is for $app_id, not $team.$BUNDLE_ID")
+          if plutil -extract ProvisionedDevices raw "$profile_plist" > /dev/null 2>&1 \
+            || plutil -extract ProvisionsAllDevices raw "$profile_plist" > /dev/null 2>&1; then
+            errors+=("it is a development, ad hoc or enterprise profile; TestFlight needs an App Store profile")
+          fi
+          [ "$aps" = production ] || errors+=("its App ID lacks Push Notifications (aps-environment is '${aps:-missing}')")
+          if [ "$(date -j -u -f '%Y-%m-%dT%H:%M:%SZ' "$expires" +%s)" -le "$(date -u +%s)" ]; then
+            errors+=("it expired on $expires")
+          fi
+          if [ ${#errors[@]} -gt 0 ]; then
+            for e in "${errors[@]}"; do
+              echo "::error title=Unusable provisioning profile::IOS_PROVISIONING_PROFILE_BASE64 ($profile_name): $e. Create it again (docs/RELEASES.md)."
+            done
+            exit 1
+          fi
+          for dir in "$HOME/Library/MobileDevice/Provisioning Profiles" \
+            "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"; do
+            mkdir -p "$dir"
+            cp "$profile" "$dir/$uuid.mobileprovision"
+          done
+
+          # 3. The signing identity: the imported certificate that the profile includes.
+          profile_certs=$(
+            count=$(plutil -extract DeveloperCertificates raw "$profile_plist")
+            for ((i = 0; i < count; i++)); do
+              plutil -extract "DeveloperCertificates.$i" raw "$profile_plist" | base64 --decode \
+                | shasum -a 1 | cut -d' ' -f1 | tr '[:lower:]' '[:upper:]'
+            done
+          )
+          identity_sha=""
+          identity_name=""
+          while read -r sha name; do
+            if printf '%s\n' "$profile_certs" | grep -qx "$sha"; then
+              identity_sha=$sha
+              identity_name=$name
+              break
+            fi
+          done < <(security find-identity -v -p codesigning "$keychain" | sed -nE 's/^ *[0-9]+\) ([0-9A-F]{40}) "(.*)"$/\1 \2/p')
+          if [ -z "$identity_sha" ]; then
+            security find-identity -p codesigning "$keychain" || true
+            echo "::error title=Certificate not in the profile::The certificate of IOS_DIST_CERT_P12_BASE64 is not a valid signing identity included in the provisioning profile '$profile_name'. Regenerate the profile with this Apple Distribution certificate (docs/RELEASES.md)."
+            exit 1
+          fi
+          echo "Signing as \"$identity_name\" ($identity_sha), team $team, profile \"$profile_name\" ($uuid), expires $expires"
+
+          # 4. Manual signing for the Runner target only (its Release base configuration), and the export
+          #    options for `flutter build ipa --export-options-plist` (keys: `xcodebuild -help`).
+          {
+            echo ""
+            echo "// Added by release.yml on the runner; never committed."
+            echo "CODE_SIGN_STYLE = Manual"
+            echo "DEVELOPMENT_TEAM = $team"
+            echo "PROVISIONING_PROFILE_SPECIFIER = $profile_name"
+            echo "CODE_SIGN_IDENTITY = $identity_name"
+            echo "CODE_SIGN_IDENTITY[sdk=iphoneos*] = $identity_name"
+          } >> ios/Flutter/Release.xcconfig
+          pb=/usr/libexec/PlistBuddy
+          rm -f "$export_options"
+          "$pb" -c "Add :method string app-store-connect" \
+            -c "Add :destination string export" \
+            -c "Add :teamID string $team" \
+            -c "Add :signingStyle string manual" \
+            -c "Add :signingCertificate string $identity_sha" \
+            -c "Add :provisioningProfiles dict" \
+            -c "Add :provisioningProfiles:$BUNDLE_ID string $uuid" \
+            -c "Add :uploadSymbols bool true" \
+            -c "Add :manageAppVersionAndBuildNumber bool false" \
+            "$export_options"
+          plutil -lint "$export_options"
+          {
+            echo "export_options=$export_options"
+            echo "team=$team"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Firebase config (GoogleService-Info.plist)
+        env:
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+          BUNDLE_ID: ${{ steps.bundle.outputs.bundle_id }}
+        run: |
+          plist=ios/Runner/GoogleService-Info.plist
+          printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > "$plist"
+          plutil -lint "$plist" > /dev/null
+          plist_bundle=$(plutil -extract BUNDLE_ID raw "$plist" 2> /dev/null || true)
+          if [ "$plist_bundle" != "$BUNDLE_ID" ]; then
+            echo "::error title=Wrong GoogleService-Info.plist::GOOGLE_SERVICE_INFO_PLIST is for the bundle ID '$plist_bundle', not '$BUNDLE_ID'. Download the iOS app's file from the Firebase project (docs/FIREBASE.md)."
+            exit 1
+          fi
+
+      - name: Dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Build the IPA
+        env:
+          API_URL: ${{ vars.TT_API_URL || secrets.TT_API_URL }}
+          EXPORT_OPTIONS: ${{ steps.signing.outputs.export_options }}
+        run: |
+          flutter build ipa --release \
+            --build-name="$NAME" --build-number="$CODE" \
+            --dart-define=TT_API_URL="$API_URL" \
+            --export-options-plist="$EXPORT_OPTIONS"
+
+      - name: Verify the IPA
+        id: verify
+        env:
+          BUNDLE_ID: ${{ steps.bundle.outputs.bundle_id }}
+          TEAM: ${{ steps.signing.outputs.team }}
+        run: |
+          ipa=$(find build/ios/ipa -maxdepth 1 -name '*.ipa' | head -n1)
+          [ -n "$ipa" ] || { echo "::error::flutter build ipa produced no .ipa in build/ios/ipa"; exit 1; }
+          work="$RUNNER_TEMP/ipa"
+          rm -rf "$work"
+          mkdir -p "$work"
+          unzip -q "$ipa" -d "$work"
+          app=$(find "$work/Payload" -maxdepth 1 -name '*.app' | head -n1)
+          codesign --verify --deep --strict "$app"
+          codesign -d --entitlements - --xml "$app" > "$RUNNER_TEMP/entitlements.plist" 2> /dev/null
+          info="$app/Info.plist"
+          errors=()
+          [ "$(plutil -extract CFBundleIdentifier raw "$info")" = "$BUNDLE_ID" ] || errors+=("CFBundleIdentifier is not $BUNDLE_ID")
+          [ "$(plutil -extract CFBundleShortVersionString raw "$info")" = "$NAME" ] || errors+=("CFBundleShortVersionString is not $NAME")
+          [ "$(plutil -extract CFBundleVersion raw "$info")" = "$CODE" ] || errors+=("CFBundleVersion is not $CODE")
+          [ "$(plutil -extract application-identifier raw "$RUNNER_TEMP/entitlements.plist")" = "$TEAM.$BUNDLE_ID" ] || errors+=("application-identifier is not $TEAM.$BUNDLE_ID")
+          [ "$(plutil -extract aps-environment raw "$RUNNER_TEMP/entitlements.plist" 2> /dev/null || true)" = production ] || errors+=("aps-environment is not production (push would not work)")
+          [ "$(plutil -extract get-task-allow raw "$RUNNER_TEMP/entitlements.plist" 2> /dev/null || echo false)" = false ] || errors+=("get-task-allow is true (a development signature)")
+          [ -f "$app/GoogleService-Info.plist" ] || errors+=("GoogleService-Info.plist is not in the app (no push)")
+          if [ ${#errors[@]} -gt 0 ]; then
+            for e in "${errors[@]}"; do echo "::error title=Unexpected IPA::$e"; done
+            exit 1
+          fi
+          file="te-tengo-$NAME-$CODE.ipa"
+          mkdir -p dist
+          cp "$ipa" "dist/$file"
+          (cd dist && shasum -a 256 "$file" > "$file.sha256")
+          {
+            echo "ipa=$file"
+            echo "artifact=te-tengo-ios-$NAME-$CODE"
+            echo "ipa_sha256=$(cut -d' ' -f1 "dist/$file.sha256")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Remove the signing material
+        if: always()
+        run: |
+          if [ -n "${SIGNING_KEYCHAIN:-}" ]; then
+            security delete-keychain "$SIGNING_KEYCHAIN" || true
+          fi
+          rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision \
+            "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/"*.mobileprovision \
+            "$RUNNER_TEMP/distribution.mobileprovision" "$RUNNER_TEMP/distribution.p12" \
+            "$RUNNER_TEMP/ExportOptions.plist" ios/Runner/GoogleService-Info.plist
+          git checkout -- ios/Flutter/Release.xcconfig || true
+
+      - name: Upload the IPA as an artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.verify.outputs.artifact }}
+          path: |
+            dist/*.ipa
+            dist/*.ipa.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Summary
+        if: always()
+        env:
+          BUNDLE_ID: ${{ steps.bundle.outputs.bundle_id }}
+          IPA_SHA256: ${{ steps.verify.outputs.ipa_sha256 }}
+        run: |
+          {
+            echo "## iOS $NAME ($CODE)"
+            echo "- Bundle ID: \`${BUNDLE_ID:-n/a}\`"
+            echo "- IPA SHA-256: \`${IPA_SHA256:-n/a}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2. Release candidate ────────────────────────────────────────────────────────────────────────
+  candidata:
+    name: Release candidate
+    needs: [preparar, apk, web, aab, ipa]
+    # `!failure()` lets it run when a build was skipped by its switch.
+    if: "!cancelled() && !failure() && github.event_name == 'push'"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      tag: ${{ needs.preparar.outputs.tag }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: ${{ needs.preparar.outputs.name }}
+      RC: ${{ needs.preparar.outputs.rc }}
+      BUILD: ${{ needs.preparar.outputs.code }}
+      TAG: ${{ needs.preparar.outputs.tag }}
+      CANALES: ${{ needs.preparar.outputs.canales }}
+      # With ENABLE_STAGING off (e.g. an urgent hotfix) the candidate goes to produccion without staging.
+      STAGING: ${{ vars.ENABLE_STAGING == 'true' && 'pending' || 'skipped' }}
+      APK_SIGNED: ${{ needs.apk.outputs.signed }}
+      APK_SHA256: ${{ needs.apk.outputs.apk_sha256 }}
+      APK_CERTIFICATE: ${{ needs.apk.outputs.certificate_sha256 }}
+      AAB: ${{ needs.aab.result == 'success' && needs.aab.outputs.signed == 'true' }}
+      PACKAGE: ${{ needs.aab.outputs.package }}
+      IPA: ${{ needs.ipa.result == 'success' }}
+      IPA_FILE: ${{ needs.ipa.outputs.ipa }}
+      BUNDLE_ID: ${{ needs.ipa.outputs.bundle_id }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Download the APK
+        if: needs.apk.outputs.signed == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.apk.outputs.artifact_name }}
+          path: ${{ runner.temp }}/apk
+      - name: Download the PWA
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.web.outputs.artifact_name }}
+          path: ${{ runner.temp }}/pwa
+      - name: Download the AAB
+        if: env.AAB == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.aab.outputs.artifact }}
+          path: ${{ runner.temp }}/aab
+      - name: Download the IPA
+        if: env.IPA == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.ipa.outputs.artifact }}
+          path: ${{ runner.temp }}/ipa
+
+      - name: Collect the files
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/candidata"
+          mkdir -p "$dir"
+          if [ "$APK_SIGNED" = true ]; then
+            [ "$(sha256sum "$RUNNER_TEMP/apk/te-tengo.apk" | cut -d' ' -f1)" = "$APK_SHA256" ] || {
+              echo "::error::te-tengo.apk differs from the APK that the APK job verified"
+              exit 1
+            }
+            cp "$RUNNER_TEMP/apk/te-tengo.apk" "$RUNNER_TEMP/apk/te-tengo.apk.sha256" "$dir/"
+          else
+            # Only possible with ENABLE_APK and ENABLE_PLAY_STORE off: the configuration check requires
+            # the release key for both.
+            echo "::warning title=No APK in the candidate::The APK is debug-signed (no release key), so it is left out of the candidate and can never be published from it."
+          fi
+          # The PWA as one archive, so its SHA-256 identifies the whole site.
+          tar --sort=name --owner=0 --group=0 --numeric-owner --mtime=@0 -C "$RUNNER_TEMP/pwa" -cf - . |
+            gzip -n -9 > "$dir/te-tengo-pwa.tar.gz"
+          if [ "$AAB" = true ]; then
+            cp "$RUNNER_TEMP/aab/app-release.aab" "$dir/te-tengo.aab"
+          fi
+          if [ "$IPA" = true ]; then
+            cp "$RUNNER_TEMP/ipa/$IPA_FILE" "$dir/te-tengo.ipa"
+          fi
+          ls -l "$dir"
+
+      - name: Create the pre-release
+        run: .github/scripts/candidata.sh crear "$RUNNER_TEMP/candidata"
+
+      - name: Tell the open pull request to main
+        run: |
+          url=$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$GITHUB_REF_NAME" --state open --json url --jq '.[0].url // ""')
+          if [ -n "$url" ]; then
+            gh pr comment "$url" --body "New candidate [\`$TAG\`]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG) (build $BUILD) from \`${GITHUB_SHA:0:12}\`; staging: $STAGING. Do not merge until it has passed staging: produccion refuses a candidate that has not. Run: $RUN_URL"
+          fi
+
+  # ── 3. Staging ──────────────────────────────────────────────────────────────────────────────────
+  # Both jobs need the same jobs, so they wait for approval together and one review approves both.
+  staging-pwa:
+    name: Staging · PWA
+    needs: candidata
+    if: >-
+      !cancelled() && needs.candidata.result == 'success'
+      && vars.ENABLE_STAGING == 'true' && vars.ENABLE_PWA == 'true'
+    environment:
+      name: staging
+      url: https://staging.te-tengo-app.pages.dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.candidata.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Download the candidate's PWA and check its SHA-256
+        run: |
+          .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/candidata" te-tengo-pwa.tar.gz
+          mkdir -p "$RUNNER_TEMP/pwa"
+          tar -xzf "$RUNNER_TEMP/candidata/te-tengo-pwa.tar.gz" -C "$RUNNER_TEMP/pwa"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Deploy to the staging alias and smoke check
+        run: .github/scripts/deploy_pwa.sh "$RUNNER_TEMP/pwa" staging https://staging.te-tengo-app.pages.dev
+
+  staging-apk:
+    name: Staging · APK
+    needs: candidata
+    if: >-
+      !cancelled() && needs.candidata.result == 'success'
+      && vars.ENABLE_STAGING == 'true' && vars.ENABLE_APK == 'true'
+    environment:
+      name: staging
+      url: ${{ vars.DESCARGAS_BASE_URL }}/staging/te-tengo.apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.DESCARGAS_R2_BUCKET || 'te-tengo-descargas' }}
+      DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.candidata.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Download the candidate's APK and check its SHA-256
+        run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/apk" te-tengo.apk te-tengo.apk.sha256
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Upload to R2 staging/ and smoke check
+        run: .github/scripts/upload_apk.sh "$RUNNER_TEMP/apk" staging/
+
+  # ── 4. Pull request to main ─────────────────────────────────────────────────────────────────────
+  pr-main:
+    name: Pull request to main
+    needs: [preparar, candidata, staging-pwa, staging-apk]
+    # After staging passed, or was skipped by its switches. A failed or rejected staging job stops it,
+    # and the candidate stays `pending`, which produccion refuses.
+    if: >-
+      !cancelled() && !failure() && github.event_name == 'push'
+      && needs.candidata.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NAME: ${{ needs.preparar.outputs.name }}
+      CODE: ${{ needs.preparar.outputs.code }}
+      TAG: ${{ needs.candidata.outputs.tag }}
+      DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
+      STAGING_PWA: ${{ needs.staging-pwa.result }}
+      STAGING_APK: ${{ needs.staging-apk.result }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Record the staging result in the candidate
+        id: staging
+        run: |
+          if [ "$STAGING_PWA" = success ] || [ "$STAGING_APK" = success ]; then
+            estado=passed
+          else
+            estado=skipped
+          fi
+          .github/scripts/candidata.sh staging "$TAG" "$estado"
+          echo "estado=$estado" >> "$GITHUB_OUTPUT"
+      - name: Open the pull request, or update it to this candidate
+        env:
+          ESTADO: ${{ steps.staging.outputs.estado }}
+        run: |
+          set -euo pipefail
+          resultado() { if [ "$1" = success ]; then echo "$2"; else echo "skipped"; fi; }
+          base=${DESCARGAS_BASE_URL:-<DESCARGAS_BASE_URL>}
+          release="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern SHA256SUMS --dir "$RUNNER_TEMP/sumas"
+          body="$RUNNER_TEMP/body.md"
+          {
+            echo "Release **$NAME**, candidate [\`$TAG\`]($release) (build number $CODE) from \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`. Pipeline: $RUN_URL"
+            echo
+            echo "| Staging | Target | Result |"
+            echo "|---|---|---|"
+            echo "| PWA | https://staging.te-tengo-app.pages.dev | $(resultado "$STAGING_PWA" deployed) |"
+            echo "| APK | $base/staging/te-tengo.apk | $(resultado "$STAGING_APK" uploaded) |"
+            echo
+            echo "Staging of the candidate: **$ESTADO**. Skipped channels are switched off (the run summary says which variable)."
+            echo
+            echo "| Asset | SHA-256 |"
+            echo "|---|---|"
+            while read -r sha file; do echo "| \`$file\` | \`$sha\` |"; done < "$RUNNER_TEMP/sumas/SHA256SUMS"
+            echo
+            echo "Merging runs \`produccion.yml\` on \`main\`: it checks that the tree of \`main\` is the tree of this candidate, publishes these same files after an approval on \`produccion\` (PWA https://app.tetengo.reqsai.tech, APK \`$base/te-tengo.apk\`, Google Play and TestFlight when switched on) and, only if every channel succeeds, tags \`v$NAME\` and opens the back-merge pull request into \`develop\`. A new push to \`$GITHUB_REF_NAME\` builds the next candidate and updates this description."
+          } > "$body"
+          url=$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$GITHUB_REF_NAME" --state open --json url --jq '.[0].url // ""')
+          if [ -n "$url" ]; then
+            number=$(gh pr view "$url" --repo "$GITHUB_REPOSITORY" --json number --jq .number)
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/pulls/$number" -f title="release: $NAME" -F body=@"$body" > /dev/null
+            gh pr comment "$url" --body "Candidate \`$TAG\`, staging $ESTADO: the description now lists its files."
+            echo "Updated $url to $TAG" >> "$GITHUB_STEP_SUMMARY"
+          else
+            url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$GITHUB_REF_NAME" \
+              --title "release: $NAME" --body-file "$body")
+            echo "Opened $url" >> "$GITHUB_STEP_SUMMARY"
+          fi

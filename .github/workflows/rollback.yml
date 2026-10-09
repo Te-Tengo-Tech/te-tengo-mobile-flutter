@@ -1,0 +1,168 @@
+name: Rollback
+run-name: Rollback to v${{ inputs.version }}
+
+# Puts a previous release back in produccion (docs/RELEASES.md#rollback-rollbackyml-manual), without building: it
+# republishes the assets of the GitHub Release vX.Y.Z, after checking them against its SHA256SUMS and
+# an approval on the `produccion` environment. Run it from main (Actions → Rollback → Run workflow).
+#   - PWA → te-tengo-app production (https://app.tetengo.reqsai.tech), when the `pwa` input and
+#     ENABLE_PWA are on. Every visitor gets the older version on the next visit.
+#   - APK → R2 `te-tengo.apk`, only when the `apk` input and ENABLE_APK are on. Off by default: Android
+#     refuses to install an older build over a newer one, so it only serves new installs; phones that
+#     already have the newer APK keep it until a hotfix with a higher build number.
+# Google Play and TestFlight are not republished: a store accepts each build number once and only
+# higher ones. Halt or replace the release in the store console, or ship a hotfix.
+# The app has no database of its own; when the release came with an API migration, restore the API
+# database from the backup taken before that deploy (te-tengo-infra) before or with this rollback.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to put back, x.y.z (an existing GitHub Release vx.y.z)
+        type: string
+        required: true
+      pwa:
+        description: Republish the PWA
+        type: boolean
+        default: true
+      apk:
+        description: Republish the APK (only new installs can use an older build)
+        type: boolean
+        default: false
+
+permissions: {}
+
+# Shared with produccion.yml: one produccion change at a time.
+concurrency:
+  group: produccion
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  WRANGLER_VERSION: 4.149.0
+  NODE_VERSION: "24"
+  PAGES_PROJECT: te-tengo-app
+
+jobs:
+  preparar:
+    name: Check the release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      commit: ${{ steps.release.outputs.commit }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: ${{ inputs.version }}
+      PWA: ${{ inputs.pwa && vars.ENABLE_PWA == 'true' }}
+      APK: ${{ inputs.apk && vars.ENABLE_APK == 'true' }}
+    steps:
+      - name: Find the release and its assets
+        id: release
+        run: |
+          set -euo pipefail
+          version=${VERSION#v}
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error title=Unexpected version::'$VERSION' is not x.y.z."
+            exit 1
+          fi
+          tag="v$version"
+          if ! info=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isPrerelease,isDraft,assets 2> /dev/null); then
+            echo "::error title=No release $tag::There is no GitHub Release $tag. Only final releases can be put back (not candidates)."
+            exit 1
+          fi
+          if [ "$(jq -r '.isPrerelease or .isDraft' <<< "$info")" = true ]; then
+            echo "::error title=$tag is not a final release::$tag is a draft or a pre-release."
+            exit 1
+          fi
+          need=(SHA256SUMS)
+          [ "$PWA" != true ] || need+=(te-tengo-pwa.tar.gz)
+          [ "$APK" != true ] || need+=(te-tengo.apk te-tengo.apk.sha256)
+          for asset in "${need[@]}"; do
+            if ! jq -e --arg n "$asset" 'any(.assets[]; .name == $n)' <<< "$info" > /dev/null; then
+              echo "::error title=$tag has no $asset::$tag was not published by this pipeline, or has no $asset."
+              exit 1
+            fi
+          done
+          if [ "$PWA" != true ] && [ "$APK" != true ]; then
+            echo "::warning title=Nothing to republish::Both channels are off (inputs pwa/apk, or ENABLE_PWA/ENABLE_APK not 'true')."
+          fi
+          commit=$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)
+          {
+            echo "tag=$tag"
+            echo "commit=$commit"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "## Rollback to $tag (\`${commit:0:12}\`)"
+            echo "- PWA: $([ "$PWA" = true ] && echo "after approval on \`produccion\`" || echo skipped)"
+            echo "- APK: $([ "$APK" = true ] && echo "after approval on \`produccion\`" || echo skipped)"
+            echo "- Google Play and TestFlight: not republished (stores accept only higher build numbers)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  rollback-pwa:
+    name: Rollback · PWA
+    needs: preparar
+    if: inputs.pwa && vars.ENABLE_PWA == 'true'
+    environment:
+      name: produccion
+      url: https://app.tetengo.reqsai.tech
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.preparar.outputs.tag }}
+      DEPLOY_COMMIT: ${{ needs.preparar.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Download the release's PWA and check its SHA-256
+        run: |
+          .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/release" te-tengo-pwa.tar.gz
+          mkdir -p "$RUNNER_TEMP/pwa"
+          tar -xzf "$RUNNER_TEMP/release/te-tengo-pwa.tar.gz" -C "$RUNNER_TEMP/pwa"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Deploy to production and smoke check
+        run: .github/scripts/deploy_pwa.sh "$RUNNER_TEMP/pwa" main https://app.tetengo.reqsai.tech
+
+  rollback-apk:
+    name: Rollback · APK
+    needs: preparar
+    if: inputs.apk && vars.ENABLE_APK == 'true'
+    environment:
+      name: produccion
+      url: ${{ vars.DESCARGAS_BASE_URL }}/te-tengo.apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.DESCARGAS_R2_BUCKET || 'te-tengo-descargas' }}
+      DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.preparar.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Download the release's APK and check its SHA-256
+        run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/apk" te-tengo.apk te-tengo.apk.sha256
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Upload to R2 and smoke check
+        run: .github/scripts/upload_apk.sh "$RUNNER_TEMP/apk" ""

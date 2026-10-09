@@ -1,15 +1,23 @@
 name: CI
 
+# Release and hotfix branches run it too, so their head commit carries the checks that the
+# rulesets require on the pull request release/* → main opened by release.yml.
 on:
   push:
-    branches: [main]
+    branches: [main, develop, "release/**", "hotfix/**"]
   pull_request:
 
 permissions:
   contents: read
 
+# A new push to the same branch or pull request cancels the run it supersedes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  calidad:
+  analyze:
+    name: Format and analyze
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -18,10 +26,56 @@ jobs:
           flutter-version: 3.44.8
           channel: stable
           cache: true
-      - run: flutter pub get
+      - name: Dependencies
+        run: flutter pub get --enforce-lockfile
       - name: Format
         run: dart format --output=none --set-exit-if-changed lib test
       - name: Analyze
         run: flutter analyze
-      - name: Test
-        run: flutter test
+
+  test:
+    name: Tests and coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+      - name: Dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Unit, widget and golden tests with coverage
+        run: flutter test --coverage
+      - name: Coverage summary
+        if: always()
+        run: python3 .github/scripts/lcov_summary.py coverage/lcov.info >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload golden failures
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: golden-failures
+          path: test/**/failures/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  web:
+    # The same reusable build that release.yml deploys (Cloudflare Pages project te-tengo-app, served
+    # at the root of https://app.tetengo.reqsai.tech/). Override the base href with the repository
+    # variable TT_WEB_BASE_HREF (docs/WEB_PWA.md).
+    name: Web (PWA)
+    uses: ./.github/workflows/build-web.yml
+    permissions:
+      contents: read
+    with:
+      base_href: ${{ vars.TT_WEB_BASE_HREF || '/' }}
+      artifact_name: te-tengo-web
+      retention_days: 14
