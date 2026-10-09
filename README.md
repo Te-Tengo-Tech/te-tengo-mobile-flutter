@@ -2,8 +2,7 @@
 
 [![CI](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/ci.yml)
 [![OSV-Scanner](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/osv-scanner.yml/badge.svg)](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/osv-scanner.yml)
-[![Release Android](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/release-android.yml/badge.svg)](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/release-android.yml)
-[![Release iOS](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/release-ios.yml/badge.svg)](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/release-ios.yml)
+[![Release](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/release.yml/badge.svg)](https://github.com/Te-Tengo-Tech/te-tengo-mobile-flutter/actions/workflows/release.yml)
 
 **Te Tengo** mobile app for family members and caregivers: fall and unstable-movement alerts, the event clip, live view, camera, consent, family and history.
 
@@ -27,31 +26,25 @@ flutter test --coverage   # coverage/lcov.info
 ```
 
 ## Release flow
-Publishing needs no manual run: merge a release into `main` and approve it, the same way a pull request is approved. Four channels can publish it, each with an on/off switch, an **organization variable** (*Te-Tengo-Tech → Settings → Secrets and variables → Actions → Variables*). A channel is on only when its variable is `true`. [docs/RELEASES.md](docs/RELEASES.md) has the job graph for each combination, every secret, the costs and how to turn each channel on.
+Build once, deploy the same files to **staging** and then to **produccion**, both from the release branch; `main` and the tag come last. Everything runs from this repository: [`release.yml`](.github/workflows/release.yml) on a push to `release/x.y.z` or `hotfix/x.y.z`, and [`etiquetar.yml`](.github/workflows/etiquetar.yml) on `main`. [docs/RELEASES.md](docs/RELEASES.md) has the channels × stages × switches table, every secret and variable, the costs and how to turn each channel on.
 
-| Channel | Switch | Published by |
-|---|---|---|
-| PWA at `https://app.tetengo.reqsai.tech/` | `ENABLE_PWA` | The landing, after `notificar-landing.yml` |
-| APK `te-tengo.apk` (sideload, from the landing) | `ENABLE_APK` | The landing, after `notificar-landing.yml` |
-| Google Play, internal testing track | `ENABLE_PLAY_STORE` | [`release-android.yml`](.github/workflows/release-android.yml) |
-| TestFlight (iOS) | `ENABLE_IOS` | [`release-ios.yml`](.github/workflows/release-ios.yml) |
+| Channel | Staging | Produccion | Switch |
+|---|---|---|---|
+| PWA (Cloudflare Pages `te-tengo-app`) | `https://staging.te-tengo-app.pages.dev` | `https://app.tetengo.reqsai.tech` | `ENABLE_PWA` |
+| APK `te-tengo.apk` (R2 `te-tengo-descargas`, linked from the landing) | `staging/te-tengo.apk` | `te-tengo.apk` | `ENABLE_APK` |
+| Google Play, internal testing track | — | AAB upload | `ENABLE_PLAY_STORE` |
+| TestFlight (iOS) | — | IPA upload | `ENABLE_IOS` |
 
-1. **Release.** Bump `version:` in `pubspec.yaml` (the `+N` build number must grow: Android refuses to install over a higher one, and Play and TestFlight reject a repeated one), then merge `release/<version>` (or a `hotfix/*`) into `main`.
-2. **Build.** On that push, `CI` runs on `main`.
-   - [`release-android.yml`](.github/workflows/release-android.yml) builds the release APK as an artifact, plus the AAB when `ENABLE_PLAY_STORE` is `true`.
-   - [`release-ios.yml`](.github/workflows/release-ios.yml) builds the IPA on a macOS runner when `ENABLE_IOS` is `true`; otherwise its jobs are skipped.
-   - With a switch on and its secrets missing, the run fails and names what is missing.
-3. **Notify the landing.** When `CI` succeeds on `main` and `ENABLE_PWA` or `ENABLE_APK` is `true`:
-   - [`notificar-landing.yml`](.github/workflows/notificar-landing.yml) sends `repository_dispatch` `publicar-movil` to `Te-Tengo-Tech/te-tengo-landing-astro` with `{ref: <commit SHA>, version: <pubspec version>}`;
-   - the landing's `Publicar` run builds the channels that are on, the universal APK and/or the PWA, at that commit.
-4. **Approve.** Each run that publishes stops at the **`produccion` environment** until a required reviewer (jhosepmyr, elmer-riva) approves it: open the run, choose *Review deployments*, tick `produccion` and approve.
-   - In **te-tengo-landing-astro**, `Publicar publicar-movil <version>`: one approval uploads `te-tengo.apk` to Cloudflare R2 (the landing's download) and deploys the PWA to `https://app.tetengo.reqsai.tech/`.
-   - In **this repository**, `Release Android`: the `Upload to Google Play (internal)` job ([docs/RELEASE_ANDROID.md](docs/RELEASE_ANDROID.md)).
-   - In **this repository**, `Release iOS`: the `Upload to TestFlight` job.
+The switches are **organization variables**, on only when exactly `true`; `ENABLE_STAGING` switches the whole staging stage.
 
-Nothing reaches users before an approval, a failed build asks for none, and the environment only accepts `main`.
+1. **Release branch.** Branch `release/<x.y.z>` from `develop` (or `hotfix/<x.y.z>` from `main`) and bump `version:` in `pubspec.yaml` to `x.y.z+N`. The build number `N` must grow: Android refuses to install over a higher one, and Play and TestFlight reject a repeated one. Push it.
+2. **Build.** `release.yml` checks the configuration of every channel that is on (a missing secret is an error that names it), then builds the signed APK, the PWA and, when switched on, the AAB and the IPA. The run summary shows the plan: what each stage will do, or which switch skips it.
+3. **Staging.** The `Staging · …` jobs wait for an approval on the **`staging` environment**, deploy the same artifacts and smoke-check them.
+4. **Produccion.** The `Produccion · …` jobs then wait for an approval on the **`produccion` environment**, publish and smoke-check. To approve: open the run, *Review deployments*, tick the environment and approve (required reviewers: jhosepmyr, elmer-riva). One approval covers every job of a stage.
+5. **Pull request to `main`.** The last job opens `release: x.y.z` (`release/x.y.z` → `main`) listing what was deployed where. Merge it after review.
+6. **Tag.** On `main`, `etiquetar.yml` tags `vx.y.z`, creates the GitHub Release from the `CHANGELOG.md` section and opens the back-merge pull request `main` → `develop`. Nothing is deployed from `main`.
 
-The dispatch needs the secret **`DISPATCH_TOKEN`**: a fine-grained personal access token with resource owner `Te-Tengo-Tech`, access to the single repository `te-tengo-landing-astro` and the repository permission *Contents: Read and write*. Without it the workflow prints a notice and succeeds. After adding it, run *Actions → Notify the landing → Run workflow* on `main` to send the current release. The landing's [docs/DEPLOY.md](https://github.com/Te-Tengo-Tech/te-tengo-landing-astro/blob/develop/docs/DEPLOY.md) describes its side.
+Nothing reaches users before an approval, and a failed build or staging check stops the run before produccion. Cloudflare needs the secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (token permissions *Account → Cloudflare Pages: Edit* and *Workers R2 Storage: Edit*).
 
 ## Documentation
 | Document | Content |
@@ -60,7 +53,7 @@ The dispatch needs the secret **`DISPATCH_TOKEN`**: a fine-grained personal acce
 | [docs/WORK_PLAN.md](docs/WORK_PLAN.md) | Ordered task checklist (stories ↔ screens) and the autonomous loop |
 | [docs/API_CONTRACT.md](docs/API_CONTRACT.md) | Backend API shared with `te-tengo-general-api` |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Feature-first structure and patterns |
-| [docs/RELEASES.md](docs/RELEASES.md) | Release channels (PWA, APK, Google Play, TestFlight): on/off switches, job graph, secrets and variables, costs and how to turn each channel on; iOS signing |
+| [docs/RELEASES.md](docs/RELEASES.md) | Release pipeline: channels (PWA, APK, Google Play, TestFlight) × stages (staging, produccion) × switches, job graph, secrets and variables, costs and how to turn each channel on; iOS signing |
 | [docs/RELEASE_ANDROID.md](docs/RELEASE_ANDROID.md) | Release AAB and universal APK, release key, sideload distribution and updates, Google Play internal testing and store policy forms |
 | [docs/FIREBASE.md](docs/FIREBASE.md) | Firebase project, config files, APNs key and how to test push on simulators and emulators |
 | [docs/WEB_PWA.md](docs/WEB_PWA.md) | The installable web app: hosting at `https://app.tetengo.reqsai.tech/`, service worker, web push, iPhone limits and how to test |

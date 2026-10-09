@@ -1,54 +1,77 @@
-# Release channels
+# Release pipeline
 
-A release merged into `main` can reach users through four channels. Each one has an **on/off switch**, an organization-level Actions variable, and each publishing step waits for an approval on the **`produccion` environment** (required reviewers, `main` only). Nothing reaches users without that approval.
+**Build once, deploy many.** A push to `release/x.y.z` or `hotfix/x.y.z` runs [`release.yml`](../.github/workflows/release.yml): it builds every artifact once, deploys those same files to **staging** and then to **produccion**, each stage after an approval on its environment, and finally opens the pull request to `main`. `main` and the tag come last, after production is approved: [`etiquetar.yml`](../.github/workflows/etiquetar.yml) tags the release and deploys nothing.
 
-| Channel | Who builds and publishes it | Where users get it | Switch |
-|---|---|---|---|
-| **PWA** (web app) | The landing's `publicar.yml`, started by [`notificar-landing.yml`](../.github/workflows/notificar-landing.yml) | `https://app.tetengo.reqsai.tech/` ([WEB_PWA.md](WEB_PWA.md)) | `ENABLE_PWA` |
-| **APK** (sideload) | The landing's `publicar.yml`, which calls [`build-apk.yml`](../.github/workflows/build-apk.yml) | `te-tengo.apk` on Cloudflare R2, linked from the landing ([RELEASE_ANDROID.md](RELEASE_ANDROID.md#sideload-distribution-no-play-store)) | `ENABLE_APK` |
-| **Google Play**, internal testing track | [`release-android.yml`](../.github/workflows/release-android.yml), job `Upload to Google Play (internal)` | Play Store, for the testers on the internal track | `ENABLE_PLAY_STORE` |
-| **TestFlight** (iOS) | [`release-ios.yml`](../.github/workflows/release-ios.yml), job `Upload to TestFlight` | The TestFlight app, for the testers of the App Store Connect app | `ENABLE_IOS` |
+## Channels × stages × switches
+| Channel | Build (no environment) | Staging (`staging`, approval) | Produccion (`produccion`, approval) | Switch |
+|---|---|---|---|---|
+| **PWA** (web app, [WEB_PWA.md](WEB_PWA.md)) | `PWA`: `flutter build web --base-href /` with the Firebase web config, plus `deploy/pwa/_headers` and `robots.txt` (reusable [`build-web.yml`](../.github/workflows/build-web.yml)) | `Staging · PWA`: Pages project `te-tengo-app`, alias `staging`, <https://staging.te-tengo-app.pages.dev> | `Produccion · PWA`: `te-tengo-app` production (branch `main`), <https://app.tetengo.reqsai.tech> | `ENABLE_PWA` |
+| **APK** (sideload, [RELEASE_ANDROID.md](RELEASE_ANDROID.md#sideload-distribution-no-play-store)) | `APK`: signed universal `te-tengo.apk` + `.sha256` (reusable [`build-apk.yml`](../.github/workflows/build-apk.yml)); always built | `Staging · APK`: R2 `te-tengo-descargas/staging/te-tengo.apk` | `Produccion · APK`: R2 `te-tengo-descargas/te-tengo.apk`, the landing's download | `ENABLE_APK` |
+| **Google Play**, internal testing track | `AAB`, only when the switch is on | — | `Produccion · Google Play (internal)` | `ENABLE_PLAY_STORE` |
+| **TestFlight** (iOS) | `IPA` on `macos-26`, only when the switch is on | — | `Produccion · TestFlight` | `ENABLE_IOS` |
+| *(every channel)* | — | the whole stage | — | `ENABLE_STAGING` |
+
+Smoke checks after each deploy:
+- **PWA:** `GET <url>/` answers `200` and `<url>/version.json` has this build's version and build number (Flutter writes it from `pubspec.yaml`), retried for 2 minutes.
+- **APK:** `HEAD <DESCARGAS_BASE_URL>/<key>` answers `200` with the APK's size, and the public `.sha256` equals the uploaded one.
+- **Google Play** and **TestFlight:** the upload itself; TestFlight waits until App Store Connect has processed the build.
+
+## Job graph
+```
+Version and configuration ─┬─ APK ─┐
+                           ├─ PWA ─┤
+                           ├─ AAB ─┤ (ENABLE_PLAY_STORE)
+                           └─ IPA ─┤ (ENABLE_IOS)
+                                   ├─ Staging · PWA ─┐   environment staging   (ENABLE_STAGING + ENABLE_PWA)
+                                   └─ Staging · APK ─┤   environment staging   (ENABLE_STAGING + ENABLE_APK)
+                                                     ├─ Produccion · PWA ──────────┐  environment produccion (ENABLE_PWA)
+                                                     ├─ Produccion · APK ──────────┤  environment produccion (ENABLE_APK)
+                                                     ├─ Produccion · Google Play ──┤  environment produccion (ENABLE_PLAY_STORE)
+                                                     └─ Produccion · TestFlight ───┤  environment produccion (ENABLE_IOS)
+                                                                                   └─ Open the pull request to main
+```
+- **One approval per stage.** Every staging job needs every build, and every produccion job needs every staging job, so the jobs of one environment wait together and one review (*Review deployments*) approves them all.
+- **A skipped job does not block.** A job whose switch is off is skipped, and the jobs after it still run. With `ENABLE_STAGING` off, the produccion jobs run right after the builds.
+- **A failure does.** A failed build, a failed staging smoke check or a rejected staging approval skips every produccion job and the pull request.
+- **The plan.** The first job writes the plan to the run summary: each stage × channel, and either *after approval* or the switch that skips it.
+- **Pull request to `main`.** `Open the pull request to main` opens `release: x.y.z` (`release/x.y.z` → `main`) with what was deployed where, or comments on it when it is already open. Merging it is a human action (the rulesets require a review and the `Format and analyze` and `Tests and coverage` checks, which `CI` runs on every push to `release/*` and `hotfix/*`).
+- **On `main`.** `etiquetar.yml` creates the tag `vx.y.z` (the `pubspec.yaml` version without `+N`) and a GitHub Release whose notes are the build number and the `## [x.y.z]` section of `CHANGELOG.md`, skipped when the tag exists. It then opens the back-merge pull request `chore: merge release x.y.z back into develop` (`main` → `develop`).
+- **Re-running.** A new push to the same release branch runs the pipeline again with new artifacts. Runs of one branch take turns (concurrency group per branch): a deploy is never cancelled, and a run that is still queued is replaced by a newer one. To let a newer run start while an older one waits for approval, reject the older one.
+- **Pull requests.** A pull request that changes `android/`, `pubspec.*`, `release.yml` or `build-apk.yml` runs only the APK build (and the AAB when `ENABLE_PLAY_STORE` is on) as a check. `CI` builds the PWA on every pull request.
+- **Branch and version.** On `release/x.y.z` or `hotfix/x.y.z`, `x.y.z` must equal the `pubspec.yaml` version, or the run stops.
 
 ## Switches
-The switches are **organization variables**: *Te-Tengo-Tech → Settings → Secrets and variables → Actions → Variables*. There is one control panel for every repository, and each one needs repository access *All repositories*, or this repository among the selected ones. A channel is **on only when its variable is exactly `true`**. `false`, any other value, or no variable at all means off.
+The switches are **organization variables**: *Te-Tengo-Tech → Settings → Secrets and variables → Actions → Variables*. A channel is **on only when its variable is exactly `true`**. `false`, any other value, or no variable at all means off.
 
 | Variable | Read by | When it is not `true` |
 |---|---|---|
-| `ENABLE_PWA` | `notificar-landing.yml` here; the landing's `publicar.yml` | The landing skips the PWA deploy. If `ENABLE_APK` is not `true` either, this repository does not send the dispatch |
-| `ENABLE_APK` | `notificar-landing.yml` here; the landing's `publicar.yml` | The landing skips the APK upload. If `ENABLE_PWA` is not `true` either, this repository does not send the dispatch |
-| `ENABLE_PLAY_STORE` | `release-android.yml` | On a push to `main` the AAB is not built and the Play job is skipped, so no approval is asked. Pull requests and manual runs still build the AAB as a check |
-| `ENABLE_IOS` | `release-ios.yml` | Every job is skipped, so no macOS runner starts and no approval is asked |
+| `ENABLE_STAGING` | `release.yml` | Both staging jobs are skipped; produccion follows the builds |
+| `ENABLE_PWA` | `release.yml` | Both PWA deploys are skipped (the PWA is still built) |
+| `ENABLE_APK` | `release.yml` | Both R2 uploads are skipped (the APK is still built, as an artifact) |
+| `ENABLE_PLAY_STORE` | `release.yml` | The AAB is not built and the Play upload is skipped |
+| `ENABLE_IOS` | `release.yml` | The IPA is not built (no macOS runner starts) and the TestFlight upload is skipped |
 
-Other organization variables (`ENABLE_API_*`, `ENABLE_LANDING_*`, `ENABLE_DESKTOP_*`, `ENABLE_WINDOWS_*`) switch channels of the other repositories.
+Other organization variables (`ENABLE_DEV`, `ENABLE_API_*`, `ENABLE_LANDING_*`, `ENABLE_DESKTOP_*`, `ENABLE_WINDOWS_*`, `ENABLE_MAC_*`) switch the other repositories.
 
-**When a switch is on and its configuration is missing, the run fails.** `release-android.yml` and `release-ios.yml` check every secret and variable of their channel before building. A missing one is an error that names it, so a release is never silently left out. Turn a channel on only after its one-time setup is done.
+**When a switch is on and its configuration is missing, the run fails** in `Version and configuration`, before any build, with an error that names each missing secret or variable. A release is never silently left out. Turn a channel on only after its one-time setup is done.
 
-## What runs on a push to `main`
-`CI` and the APK build check of `Release Android` always run. The rest depends on the switches.
+## Secrets and variables
+Secrets are **repository** secrets (*Settings → Secrets and variables → Actions → Secrets*); the variables are repository variables unless marked otherwise.
 
-| Switches | Release Android | Release iOS | Notify the landing (after `CI` succeeds) |
-|---|---|---|---|
-| All four off | `Build AAB` skipped, `Upload to Google Play (internal)` skipped, `APK` (artifact only) runs | `Build IPA` skipped, `Upload to TestFlight` skipped | Skipped |
-| `ENABLE_PWA` and/or `ENABLE_APK` on | Same | Same | Sends `publicar-movil`. The landing builds, waits for approval on its `produccion`, then publishes the channels that are on |
-| `ENABLE_PLAY_STORE` on | `Build AAB` (fails at once if a Play secret is missing) → `Upload to Google Play (internal)` waits for approval → uploads. `APK` runs | Unchanged | Unchanged |
-| `ENABLE_IOS` on | Unchanged | `Build IPA` on `macos-26` (fails at once if an iOS secret is missing) → `Upload to TestFlight` waits for approval → uploads | Unchanged |
-
-A manual run (*Actions → Release Android / Release iOS → Run workflow*) follows the same switches. From a branch other than `main` it only builds, because the `produccion` environment only accepts `main`. Both workflows take a `build_number` input that overrides the `+N` of `pubspec.yaml`.
-
-## Secrets and variables per channel
-Secrets are **repository** secrets: *Settings → Secrets and variables → Actions → Secrets*. The landing's secrets are listed in its [docs/DEPLOY.md](https://github.com/Te-Tengo-Tech/te-tengo-landing-astro/blob/develop/docs/DEPLOY.md).
-
-| Channel | In this repository | In the landing repository |
+| Channel | Secrets | Variables |
 |---|---|---|
-| PWA | `DISPATCH_TOKEN` (secret) | `TT_API_URL`, `TT_FIREBASE_WEB_*`, `TT_FCM_VAPID_KEY` (variables) and its Cloudflare secrets |
-| APK | `DISPATCH_TOKEN` (secret) | The four `ANDROID_*` secrets with the **same** release key as here, `GOOGLE_SERVICES_JSON`, `TT_API_URL` and its R2 configuration |
-| Google Play | Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `GOOGLE_SERVICES_JSON`, `PLAY_SERVICE_ACCOUNT_JSON`; variable `TT_API_URL` | none |
-| TestFlight | Secrets `IOS_DIST_CERT_P12_BASE64`, `IOS_DIST_CERT_PASSWORD`, `IOS_PROVISIONING_PROFILE_BASE64`, `GOOGLE_SERVICE_INFO_PLIST`, `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_PRIVATE_KEY`; variable `TT_API_URL` | none |
+| PWA | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | `TT_API_URL`; `TT_FIREBASE_WEB_API_KEY`, `TT_FIREBASE_WEB_APP_ID`, `TT_FIREBASE_WEB_MESSAGING_SENDER_ID`, `TT_FIREBASE_WEB_PROJECT_ID`, `TT_FCM_VAPID_KEY` (required); `TT_FIREBASE_WEB_AUTH_DOMAIN`, `TT_FIREBASE_WEB_STORAGE_BUCKET`, `TT_FIREBASE_WEB_MEASUREMENT_ID` (optional) |
+| APK | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `GOOGLE_SERVICES_JSON` | `TT_API_URL`, `DESCARGAS_BASE_URL`; optional `DESCARGAS_R2_BUCKET` (default `te-tengo-descargas`) |
+| Google Play | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `GOOGLE_SERVICES_JSON`, `PLAY_SERVICE_ACCOUNT_JSON` | `TT_API_URL`; optional `PLAY_RELEASE_STATUS` (`completed` by default, `draft` while the app is a draft in Play Console) |
+| TestFlight | `IOS_DIST_CERT_P12_BASE64`, `IOS_DIST_CERT_PASSWORD`, `IOS_PROVISIONING_PROFILE_BASE64`, `GOOGLE_SERVICE_INFO_PLIST`, `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_PRIVATE_KEY` | `TT_API_URL` |
 
 | Name | Kind | Content |
 |---|---|---|
-| `TT_API_URL` | repository **variable**; a secret of the same name also works | HTTPS URL of the production API, compiled into the Android and iOS apps (`--dart-define=TT_API_URL=…`). The landing has its own |
-| `DISPATCH_TOKEN` | secret | Fine-grained token: resource owner `Te-Tengo-Tech`, only `te-tengo-landing-astro`, *Contents: Read and write* (README, *Release flow*) |
+| `CLOUDFLARE_API_TOKEN` | secret | Cloudflare API token with *Account → Cloudflare Pages: Edit* and *Account → Workers R2 Storage: Edit* |
+| `CLOUDFLARE_ACCOUNT_ID` | secret | The Cloudflare account ID (dashboard, *Account home*, or `wrangler whoami`) |
+| `TT_API_URL` | variable; a secret of the same name also works | HTTPS URL of the production API, compiled into every build (`--dart-define=TT_API_URL=…`) |
+| `TT_FIREBASE_WEB_*`, `TT_FCM_VAPID_KEY` | variables | Firebase web config and web push key of the PWA; public values ([WEB_PWA.md](WEB_PWA.md#firebase-web-config-and-vapid-key)) |
+| `DESCARGAS_BASE_URL` | variable | Public URL of the R2 bucket, e.g. `https://pub-<id>.r2.dev` (for the smoke check and the links in the summary) |
 | `ANDROID_*`, `GOOGLE_SERVICES_JSON`, `PLAY_SERVICE_ACCOUNT_JSON` | secrets | See [RELEASE_ANDROID.md](RELEASE_ANDROID.md#secrets-and-variables-settings--secrets-and-variables--actions) |
 | `IOS_DIST_CERT_P12_BASE64` | secret | `base64 -i distribution.p12`: the **Apple Distribution** certificate with its private key |
 | `IOS_DIST_CERT_PASSWORD` | secret | Password chosen when exporting the `.p12` |
@@ -58,10 +81,12 @@ Secrets are **repository** secrets: *Settings → Secrets and variables → Acti
 | `APP_STORE_CONNECT_ISSUER_ID` | secret | Issuer ID shown above the list of keys |
 | `APP_STORE_CONNECT_PRIVATE_KEY` | secret | The whole `AuthKey_<key id>.p8` file, plain text with its `BEGIN`/`END` lines |
 
+The pull requests opened by the workflows use `GITHUB_TOKEN`; the repository allows GitHub Actions to create pull requests (*Settings → Actions → General → Workflow permissions*).
+
 ## Costs
 | Item | Cost | Source |
 |---|---|---|
-| PWA and APK | No store fee. Hosting is the landing's Cloudflare account ([its DEPLOY.md](https://github.com/Te-Tengo-Tech/te-tengo-landing-astro/blob/develop/docs/DEPLOY.md)) | — |
+| PWA and APK | No store fee. Hosting is the team's Cloudflare account: Pages and R2 (public bucket) within the free tier | — |
 | Google Play developer account | **US$25, once** | [Play Console Help: register for a developer account](https://support.google.com/googleplay/android-developer/answer/6112435) |
 | Apple Developer Program (TestFlight, App Store, APNs) | **99 USD per membership year**. Prices may vary by region. Nonprofits, accredited educational institutions and government entities can request a fee waiver | [Apple Developer Program: enrollment](https://developer.apple.com/programs/enroll/) |
 | GitHub Actions minutes, Linux and macOS | Free: the repository is public and the workflows use standard runners (`ubuntu-latest`, `macos-26`; not the paid `-large`/`-xlarge` ones). A private repository would be billed for them | [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions) |
@@ -74,7 +99,7 @@ Secrets are **repository** secrets: *Settings → Secrets and variables → Acti
    - the service account.
 2. Save `PLAY_SERVICE_ACCOUNT_JSON`, and the repository variable `TT_API_URL` if it is not set. The release key and `GOOGLE_SERVICES_JSON` already exist.
 3. Set the organization variable `ENABLE_PLAY_STORE` to `true`.
-4. Merge the next release into `main`, or run *Release Android* from `main`. Approve `Upload to Google Play (internal)`. While the app is still a draft in Play Console, run it by hand with `release_status: draft`.
+4. Push the next `release/x.y.z` and approve `Produccion · Google Play (internal)`. While the app is still a draft in Play Console, set the repository variable `PLAY_RELEASE_STATUS` to `draft`, and delete it once the app has been reviewed.
 
 ## Turn on TestFlight
 Done once by the account owner, on a Mac.
@@ -122,10 +147,10 @@ Done once by the account owner, on a Mac.
    - **Internal testers:** up to 100 App Store Connect users of the team. They get builds without review.
    - **External testers:** up to 10 000. They need *Test Information* and a beta review of the first build.
    - **Export compliance:** each build shows *Missing Compliance* until someone answers the encryption question in App Store Connect. To answer it once for every build, the team can add `ITSAppUsesNonExemptEncryption` to `ios/Runner/Info.plist`. That is a legal declaration, so it is left to the owners.
-10. **Switch it on.** Set the organization variable `ENABLE_IOS` to `true`. Merge the next release into `main`, or run *Release iOS* from `main`, and approve `Upload to TestFlight`.
+10. **Switch it on.** Set the organization variable `ENABLE_IOS` to `true`. Push the next `release/x.y.z` and approve `Produccion · TestFlight`.
 
 ### How the iOS build signs
-- **Runner.** `Build IPA` runs on `macos-26` with Xcode 26.6, selected by `XCODE_VERSION` in the workflow. Since 28 April 2026 App Store Connect accepts only builds made with Xcode 26 or later ([Apple: SDK minimum requirements](https://developer.apple.com/news/upcoming-requirements/)).
+- **Runner.** The `IPA` job runs on `macos-26` with Xcode 26.6, selected by `XCODE_VERSION` in the workflow. Since 28 April 2026 App Store Connect accepts only builds made with Xcode 26 or later ([Apple: SDK minimum requirements](https://developer.apple.com/news/upcoming-requirements/)).
 - **Certificate and profile.** As in [GitHub's guide to signing Xcode apps on macOS runners](https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/sign-xcode-applications):
   - the certificate goes into a temporary keychain with a random password;
   - the profile goes into the runner's profile folders;
@@ -153,6 +178,6 @@ Done once by the account owner, on a Mac.
   - that `GoogleService-Info.plist` is inside.
 
   It keeps `te-tengo-<version>-<build>.ipa` and its SHA-256 as the `te-tengo-ios-<version>-<build>` artifact for 30 days.
-- **Upload.** `Upload to TestFlight` sends the IPA with [`apple-actions/upload-testflight-build`](https://github.com/Apple-Actions/upload-testflight-build), pinned by commit SHA. Its default backend is the App Store Connect API, which runs on Linux. The job waits until App Store Connect has processed the build, so an invalid binary fails the run.
+- **Upload.** `Produccion · TestFlight` sends the IPA with [`apple-actions/upload-testflight-build`](https://github.com/Apple-Actions/upload-testflight-build), pinned by commit SHA. Its default backend is the App Store Connect API, which runs on Linux. The job waits until App Store Connect has processed the build, so an invalid binary fails the run.
   - Flutter's guide also shows `xcrun altool --upload-app`, which still works. The App Store Connect API path needs no Transporter or Xcode on the runner.
 - **Version.** The `+N` of `pubspec.yaml` must grow for every upload of the same version, and the version must be higher than the last one approved for the App Store.
