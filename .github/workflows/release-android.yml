@@ -6,6 +6,11 @@ name: Release Android
 # its secrets exist: without them the workflow still builds both (debug-signed when there is no
 # release key), keeps them as run artifacts and explains on the run page what is missing.
 #
+# Runs when a release reaches main (push to main) and by hand. The Play upload is its own job in the
+# `produccion` environment: after the AAB is built it waits until a required reviewer approves it on
+# the run page, and the environment only accepts main, so runs from other branches build only. (The
+# sideload APK is published by the landing's publicar.yml, started by notificar-landing.yml.)
+#
 # Secrets (Settings → Secrets and variables → Actions):
 #   GOOGLE_SERVICES_JSON         base64 of android/app/google-services.json (Firebase, push)
 #   ANDROID_KEYSTORE_BASE64      base64 of the release keystore (.jks): the Play upload key and the
@@ -27,9 +32,10 @@ on:
         type: choice
         options: [completed, draft]
         default: completed
+  # A release merged into main. (Version tags are not used: the produccion environment only accepts
+  # the main branch.)
   push:
-    tags:
-      - "mobile-v*"
+    branches: [main]
   # Pull requests that touch the Android build only build the AAB and the APK, to keep the release
   # path green.
   pull_request:
@@ -51,9 +57,14 @@ env:
 
 jobs:
   build:
-    name: Build AAB${{ github.event_name != 'pull_request' && ' and upload to Play (internal)' || '' }}
+    name: Build AAB
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    outputs:
+      name: ${{ steps.version.outputs.name }}
+      code: ${{ steps.version.outputs.code }}
+      play: ${{ steps.config.outputs.play }}
+      aab_artifact: ${{ steps.artifact.outputs.name }}
     env:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -100,10 +111,6 @@ jobs:
           name=${version%%+*}
           code=${version#*+}
           [ -n "$BUILD_NUMBER" ] && code=$BUILD_NUMBER
-          if [[ "$GITHUB_REF" == refs/tags/mobile-v* ]] && [ "${GITHUB_REF#refs/tags/mobile-v}" != "$name" ]; then
-            echo "::error::Tag ${GITHUB_REF#refs/tags/} does not match pubspec.yaml version $name"
-            exit 1
-          fi
           echo "name=$name" >> "$GITHUB_OUTPUT"
           echo "code=$code" >> "$GITHUB_OUTPUT"
           echo "Version $name ($code)"
@@ -147,25 +154,18 @@ jobs:
         run: rm -f android/key.properties android/app/upload-keystore.jks android/app/google-services.json
 
 
+      - name: Artifact name
+        id: artifact
+        env:
+          NAME: te-tengo-${{ steps.version.outputs.name }}-${{ steps.version.outputs.code }}${{ steps.config.outputs.upload_key != 'true' && '-debug-signed' || '' }}-aab
+        run: echo "name=$NAME" >> "$GITHUB_OUTPUT"
       - name: Upload the AAB as an artifact
         uses: actions/upload-artifact@v7
         with:
-          name: te-tengo-${{ steps.version.outputs.name }}-${{ steps.version.outputs.code }}${{ steps.config.outputs.upload_key != 'true' && '-debug-signed' || '' }}-aab
+          name: ${{ steps.artifact.outputs.name }}
           path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: ${{ github.event_name == 'pull_request' && 3 || 30 }}
-
-      - name: Upload to Google Play (internal testing)
-        id: play
-        if: github.event_name != 'pull_request' && steps.config.outputs.play == 'true'
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: ${{ env.PACKAGE_NAME }}
-          releaseFiles: build/app/outputs/bundle/release/app-release.aab
-          releaseName: ${{ steps.version.outputs.name }} (${{ steps.version.outputs.code }})
-          track: internal
-          status: ${{ inputs.release_status || 'completed' }}
 
       - name: Summary
         if: always()
@@ -174,8 +174,37 @@ jobs:
             echo "## Android ${{ steps.version.outputs.name }} (${{ steps.version.outputs.code }})"
             echo "- Signing: ${{ steps.config.outputs.upload_key == 'true' && 'release key' || 'debug key (not accepted by Google Play; a sideloaded APK cannot be updated by a later build)' }}"
             echo "- Push (google-services.json): ${{ steps.config.outputs.firebase == 'true' && 'included' || 'not included' }}"
-            echo "- Google Play internal track: ${{ steps.play.outcome == 'success' && 'uploaded' || 'not uploaded' }}"
+            echo "- Google Play internal track: ${{ (github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.config.outputs.play == 'true') && 'uploaded by the «Upload to Google Play (internal)» job after approval on the produccion environment' || 'not uploaded' }}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  play:
+    # Waits for a required reviewer of the produccion environment (main only). Skipped, without asking
+    # for approval, on pull requests, on other branches and while the Play configuration is missing.
+    name: Upload to Google Play (internal)
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.build.outputs.play == 'true'
+    environment: produccion
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.build.outputs.aab_artifact }}
+          path: aab
+      - name: Upload to Google Play (internal testing)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.PACKAGE_NAME }}
+          releaseFiles: aab/app-release.aab
+          releaseName: ${{ needs.build.outputs.name }} (${{ needs.build.outputs.code }})
+          track: internal
+          status: ${{ inputs.release_status || 'completed' }}
+      - name: Summary
+        env:
+          NAME: ${{ needs.build.outputs.name }}
+          CODE: ${{ needs.build.outputs.code }}
+        run: echo "Android $NAME ($CODE) uploaded to the Google Play internal track." >> "$GITHUB_STEP_SUMMARY"
 
   apk:
     # The universal release APK for sideloading, built by the same reusable workflow that the
