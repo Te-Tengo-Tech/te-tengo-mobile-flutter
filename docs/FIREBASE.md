@@ -62,6 +62,8 @@ document how it was set up, and what remains (the APNs key).
      real iPhone fails with it. Simulator builds are not affected.
 5. Share the two config files with the team through a private channel (not the repository, unless
    the team decided to commit them).
+6. For the release builds, save them base64-encoded as the repository secrets `GOOGLE_SERVICES_JSON`
+   (Android) and `GOOGLE_SERVICE_INFO_PLIST` (iOS); see [RELEASES.md](RELEASES.md).
 
 ## Web app (PWA)
 The web build does not use config files: `Firebase.initializeApp` gets `FirebaseOptions` from
