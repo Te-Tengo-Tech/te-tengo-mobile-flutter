@@ -89,16 +89,11 @@ void main() {
       await abrir(tester);
       await entrar(tester, 'carmen.huaman@gmail.com', 'mala');
       expect(find.text('Correo o contraseña incorrectos'), findsOneWidget);
-      expect(
-        find.text('Revisa que estén bien escritos e inténtalo otra vez.'),
-        findsOneWidget,
-      );
+      expect(find.text('Revisa cómo los escribiste.'), findsOneWidget);
       await tocar(tester, find.text('Iniciar sesión'));
       await tocar(tester, find.text('Iniciar sesión'));
       expect(
-        find.text(
-          'Te quedan 2 intentos antes de un bloqueo temporal de 15 minutos.',
-        ),
+        find.text('Te quedan 2 intentos antes de un bloqueo de 15 min.'),
         findsOneWidget,
       );
       expect(find.byType(NavigationBar), findsNothing);
@@ -116,7 +111,7 @@ void main() {
       );
       await abrir(tester);
       await entrar(tester, 'carmen.huaman@gmail.com', 'mala');
-      expect(find.text('Acceso bloqueado por 15 minutos'), findsOneWidget);
+      expect(find.text('Bloqueado por 15 minutos'), findsOneWidget);
       final horaDesbloqueo = hora(
         DateTime.parse('2026-10-07T15:57:00Z').toLocal(),
       );
@@ -134,7 +129,7 @@ void main() {
   testWidgets('pide correo y contraseña antes de enviar', (tester) async {
     await abrir(tester);
     await tocar(tester, find.text('Iniciar sesión'));
-    expect(find.text('Faltan datos'), findsOneWidget);
+    expect(find.text('Escribe tu correo y tu contraseña'), findsOneWidget);
     expect(find.text('Escribe tu correo.'), findsOneWidget);
     expect(find.text('Escribe tu contraseña.'), findsOneWidget);
     expect(repo.inicios, isEmpty);

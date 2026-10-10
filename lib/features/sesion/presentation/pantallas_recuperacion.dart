@@ -71,14 +71,8 @@ class _PantallaRecuperarState extends ConsumerState<PantallaRecuperar> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          Semantics(
-            header: true,
-            child: Text('¿Olvidaste tu contraseña?', style: texto.titleLarge),
-          ),
-          const SizedBox(height: 8),
           Text(
-            'Escribe el correo con el que creaste tu cuenta y te enviaremos un '
-            'enlace para crear una nueva.',
+            'Te enviaremos un enlace para crear una nueva.',
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -190,20 +184,14 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
                 ),
                 const TextSpan(
                   text:
-                      ' tiene una cuenta en Te Tengo, te llegará un enlace para '
-                      'crear una nueva contraseña. El enlace vence en 30 minutos.',
+                      ' tiene cuenta, te llegará un enlace. Vence en 30 minutos.',
                 ),
               ],
             ),
             style: cuerpo,
           ),
-          const SizedBox(height: 20),
-          const Aviso(
-            tono: TonoAviso.neutral,
-            icono: Ico.info,
-            texto:
-                '¿No llega en unos minutos? Revisa la carpeta de correo no deseado o spam.',
-          ),
+          const SizedBox(height: 12),
+          Text('¿No llega? Revisa la carpeta de spam.', style: texto.bodySmall),
           const SizedBox(height: 24),
           Boton(
             'Volver a iniciar sesión',
@@ -399,8 +387,7 @@ class PantallaEnlaceVencido extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Por seguridad, los enlaces para cambiar la contraseña duran 30 '
-            'minutos y solo se pueden usar una vez. Pide uno nuevo y ábrelo pronto.',
+            'Duran 30 minutos y sirven una sola vez. Pide uno nuevo.',
             style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
           ),
           const SizedBox(height: 24),

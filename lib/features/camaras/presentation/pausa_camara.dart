@@ -112,8 +112,7 @@ class _HojaPausaState extends ConsumerState<_HojaPausa> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Mientras esté en pausa no se detectarán caídas y nadie podrá '
-              'verla en vivo. Se reactivará sola.',
+              'Sin detección ni vista en vivo. Se reactiva sola.',
               style: texto.bodyMedium,
             ),
             const SizedBox(height: 16),

@@ -133,14 +133,11 @@ void main() {
       find.textContaining('EN VIVO · 00:37', findRichText: true),
       findsOneWidget,
     );
-    expect(
-      find.text('Ves la Sala en este momento. La transmisión no se graba.'),
-      findsOneWidget,
-    );
+    expect(find.text('Ves la Sala en este momento.'), findsOneWidget);
     expect(
       find.textContaining(
-        'Tu acceso queda en el registro que ve toda la familia: Carmen Huamán, '
-        'desde las 10:42.',
+        'No se graba. Tu acceso desde las 10:42 queda en el registro de la '
+        'familia.',
         findRichText: true,
       ),
       findsOneWidget,
@@ -188,9 +185,7 @@ void main() {
     await tocar(tester, find.text('Ver en vivo'));
     expect(vivo.abiertas, [('c1', 'a-1')]);
     expect(
-      find.text(
-        'Ves la habitación y la postura detectada. La transmisión no se graba.',
-      ),
+      find.text('Ves la habitación y la postura detectada.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Volver a la alerta'));
@@ -212,9 +207,8 @@ void main() {
     );
     expect(
       find.textContaining(
-        'Perdió la conexión a las 10:31, así que no podemos mostrarte la '
-        'habitación. Revisa el cable de la cámara, que la PC esté encendida y '
-        'el internet de la casa.',
+        'Sin conexión desde las 10:31. Revisa el cable, la PC y el internet de '
+        'la casa.',
         findRichText: true,
       ),
       findsOneWidget,
@@ -267,8 +261,7 @@ void main() {
       expect(find.text('La cámara está detenida'), findsOneWidget);
       expect(
         find.text(
-          'Sin el consentimiento de Rosa la cámara no envía video, así que no '
-          'se puede ver en vivo.',
+          'Sin el consentimiento de Rosa no hay video.',
           findRichText: true,
         ),
         findsOneWidget,
@@ -290,8 +283,7 @@ void main() {
     expect(find.text('La vista en vivo no está disponible'), findsOneWidget);
     expect(
       find.textContaining(
-        'La cámara de la Sala está en pausa hasta las 11:42. Podrás verla de '
-        'nuevo a esa hora, o antes si reanudas la cámara.',
+        'En pausa hasta las 11:42, o hasta que la reanudes.',
         findRichText: true,
       ),
       findsOneWidget,
@@ -318,7 +310,7 @@ void main() {
     await tocar(tester, find.text('Ver en vivo'));
     expect(
       find.textContaining(
-        'en pausa hasta las ${DateTime.utc(2026, 9, 23, 16, 42).toLocal().hour}',
+        'En pausa hasta las ${DateTime.utc(2026, 9, 23, 16, 42).toLocal().hour}',
         findRichText: true,
       ),
       findsOneWidget,
@@ -331,7 +323,10 @@ void main() {
     await abrir(tester, Rutas.inicio, sesion: sesionInvitado);
     await tocar(tester, find.text('Ver en vivo'));
     expect(
-      find.textContaining('Luis Huamán, desde las 10:42.', findRichText: true),
+      find.textContaining(
+        'Tu acceso desde las 10:42 queda en el registro',
+        findRichText: true,
+      ),
       findsOneWidget,
     );
   });
@@ -476,8 +471,7 @@ void main() {
       );
       expect(
         find.textContaining(
-          'Perdió la conexión a las 10:42, así que no podemos mostrarte la '
-          'habitación.',
+          'Sin conexión desde las 10:42.',
           findRichText: true,
         ),
         findsOneWidget,
@@ -571,19 +565,14 @@ void main() {
     expect(_elegido(tester, 'Video y postura'), isTrue);
     expect(_elegido(tester, 'Video'), isFalse);
     expect(
-      find.text(
-        'Ves la Sala y la postura de Rosa en este momento. La transmisión no '
-        'se graba.',
-      ),
+      find.text('Ves la Sala y la postura de Rosa en este momento.'),
       findsOneWidget,
     );
 
     await tocar(tester, find.text('Solo postura'));
     expect(vivo.cambios.last, ('v-1', ModoVista.soloPostura));
     expect(
-      find.text(
-        'Ves la postura de Rosa en este momento. La transmisión no se graba.',
-      ),
+      find.text('Ves la postura de Rosa en este momento.'),
       findsOneWidget,
     );
 
@@ -608,15 +597,9 @@ void main() {
       alertas: AlertasRepositorioFalso([caidaSala()]),
     );
     await tocar(tester, find.text('Ver en vivo'));
-    expect(
-      find.text('Ves la habitación. La transmisión no se graba.'),
-      findsOneWidget,
-    );
+    expect(find.text('Ves la habitación.'), findsOneWidget);
     await tocar(tester, find.text('Solo postura'));
-    expect(
-      find.text('Ves la postura detectada. La transmisión no se graba.'),
-      findsOneWidget,
-    );
+    expect(find.text('Ves la postura detectada.'), findsOneWidget);
   });
 
   testWidgets('si el cambio de modo falla, lo dice y mantiene el modo', (
@@ -632,10 +615,7 @@ void main() {
     await tocar(tester, find.text('Video y postura'));
     expect(find.text('Detalle del backend.'), findsOneWidget);
     expect(_elegido(tester, 'Video'), isTrue);
-    expect(
-      find.text('Ves la Sala en este momento. La transmisión no se graba.'),
-      findsOneWidget,
-    );
+    expect(find.text('Ves la Sala en este momento.'), findsOneWidget);
   });
 
   testWidgets('en segundo plano cierra la sesión y al volver abre otra', (

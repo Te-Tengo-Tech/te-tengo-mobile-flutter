@@ -110,37 +110,21 @@ void main() {
     await abrir(tester, Rutas.inicio);
     await tocar(tester, find.text('Ver qué revisar'));
     expect(find.text('No confiable'), findsOneWidget);
+    expect(find.text('Desde las 10:36 no ve bien a Rosa'), findsOneWidget);
     expect(
-      find.text('La detección no es confiable desde las 10:36'),
-      findsOneWidget,
-    );
-    expect(
-      find.text(
-        'Hace más de 5 minutos que la cámara no ve bien a Rosa. Descartamos '
-        'esas imágenes, así que no podemos asegurar que detectemos una caída.',
-      ),
+      find.text('Así no podemos asegurar que detectemos una caída.'),
       findsOneWidget,
     );
     await verHasta(tester, find.text('Qué revisar en la casa'));
     await verHasta(tester, find.text('El encuadre de la cámara'));
     expect(find.text('La luz de la habitación'), findsOneWidget);
     expect(
-      find.text(
-        'Que haya luz suficiente. De noche, deja encendida una lámpara '
-        'pequeña.',
-      ),
+      find.text('De noche, deja una lámpara pequeña encendida'),
       findsOneWidget,
     );
     expect(
-      find.text(
-        'Que nada la tape y que se vea el cuerpo entero de Rosa, de la cabeza '
-        'a los pies.',
-      ),
+      find.text('Que nada la tape y se vea a Rosa de cuerpo entero'),
       findsOneWidget,
-    );
-    await verHasta(
-      tester,
-      find.text('Te avisaremos cuando la cámara vuelva a verla bien.'),
     );
     expect(find.text('Pausar esta cámara'), findsNothing);
   });

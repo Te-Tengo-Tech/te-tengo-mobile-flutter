@@ -48,10 +48,9 @@ class PantallaAccesos extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
           children: [
             Text(
-              'Cada vez que alguien de la familia abre la vista en vivo '
+              'Quién abrió la vista en vivo '
               '${habitacion.isEmpty ? '' : '${deHabitacion(habitacion)}, '}'
-              'queda registrado quién la vio, cuándo empezó y cuánto duró. '
-              'Toda la familia ve este registro.',
+              'cuándo y cuánto duró. Toda la familia lo ve.',
               style: texto.bodyMedium,
             ),
             ...switch (accesos) {
@@ -59,9 +58,7 @@ class PantallaAccesos extends ConsumerWidget {
                 EstadoVacio(
                   ilustracion: IlustracionVacio.ojo,
                   titulo: 'Aún no hay accesos registrados',
-                  texto:
-                      'Cuando alguien de la familia abra la vista en vivo, aquí '
-                      'verás quién la vio, cuándo empezó y cuánto duró.',
+                  texto: 'Aquí verás quién la abrió y cuánto duró.',
                 ),
               ],
               AsyncData(value: final lista) => [

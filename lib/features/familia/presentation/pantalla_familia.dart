@@ -45,10 +45,7 @@ class PantallaFamilia extends ConsumerWidget {
             child: Text('Familia', style: texto.headlineMedium),
           ),
           const SizedBox(height: 6),
-          Text(
-            'Quienes reciben las alertas de $nombre y en qué orden responden.',
-            style: texto.bodyMedium,
-          ),
+          Text('Reciben las alertas de $nombre.', style: texto.bodyMedium),
           const SizedBox(height: 16),
           ...switch (miembros) {
             AsyncData(value: final lista) => _contenido(
@@ -120,9 +117,7 @@ class PantallaFamilia extends ConsumerWidget {
           tono: TonoAviso.advertencia,
           icono: Ico.warn,
           titulo: 'No hay contacto secundario',
-          texto:
-              'Si $pri no atiende una alerta a tiempo, nadie más será avisado.'
-              '${titular ? ' Elige a un familiar como secundario.' : ''}',
+          texto: 'Si $pri no atiende a tiempo, nadie más será avisado.',
         ),
       ],
       const SizedBox(height: 20),

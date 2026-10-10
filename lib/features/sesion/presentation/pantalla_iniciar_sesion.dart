@@ -158,12 +158,11 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
               Aviso(
                 tono: TonoAviso.error,
                 icono: Ico.lock,
-                titulo: 'Acceso bloqueado por 15 minutos',
+                titulo: 'Bloqueado por 15 minutos',
                 contenido: conHora(
-                  'Hubo 5 intentos fallidos seguidos. Por seguridad, podrás '
-                      'intentarlo de nuevo a las ',
+                  '5 intentos fallidos. Vuelve a intentarlo a las ',
                   hora(_bloqueadaHasta!),
-                  '. Si no recuerdas tu contraseña, recupérala por correo.',
+                  '.',
                 ),
               ),
               const SizedBox(height: 16),
@@ -173,9 +172,10 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
                 icono: Ico.warn,
                 titulo: 'Correo o contraseña incorrectos',
                 texto: _fallos >= 3 && restantes > 0
-                    ? 'Te quedan $restantes intento${restantes == 1 ? '' : 's'} '
-                          'antes de un bloqueo temporal de 15 minutos.'
-                    : 'Revisa que estén bien escritos e inténtalo otra vez.',
+                    ? 'Te queda${restantes == 1 ? '' : 'n'} $restantes '
+                          'intento${restantes == 1 ? '' : 's'} antes de un '
+                          'bloqueo de 15 min.'
+                    : 'Revisa cómo los escribiste.',
               ),
               const SizedBox(height: 16),
             ],
@@ -183,8 +183,7 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
               const Aviso(
                 tono: TonoAviso.error,
                 icono: Ico.warn,
-                titulo: 'Faltan datos',
-                texto: 'Escribe tu correo y tu contraseña.',
+                titulo: 'Escribe tu correo y tu contraseña',
               ),
               const SizedBox(height: 16),
             ],

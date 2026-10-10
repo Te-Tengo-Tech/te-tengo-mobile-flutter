@@ -213,8 +213,7 @@ class PantallaAccesoCreado extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Tu acceso quedó unido a la cuenta de $titular. Te '
-                      'llegará cada alerta aunque tengas la app cerrada.',
+                      'Te llegarán aunque tengas la app cerrada.',
                       style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
                     ),
                     const SizedBox(height: 20),
@@ -224,16 +223,15 @@ class PantallaAccesoCreado extends ConsumerWidget {
                           inicio: IconoFila(Ico.check),
                           titulo: 'Puedes',
                           subtitulo:
-                              'Ver alertas, clips, historial y resumen, y la '
-                              'cámara en vivo cuando quieras. Marcar alertas y '
-                              'pausar la cámara.',
+                              'Ver alertas, clips, historial y la cámara en '
+                              'vivo. Marcar alertas y pausar la cámara.',
                         ),
                         FilaLista(
                           inicio: const IconoFila(Ico.lock),
                           titulo: 'Solo $titular puede',
                           subtitulo:
                               'Cambiar los datos de $adulto, el consentimiento, '
-                              'la cámara, la familia y el orden de aviso.',
+                              'la cámara y la familia.',
                         ),
                       ],
                     ),

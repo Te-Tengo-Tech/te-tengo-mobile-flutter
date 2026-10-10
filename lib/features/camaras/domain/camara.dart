@@ -24,7 +24,7 @@ class Camara {
   /// False after more than 5 minutes with only discarded frames (CA-15.3).
   final bool deteccionConfiable;
 
-  /// When the project team installed the camera («Instalada el», CA-06.1).
+  /// When the Te Tengo team installed the camera («Instalada el», CA-06.1).
   final DateTime? instaladaEn;
 
   /// Since when detection is unreliable (CA-15.3); null while it is reliable.

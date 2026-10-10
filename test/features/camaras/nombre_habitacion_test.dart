@@ -72,9 +72,13 @@ void main() {
       expect(find.text('Tu cámara ya está lista'), findsOneWidget);
       expect(find.text('Sala'), findsOneWidget);
       expect(find.text('En línea'), findsOneWidget);
-      expect(find.text('22 sep 2026'), findsOneWidget);
-      expect(find.text('Equipo del proyecto'), findsOneWidget);
       expect(find.text('Activa'), findsOneWidget);
+      // The installation data folds under «Datos de la instalación».
+      expect(find.text('Equipo de Te Tengo'), findsNothing);
+      await tocar(tester, find.text('Datos de la instalación'));
+      expect(find.text('PC de la casa'), findsOneWidget);
+      expect(find.text('22 sep 2026'), findsOneWidget);
+      expect(find.text('Equipo de Te Tengo'), findsOneWidget);
     },
   );
 

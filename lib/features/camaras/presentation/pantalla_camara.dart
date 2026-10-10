@@ -129,7 +129,7 @@ class _Detalle extends ConsumerWidget {
             ),
           ],
         ),
-        const EncabezadoSeccion('Habitación'),
+        const SizedBox(height: 12),
         ListaTarjeta(
           children: [
             if (titular)
@@ -171,8 +171,6 @@ class _Detalle extends ConsumerWidget {
     bool titular,
     String nombre,
   ) {
-    final habitacion = camara.nombreHabitacion;
-    final senal = camara.ultimaSenal;
     switch (estado) {
       case EstadoVisible.detenida:
         return [
@@ -181,8 +179,8 @@ class _Detalle extends ConsumerWidget {
             icono: Ico.lock,
             titulo: 'Primero registra el consentimiento',
             texto:
-                'La cámara está instalada, pero no envía video hasta que la '
-                'persona cuidada acepte el consentimiento informado.',
+                'La cámara no envía video hasta que la persona cuidada lo '
+                'acepte.',
             accion: titular
                 ? Boton(
                     'Registrar consentimiento',
@@ -193,39 +191,32 @@ class _Detalle extends ConsumerWidget {
           ),
         ];
       case EstadoVisible.desconectada:
+        // The header already says it is disconnected and since when.
         return [
-          Aviso(
-            tono: TonoAviso.advertencia,
-            icono: Ico.wifiOff,
-            titulo: senal == null
-                ? 'No recibimos señal'
-                : 'No recibimos señal desde las ${hora(senal)}',
-            texto:
-                'Mientras siga desconectada no detectamos caídas '
-                '${enHabitacion(habitacion)}. Te avisaremos cuando vuelva.',
-          ),
-          const EncabezadoSeccion('Qué revisar en la casa'),
+          const EncabezadoSeccion('Qué revisar en la casa', arriba: 4),
           const ListaTarjeta(
             children: [
               FilaLista(
                 inicio: IconoFila(Ico.cam),
                 titulo: 'El cable de la cámara',
-                subtitulo: 'Que esté bien conectado al puerto USB de la PC.',
+                subtitulo: 'Conectado al puerto USB de la PC',
               ),
               FilaLista(
                 inicio: IconoFila(Ico.pc),
                 titulo: 'La PC encendida',
-                subtitulo:
-                    'Que no esté apagada ni suspendida, con Te Tengo Captura '
-                    'abierto.',
+                subtitulo: 'Sin suspender, con Te Tengo Captura abierto',
               ),
               FilaLista(
                 inicio: IconoFila(Ico.wifi),
                 titulo: 'La conexión a internet',
-                subtitulo:
-                    'Que el módem o router de la casa tenga luz y funcione.',
+                subtitulo: 'Que el módem o router tenga luz',
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Te avisaremos cuando vuelva.',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ];
       case EstadoVisible.enPausa:
@@ -237,8 +228,8 @@ class _Detalle extends ConsumerWidget {
                 'En pausa hasta las '
                 '${finDePausa(camara.pausadaHasta!, ref.watch(relojProvider)())}',
             texto:
-                'No se detectan caídas y no se puede ver en vivo. Se reactivará '
-                'sola a esa hora y te avisaremos.',
+                'Sin detección ni vista en vivo. Se reactiva sola y te '
+                'avisaremos.',
           ),
           const SizedBox(height: 12),
           Boton(
@@ -255,11 +246,8 @@ class _Detalle extends ConsumerWidget {
             icono: Ico.eyeOff,
             titulo: desde == null
                 ? 'La detección no es confiable'
-                : 'La detección no es confiable desde las ${hora(desde)}',
-            texto:
-                'Hace más de 5 minutos que la cámara no ve bien a $nombre. '
-                'Descartamos esas imágenes, así que no podemos asegurar que '
-                'detectemos una caída.',
+                : 'Desde las ${hora(desde)} no ve bien a $nombre',
+            texto: 'Así no podemos asegurar que detectemos una caída.',
           ),
           const EncabezadoSeccion('Qué revisar en la casa'),
           ListaTarjeta(
@@ -267,23 +255,15 @@ class _Detalle extends ConsumerWidget {
               const FilaLista(
                 inicio: IconoFila(Ico.sun),
                 titulo: 'La luz de la habitación',
-                subtitulo:
-                    'Que haya luz suficiente. De noche, deja encendida una '
-                    'lámpara pequeña.',
+                subtitulo: 'De noche, deja una lámpara pequeña encendida',
               ),
               FilaLista(
                 inicio: const IconoFila(Ico.cam),
                 titulo: 'El encuadre de la cámara',
                 subtitulo:
-                    'Que nada la tape y que se vea el cuerpo entero de '
-                    '$nombre, de la cabeza a los pies.',
+                    'Que nada la tape y se vea a $nombre de cuerpo entero',
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Te avisaremos cuando la cámara vuelva a verla bien.',
-            style: Theme.of(context).textTheme.bodySmall,
           ),
         ];
       case EstadoVisible.enLinea:
@@ -296,7 +276,7 @@ class _Detalle extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Útil si hay visitas o una reunión familiar en esta habitación.',
+            'Útil si hay visitas en esta habitación.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ];

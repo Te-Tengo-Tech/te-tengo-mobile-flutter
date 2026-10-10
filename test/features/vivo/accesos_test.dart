@@ -97,9 +97,8 @@ void main() {
     expect(find.byType(PantallaAccesos), findsOneWidget);
     expect(
       find.text(
-        'Cada vez que alguien de la familia abre la vista en vivo de la Sala, '
-        'queda registrado quién la vio, cuándo empezó y cuánto duró. Toda la '
-        'familia ve este registro.',
+        'Quién abrió la vista en vivo de la Sala, cuándo y cuánto duró. Toda '
+        'la familia lo ve.',
       ),
       findsOneWidget,
     );
@@ -127,10 +126,7 @@ void main() {
     await abrir(tester, Rutas.accesos);
     expect(find.text('Aún no hay accesos registrados'), findsOneWidget);
     expect(
-      find.text(
-        'Cuando alguien de la familia abra la vista en vivo, aquí verás quién '
-        'la vio, cuándo empezó y cuánto duró.',
-      ),
+      find.text('Aquí verás quién la abrió y cuánto duró.'),
       findsOneWidget,
     );
     expect(
