@@ -4,6 +4,8 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-10-10
+
 ### Fixed
 - The back-merge job of `produccion.yml` runs when the tag job succeeded even if a switched-off channel (Google Play, TestFlight) was skipped: GitHub's implicit `success()` saw the skipped jobs and skipped the back-merge, so release 0.3.2 was back-merged by hand.
 
