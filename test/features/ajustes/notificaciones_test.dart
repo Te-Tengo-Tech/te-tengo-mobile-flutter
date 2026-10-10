@@ -147,6 +147,28 @@ void main() {
     expect(find.text('Activar notificaciones'), findsOneWidget);
   });
 
+  testWidgets('cada interruptor tiene nombre; los que siempre están activos '
+      'se anuncian deshabilitados', (tester) async {
+    final semantica = tester.ensureSemantics();
+    await abrir(tester, Rutas.notificaciones);
+    for (final (nombre, habilitado) in [
+      ('Caídas', false),
+      ('Movimientos inestables', true),
+    ]) {
+      expect(
+        tester.getSemantics(find.bySemanticsLabel(RegExp('^$nombre'))),
+        isSemantics(
+          hasToggledState: true,
+          isToggled: true,
+          hasEnabledState: true,
+          isEnabled: habilitado,
+        ),
+        reason: nombre,
+      );
+    }
+    semantica.dispose();
+  });
+
   testWidgets('el invitado ve el escalamiento con candado', (tester) async {
     await abrir(tester, Rutas.notificaciones, sesion: sesionInvitado);
     await verHasta(tester, find.text('Avisar al secundario a los 5 min'));
