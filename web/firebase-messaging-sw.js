@@ -7,6 +7,8 @@
 // - Push: FCM web push when the URL carries the Firebase web config
 //   (`firebase-messaging-sw.js?apiKey=…&appId=…&messagingSenderId=…&projectId=…`), built from the
 //   --dart-define values. Without it the worker only caches.
+// - Every push shows a notification, also while a window of the app is visible (see the `push`
+//   listener below).
 
 'use strict';
 
@@ -78,6 +80,47 @@ async function redPrimero(evento) {
   }
 }
 
+// Every push shows a notification, with the backend's `tag` (the alert's id; API contract §7), so
+// a later notice of the same alert replaces the earlier one. Registered before Firebase's own
+// handler, which shows nothing while a window of the app is visible (it hands the push to the page)
+// and, when none is, shows its own copy with the same tag, which just replaces this one. A fall
+// must reach the screen even when the PWA is open in the background or on another tab, and WebKit
+// may revoke the push subscription of a Home Screen app after pushes that show nothing.
+// Notice types that stay on screen until dismissed (`TipoAviso.urgente()` in the backend).
+const URGENTES = new Set([
+  'ALERTA_CAIDA',
+  'ALERTA_MOVIMIENTO_INESTABLE',
+  'ALERTA_ACTUALIZADA_A_CAIDA',
+  'CAIDA_CONFIRMADA',
+  'ALERTA_ESCALADA',
+  'SIN_CONTACTO_SECUNDARIO',
+]);
+
+self.addEventListener('push', (evento) => {
+  let carga;
+  try {
+    carga = evento.data ? evento.data.json() : null;
+  } catch (_) {
+    carga = null;
+  }
+  if (!carga || typeof carga !== 'object') return;
+  const datos = carga.data || {};
+  const aviso = carga.notification || {};
+  const tag = aviso.tag || datos.alertaId || datos.tipo || undefined;
+  const urgente = aviso.requireInteraction === true || URGENTES.has(datos.tipo);
+  evento.waitUntil(
+    self.registration.showNotification(aviso.title || 'Te Tengo', {
+      body: aviso.body || '',
+      icon: aviso.icon || new URL('icons/Icon-192.png', ALCANCE).href,
+      tag,
+      // A later notice of the same alert (confirmed fall, escalation) alerts again.
+      renotify: Boolean(tag) && urgente,
+      requireInteraction: urgente,
+      data: { FCM_MSG: carga },
+    }),
+  );
+});
+
 // A tapped notification opens the app on its screen. Registered before Firebase's own handler,
 // which only opens `fcmOptions.link`; the route is chosen in Dart (rutaDePush in lib/app/push.dart).
 self.addEventListener('notificationclick', (evento) => {
@@ -123,15 +166,6 @@ if (Object.values(configuracion).every(Boolean)) {
   firebase.initializeApp(configuracion);
   const mensajeria = firebase.messaging();
 
-  // Pushes with a `notification` block are shown by the SDK. A data-only push still needs a
-  // visible notification: browsers (and iOS) revoke the subscription of silent pushes. Its text
-  // must come from the backend (docs/BLOCKERS.md); the app name is the fallback.
-  mensajeria.onBackgroundMessage((mensaje) => {
-    if (mensaje.notification) return undefined;
-    return self.registration.showNotification('Te Tengo', {
-      icon: new URL('icons/Icon-192.png', ALCANCE).href,
-      tag: (mensaje.data && mensaje.data.alertaId) || undefined,
-      data: { FCM_MSG: mensaje },
-    });
-  });
+  // The `push` listener above already showed this push; nothing more to show here.
+  mensajeria.onBackgroundMessage(() => undefined);
 }

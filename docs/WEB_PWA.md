@@ -99,8 +99,12 @@ that `release.yml` deploys. With `ENABLE_PWA` on, a release fails at once if a r
   with a guide (`/instalar`). In iOS 26 «Agregar a inicio» is inside *Compartir › Ver más*.
 - **Separate storage.** The home-screen app does not share Safari's cookies or storage: the user
   signs in again there. Removing the icon deletes its data.
-- **Every push must show a notification** (no silent pushes); the backend must fill the notification
-  title and body (docs/BLOCKERS.md). A data-only push still shows «Te Tengo» as a fallback.
+- **Every push must show a notification** (no silent pushes); the backend fills the notification
+  title and body. The service worker (`web/firebase-messaging-sw.js`) shows every push itself, also
+  while a window of the app is visible (the Firebase SDK then only hands it to the page), with the
+  backend's `tag` (the alert's id), so a later notice of the same alert replaces the earlier one and
+  Firebase's own copy, when no window is visible, just replaces it. Urgent alert pushes stay until
+  dismissed (`requireInteraction`). A data-only push shows «Te Tengo» as a fallback.
 - **Permission per install**, asked from a tap; if denied, it can only be changed in *Ajustes del
   iPhone › Notificaciones › Te Tengo*.
 - No background fetch, badges are limited, and delivery while the phone is idle is up to iOS. The
