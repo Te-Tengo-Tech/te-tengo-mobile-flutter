@@ -10,10 +10,14 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../core/web/entorno.dart';
 import '../../inicio/presentation/pantalla_inicio.dart';
+import '../../instalar/presentation/instalar_app.dart';
 
 /// Setup step 5 of 5 (screen 27, «Avisos»): explains why before the phone asks for the
-/// notification permission, so a fall is not missed.
+/// notification permission, so a fall is not missed. «Permitir» asks the system (Android 13+ and
+/// iOS) or the browser (the PWA); an iPhone browser tab first shows how to add the app to the home
+/// screen, because Safari only allows notifications there.
 class PantallaAvisosSetup extends ConsumerWidget {
   const PantallaAvisosSetup({super.key, this.invitado});
 
@@ -25,6 +29,8 @@ class PantallaAvisosSetup extends ConsumerWidget {
     final texto = Theme.of(context).textTheme;
     final activas = ref.watch(notificacionesActivasProvider).value ?? false;
     final permiso = ref.watch(permisoNotificacionesProvider);
+    // An iPhone browser tab gets notifications only once added to the home screen.
+    final debeInstalar = ref.watch(entornoNavegadorProvider).debeInstalar;
     return Scaffold(
       appBar: CabeceraConfiguracion(
         paso: 5,
@@ -48,6 +54,7 @@ class PantallaAvisosSetup extends ConsumerWidget {
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
+          const AvisoInstalarApp(separacion: 16),
           ListaTarjeta(
             children: [
               FilaLista(
@@ -56,6 +63,8 @@ class PantallaAvisosSetup extends ConsumerWidget {
                 subtitulo: 'Para recibir las alertas',
                 fin: activas
                     ? const PermisoActivado()
+                    : debeInstalar
+                    ? null
                     : Boton(
                         'Permitir',
                         estilo: EstiloBoton.secundario,

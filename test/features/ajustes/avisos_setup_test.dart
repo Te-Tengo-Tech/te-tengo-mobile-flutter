@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/rutas.dart';
+import 'package:te_tengo/core/web/entorno.dart';
 import 'package:te_tengo/features/ajustes/presentation/pantalla_avisos_setup.dart';
+import 'package:te_tengo/features/instalar/presentation/instalar_app.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/dispositivo_falso.dart';
@@ -54,6 +56,25 @@ void main() {
     expect(permiso.ajustesAbiertos, 1);
     // The app cannot read the system choice back: the row keeps «Permitir».
     expect(find.text('Permitir'), findsOneWidget);
+  });
+
+  testWidgets('en una pestaña de iPhone primero pide agregarla a la pantalla '
+      'de inicio', (tester) async {
+    final permiso = PermisoFalso(activas: false, ajustesDeSonido: false);
+    await abrirConAlertas(
+      tester,
+      ubicacion: Rutas.configAvisos,
+      alertas: AlertasRepositorioFalso(),
+      permiso: permiso,
+      overrides: [
+        entornoNavegadorProvider.overrideWithValue(
+          const EntornoNavegador(esWeb: true, esIos: true),
+        ),
+      ],
+    );
+    expect(find.byType(AvisoInstalarApp), findsOneWidget);
+    expect(find.text('Permitir'), findsNothing);
+    expect(find.text('Sonar en silencio'), findsNothing);
   });
 
   testWidgets('en el navegador no ofrece «Sonar en silencio»', (tester) async {
