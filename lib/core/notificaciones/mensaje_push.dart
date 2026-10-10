@@ -61,6 +61,15 @@ class MensajePush {
   final String? habitacion;
   final DateTime? ocurridaEn;
 
+  /// The same push however it arrives (Firebase, the web worker's message, a tap): `tipo`, ids
+  /// and `ocurridaEn`.
+  String get clave => [
+    tipo.codigo,
+    alertaId ?? '',
+    camaraId ?? '',
+    ocurridaEn?.toUtc().toIso8601String() ?? '',
+  ].join('|');
+
   /// Null when the payload has an unknown `tipo`.
   static MensajePush? desdeDatos(Map<String, dynamic> datos) {
     final tipo = TipoPush.desde(datos['tipo']);

@@ -1,4 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:te_tengo/app/router.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
 import 'package:te_tengo/core/ui/iconos.dart';
@@ -100,4 +102,45 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    'una alerta abierta por un push se actualiza en su lugar, sin abrirse dos veces',
+    (tester) async {
+      final alertas = AlertasRepositorioFalso([inestable()]);
+      final push = NotificacionesPushFalsas();
+      await abrirConAlertas(
+        tester,
+        ubicacion: Rutas.inicio,
+        alertas: alertas,
+        push: push,
+        ahora: DateTime(2026, 9, 23, 10, 42),
+      );
+      await tester.tap(find.byTooltip('Cerrar la alerta y volver al inicio'));
+      await tester.pumpAndSettle();
+      push.recibir(
+        const MensajePush(
+          tipo: TipoPush.alertaMovimientoInestable,
+          alertaId: 'a-1',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Rosa tuvo un movimiento inestable'), findsOneWidget);
+      alertas.alertas = [inestable(comoCaida: true)];
+      push.recibir(
+        const MensajePush(
+          tipo: TipoPush.alertaActualizadaACaida,
+          alertaId: 'a-1',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Rosa se cayó y sigue en el suelo'), findsOneWidget);
+      // One alert screen on the stack: going back leaves it.
+      final router = ProviderScope.containerOf(
+        tester.element(find.byType(PantallaAlerta)),
+      ).read(routerProvider);
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(PantallaAlerta), findsNothing);
+    },
+  );
 }

@@ -14,6 +14,8 @@ import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion_controller.dart';
 import 'package:te_tengo/core/sesion/sesion_repositorio.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
+import 'package:te_tengo/core/ui/avisos_flotantes.dart';
+import 'package:te_tengo/app/router.dart';
 import 'package:te_tengo/core/web/entorno.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
@@ -479,6 +481,80 @@ void main() {
         push.mensajeInicial = const MensajePush(tipo: TipoPush.datosEliminados);
         await abrir(tester, ubicacion: Rutas.arranque);
         expect(find.text('Privacidad'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'en la web, un push recibido con la ventana oculta llega por el service worker',
+      (tester) async {
+        final web = NotificacionesPushWebFalsas(tokenActual: 'fcm-1');
+        push = web;
+        await abrir(tester);
+        // Firebase gives nothing to a hidden window; the worker posts the data to every window.
+        web.trabajador.add({
+          'tipo': 'CAMARA_DESCONECTADA',
+          'camaraId': 'c1',
+          'habitacion': 'Sala',
+          'ocurridaEn': '2026-09-23T15:40:00Z',
+        });
+        await tester.pumpAndSettle();
+        expect(find.text('La cámara de la Sala se desconectó'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'el mismo push por Firebase y por el service worker se atiende una vez',
+      (tester) async {
+        final web = NotificacionesPushWebFalsas(tokenActual: 'fcm-1');
+        push = web;
+        await abrir(tester);
+        final c = ProviderScope.containerOf(
+          tester.element(find.byType(Navigator).first),
+        );
+        const datos = {
+          'tipo': 'CAMARA_DESCONECTADA',
+          'camaraId': 'c1',
+          'habitacion': 'Sala',
+          'ocurridaEn': '2026-09-23T15:40:00Z',
+        };
+        web.firebase.add(MensajePush.desdeDatos(datos)!);
+        await tester.pumpAndSettle();
+        expect(find.text('La cámara de la Sala se desconectó'), findsOneWidget);
+        c.read(avisoFlotanteProvider.notifier).cerrar();
+        await tester.pumpAndSettle();
+
+        web.trabajador.add(datos);
+        await tester.pumpAndSettle();
+        expect(find.text('La cámara de la Sala se desconectó'), findsNothing);
+
+        // Another push of the same type (another time) is handled.
+        web.trabajador.add({...datos, 'ocurridaEn': '2026-09-23T15:55:00Z'});
+        await tester.pumpAndSettle();
+        expect(find.text('La cámara de la Sala se desconectó'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'tocar la notificación de una pantalla ya abierta no la repite',
+      (tester) async {
+        await abrir(tester);
+        const m = MensajePush(
+          tipo: TipoPush.camaraDesconectada,
+          camaraId: 'c1',
+          habitacion: 'Sala',
+        );
+        push.tocar(m);
+        await tester.pumpAndSettle();
+        expect(find.text('Cámara · Sala'), findsOneWidget);
+        push.tocar(m);
+        await tester.pumpAndSettle();
+        final c = ProviderScope.containerOf(
+          tester.element(find.byType(Navigator).first),
+        );
+        final router = c.read(routerProvider);
+        router.pop();
+        await tester.pumpAndSettle();
+        expect(find.text('Cámara · Sala'), findsNothing);
       },
     );
 

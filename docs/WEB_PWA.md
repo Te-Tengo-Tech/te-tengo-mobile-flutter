@@ -55,7 +55,12 @@ The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#
     static file, so the page passes the build's `--dart-define` values in the registration URL;
   - opens the right screen when a notification is tapped: it focuses an open window and posts the
     push data to it, or opens `/?tt_push=<data>` (relative to the scope); Dart turns the data into the route
-    (`rutaDePush`), as on Android and iOS.
+    (`rutaDePush`), as on Android and iOS;
+  - posts every push it receives to every open window of the app, visible or hidden, as
+    `{tipo: 'tt-push-recibida', datos}`: Firebase hands a push to the page only while a window is
+    visible, so a hidden PWA would otherwise never learn it (the revocation screen stayed on
+    «Eliminando las grabaciones…»). Dart handles it like `onMessage`; a visible window gets both
+    copies and the app handles each push once (same `tipo`, ids and `ocurridaEn`).
 - `FIREBASE_SDK` in the worker must equal the Firebase JS SDK version of `firebase_core_web`
   (`supportedFirebaseJsSdkVersion`, now 12.19.0). Check it when Dependabot upgrades FlutterFire.
 - The app's Pages files (`deploy/pwa/_headers`) send
@@ -69,7 +74,7 @@ The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#
 | Permission | Never asked on its own: Safari ignores a prompt that does not come from a tap. Inicio shows «Activa las notificaciones» and the **«Activar notificaciones»** button asks (`Notification.requestPermission` is its first call) |
 | Token | `getToken(vapidKey, serviceWorkerScriptPath)`: the worker registered at the base href (here the origin root, `/`); passed explicitly so a sub-path build keeps working |
 | Registration | `POST /api/dispositivos {tokenPush, plataforma: "WEB"}` (contract §7), again on each household change and sign-in; `DELETE` on sign-out |
-| Foreground push | `onMessage`, the same in-app notices as on the phones |
+| Foreground push | `onMessage` (visible window) and the worker's `tt-push-recibida` (any open window), deduplicated; the same in-app notices as on the phones. A suspended page (iOS) may get neither: screens that wait for a push also ask the API when they come back (the revocation screen polls `GET /api/hogar` `eliminacion`) |
 | Tapped push | through the worker (above); firebase_messaging has no `onMessageOpenedApp` on the web |
 
 ### Firebase web config and VAPID key
