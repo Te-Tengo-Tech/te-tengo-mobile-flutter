@@ -267,7 +267,7 @@ button.row:hover,a.row:hover{background:#F7F6FA}
 .clip{position:relative;border-radius:18px;overflow:hidden;background:#DCD8E6;aspect-ratio:16/10}
 .clip svg.room{position:absolute;inset:0;width:100%;height:100%}
 .clip-bar{display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border-radius:14px;padding:8px 14px 8px 8px;font-size:14px;margin-top:8px}
-.clip-bar .play{width:40px;height:40px;border-radius:11px;background:#fff;color:var(--ink);border:0;display:grid;place-items:center;cursor:pointer;flex:none}
+.clip-bar .play{width:44px;height:44px;border-radius:11px;background:#fff;color:var(--ink);border:0;display:grid;place-items:center;cursor:pointer;flex:none}
 .clip-bar .play svg{width:20px;height:20px}
 .clip-bar .track{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.28);position:relative}
 .clip-bar .track i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#fff}
@@ -291,7 +291,7 @@ button.row:hover,a.row:hover{background:#F7F6FA}
 @keyframes fade{from{opacity:0}}
 @keyframes rise{from{transform:translateY(40%);opacity:.4}}
 @keyframes pop{from{transform:translateY(-46%) scale(.96);opacity:0}}
-.toast{position:absolute;left:14px;right:14px;top:58px;z-index:40;background:var(--ink);color:#fff;border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow-2);animation:drop .3s var(--ease);font-size:15px;line-height:1.35}
+.toast{position:absolute;left:14px;right:14px;top:58px;z-index:40;pointer-events:none;background:var(--ink);color:#fff;border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow-2);animation:drop .3s var(--ease);font-size:15px;line-height:1.35}
 .toast svg{width:22px;height:22px;flex:none}
 .toast b{display:block;font-size:16px}
 .toast.ok .ti{color:#7FD9A8}.toast.warn .ti{color:#FFC76B}
@@ -456,13 +456,128 @@ svg.m{width:18px;height:18px;flex:none;display:block}
 .alert-conf{display:inline-flex;align-items:center;gap:8px;margin:-6px 0 16px;font-size:15px;font-weight:800;padding:6px 12px 6px 9px;border-radius:10px;background:#fff;color:var(--caida-ink)}
 .alert-conf svg{width:19px;height:19px;flex:none}
 .alert-conf.soft{background:rgba(0,0,0,.2);color:#fff}
-.live-clause{background:var(--morado-soft);border-radius:14px;padding:12px 14px!important;margin:4px 0}
-.live-clause p{color:var(--ink-2)}
 .row.fresh{background:var(--calma-soft);animation:fade .6s ease-out}
 .grp.futuro .grp-h{border-bottom-style:dashed}
 .fut-note{display:flex;gap:10px;align-items:flex-start;max-width:78ch;margin:-12px 0 28px;padding:12px 16px;border-radius:14px;background:#fff;box-shadow:0 0 0 1.5px var(--line-2) inset;font-size:16px;color:var(--ink-2)}
 .fut-note svg{width:22px;height:22px;flex:none;color:var(--morado-ink);margin-top:1px}
 
+/* ---------- Divulgación progresiva (síntesis móvil) ---------- */
+details>summary{list-style:none;cursor:pointer}
+details>summary::-webkit-details-marker{display:none}
+.more>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;margin-top:6px;font-size:16px;font-weight:700;color:var(--morado-ink);box-shadow:0 -1px 0 var(--line)}
+.more>summary svg{width:22px;height:22px;flex:none;transition:transform .2s ease-out}
+.more[open]>summary svg{transform:rotate(180deg)}
+.more-body{padding-bottom:4px}
+.fold+.fold{box-shadow:0 -1px 0 var(--line)}
+.fold>summary.row:hover{background:#F7F6FA}
+.fold .chev{transition:transform .2s ease-out}
+.fold[open] .chev{transform:rotate(180deg)}
+.fold[open]>summary .sub{display:none}
+.fold-body{padding:0 16px 16px;font-size:15px;line-height:1.45;color:var(--ink-2)}
+.fold-body.noi{padding-left:16px;color:var(--ink)}
+.fold.key>summary .ico{background:var(--morado);color:#fff}
+@media (prefers-reduced-motion:reduce){.more>summary svg,.fold .chev{transition:none}}
+/* Semana en Inicio: tres cifras en una sola tarjeta */
+.wk{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 16px}
+.wk-stat b{display:block;font-family:var(--mono);font-size:28px;font-weight:600;line-height:1.1}
+.wk-stat span{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--ink-2);margin-top:2px}
+
+/* Zonas táctiles de 44 px sin mover el diseño; foco visible en las opciones */
+.link{position:relative}
+.link::after{content:"";position:absolute;inset:-12px -6px}
+.switch::after{content:"";position:absolute;inset:-6px -2px}
+.switch.fixed{cursor:default}
+.choice:has(input:focus-visible),.choice:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+/* Clip a todo el ancho de la tarjeta: la imagen y la barra de reproducción van de borde a borde */
+.fold.media .fold-body{padding:0}
+.fold.media .clip{border-radius:0;aspect-ratio:16/10}
+.fold.media .clip-bar{border-radius:0;margin-top:0}
+.fold.media .fold-body>div>.t-meta{padding:10px 16px 14px;margin:0}
+.fold.media .clip.missing{border-radius:0;margin:0}
+.fold-body .kv .v.mono{white-space:nowrap}
+
+/* Clip: velocidad y pantalla completa */
+.clip-bar{gap:8px}
+.clip-bar .cb-t{font-size:13px;white-space:nowrap}
+.clip-bar .cb-btn{min-width:44px;height:44px;border-radius:11px;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:800;font-size:15px;display:grid;place-items:center;cursor:pointer;flex:none;padding:0 6px}
+.clip-bar .cb-btn svg{width:20px;height:20px}
+.clip-bar .cb-btn:hover{background:rgba(255,255,255,.24)}
+.clip-fs{position:absolute;top:8px;right:8px;width:44px;height:44px;border-radius:12px;border:0;background:rgba(23,18,31,.72);color:#fff;display:grid;place-items:center;cursor:pointer}
+.clip-fs svg{width:22px;height:22px}
+/* Pantalla completa: el teléfono gira a horizontal y el clip se ve con franjas negras, como cualquier video */
+.clipfull{position:absolute;inset:0;z-index:30;background:#000;color:#fff;container-type:size;overflow:hidden;animation:fade .2s ease-out}
+.cf-land{position:absolute;left:50%;top:50%;width:100cqh;height:100cqw;transform:translate(-50%,-50%) rotate(90deg);display:flex;flex-direction:column}
+.cf-top{position:absolute;left:0;right:0;top:0;z-index:2;display:flex;align-items:center;gap:6px;padding:10px 48px;background:linear-gradient(rgba(0,0,0,.7),transparent)}
+.cf-top h2{font-size:17px;font-weight:700;margin:0}
+.cf-top .iconbtn{color:#fff}
+.cf-land .clip{flex:1;aspect-ratio:auto;border-radius:0;background:#000}
+.cf-land .clip .tag{display:none}
+.cf-land .clip-bar{position:absolute;left:48px;right:48px;bottom:12px;margin:0;background:rgba(23,18,31,.88)}
+
+/* Documentos legales: lectura cómoda, secciones cortas */
+.doc-sec h2{font-size:18px;font-weight:800;margin:24px 0 6px}
+.doc-sec p{font-size:16px;line-height:1.5;color:var(--ink-2);margin:0}
+.doc-sec p+p{margin-top:8px}
+
+/* Paso «Avisos»: estado del permiso y diálogo del sistema (lo dibuja el celular, no la app) */
+.perm-ok{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:700;color:var(--calma-ink);flex:none}
+.perm-ok svg{width:18px;height:18px}
+.dialog.sys{left:44px;right:44px;padding:20px 0 0;border-radius:16px;text-align:center;background:var(--sys,#F2F2F5)}
+.dialog.sys h2{font-size:17px;font-weight:700;margin:0 18px 6px;line-height:1.3}
+.dialog.sys p{font-size:14px;color:var(--ink-2);margin:0 18px 16px;line-height:1.35}
+.sys-btns{display:grid;grid-template-columns:1fr 1fr;box-shadow:0 -1px 0 var(--line)}
+.sys-btns button{min-height:48px;border:0;background:none;font:inherit;font-size:17px;color:#2F6FE4;cursor:pointer}
+.sys-btns button+button{box-shadow:-1px 0 0 var(--line);font-weight:700}
+
+/* ---------- Modo oscuro (sigue al celular; en el prototipo, interruptor del panel) ---------- */
+.screen.dark{
+  --ground:#14111B; --ground-2:#1E1A27; --card:#221D2D; --sys:#2A2436;
+  --ink:#F2EFF8; --ink-2:#D2CBE0; --ink-3:#A9A1BA; --line:#3A3347; --line-2:#4C4459;
+  --morado-soft:#2F2547; --morado-ink:#CDBBF5; --focus:#B49AF0;
+  --caida-soft:#3B1D1A; --caida-ink:#FF9E90; --inestable-soft:#3A2F14; --inestable-ink:#F5CB66;
+  --calma-soft:#173323; --calma-ink:#86DDAE; --aviso:#F2B65E; --aviso-soft:#3A2B13;
+  --pausa:#AEB8CC; --pausa-soft:#272C37;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4); --shadow-2:0 8px 28px rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+.screen.dark .input,.screen.dark .choice,.screen.dark .chip,.screen.dark .check .box,.screen.dark .seg button.sel{background:var(--card)}
+.screen.dark .choice.sel{background:var(--morado-soft)}
+.screen.dark button.row:hover,.screen.dark a.row:hover,.screen.dark .alert-row:hover,.screen.dark .fold>summary.row:hover{background:#2A2436}
+.screen.dark .sheet,.screen.dark .dialog,.screen.dark .inapp{background:#262033}
+.screen.dark .dialog.sys{background:var(--sys)}
+.screen.dark .sys-btns button{color:#6EA2FF}
+.screen.dark .dock{background:rgba(20,17,27,.96)}
+.screen.dark .tabbar{background:rgba(34,29,45,.96)}
+.screen.dark .btn-ink,.screen.dark .chip.sel,.screen.dark .steps li .n,.screen.dark .order-n,.screen.dark .toast,.screen.dark .offline-bar{background:#F2EFF8;color:#14111B;border-color:#F2EFF8}
+.screen.dark .steps li.done .n{background:var(--calma);color:#fff}
+.screen.dark .clip-bar{background:#0E0B14}
+.screen.dark .clip-bar .play{color:#221A38}
+.screen.dark .btn-white,.screen.dark .alert-conf{color:#9C2012}
+.screen.dark .notice.err span{color:#FFC9C0}
+.screen.dark .notice.warn{color:#F7D9A6}
+.screen.dark .btn-primary{background:#6A47B0}
+/* El movimiento inestable conserva su mostaza: tinta oscura sobre el color y hoja oscura debajo */
+.screen.dark .drench.inestable .alert-hero,.screen.dark .drench.inestable .statusbar,.screen.dark .drench.inestable .appbar{color:#221A38}
+.screen.dark .drench.inestable .homebar{background:#221A38}
+.screen.dark .drench.inestable .alert-hero .btn-ink{background:#221A38;color:#fff}
+.screen.dark .drench.inestable .alert-hero .btn-secondary{background:#fff;color:#3B2270}
+.screen.dark .sheet-under{color:var(--ink)}
+
+/* ---------- Texto grande: el sistema agranda la letra; la pantalla se reacomoda ---------- */
+.screen.big>*{zoom:1.25}
+.screen.dark .toast.ok .ti{color:#1C7A4C}.screen.dark .toast.warn .ti{color:#8F5400}
+.screen.dark .alert-conf.soft{color:#fff}
+/* Letra grande sin cortes: textos largos se parten, las pestañas se encogen */
+.step-n{margin:0 0 6px}
+.tab{min-width:0}
+.tab .pill{width:min(60px,100%)}
+.slot{min-width:0}
+.slot .v{overflow-wrap:anywhere}
+.row .sub,.row .ttl{overflow-wrap:anywhere}
+.fold.media .clip.missing{aspect-ratio:auto}
+
+/* galería estática: la hoja de la alerta se muestra ya asentada */
+.shot .settle{animation:none}
 html{background:#E6E4EC}
 body{margin:0;font-family:var(--font);color:var(--ink);background:#E6E4EC}
 .g-top{padding:56px 48px 8px;max-width:1720px;margin:0 auto}
@@ -524,6 +639,9 @@ const P = {
   check:'<path d="M4.5 12.5l5 5L20 7"/>',
   x:'<path d="M6 6l12 12M18 6 6 18"/>',
   chevR:'<path d="M9 5l7 7-7 7"/>',
+  chevD:'<path d="M5 9l7 7 7-7"/>',
+  expand:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  shrink:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
   chevL:'<path d="M15 5l-7 7 7 7"/>',
   back:'<path d="M20 12H5M11 5l-7 7 7 7"/>',
   fall:'<circle cx="6" cy="6.5" r="2.3"/><path d="M8.2 8.6 14 13.4M9 10.2 5 12.6M11.2 11 12.6 6.8M14 13.4l5.5-.8M14 13.4l2.8 4.6M3 21h18"/>',
@@ -623,7 +741,7 @@ function skeleton(pose, x, y, tone, anim){
 function roomSVG(room, pose, opts){
   opts=opts||{};
   const wall='#E7E3EE', wall2='#DDD7E7', floor='#CFC7DC', f2='#C3BAD3', furn='#B3A8C7', furn2='#9E91B6', wood='#D9C1AE', win='#D5DDE8';
-  let s='<svg class="room" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">';
+  let s='<svg class="room" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid '+(opts.meet?'meet':'slice')+'" aria-hidden="true">';
   s+='<rect width="320" height="200" fill="'+wall+'"/><rect y="0" width="320" height="10" fill="'+wall2+'"/>';
   s+='<path d="M0 148h320v52H0Z" fill="'+floor+'"/><path d="M0 148h320" stroke="'+f2+'" stroke-width="3"/>';
   let fx=175, fy=176; // figura
@@ -715,7 +833,7 @@ function seed(){
       {who:'Luis Huamán', ini:'LH', av:'b', date:'2026-09-19', start:'19:02', secs:190}
     ],
     active:null, sel:null, selCam:null, selFam:null,
-    perm:true, pushFail:false, clipFail:false, escMin:5, escSet:false,
+    perm:true, critical:true, pushFail:false, clipFail:false, escMin:5, escSet:false,
     week:0, seg:'alertas', filt:{rango:'todo', tipo:'todas', estado:'todas'},
     form:{}, err:{}, ov:null, toast:null, inapp:null,
     loginFails:0, locked:null, setupStep:0, invitedSetup:null, revoking:null, deletedRec:false,
@@ -805,18 +923,31 @@ function field(o){
     (e?'<p class="field-msg" id="'+o.id+'-m">'+ic('warn')+'<span>'+e+'</span></p>': (o.hint?'<p class="hint">'+o.hint+'</p>':''))+'</div>';
 }
 function notice(kind, icon, title, text, act){
-  return '<div class="notice '+kind+'" role="'+(kind==='err'?'alert':'status')+'">'+ic(icon)+'<div class="grow">'+(title?'<b>'+title+'</b>':'')+'<span>'+text+'</span>'+(act?'<div class="notice-act">'+act+'</div>':'')+'</div></div>';
+  return '<div class="notice '+kind+'" role="'+(kind==='err'?'alert':'status')+'">'+ic(icon)+'<div class="grow">'+(title?'<b>'+title+'</b>':'')+(text?'<span>'+text+'</span>':'')+(act?'<div class="notice-act">'+act+'</div>':'')+'</div></div>';
 }
+/* Divulgación progresiva: el detalle secundario queda plegado (data-k conserva el estado al volver a pintar) */
+function more(k, label, inner, open){
+  return '<details class="more" data-k="'+k+'"'+(open?' open':'')+'><summary>'+label+ic('chevD')+'</summary><div class="more-body">'+inner+'</div></details>';
+}
+function fold(k, icon, title, sub, inner, open){
+  return '<details class="fold" data-k="'+k+'"'+(open?' open':'')+'><summary class="row">'+(icon?'<span class="ico">'+ic(icon)+'</span>':'')+'<span class="grow"><span class="ttl">'+title+'</span>'+(sub?'<span class="sub">'+sub+'</span>':'')+'</span>'+ic('chevD','class="chev"')+'</summary><div class="fold-body'+(icon?'':' noi')+'">'+inner+'</div></details>';
+}
+const SPEEDS=['0.5','1','1.5','2'];
+const spLbl=v=>v.replace('.',',')+'×';
 function clipBlock(a, st, opt){
   opt=opt||{};
-  if(a.clip==='none') return '<div class="clip missing">'+'<div>'+ic('video')+'<p class="t-h3 mt8">Clip no disponible</p><p class="t-small mt8">Hubo un problema al guardar el video de este evento. La alerta es válida: el aviso y el registro no dependen del clip.</p></div></div>';
+  if(a.clip==='none') return '<div class="clip missing">'+'<div>'+ic('video')+'<p class="t-h3 mt8">Clip no disponible</p><p class="t-small mt8">No se pudo guardar el video. La alerta sigue siendo válida.</p></div></div>';
   if(a.clip==='revoked') return '<div class="clip missing"><div>'+ic('trash')+'<p class="t-h3 mt8">Grabación eliminada</p><p class="t-small mt8">Se borró al revocar el consentimiento. El registro de la alerta se conserva.</p></div></div>';
-  if(a.clip==='deleted') return '<div class="clip missing"><div>'+ic('trash')+'<p class="t-h3 mt8">La grabación ya no está disponible</p><p class="t-small mt8">Se eliminó el '+dYear(a.deletedOn)+' por la política de retención de 30 días. El registro de la alerta se conserva.</p></div></div>';
+  if(a.clip==='deleted') return '<div class="clip missing"><div>'+ic('trash')+'<p class="t-h3 mt8">La grabación ya no está disponible</p><p class="t-small mt8">Se borró el '+dYear(a.deletedOn)+' (se guardan 30 días). El registro se conserva.</p></div></div>';
   const pose = a.type==='caida'?'caida':'inestable';
-  return '<div class="clip">'+roomSVG(a.room, pose, {ring:a.type==='caida'?'#BF2A1B':'#B07A00'})+
+  const sp=st.clipSpeed||'1';
+  return '<div class="clip">'+roomSVG(a.room, pose, {ring:a.type==='caida'?'#BF2A1B':'#B07A00', meet:opt.full})+
+    (opt.full? '' : '<button class="clip-fs" data-act="clipFull" aria-label="Ver el clip en pantalla completa">'+ic('expand')+'</button>')+
     '<span class="tag">'+esc(a.room)+' · '+a.time+'</span>'+
-    '</div><div class="clip-bar"><button class="play" aria-label="'+(a.playing?'Pausar':'Reproducir')+' clip" data-act="playClip">'+ic(a.playing?'pause':'play')+'</button><span class="track"><i style="width:'+(a.playing?64:(opt.progress==null?50:opt.progress))+'%"></i><span class="ev" style="left:50%" title="Momento del evento"></span></span><span class="mono">0:'+(a.playing?'08':(opt.pos||'06'))+' / 0:12</span></div>'+
-    '<p class="t-meta mt8">Ilustración de la habitación con la postura detectada. 6 s antes y 6 s después del evento.</p>';
+    '</div><div class="clip-bar"><button class="play" aria-label="'+(a.playing?'Pausar':'Reproducir')+' clip" data-act="playClip">'+ic(a.playing?'pause':'play')+'</button><span class="track"><i style="width:'+(a.playing?64:(opt.progress==null?50:opt.progress))+'%"></i><span class="ev" style="left:50%" title="Momento del evento"></span></span><span class="mono cb-t">0:'+(a.playing?'08':(opt.pos||'06'))+' / 0:12</span>'+
+    '<button class="cb-btn" data-act="clipSpeed" aria-label="Velocidad '+spLbl(sp)+'. Cambiar la velocidad">'+spLbl(sp)+'</button>'+
+    (opt.full? '<button class="cb-btn" data-act="closeOv" aria-label="Salir de pantalla completa">'+ic('shrink')+'</button>' : '')+'</div>'+
+    (opt.full? '' : '<p class="t-meta mt8">Con la postura detectada · 6 s antes y 6 s después.</p>');
 }
 function timeline(a, st){
   const it=[];
@@ -840,7 +971,7 @@ function weekRange(off){ // lunes a domingo
 }
 function weekCounts(st, off){
   const [a,b]=weekRange(off);
-  const inW = st.alerts.concat(st.active?[st.active]:[]).filter(x=>x.date>=a && x.date<=b);
+  const inW = st.alerts.concat(st.active?[st.active]:[]).filter(x=>!x.test && x.date>=a && x.date<=b);
   return {list:inW, caidas:inW.filter(x=>x.type==='caida'&&x.status!=='falsa').length, inest:inW.filter(x=>x.type==='inestable'&&x.status!=='falsa').length, falsas:inW.filter(x=>x.status==='falsa').length, range:[a,b]};
 }
 
@@ -849,8 +980,8 @@ const S = {};
 const F = (st,k)=>st.form[k]||{};
 const E = (st,k)=>st.err[k]||{};
 function setupHead(st, step, title){
-  return '<header class="appbar"><button class="iconbtn" data-back aria-label="Volver">'+ic('back')+'</button><h1>'+title+'</h1><span class="t-meta" style="padding-right:10px">Paso '+step+' de 4</span></header>'+
-    '<div class="pad20"><div class="progress" aria-hidden="true">'+[1,2,3,4].map(i=>'<i class="'+(i<=step?'on':'')+'"></i>').join('')+'</div></div>';
+  return '<header class="appbar"><button class="iconbtn" data-back aria-label="Volver">'+ic('back')+'</button><h1>'+title+'</h1></header>'+
+    '<div class="pad20"><p class="t-meta step-n">Paso '+step+' de 5</p><div class="progress" aria-hidden="true">'+[1,2,3,4,5].map(i=>'<i class="'+(i<=step?'on':'')+'"></i>').join('')+'</div></div>';
 }
 
 /* ---------- Arranque ---------- */
@@ -873,23 +1004,22 @@ S.bienvenida = st => ({html:
   '<div class="brand mt8">'+logotipo()+'</div>'+
   '<div class="clip mt20" style="aspect-ratio:16/11">'+roomSVG('Sala','pie')+'<span class="tag">'+ic('shield','style="width:14px;height:14px"')+'Solo postura, nunca rostros</span></div>'+
   '<h1 class="t-title mt20">Cuida a tu familiar aunque no estés en casa.</h1>'+
-  '<p class="t-body mt12" style="color:var(--ink-2)">Una cámara en su casa reconoce caídas y movimientos inestables. Te avisamos al instante en tu celular.</p>'+
-  '<ul class="bul"><li>'+ic('user')+'<span>Sin pulseras ni botones: tu familiar no tiene que hacer nada.</span></li><li>'+ic('video')+'<span>Puedes ver su casa en vivo cuando lo necesites, con su permiso. Cada acceso queda registrado.</span></li><li>'+ic('shield')+'<span>Datos protegidos según la Ley N.° 29733.</span></li></ul>'+
+  '<p class="t-body mt12" style="color:var(--ink-2)">Una cámara en su casa detecta caídas y te avisa al instante.</p>'+
+  '<ul class="bul"><li>'+ic('user')+'<span>Sin pulseras ni botones</span></li><li>'+ic('video')+'<span>En vivo con su permiso, con registro</span></li><li>'+ic('shield')+'<span>Datos protegidos por ley</span></li></ul>'+
   '<div style="flex:1;min-height:18px"></div>'+
-  '<div class="btn-row"><button class="btn btn-primary" data-go="registro">Crear cuenta</button><button class="btn btn-secondary" data-go="login">Ya tengo una cuenta</button></div>'+
-  '<p class="t-meta center mt12">La cámara ya viene instalada. Configurarlo toma unos 5 minutos.</p></div>'});
+  '<div class="btn-row"><button class="btn btn-primary" data-go="registro">Crear cuenta</button><button class="btn btn-secondary" data-go="login">Ya tengo una cuenta</button></div></div>'});
 
 S.registro = st => { const f=F(st,'registro'), e=E(st,'registro');
   return {html: appbar('Crear cuenta')+
-  '<div class="body"><p class="t-small mb16">Con tu cuenta recibirás las alertas y verás el historial de la persona que cuidas.</p>'+
-  (e.dup? '<div class="mb16">'+notice('err','warn','Ese correo ya tiene una cuenta','Inicia sesión con él o recupera tu contraseña si no la recuerdas.','<div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px"><button class="link" data-go="login">Iniciar sesión con este correo</button><button class="link" data-go="recuperar">Recuperar mi contraseña</button></div>')+'</div>':'')+
-  (e.any? '<div class="mb16">'+notice('err','warn','Faltan datos obligatorios','Completa los campos marcados para crear tu cuenta.')+'</div>':'')+
+  '<div class="body">'+
+  (e.dup? '<div class="mb16">'+notice('err','warn','Ese correo ya tiene una cuenta','','<div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px"><button class="link" data-go="login">Iniciar sesión con este correo</button><button class="link" data-go="recuperar">Recuperar mi contraseña</button></div>')+'</div>':'')+
+  (e.any? '<div class="mb16">'+notice('err','warn','Completa los campos marcados','')+'</div>':'')+
   '<form data-form="registro" novalidate>'+
-  field({id:'r-nombre', label:'Tu nombre y apellido', value:f.nombre, ac:'name', err:e.nombre, hint:'Así sabrán los demás quién atendió cada alerta.'})+
+  field({id:'r-nombre', label:'Tu nombre y apellido', value:f.nombre, ac:'name', err:e.nombre, hint:'Tu familia verá quién atendió cada alerta.'})+
   field({id:'r-correo', label:'Correo electrónico', type:'email', value:f.correo, ac:'email', im:'email', err:e.correo})+
-  field({id:'r-clave', label:'Contraseña', type:'password', value:f.clave, ac:'new-password', err:e.clave, hint:'Mínimo 8 caracteres, con al menos un número.'})+
+  field({id:'r-clave', label:'Contraseña', type:'password', value:f.clave, ac:'new-password', err:e.clave, hint:'8 caracteres o más, con un número.'})+
   '<button class="btn btn-primary mt8" type="submit">Crear cuenta</button></form>'+
-  '<p class="t-meta center mt16">Al crear tu cuenta aceptas los <button class="link">Términos de uso</button> y la <button class="link">Política de privacidad</button>.</p>'+
+  '<p class="t-meta center mt16">Aceptas los <button class="link" data-go="terminos">Términos</button> y la <button class="link" data-go="politica">Privacidad</button>.</p>'+
   '<p class="t-small center mt16">¿Ya tienes cuenta? <button class="link" data-go="login">Inicia sesión</button></p></div>'};
 };
 
@@ -897,17 +1027,17 @@ S.cuentaCreada = st => ({html:
   '<div class="body" style="display:flex;flex-direction:column;padding:0 24px 24px"><div style="flex:1;display:flex;flex-direction:column;justify-content:center">'+
   '<div class="d-ico" style="width:72px;height:72px;border-radius:22px;background:var(--calma-soft);color:var(--calma-ink);display:grid;place-items:center">'+ic('check','style="width:40px;height:40px"')+'</div>'+
   '<h1 class="t-title mt20">Tu cuenta está lista, '+esc((F(st,'registro').nombre||'Carmen').split(' ')[0])+'.</h1>'+
-  '<p class="t-body mt12" style="color:var(--ink-2)">Ahora vamos a configurar todo en cuatro pasos: la persona que cuidas, su consentimiento, su cámara y otro familiar que te respalde.</p>'+
-  '<ol class="steps mt20"><li><span class="n">1</span><span>Datos de la persona</span></li><li><span class="n">2</span><span>Consentimiento informado</span></li><li><span class="n">3</span><span>Su cámara, ya instalada</span></li><li><span class="n">4</span><span>Invitar a un familiar</span></li></ol></div>'+
+  '<p class="t-body mt12" style="color:var(--ink-2)">Faltan cinco pasos:</p>'+
+  '<ol class="steps mt12"><li><span class="n">1</span><span>Datos de la persona</span></li><li><span class="n">2</span><span>Consentimiento informado</span></li><li><span class="n">3</span><span>Su cámara, ya instalada</span></li><li><span class="n">4</span><span>Invitar a un familiar</span></li><li><span class="n">5</span><span>Activar los avisos</span></li></ol></div>'+
   '<button class="btn btn-primary" data-go="perfil">Empezar</button></div>'});
 
 S.login = st => { const f=F(st,'login'), e=E(st,'login'); const locked=!!st.locked;
   return {html:
   '<div class="body" style="padding:0 24px 24px"><div class="brand mt20">'+logotipo()+'</div>'+
   '<h1 class="t-title mt24 mb16">Inicia sesión</h1>'+
-  (locked? '<div class="mb16">'+notice('err','lock','Acceso bloqueado por 15 minutos','Hubo 5 intentos fallidos seguidos. Por seguridad, podrás intentarlo de nuevo a las <span class="mono">'+st.locked+'</span>. Si no recuerdas tu contraseña, recupérala por correo.')+'</div>' :
-    e.bad? '<div class="mb16">'+notice('err','warn','Correo o contraseña incorrectos', st.loginFails>=3? 'Te quedan '+(5-st.loginFails)+' intento'+(5-st.loginFails===1?'':'s')+' antes de un bloqueo temporal de 15 minutos.' : 'Revisa que estén bien escritos e inténtalo otra vez.')+'</div>':'')+
-  (e.any? '<div class="mb16">'+notice('err','warn','Faltan datos','Escribe tu correo y tu contraseña.')+'</div>':'')+
+  (locked? '<div class="mb16">'+notice('err','lock','Bloqueado por 15 minutos','5 intentos fallidos. Vuelve a intentarlo a las <span class="mono">'+st.locked+'</span>.')+'</div>' :
+    e.bad? '<div class="mb16">'+notice('err','warn','Correo o contraseña incorrectos', st.loginFails>=3? 'Te queda'+(5-st.loginFails===1?'':'n')+' '+(5-st.loginFails)+' intento'+(5-st.loginFails===1?'':'s')+' antes de un bloqueo de 15 min.' : 'Revisa cómo los escribiste.')+'</div>':'')+
+  (e.any? '<div class="mb16">'+notice('err','warn','Escribe tu correo y tu contraseña','')+'</div>':'')+
   '<form data-form="login" novalidate>'+
   field({id:'l-correo', label:'Correo electrónico', type:'email', value:f.correo, ac:'email', im:'email', err:e.correo, disabled:locked})+
   field({id:'l-clave', label:'Contraseña', type:'password', value:f.clave, ac:'current-password', err:e.clave, disabled:locked})+
@@ -918,7 +1048,7 @@ S.login = st => { const f=F(st,'login'), e=E(st,'login'); const locked=!!st.lock
 
 S.recuperar = st => { const f=F(st,'recuperar'), e=E(st,'recuperar');
   return {html: appbar('Recuperar contraseña')+
-  '<div class="body"><h2 class="t-h2 mb8">¿Olvidaste tu contraseña?</h2><p class="t-small mb16">Escribe el correo con el que creaste tu cuenta y te enviaremos un enlace para crear una nueva.</p>'+
+  '<div class="body"><p class="t-small mb16">Te enviaremos un enlace para crear una nueva.</p>'+
   '<form data-form="recuperar" novalidate>'+field({id:'p-correo', label:'Correo electrónico', type:'email', value:f.correo, ac:'email', im:'email', err:e.correo})+
   '<button class="btn btn-primary" type="submit">Enviar enlace</button></form></div>'};
 };
@@ -926,20 +1056,20 @@ S.recuperar = st => { const f=F(st,'recuperar'), e=E(st,'recuperar');
 S.enlaceEnviado = st => ({html: appbar('Recuperar contraseña')+
   '<div class="body"><div class="d-ico" style="width:64px;height:64px;border-radius:20px;background:var(--morado-soft);color:var(--morado-ink);display:grid;place-items:center;margin-top:12px">'+ic('mail','style="width:34px;height:34px"')+'</div>'+
   '<h2 class="t-h2 mt20 mb8">Revisa tu correo</h2>'+
-  '<p class="t-body" style="color:var(--ink-2)">Si <b style="color:var(--ink)">'+esc(F(st,'recuperar').correo||'carmen.huaman@gmail.com')+'</b> tiene una cuenta en Te Tengo, te llegará un enlace para crear una nueva contraseña. El enlace vence en 30 minutos.</p>'+
-  '<div class="mt20">'+notice('neutral','info','','¿No llega en unos minutos? Revisa la carpeta de correo no deseado o spam.')+'</div>'+
+  '<p class="t-body" style="color:var(--ink-2)">Si <b style="color:var(--ink)">'+esc(F(st,'recuperar').correo||'carmen.huaman@gmail.com')+'</b> tiene cuenta, te llegará un enlace. Vence en 30 minutos.</p>'+
+  '<p class="t-meta mt12">¿No llega? Revisa la carpeta de spam.</p>'+
   '<div class="btn-row mt24"><button class="btn btn-primary" data-go="login">Volver a iniciar sesión</button><button class="btn btn-ghost" disabled aria-disabled="true" style="background:transparent">Reenviar enlace en <span class="mono">0:45</span></button></div></div>'});
 
 S.enlaceVencido = st => ({html: appbar('Nueva contraseña',{close:true})+
   '<div class="body"><div style="width:64px;height:64px;border-radius:20px;background:var(--aviso-soft);color:var(--aviso);display:grid;place-items:center;margin-top:12px">'+ic('clock','style="width:34px;height:34px"')+'</div>'+
   '<h2 class="t-h2 mt20 mb8">Este enlace ya venció</h2>'+
-  '<p class="t-body" style="color:var(--ink-2)">Por seguridad, los enlaces para cambiar la contraseña duran 30 minutos y solo se pueden usar una vez. Pide uno nuevo y ábrelo pronto.</p>'+
+  '<p class="t-body" style="color:var(--ink-2)">Duran 30 minutos y sirven una sola vez. Pide uno nuevo.</p>'+
   '<div class="btn-row mt24"><button class="btn btn-primary" data-go="recuperar">Pedir un enlace nuevo</button><button class="btn btn-ghost" data-go="login">Volver a iniciar sesión</button></div></div>'});
 
 S.nuevaClave = st => { const e=E(st,'nuevaClave');
   return {html: appbar('Nueva contraseña',{close:true})+
   '<div class="body"><p class="t-small mb16">Para la cuenta <b>carmen.huaman@gmail.com</b>.</p><form data-form="nuevaClave" novalidate>'+
-  field({id:'n-clave', label:'Nueva contraseña', type:'password', ac:'new-password', err:e.clave, hint:'Mínimo 8 caracteres, con al menos un número.'})+
+  field({id:'n-clave', label:'Nueva contraseña', type:'password', ac:'new-password', err:e.clave, hint:'8 caracteres o más, con un número.'})+
   field({id:'n-clave2', label:'Repite la contraseña', type:'password', ac:'new-password', err:e.clave2})+
   '<button class="btn btn-primary" type="submit">Guardar contraseña</button></form></div>'};
 };
@@ -951,7 +1081,7 @@ function convChoices(val, name){
 }
 S.perfil = st => { const f=F(st,'perfil'), e=E(st,'perfil');
   return {html: setupHead(st,1,'Persona cuidada')+
-  '<div class="body" style="padding-top:0"><h2 class="t-h2 mb8">¿A quién vas a cuidar?</h2><p class="t-small mb16">Su nombre y dirección aparecerán en cada alerta para que sepas de inmediato quién es y dónde fue.</p>'+
+  '<div class="body" style="padding-top:0"><h2 class="t-h2 mb8">¿A quién vas a cuidar?</h2><p class="t-small mb16">Aparecerán en cada alerta.</p>'+
   (e.any? '<div class="mb16">'+notice('err','warn','Faltan datos obligatorios','Completa los campos marcados.')+'</div>':'')+
   '<form data-form="perfil" novalidate>'+
   field({id:'s-nombre', label:'Nombre y apellido', value:f.nombre, err:e.nombre, ph:'Ej.: Rosa Huamán'})+
@@ -961,26 +1091,29 @@ S.perfil = st => { const f=F(st,'perfil'), e=E(st,'perfil');
   '<button class="btn btn-primary" type="submit">Guardar y continuar</button></form></div>'};
 };
 
+/* Texto del consentimiento: el mismo en el resumen plegable y en el documento completo */
+const CONSENT_SEC=[
+  ['cs-vivo','eye','Vista en vivo en cualquier momento','La familia puede verla cuando quiera','Los familiares vinculados a esta cuenta pueden ver la cámara en vivo cuando quieran, no solo durante una alerta. Cada acceso queda registrado: quién la vio, cuándo y cuánto tiempo.'],
+  ['cs-hace','cam','Qué hacemos','Detectamos caídas por la postura','La cámara instalada en su vivienda envía video a Te Tengo, donde analizamos la postura del cuerpo para detectar caídas y movimientos inestables.'],
+  ['cs-no','eyeOff','Qué no hacemos','Sin reconocer rostros ni grabar siempre','No reconocemos rostros ni grabamos de forma continua. La vista en vivo no se guarda.'],
+  ['cs-guarda','video','Qué guardamos','Solo el clip de cada alerta, 30 días','Solo el clip de cada alerta, durante 30 días. Luego se elimina.'],
+  ['cs-der','shield','Sus derechos','Ley N.° 29733 · puede revocarlo','Según la Ley N.° 29733 de Protección de Datos Personales, puede acceder a sus datos, corregirlos, pedir su eliminación u oponerse a su uso, y revocar este consentimiento cuando quiera.']
+];
 function consentBody(st){
-  return '<div class="card"><div class="band morado"></div><div class="card-pad">'+
-  '<div class="kv" style="display:block"><b>Qué hacemos</b><p class="t-small">La cámara instalada en su vivienda envía video a Te Tengo, donde analizamos la postura del cuerpo para detectar caídas y movimientos inestables.</p></div>'+
-  '<div class="kv live-clause" style="display:block"><b class="flex" style="gap:8px">'+ic('eye','style="width:20px;height:20px;flex:none;color:var(--morado-ink)"')+'Vista en vivo en cualquier momento</b><p class="t-small">Los familiares vinculados a esta cuenta pueden ver la cámara en vivo cuando quieran, no solo durante una alerta. Cada acceso queda registrado: quién la vio, cuándo y cuánto tiempo.</p></div>'+
-  '<div class="kv" style="display:block"><b>Qué no hacemos</b><p class="t-small">No reconocemos rostros ni grabamos de forma continua. La vista en vivo no se guarda.</p></div>'+
-  '<div class="kv" style="display:block"><b>Qué guardamos y cuánto</b><p class="t-small">Solo el clip de cada alerta, durante 30 días. Luego se elimina.</p></div>'+
-  '<div class="kv" style="display:block"><b>Sus derechos</b><p class="t-small">Según la Ley N.° 29733 de Protección de Datos Personales, puede acceder a sus datos, corregirlos, pedir su eliminación u oponerse a su uso, y revocar este consentimiento cuando quiera.</p></div>'+
-  '<button class="link mt8">Leer el documento completo</button></div></div>';
+  return '<div class="list">'+CONSENT_SEC.map((x,i)=>{ const h=fold(x[0],x[1],x[2],x[3],x[4], i===0); return i===0? h.replace('class="fold"','class="fold key"') : h; }).join('')+
+  '</div><button class="link mt12" style="min-height:44px" data-go="docConsent">Leer el documento completo</button>';
 }
 S.consentimiento = st => { const f=F(st,'consent'), e=E(st,'consent'); const nm=(st.senior.first||'Rosa');
   return {html: (st.setupMode? setupHead(st,2,'Consentimiento') : appbar('Consentimiento'))+
-  '<div class="body" style="padding-top:0"><h2 class="t-h2 mb8">Consentimiento informado</h2><p class="t-small mb16">Antes de activar la cámara de su casa, '+nm+' o su representante debe aceptar cómo usaremos sus datos. Si no lo acepta, no lo registres: la cámara no enviará video.</p>'+
+  '<div class="body" style="padding-top:0"><h2 class="t-h2 mb8">Consentimiento informado</h2><p class="t-small mb16">'+nm+' o su representante debe aceptarlo antes de activar la cámara. Sin él, la cámara no envía video.</p>'+
   consentBody(st)+
   '<div class="field mt20"><span class="label">¿Quién otorga el consentimiento?</span>'+
   [['directo',esc(st.senior.name)+', directamente'],['representante','Su representante legal']].map(([k,t])=>'<label class="choice'+((f.quien||'directo')===k?' sel':'')+'" data-act="pick" data-arg="quien:'+k+'"><input type="radio" name="quien"'+((f.quien||'directo')===k?' checked':'')+'><span class="dot"></span><span>'+t+'</span></label>').join('')+'</div>'+
   '<div class="field'+(e.checks?' err':'')+'" style="margin-bottom:8px">'+
-  '<div class="check'+(f.c1?' on':'')+'" data-act="check" data-arg="c1" role="checkbox" aria-checked="'+(!!f.c1)+'" tabindex="0"><span class="box">'+ic('check')+'</span><span>'+nm+' fue informada y acepta el uso de la cámara en su vivienda para detectar caídas, y que sus familiares vinculados la vean en vivo en cualquier momento.</span></div>'+
+  '<div class="check'+(f.c1?' on':'')+'" data-act="check" data-arg="c1" role="checkbox" aria-checked="'+(!!f.c1)+'" tabindex="0"><span class="box">'+ic('check')+'</span><span>'+nm+' fue informada y acepta la cámara en su vivienda para detectar caídas, y que sus familiares vinculados la vean en vivo cuando quieran.</span></div>'+
   '<div class="check'+(f.c2?' on':'')+'" data-act="check" data-arg="c2" role="checkbox" aria-checked="'+(!!f.c2)+'" tabindex="0"><span class="box">'+ic('check')+'</span><span>Leí el resumen y el documento completo.</span></div>'+
-  (e.checks?'<p class="field-msg">'+ic('warn')+'<span>Marca las dos casillas para registrar el consentimiento. Solo se registra si '+nm+' lo acepta.</span></p>':'')+'</div>'+
-  '<p class="t-meta mb16">Guardaremos la fecha y la hora en que lo registres, como constancia según la Ley N.° 29733. Si '+nm+' no acepta, elige «Ahora no»: la cámara quedará instalada, pero detenida.</p>'+
+  (e.checks?'<p class="field-msg">'+ic('warn')+'<span>Marca las dos casillas. Solo se registra si '+nm+' lo acepta.</span></p>':'')+'</div>'+
+  '<p class="t-meta mb16">Guardamos la fecha y la hora como constancia (Ley N.° 29733). Si '+nm+' no acepta, elige «Ahora no»: la cámara queda detenida.</p>'+
   '<div class="btn-row"><button class="btn btn-primary" data-act="saveConsent">Registrar consentimiento</button><button class="btn btn-ghost" data-act="skipConsent">Ahora no</button></div></div>'};
 };
 
@@ -992,26 +1125,27 @@ function constancia(st, opt){
   '<div class="kv"><span class="k">Registrado por</span><span class="v">'+esc(c.witness||st.owner.name)+'</span></div>'+
   '<div class="kv"><span class="k">Fecha</span><span class="v">'+dYear(c.date)+'</span></div>'+
   '<div class="kv"><span class="k">Hora</span><span class="v mono">'+c.time+'</span></div>'+
-  '<p class="t-meta mt8">Guardamos la fecha y la hora como constancia de que '+esc(st.senior.first)+' autorizó el monitoreo, como lo exige la Ley N.° 29733 de Protección de Datos Personales.</p>'+
-  '<button class="link mt12" data-act="docConsent">'+(opt.doc||'Ver la constancia completa')+'</button></div></div>';
+  '<p class="t-meta mt8">Constancia exigida por la Ley N.° 29733.</p>'+
+  '<button class="link mt12" data-go="docConsent">'+(opt.doc||'Ver la constancia completa')+'</button></div></div>';
 }
 S.consentOk = st => ({html:
   '<div class="body" style="display:flex;flex-direction:column;padding:0 22px 24px"><div style="flex:1">'+
   '<div style="width:72px;height:72px;border-radius:22px;background:var(--calma-soft);color:var(--calma-ink);display:grid;place-items:center;margin-top:34px">'+ic('shield','style="width:40px;height:40px"')+'</div>'+
-  '<h1 class="t-title mt20">Consentimiento registrado</h1><p class="t-body mt8" style="color:var(--ink-2)">La cámara de la casa empezó a enviar video: desde ahora detectamos caídas. Puedes revisarlo o revocarlo cuando quieras en Ajustes.</p>'+
+  '<h1 class="t-title mt20">Consentimiento registrado</h1><p class="t-body mt8" style="color:var(--ink-2)">La cámara ya envía video y detectamos caídas. Puedes revocarlo en Ajustes.</p>'+
   constancia(st,{mt:1})+'</div>'+
   (st.setupMode? '<button class="btn btn-primary mt20" data-go="camaraLista">Continuar con la cámara</button>' : '<button class="btn btn-primary mt20" data-act="consentHome">Volver al inicio</button>')+'</div>'});
 
 function consentLock(adm){
-  return notice('err','lock','Primero registra el consentimiento','La cámara está instalada, pero no envía video hasta que la persona cuidada acepte el consentimiento informado.', adm===false?'':'<button class="btn btn-primary btn-sm" data-act="goConsent">Registrar consentimiento</button>');
+  return notice('err','lock','Primero registra el consentimiento','La cámara no envía video hasta que la persona cuidada lo acepte.', adm===false?'':'<button class="btn btn-primary btn-sm" data-act="goConsent">Registrar consentimiento</button>');
 }
 function camKv(c, st){
   const s=camState(c,st);
   return '<div class="kv"><span class="k">'+(s.k==='stopped'?'Envío de video':'Última señal')+'</span><span class="v">'+(s.k==='stopped'?'Detenido':c.status==='offline'?'a las <span class="mono">'+(c.lastAt||'10:31')+'</span>':'<span class="mono">'+(c.sig||st.clock)+'</span> · '+(c.last||'hace 2 s'))+'</span></div>'+
+    '<div class="kv"><span class="k">Detección de caídas</span><span class="v">'+(s.k==='online'?'Activa':s.k==='unreliable'?'No confiable':'Detenida')+'</span></div>'+
+    more('cam-inst','Datos de la instalación',
     '<div class="kv"><span class="k">Conectada a</span><span class="v">PC de la casa</span></div>'+
     '<div class="kv"><span class="k">Instalada el</span><span class="v">'+dYear(c.installed||'2026-08-03')+'</span></div>'+
-    '<div class="kv"><span class="k">Instalada por</span><span class="v">Equipo del proyecto</span></div>'+
-    '<div class="kv"><span class="k">Detección de caídas</span><span class="v">'+(s.k==='online'?'Activa':s.k==='unreliable'?'No confiable':'Detenida')+'</span></div>';
+    '<div class="kv"><span class="k">Instalada por</span><span class="v">Equipo de Te Tengo</span></div>');
 }
 function camHead(c, st, kv){
   const s=camState(c,st);
@@ -1023,10 +1157,10 @@ S.camaraLista = st => { const c=st.cams[0]; const ok=st.consent.given; const nm=
   return {html: setupHead(st,3,'Cámara')+
   '<div class="body" style="padding-top:0">'+
   (ok? '<div class="flex mb8" style="gap:12px"><span style="width:44px;height:44px;border-radius:14px;background:var(--calma-soft);color:var(--calma-ink);display:grid;place-items:center;flex:none">'+ic('check','style="width:26px;height:26px"')+'</span><h2 class="t-h2">Tu cámara ya está lista</h2></div>'+
-     '<p class="t-small mb16">El equipo del proyecto la instaló y la configuró en la PC de la casa de '+nm+'. No tienes que conectar nada: ya estamos detectando caídas '+enRoom(c.room)+'.</p>'
-   : '<h2 class="t-h2 mb8">La cámara está instalada, pero no envía video</h2><p class="t-small mb16">Sin el consentimiento de '+nm+', la cámara '+deRoom(c.room)+' no captura nada y no podemos detectar caídas.</p><div class="mb16">'+notice('err','lock','Falta el consentimiento informado','Se registra solo si '+nm+' lo acepta. Cuando lo registres, la cámara empezará a enviar video.','<button class="btn btn-primary btn-sm" data-act="goConsent">Completar el consentimiento</button>')+'</div>')+
+     '<p class="t-small mb16">La instaló el equipo de Te Tengo. No tienes que conectar nada: ya detectamos caídas '+enRoom(c.room)+'.</p>'
+   : '<h2 class="t-h2 mb12">La cámara está instalada, pero no envía video</h2><div class="mb16">'+notice('err','lock','Falta el consentimiento de '+nm,'Sin él no detectamos caídas. Se registra solo si lo acepta.','<button class="btn btn-primary btn-sm" data-act="goConsent">Completar el consentimiento</button>')+'</div>')+
   camHead(c, st, camKv(c,st))+
-  '<h2 class="sec-h">Nombre de la habitación</h2><p class="t-small mb12">Lo definió el equipo al instalarla y aparece en cada alerta. Si en casa la llaman de otra forma, cámbialo.</p>'+
+  '<h2 class="sec-h">Nombre de la habitación</h2><p class="t-small mb12">Aparece en cada alerta. Cámbialo si en casa la llaman distinto.</p>'+
   '<button class="btn btn-secondary" data-act="openRename">'+ic('pin')+'Cambiar el nombre</button>'+
   (ok? '<button class="btn btn-primary mt20" data-act="camReadyNext">Continuar</button>' : '<button class="btn btn-ghost mt16" data-act="camReadyNext">Continuar sin consentimiento</button><p class="t-meta center mt8">Podrás registrarlo después desde Inicio o Ajustes.</p>')+'</div>'};
 };
@@ -1034,7 +1168,7 @@ const ROOM_SUG=['Sala','Sala comedor','Comedor','Dormitorio','Cocina'];
 S.habitacion = st => { const c=st.cams[0]; const f=F(st,'hab'), e=E(st,'hab');
   const v=(VALS['h-nombre']!=null? VALS['h-nombre'] : f.nombre!=null? f.nombre : c.room); const t=v.trim();
   return {html: (st.setupMode? setupHead(st,3,'Cámara') : appbar('Nombre de la habitación'))+
-  '<div class="body"'+(st.setupMode?' style="padding-top:0"':'')+'><h2 class="t-h2 mb8">¿Cómo se llama esta habitación?</h2><p class="t-small mb16">Es donde el equipo del proyecto instaló la cámara. El nombre aparece en cada alerta para que sepas al instante dónde fue.</p>'+
+  '<div class="body"'+(st.setupMode?' style="padding-top:0"':'')+'><h2 class="t-h2 mb8">¿Cómo se llama esta habitación?</h2><p class="t-small mb16">Aparece en cada alerta.</p>'+
   '<form data-form="hab" novalidate>'+field({id:'h-nombre', label:'Nombre de la habitación', value:v, err:e.nombre, ph:'Ej.: Sala comedor', hint:'Elige una sugerencia o escribe otro nombre.'})+
   '<div class="chips mb16" style="margin-top:-6px" aria-label="Sugerencias">'+ROOM_SUG.map(r=>'<button type="button" class="chip'+(t===r?' sel':'')+'" data-act="roomName" data-arg="'+r+'" aria-pressed="'+(t===r)+'">'+r+'</button>').join('')+'</div>'+
   '<div class="card card-pad mb16" style="box-shadow:0 0 0 1.5px var(--line) inset"><p class="t-meta">Así se verá en las próximas alertas</p><p class="t-h3 mt8 flex" style="gap:8px">'+ic('fall','style="width:22px;height:22px;color:var(--caida);flex:none"')+'<span>Posible caída '+(t? esc(enRoom(t)) : '…')+'</span></p><p class="t-meta mt8">Las alertas anteriores conservan el nombre que tenían.</p></div>'+
@@ -1042,77 +1176,86 @@ S.habitacion = st => { const c=st.cams[0]; const f=F(st,'hab'), e=E(st,'hab');
 };
 S.familiaSetup = st => { const f=F(st,'fs'), e=E(st,'fs');
   return {html: setupHead(st,4,'Familia')+
-  '<div class="body" style="padding-top:0"><h2 class="t-h2 mb8">Invita a otro familiar</h2><p class="t-small mb16">Recibirá las alertas de '+esc(st.senior.first)+'. Si tú no atiendes una alerta en '+st.escMin+' minutos, le avisaremos a esta persona. Podrás cambiar ese tiempo después en Familia.</p>'+
-  (st.invitedSetup? notice('ok','check','Invitación enviada','Le enviamos un enlace a <b>'+esc(st.invitedSetup)+'</b>. Será tu contacto secundario cuando acepte.')+'<button class="btn btn-primary mt20" data-go="listo">Continuar</button>' :
+  '<div class="body" style="padding-top:0"><h2 class="t-h2 mb8">Invita a otro familiar</h2><p class="t-small mb16">Recibirá las alertas de '+esc(st.senior.first)+' y, si no atiendes una en '+st.escMin+' min, le avisaremos.</p>'+
+  (st.invitedSetup? notice('ok','check','Invitación enviada','Le enviamos un enlace a <b>'+esc(st.invitedSetup)+'</b>. Será tu contacto secundario cuando acepte.')+'<button class="btn btn-primary mt20" data-go="avisos">Continuar</button>' :
   '<form data-form="fs" novalidate>'+field({id:'fs-correo', label:'Correo de tu familiar', type:'email', value:f.correo, im:'email', err:e.correo, ph:'nombre@correo.com'})+
   field({id:'fs-rel', label:'Parentesco con '+esc(st.senior.first), value:f.rel, ph:'Ej.: Hijo, sobrina, vecina'})+
-  '<button class="btn btn-primary" type="submit">'+ic('send')+'Enviar invitación</button></form><button class="btn btn-ghost mt8" data-go="listo">Hacerlo después</button>')+'</div>'};
+  '<button class="btn btn-primary" type="submit">'+ic('send')+'Enviar invitación</button></form><button class="btn btn-ghost mt8" data-go="avisos">Hacerlo después</button>')+'</div>'};
 };
 
+/* Paso 5: explicar por qué antes de que el sistema pida el permiso */
+S.avisos = st => { const ok1=!!st.perm, ok2=!!st.critical;
+  const row=(on,icon,t,s,act)=>'<div class="row static"><span class="ico">'+ic(icon)+'</span><span class="grow"><span class="ttl">'+t+'</span><span class="sub">'+s+'</span></span>'+
+    (on? '<span class="perm-ok">'+ic('check')+'Activadas</span>' : '<button class="btn btn-secondary btn-sm" data-act="'+act+'">Permitir</button>')+'</div>';
+  return {html: setupHead(st,5,'Avisos')+
+  '<div class="body" style="padding-top:0"><h2 class="t-h2 mb8">Que no se te pase ninguna caída</h2><p class="t-small mb16">Te llegará la alerta aunque tengas la app cerrada o el celular en silencio.</p>'+
+  '<div class="list">'+row(ok1,'bell','Notificaciones','Para recibir las alertas','askNotif')+row(ok2,'warn','Sonar en silencio','Las caídas suenan igual','askCritical')+'</div>'+
+  '<p class="t-meta mt12">Puedes cambiarlo después en Ajustes › Notificaciones.</p>'+
+  '<button class="btn btn-primary mt20" data-go="listo">'+(ok1&&ok2?'Continuar':'Continuar sin activar todo')+'</button></div>'};
+};
 S.listo = st => { const c=st.cams[0], cs=camState(c,st);
   return {html:
   '<div class="body" style="display:flex;flex-direction:column;padding:0 22px 24px"><div style="flex:1">'+
   '<div class="brand mt24">'+logotipo()+'</div>'+
   '<h1 class="t-title mt20">Todo listo. Ya estás cerca de '+esc(st.senior.first)+'.</h1>'+
-  '<p class="t-body mt8" style="color:var(--ink-2)">Si detectamos una caída o un movimiento inestable, te llegará un aviso aunque tengas la app cerrada.</p>'+
+  '<p class="t-body mt8" style="color:var(--ink-2)">Te avisaremos aunque tengas la app cerrada.</p>'+
   '<div class="list mt20">'+
-  '<div class="row static"><span class="camline '+cs.cls+'">'+ic(camIcon(cs.k))+'</span><span class="grow"><span class="ttl">Cámara '+deRoom(c.room)+'</span><span class="sub">'+cs.txt+(cs.k==='online'?' · instalada por el equipo del proyecto':' · no envía video')+'</span></span></div>'+
+  '<div class="row static"><span class="camline '+cs.cls+'">'+ic(camIcon(cs.k))+'</span><span class="grow"><span class="ttl">Cámara '+deRoom(c.room)+'</span><span class="sub">'+cs.txt+(cs.k==='online'?'':' · no envía video')+'</span></span></div>'+
   (st.consent.given? '<div class="row static"><span class="camline cam-online">'+ic('shield')+'</span><span class="grow"><span class="ttl">Consentimiento registrado</span><span class="sub">Constancia del '+dShort(st.consent.date)+' · '+st.consent.time+'</span></span></div>'
     : '<div class="row static"><span class="camline cam-stopped">'+ic('lock')+'</span><span class="grow"><span class="ttl">Falta el consentimiento</span><span class="sub">Regístralo desde Inicio para activar la cámara</span></span></div>')+
   '<div class="row static"><span class="camline '+(st.invitedSetup?'cam-online':'cam-stopped')+'">'+ic('users')+'</span><span class="grow"><span class="ttl">'+(st.invitedSetup?'1 familiar invitado':'Sin contacto secundario')+'</span><span class="sub">'+(st.invitedSetup?esc(st.invitedSetup):'Puedes invitar a alguien desde Familia')+'</span></span></div></div>'+
-  '<div class="card mt16"><div class="card-pad"><h3 class="t-h3">Mira cómo te llegará una alerta</h3><p class="t-small mt8 mb12">Enviaremos una alerta de prueba solo a tu celular. Nadie más la recibe.</p><button class="btn btn-secondary" data-act="testAlert">'+ic('bell')+'Enviar alerta de prueba</button></div></div></div>'+
+  '<div class="card mt16"><div class="card-pad"><h3 class="t-h3">Mira cómo te llegará una alerta</h3><p class="t-small mt8 mb12">Solo llega a tu celular.</p><button class="btn btn-secondary" data-act="testAlert">'+ic('bell')+'Enviar alerta de prueba</button></div></div></div>'+
   '<button class="btn btn-primary mt20" data-act="finishSetup">Ir al inicio</button></div>'};
 };
 
 /* ---------- Inicio ---------- */
 function seniorCard(st){
   const a=st.active, c=st.cams[0]||{status:'online', room:'Sala'}, nm=esc(st.senior.first);
-  let band='calma', icn='sun', t='Todo tranquilo', s='Sin eventos hoy. La cámara '+deRoom(c.room)+' está funcionando.', act='';
-  if(a && !a.test){ band=a.type; icn=a.type==='caida'?'fall':'unsteady'; t=a.type==='caida'?(a.confirmed&&!a.recovered?'Caída confirmada':'Alerta de caída activa'):'Movimiento inestable activo'; s=typeName(a.type)+' '+enRoom(a.room)+' a las '+a.time+'. Aún nadie la marcó como atendida.'; act='<button class="btn '+(a.type==='caida'?'btn-danger':'btn-ink')+' mt12" data-act="openActive">Ver la alerta</button>'; }
-  else if(!st.consent.given){ band='pausa'; icn='lock'; t='Detección detenida'; s=st.consent.revokedAt? 'Revocaste el consentimiento. La cámara no captura y no recibirás alertas.' : 'Falta el consentimiento informado de '+nm+'. La cámara está instalada, pero no envía video.'; act=isAdmin(st)?'<button class="btn btn-primary mt12" data-act="goConsent">Registrar consentimiento</button>':''; }
-  else if(c.status==='offline'){ band='aviso'; icn='wifiOff'; t='La cámara está desconectada'; s='Sin ella no podemos detectar caídas '+enRoom(c.room)+'. Revisa el cable de la cámara, que la PC esté encendida y el internet de la casa.'; act='<button class="btn btn-secondary mt12" data-act="openCam" data-arg="'+c.id+'">Ver qué revisar</button>'; }
-  else if(c.unreliable){ band='aviso'; icn='eyeOff'; t='La detección no es confiable'; s='Hace más de 5 minutos que la cámara no ve bien a '+nm+' '+enRoom(c.room)+'. Revisa la luz y el encuadre.'; act='<button class="btn btn-secondary mt12" data-act="openCam" data-arg="'+c.id+'">Ver qué revisar</button>'; }
+  let band='calma', icn='sun', t='Todo tranquilo', s='Sin eventos hoy.', act='';
+  if(a && !a.test){ band=a.type; icn=a.type==='caida'?'fall':'unsteady'; t=a.type==='caida'?(a.confirmed&&!a.recovered?'Caída confirmada':'Alerta de caída activa'):'Movimiento inestable activo'; s=typeName(a.type)+' '+enRoom(a.room)+' a las '+a.time+'. Nadie la marcó aún.'; act='<button class="btn '+(a.type==='caida'?'btn-danger':'btn-ink')+' mt12" data-act="openActive">Ver la alerta</button>'; }
+  else if(!st.consent.given){ band='pausa'; icn='lock'; t='Detección detenida'; s=st.consent.revokedAt? 'Revocaste el consentimiento. No hay captura ni alertas.' : 'Falta el consentimiento de '+nm+'. La cámara no envía video.'; act=isAdmin(st)?'<button class="btn btn-primary mt12" data-act="goConsent">Registrar consentimiento</button>':''; }
+  else if(c.status==='offline'){ band='aviso'; icn='wifiOff'; t='La cámara está desconectada'; s='Sin ella no detectamos caídas '+enRoom(c.room)+'.'; act='<button class="btn btn-secondary mt12" data-act="openCam" data-arg="'+c.id+'">Ver qué revisar</button>'; }
+  else if(c.unreliable){ band='aviso'; icn='eyeOff'; t='La detección no es confiable'; s='Hace más de 5 min que no ve bien a '+nm+'.'; act='<button class="btn btn-secondary mt12" data-act="openCam" data-arg="'+c.id+'">Ver qué revisar</button>'; }
   else if(c.status==='paused'){ band='pausa'; icn='pause'; t='Todo tranquilo, con una pausa'; s='La cámara '+deRoom(c.room)+' está en pausa hasta las '+c.until+'.'; }
   const col={calma:'var(--calma-ink)',caida:'var(--caida-ink)',inestable:'var(--inestable-ink)',aviso:'var(--aviso)',pausa:'var(--pausa)',morado:'var(--morado-ink)'}[band];
   return '<div class="card"><div class="band '+band+'"></div><div class="card-pad">'+
-   '<div class="flex"><span class="avatar rosa">RH</span><span class="grow"><b style="font-size:17px">'+esc(st.senior.name)+', '+st.senior.age+' años</b><span class="t-meta" style="display:block">'+esc(st.senior.address.replace(', Lima',''))+'</span></span></div>'+
+   '<div class="flex"><span class="avatar rosa">RH</span><span class="grow"><b style="font-size:17px">'+esc(st.senior.name)+', '+st.senior.age+' años</b></span></div>'+
    '<div class="flex mt16" style="align-items:flex-start;color:'+col+'">'+ic(icn,'style="width:28px;height:28px;flex:none"')+'<div><p class="t-h2" style="color:var(--ink)">'+t+'</p><p class="t-small mt8">'+s+'</p></div></div>'+act+'</div></div>';
 }
 S.inicio = st => { const wc=weekCounts(st,0); const last=st.alerts[0];
   return {tab:'inicio', strip:true, html:
-  '<div class="body"><div class="large-title" style="padding:6px 0 14px"><p class="t-meta">'+dLong(st.today).replace(/^./,c=>c.toUpperCase())+'</p><h1 class="t-title">Hola, '+esc(st.user.first)+'</h1></div>'+
-  (!st.perm? '<div class="mb12">'+notice('warn','bellOff','Activa las notificaciones','Están desactivadas en tu celular. Sin ellas no te enterarás de una caída cuando tengas la app cerrada.','<button class="btn btn-ink btn-sm" data-act="enablePerm">Activar notificaciones</button>')+'</div>':'')+
+  '<div class="body"><div class="large-title" style="padding:6px 0 14px"><h1 class="t-title">Hola, '+esc(st.user.first)+'</h1></div>'+
+  (!st.perm? '<div class="mb12">'+notice('warn','bellOff','Activa las notificaciones','Sin ellas no te enterarás de una caída con la app cerrada.','<button class="btn btn-ink btn-sm" data-act="enablePerm">Activar notificaciones</button>')+'</div>':'')+
   seniorCard(st)+
-  '<h2 class="sec-h">'+(st.cams.length>1?'Cámaras':'Cámara')+' <button class="link" data-act="openCam" data-arg="'+st.cams[0].id+'">Ver detalle</button></h2>'+
+  '<h2 class="sec-h">'+(st.cams.length>1?'Cámaras':'Cámara')+'</h2>'+
   '<div class="list">'+st.cams.map(c=>camRow(c,st)).join('')+
-  '<button class="row" data-act="liveHome"><span class="ico">'+ic('video')+'</span><span class="grow"><span class="ttl">Ver en vivo</span><span class="sub">Cuando quieras. Cada acceso queda registrado.</span></span>'+ic('chevR','class="chev"')+'</button></div>'+
+  '<button class="row" data-act="liveHome"><span class="ico">'+ic('video')+'</span><span class="grow"><span class="ttl">Ver en vivo</span><span class="sub">'+(liveState(st,st.cams[0]).ok?'Cada acceso queda registrado':'No disponible ahora')+'</span></span>'+ic('chevR','class="chev"')+'</button></div>'+
   '<h2 class="sec-h">Esta semana <button class="link" data-act="goResumen">Ver resumen</button></h2>'+
-  '<div class="list"><div class="row" style="cursor:default;gap:18px">'+
-   '<span class="flex" style="gap:6px">'+markSVG('caida')+'<b class="mono">'+wc.caidas+'</b> <span class="t-small">caída'+(wc.caidas===1?'':'s')+'</span></span>'+
-   '<span class="flex" style="gap:6px">'+markSVG('inestable')+'<b class="mono">'+wc.inest+'</b> <span class="t-small">inestable'+(wc.inest===1?'':'s')+'</span></span>'+
-   '<span class="flex" style="gap:6px">'+markSVG('falsa')+'<b class="mono">'+wc.falsas+'</b> <span class="t-small">falsas</span></span></div>'+
-   (last? '<button class="row" data-act="openAlert" data-arg="'+last.id+'"><span class="grow"><span class="sub">Último evento</span><span class="ttl">'+typeName(last.type)+' '+enRoom(last.room)+'</span><span class="sub">'+dShort(last.date)+' · <span class="mono">'+last.time+'</span></span></span>'+stamp(last)+ic('chevR','class="chev"')+'</button>':'')+
+  '<div class="list"><div class="wk">'+
+   '<span class="wk-stat"><b>'+wc.caidas+'</b><span>'+markSVG('caida')+'caída'+(wc.caidas===1?'':'s')+'</span></span>'+
+   '<span class="wk-stat"><b>'+wc.inest+'</b><span>'+markSVG('inestable')+'inestable'+(wc.inest===1?'':'s')+'</span></span>'+
+   '<span class="wk-stat"><b>'+wc.falsas+'</b><span>'+markSVG('falsa')+'falsa'+(wc.falsas===1?'':'s')+'</span></span></div>'+
   '</div></div>'};
 };
 
 S.camara = st => { const c=st.cams.find(x=>x.id===st.selCam)||st.cams[0]; const s=camState(c,st); const adm=isAdmin(st); const nm=esc(st.senior.first);
   let body='';
   if(!st.consent.given) body=consentLock(adm);
-  else if(c.status==='offline') body=notice('warn','wifiOff','No recibimos señal desde las '+(c.lastAt||'10:31'),'Mientras siga desconectada no detectamos caídas '+enRoom(c.room)+'. Te avisaremos cuando vuelva.')+
-    '<h2 class="sec-h">Qué revisar en la casa</h2><div class="list"><div class="row static"><span class="ico">'+ic('cam')+'</span><span class="grow"><span class="ttl">El cable de la cámara</span><span class="sub">Que esté bien conectado al puerto USB de la PC.</span></span></div>'+
-    '<div class="row static"><span class="ico">'+ic('pc')+'</span><span class="grow"><span class="ttl">La PC encendida</span><span class="sub">Que no esté apagada ni suspendida, con Te Tengo Captura abierto.</span></span></div>'+
-    '<div class="row static"><span class="ico">'+ic('wifi')+'</span><span class="grow"><span class="ttl">La conexión a internet</span><span class="sub">Que el módem o router de la casa tenga luz y funcione.</span></span></div></div>';
-  else if(c.status==='paused') body=notice('neutral','pause','En pausa hasta las '+c.until,'No se detectan caídas y no se puede ver en vivo. Se reactivará sola a esa hora y te avisaremos.')+'<button class="btn btn-secondary mt12" data-act="resumeCam" data-arg="'+c.id+'">Reanudar ahora</button>';
-  else if(c.unreliable) body=notice('warn','eyeOff','La detección no es confiable desde las '+(c.unrelAt||'10:36'),'Hace más de 5 minutos que la cámara no ve bien a '+nm+'. Descartamos esas imágenes, así que no podemos asegurar que detectemos una caída.')+
-    '<h2 class="sec-h">Qué revisar en la casa</h2><div class="list"><div class="row static"><span class="ico">'+ic('sun')+'</span><span class="grow"><span class="ttl">La luz de la habitación</span><span class="sub">Que haya luz suficiente. De noche, deja encendida una lámpara pequeña.</span></span></div>'+
-    '<div class="row static"><span class="ico">'+ic('cam')+'</span><span class="grow"><span class="ttl">El encuadre de la cámara</span><span class="sub">Que nada la tape y que se vea el cuerpo entero de '+nm+', de la cabeza a los pies.</span></span></div></div>'+
-    '<p class="t-meta mt8">Te avisaremos cuando la cámara vuelva a verla bien.</p>';
-  else body='<button class="btn btn-secondary" data-act="openPause">'+ic('pause')+'Pausar esta cámara</button><p class="t-meta mt8">Útil si hay visitas o una reunión familiar en esta habitación.</p>';
+  else if(c.status==='offline') body=
+    '<h2 class="sec-h" style="margin-top:4px">Qué revisar en la casa</h2><div class="list"><div class="row static"><span class="ico">'+ic('cam')+'</span><span class="grow"><span class="ttl">El cable de la cámara</span><span class="sub">Conectado al puerto USB de la PC</span></span></div>'+
+    '<div class="row static"><span class="ico">'+ic('pc')+'</span><span class="grow"><span class="ttl">La PC encendida</span><span class="sub">Sin suspender, con Te Tengo Captura abierto</span></span></div>'+
+    '<div class="row static"><span class="ico">'+ic('wifi')+'</span><span class="grow"><span class="ttl">La conexión a internet</span><span class="sub">Que el módem o router tenga luz</span></span></div></div><p class="t-meta mt8">Te avisaremos cuando vuelva.</p>';
+  else if(c.status==='paused') body=notice('neutral','pause','En pausa hasta las '+c.until,'Sin detección ni vista en vivo. Se reactiva sola y te avisaremos.')+'<button class="btn btn-secondary mt12" data-act="resumeCam" data-arg="'+c.id+'">Reanudar ahora</button>';
+  else if(c.unreliable) body=notice('warn','eyeOff','Desde las '+(c.unrelAt||'10:36')+' no ve bien a '+nm,'Así no podemos asegurar que detectemos una caída.')+
+    '<h2 class="sec-h">Qué revisar en la casa</h2><div class="list"><div class="row static"><span class="ico">'+ic('sun')+'</span><span class="grow"><span class="ttl">La luz de la habitación</span><span class="sub">De noche, deja una lámpara pequeña encendida</span></span></div>'+
+    '<div class="row static"><span class="ico">'+ic('cam')+'</span><span class="grow"><span class="ttl">El encuadre de la cámara</span><span class="sub">Que nada la tape y se vea a '+nm+' de cuerpo entero</span></span></div></div>'+
+    '';
+  else body='<button class="btn btn-secondary" data-act="openPause">'+ic('pause')+'Pausar esta cámara</button><p class="t-meta mt8">Útil si hay visitas en esta habitación.</p>';
   const last=(st.liveLog||[])[0]; const lv=liveState(st,c);
   const live='<h2 class="sec-h">Vista en vivo</h2><div class="list">'+
     '<button class="row" data-act="liveCam" data-arg="'+c.id+'"><span class="ico">'+ic('video')+'</span><span class="grow"><span class="ttl">Ver en vivo</span><span class="sub">'+(lv.ok?'Disponible ahora':lv.k==='paused'?'No disponible hasta las '+c.until:'No disponible ahora')+'</span></span>'+ic('chevR','class="chev"')+'</button>'+
     '<button class="row" data-go="accesos"><span class="ico">'+ic('eye')+'</span><span class="grow"><span class="ttl">Registro de accesos</span><span class="sub">'+(last? 'Último: '+(last.who===st.user.name?'tú':esc(last.who.split(' ')[0]))+', '+(last.date===st.today?'hoy':dShort(last.date))+' a las '+last.start+' · '+fmtDur(last.secs) : 'Aún no hay accesos registrados')+'</span></span>'+ic('chevR','class="chev"')+'</button></div>';
-  const room='<h2 class="sec-h">Habitación</h2><div class="list">'+(adm? '<button class="row" data-act="openRename"><span class="ico">'+ic('pin')+'</span><span class="grow"><span class="ttl">'+esc(c.room)+'</span><span class="sub">Cambiar el nombre que aparece en las alertas</span></span>'+ic('chevR','class="chev"')+'</button>'
+  const room='<div class="list mt12">'+(adm? '<button class="row" data-act="openRename"><span class="ico">'+ic('pin')+'</span><span class="grow"><span class="ttl">'+esc(c.room)+'</span><span class="sub">Cambiar el nombre que aparece en las alertas</span></span>'+ic('chevR','class="chev"')+'</button>'
     : '<div class="row static"><span class="ico">'+ic('pin')+'</span><span class="grow"><span class="ttl">'+esc(c.room)+'</span><span class="sub">Nombre que aparece en las alertas</span></span><span class="ro-tag">'+ic('lock')+'Solo ver</span></div>')+'</div>'+
     (adm?'':'<div class="mt12">'+lockNote(st,'cambiar el nombre de la habitación')+'</div>');
   return {html: appbar('Cámara · '+esc(c.room))+
@@ -1121,6 +1264,7 @@ S.camara = st => { const c=st.cams.find(x=>x.id===st.selCam)||st.cams[0]; const 
 };
 
 /* ---------- Alertas ---------- */
+function tlCount(a, st){ return (timeline(a,st).match(/<li/g)||[]).length; }
 S.lock = st => { const n=st.lockNotifs||[];
   return {cls:'on-dark', light:true, bare:true, html:
   '<div class="lock">'+lockWall()+statusbar(st,true)+
@@ -1132,46 +1276,49 @@ S.lock = st => { const n=st.lockNotifs||[];
   '<button class="btn btn-onred" data-act="unlock" style="position:absolute;bottom:40px;left:50%;transform:translateX(-50%);width:auto;min-height:48px;border-radius:24px;font-size:15px">Abrir Te Tengo</button></div>'};
 };
 
+/* Alerta: lo crítico a la vista (qué, dónde, cuándo, llamar); lo demás detrás de «Clip» y «Más detalles» */
 function alertHero(st,a){
-  const med=a.type==='inestable'; const ago=Math.max(0,toMin(st.clock)-toMin(a.time));
+  const med=a.type==='inestable'; const ago=Math.max(0,toMin(st.clock)-toMin(a.time)); const nm=esc(st.senior.first);
+  const bar=(icon,b,t)=>'<div class="notice" style="background:rgba(255,255,255,.94);color:var(--ink);margin-bottom:14px">'+ic(icon)+'<div><b>'+b+'</b><span>'+t+'</span></div></div>';
   return '<div class="alert-hero">'+
-   (a.pushFailed? '<div class="notice" style="background:rgba(255,255,255,.94);color:var(--ink);margin-bottom:14px">'+ic('bellOff')+'<div><b>Esta alerta no te llegó como notificación</b><span>El servicio de avisos falló. Seguimos reintentando el envío; por eso la ves al abrir la app.</span></div></div>':'')+
-   (a.test? '<div class="notice" style="background:rgba(255,255,255,.94);color:var(--ink);margin-bottom:14px">'+ic('info')+'<div><b>Alerta de prueba</b><span>Así se verá una alerta real. '+esc(st.senior.first)+' no necesita ayuda.</span></div></div>':'')+
-   '<span class="alert-kind">'+ic(med?'unsteady':'fall')+(med?'Movimiento inestable · Severidad media':'Alerta de caída · Urgente')+'</span>'+
+   (a.pushFailed? bar('bellOff','No te llegó como notificación','Falló el envío; seguimos reintentando.'):'')+
+   (a.test? bar('info','Alerta de prueba',nm+' no necesita ayuda.'):'')+
+   '<span class="alert-kind">'+ic(med?'unsteady':'fall')+(med?'Inestable · Severidad media':'Caída · Urgente')+'</span>'+
    '<h1 class="alert-h">'+(med? esc(st.senior.first)+' tuvo un movimiento inestable' : a.confirmed&&!a.recovered? esc(st.senior.first)+' se cayó y sigue en el suelo' : esc(st.senior.first)+' pudo haberse caído')+'</h1>'+
    (!med && !a.test? '<p class="alert-conf'+(a.confirmed&&!a.recovered?'':' soft')+'">'+(a.recovered? ic('stand')+'Se levantó a las <span class="mono">'+a.recovered+'</span>' : a.confirmed? ic('warn')+'Sigue en el suelo · confirmada' : ic('clock')+'Comprobando si sigue en el suelo')+'</p>' : '')+
-   '<div class="slots"><div class="slot"><span class="k">Habitación</span><span class="v">'+esc(a.room)+'</span></div><div class="slot"><span class="k">Hora</span><span class="v mono">'+a.time+'</span></div><div class="slot"><span class="k">Hace</span><span class="v">'+(ago<1?'instantes':ago+' min')+'</span></div></div>'+
-   '<p style="font-size:15px;margin-top:12px;opacity:.95">'+esc(st.senior.address)+'</p>'+
-   '<div class="btn-row mt16"><a class="btn '+(med?'btn-ink':'btn-white')+'" href="#" data-act="call">'+ic('phone')+'Llamar a '+esc(st.senior.first)+' · '+st.senior.phone+'</a>'+
-   '<button class="btn '+(med?'btn-secondary':'btn-onred')+'" data-act="openLive">'+ic('video')+'Ver en vivo · '+esc(a.room)+'</button></div></div>';
+   '<div class="slots"><div class="slot"><span class="k">Habitación</span><span class="v">'+esc(a.room)+'</span></div><div class="slot"><span class="k">Hora</span><span class="v mono">'+a.time+'</span></div><div class="slot"><span class="k">Hace</span><span class="v">'+(ago<1?'ahora':ago+' min')+'</span></div></div>'+
+   '<div class="btn-row mt16"><a class="btn '+(med?'btn-ink':'btn-white')+'" href="#" data-act="call">'+ic('phone')+'Llamar a '+nm+'</a>'+
+   '<button class="btn '+(med?'btn-secondary':'btn-onred')+'" data-act="openLive">'+ic('video')+'Ver en vivo</button></div></div>';
 }
 S.alerta = st => { const a=st.active; if(!a) return S.inicio(st);
-  const med=a.type==='inestable'; const sec=secondary(st); const pri=principal(st); const escAt=addMin(a.time, st.escMin); const adm=isAdmin(st);
+  const med=a.type==='inestable'; const sec=secondary(st); const pri=principal(st); const escAt=addMin(a.time, st.escMin); const adm=isAdmin(st); const nm=esc(st.senior.first);
   const iAmSec=sec&&sec.you, iAmPri=pri&&pri.you;
   let escBlock='';
   if(!a.test){
-    if(a.escalated && a.escTo) escBlock= iAmSec? notice('info','users','Te toca atenderla','Nadie marcó la alerta en '+st.escMin+' minutos, así que a las <span class="mono">'+a.escalated+'</span> te avisamos como contacto secundario.')
-      : notice('info','users','Avisamos a '+a.escTo,'Nadie marcó la alerta en '+st.escMin+' minutos, así que a las <span class="mono">'+a.escalated+'</span> se la enviamos al contacto secundario. Tú todavía puedes atenderla.');
-    else if(a.escalated) escBlock=notice('warn','warn','No hay a quién escalar','Pasaron '+st.escMin+' minutos sin respuesta y no hay contacto secundario. Esta alerta sigue siendo '+(iAmPri?'tuya':'de '+esc(pri.name.split(' ')[0]))+'.', adm?'<button class="btn btn-ink btn-sm" data-act="goInvite">Agregar contacto secundario</button>':'');
-    else if(sec) escBlock='<p class="t-small flex" style="align-items:flex-start">'+ic('clock','style="width:20px;height:20px;flex:none;margin-top:2px"')+'<span>'+(iAmSec? esc(pri.name.split(' ')[0])+' es el contacto principal. Si nadie la marca como atendida antes de las <b class="mono">'+escAt+'</b>, te avisaremos como contacto secundario.' : 'Si nadie la marca como atendida antes de las <b class="mono">'+escAt+'</b>, avisaremos a '+esc(sec.name)+' (contacto secundario).')+'</span></p>';
-    else escBlock=notice('warn','warn','Sin contacto secundario','Si nadie atiende esta alerta, no habrá nadie más a quién avisar.', adm?'<button class="btn btn-ink btn-sm" data-act="goInvite">Agregar contacto</button>':'');
+    if(a.escalated && a.escTo) escBlock= iAmSec? notice('info','users','Te toca atenderla','Nadie la marcó en '+st.escMin+' min; a las <span class="mono">'+a.escalated+'</span> te avisamos como secundario.')
+      : notice('info','users','Avisamos a '+a.escTo,'A las <span class="mono">'+a.escalated+'</span>, tras '+st.escMin+' min sin respuesta. Tú todavía puedes atenderla.');
+    else if(a.escalated) escBlock=notice('warn','warn','No hay a quién escalar',st.escMin+' min sin respuesta y sin contacto secundario. Sigue siendo '+(iAmPri?'tuya':'de '+esc(pri.name.split(' ')[0]))+'.', adm?'<button class="btn btn-ink btn-sm" data-act="goInvite">Agregar contacto secundario</button>':'');
+    else if(sec) escBlock='<p class="t-small flex" style="align-items:flex-start">'+ic('clock','style="width:20px;height:20px;flex:none;margin-top:2px"')+'<span>'+(iAmSec? esc(pri.name.split(' ')[0])+' es la principal. Si nadie la marca antes de las <b class="mono">'+escAt+'</b>, te avisamos.' : 'Si nadie la marca antes de las <b class="mono">'+escAt+'</b>, avisamos a '+esc(sec.name)+' (secundario).')+'</span></p>';
+    else escBlock=notice('warn','warn','Sin contacto secundario','Si nadie la atiende, no hay a quién más avisar.', adm?'<button class="btn btn-ink btn-sm" data-act="goInvite">Agregar contacto</button>':'');
   }
-  const steps = med?
-   [['Llama a '+esc(st.senior.first),'Pregúntale cómo se siente y si necesita ayuda.'],['Revisa el clip','Mira qué pasó antes y después del movimiento.'],['Marca la alerta','Indica si la atendiste o si fue una falsa alarma.']] :
-   [['Llama a '+esc(st.senior.first),'Si contesta, pregúntale si puede levantarse sola.'],['Si no contesta, pide ayuda cerca','A un vecino o a quien esté más cerca de '+esc(st.senior.address.split(',')[1]||'la casa').trim()+'. Emergencias: SAMU 106 o Bomberos 116.'],['Marca la alerta','Cuando esté atendida, para que la familia lo sepa.']];
+  const escInfo=(!a.test && !a.escalated && sec)? escBlock : ''; if(escInfo) escBlock='';
+  const help=(!med && !a.test)? '<div class="card card-pad mb16"><p class="t-h3">¿'+nm+' no contesta?</p><p class="t-small mt8">Pide ayuda a un vecino o llama a emergencias.</p><a class="btn btn-secondary mt12" href="#" data-act="callSamu">'+ic('phone')+'Llamar al SAMU · 106</a></div>' : '';
+  const why= med? 'No es una caída. Si termina en una, te enviamos una alerta urgente.' : a.test? '' : a.recovered? 'Se puso de pie '+enRoom(a.room)+'. Confirma cómo está antes de marcar la alerta.' : a.confirmed? 'Lleva más de 30 s en el suelo. Si se levanta, te avisamos.' : 'Si sigue en el suelo 30 s, confirmamos la caída. Si se levanta, te avisamos.';
+  const det='<div class="kv"><span class="k">Dirección</span><span class="v">'+esc(st.senior.address)+'</span></div>'+
+    '<div class="kv"><span class="k">Teléfono</span><span class="v mono">'+st.senior.phone+'</span></div>'+
+    (med?'':'<div class="kv"><span class="k">Bomberos</span><span class="v mono">116</span></div>')+
+    (why?'<p class="t-small mt8">'+why+'</p>':'')+
+    (escInfo?'<div class="mt8">'+escInfo+'</div>':'')+
+    '<div class="mt12">'+timeline(a,st)+'</div>';
   return {cls:'drench '+a.type, light:!med, html:
   '<header class="appbar"><button class="iconbtn" data-act="closeAlert" aria-label="Cerrar la alerta y volver al inicio">'+ic('x')+'</button><h1></h1></header>'+
   '<div class="body" style="padding:0">'+alertHero(st,a)+
-  '<div class="sheet-under settle">'+
-   (a.recovered? '<div class="mb16">'+notice('ok','stand',esc(st.senior.first)+' se levantó a las '+a.recovered,'Detectamos que se puso de pie '+enRoom(a.room)+'. Aun así, confirma cómo está antes de cerrar la alerta.')+'</div>':'')+
-   (!med && !a.recovered && !a.test? (a.confirmed? '<div class="mb16">'+notice('err','fall','Sigue en el suelo: caída confirmada','Pasaron 30 segundos y '+esc(st.senior.first)+' no se ha levantado. La alerta sigue activa hasta que alguien la marque. Si se pone de pie, te avisaremos.')+'</div>'
-     : '<p class="t-small flex mb16" style="align-items:flex-start">'+ic('stand','style="width:20px;height:20px;flex:none;margin-top:2px"')+'<span>Estamos comprobando si '+esc(st.senior.first)+' se levanta. Si sigue en el suelo 30 segundos, confirmaremos la caída. Si se pone de pie, te avisaremos.</span></p>'):'')+
-   (a.fromInestable? '<div class="mb16">'+notice('neutral','unsteady','Empezó como movimiento inestable','A las <span class="mono">'+a.fromInestable.time+'</span> '+enRoom(a.fromInestable.room)+'. La situación terminó en una caída.')+'</div>':'')+
-   (med? '<p class="t-small mb16">No se detectó una caída. Si la situación termina en una caída, te avisaremos de inmediato con una alerta urgente.</p>':'')+
+  '<div class="sheet-under settle">'+help+
    (escBlock? '<div class="mb16">'+escBlock+'</div>':'')+
-   '<h2 class="t-h3 mb8">Qué hacer ahora</h2><ol class="steps">'+steps.map((s,i)=>'<li><span class="n">'+(i+1)+'</span><span><b>'+s[0]+'</b><span class="t-small">'+s[1]+'</span></span></li>').join('')+'</ol>'+
-   '<h2 class="t-h3 mt20 mb8">Clip del evento</h2>'+clipBlock(a,st)+
-   '<h2 class="t-h3 mt20 mb12">Registro</h2><div class="card card-pad">'+timeline(a,st)+'</div>'+
+   '<div class="list">'+
+    fold('al-clip','video','Clip del evento', a.clip==='none'?'No se pudo guardar':'12 s, antes y después', '<div>'+clipBlock(a,st)+'</div>', med||st.foldOpen==='al-clip').replace('class="fold"','class="fold media"')+
+    fold('al-det','info','Más detalles','Dirección, teléfono, aviso y registro', det, st.foldOpen==='al-det')+
+   '</div>'+
   '</div></div>'+
   '<div class="dock">'+(a.test? '<button class="btn btn-primary" data-act="endTest">Terminar la prueba</button>' : '<button class="btn btn-primary" data-act="openMark">'+ic('check')+'Marcar alerta</button>')+'</div>'};
 };
@@ -1182,13 +1329,12 @@ S.vivo = st => { const L=st.live||{from:st.active?'alert':'home'}; const a=(L.fr
   let view;
   if(ls.ok){ const pose=a? (a.recovered?'pie':(a.type==='caida'?'caida':'inestable')) : 'pie';
     view='<div class="clip" style="aspect-ratio:3/4">'+roomSVG(room, pose, {anim:true, ring:a?(a.type==='caida'?'#BF2A1B':'#B07A00'):null})+'<span class="tag"><span class="rec"></span>EN VIVO · <span class="mono" id="live-el">'+st.liveElapsed+'</span></span></div>'+
-     '<p class="mt16" style="font-size:15px;color:#D9D3E6">'+(a? 'Ves la habitación y la postura detectada. ' : 'Ves '+(ROOM_ART[room]||room)+' y la postura de '+nm+' en este momento. ')+'La transmisión no se graba.</p>'+
-     '<p class="mt8 flex" style="font-size:15px;color:#D9D3E6;align-items:flex-start;gap:10px">'+ic('eye','style="width:20px;height:20px;flex:none;margin-top:1px;color:#fff"')+'<span>Tu acceso queda en el registro que ve toda la familia: '+esc(st.user.name)+', desde las <span class="mono">'+(L.start||st.clock)+'</span>.</span></p>';
+     '<p class="mt16 flex" style="font-size:15px;color:#D9D3E6;align-items:flex-start;gap:10px">'+ic('eye','style="width:20px;height:20px;flex:none;margin-top:1px;color:#fff"')+'<span>No se graba. Tu acceso desde las <span class="mono">'+(L.start||st.clock)+'</span> queda en el registro de la familia.</span></p>';
   } else {
     const U=(icon,col,t,x)=>'<div class="clip missing" style="aspect-ratio:3/4;background:repeating-linear-gradient(135deg,#231C30 0 10px,#2A2238 10px 20px);color:#fff"><div>'+ic(icon,'style="width:40px;height:40px;color:'+col+'"')+'<p class="t-h2 mt12" style="color:#fff">'+t+'</p><p class="mt8" style="font-size:15px;color:#D9D3E6">'+x+'</p></div></div>';
-    if(ls.k==='offline') view=U('wifiOff','#FFC76B','La cámara '+deRoom(room)+' no está disponible','Perdió la conexión a las <span class="mono">'+(c.lastAt||'10:43')+'</span>, así que no podemos mostrarte la habitación. '+(a? 'Llama a '+nm+' o pide a alguien cercano que vaya a verla.' : 'Revisa el cable de la cámara, que la PC esté encendida y el internet de la casa.'));
-    else if(ls.k==='paused') view=U('pause','#C9D2E3','La vista en vivo no está disponible','La cámara '+deRoom(room)+' está en pausa hasta las <span class="mono">'+c.until+'</span>. Podrás verla de nuevo a esa hora, o antes si reanudas la cámara.');
-    else view=U('lock','#C9D2E3','La cámara está detenida','Sin el consentimiento de '+nm+' la cámara no envía video, así que no se puede ver en vivo.');
+    if(ls.k==='offline') view=U('wifiOff','#FFC76B','La cámara '+deRoom(room)+' no está disponible','Sin conexión desde las <span class="mono">'+(c.lastAt||'10:43')+'</span>. '+(a? 'Llama a '+nm+' o pide a alguien cercano que vaya a verla.' : 'Revisa el cable, la PC y el internet de la casa.'));
+    else if(ls.k==='paused') view=U('pause','#C9D2E3','La vista en vivo no está disponible','En pausa hasta las <span class="mono">'+c.until+'</span>, o hasta que la reanudes.');
+    else view=U('lock','#C9D2E3','La cámara está detenida','Sin el consentimiento de '+nm+' no hay video.');
   }
   const btns=(ls.ok||a? '<a class="btn btn-white" href="#" data-act="call" style="color:var(--ink)">'+ic('phone')+'Llamar a '+nm+'</a>' : '')+
     (ls.k==='paused'? '<button class="btn btn-white" data-act="resumeCam" data-arg="'+c.id+'" style="color:var(--ink)">'+ic('refresh')+'Reanudar la cámara ahora</button>' : '')+
@@ -1201,14 +1347,14 @@ S.vivo = st => { const L=st.live||{from:st.active?'alert':'home'}; const a=(L.fr
 
 /* Registro de accesos a la vista en vivo: quién, cuándo empezó y cuánto duró, del más reciente al más antiguo */
 S.accesos = st => { const L=st.liveLog||[]; let h='';
-  if(!L.length) h='<div class="empty">'+emptyIll('eye')+'<h2 class="t-h2">Aún no hay accesos registrados</h2><p class="t-small">Cuando alguien de la familia abra la vista en vivo, aquí verás quién la vio, cuándo empezó y cuánto duró.</p></div>';
+  if(!L.length) h='<div class="empty">'+emptyIll('eye')+'<h2 class="t-h2">Aún no hay accesos registrados</h2><p class="t-small">Aquí verás quién la abrió y cuánto duró.</p></div>';
   else { let day='';
     L.forEach(x=>{ if(x.date!==day){ if(day) h+='</div>'; day=x.date; h+='<p class="day-h">'+(x.date===st.today?'Hoy, ':'')+dLong(x.date)+'</p><div class="list">'; }
       const you=x.who===st.user.name;
       h+='<div class="row static'+(x.fresh?' fresh':'')+'"><span class="avatar '+(x.av||'')+'">'+x.ini+'</span><span class="grow"><span class="ttl">'+esc(x.who)+(you?' (tú)':'')+'</span><span class="sub">Empezó a las <span class="mono">'+x.start+'</span> · duró '+fmtDur(x.secs)+'</span>'+(x.alert?'<span class="role pend" style="display:inline-block;margin-top:6px">Desde una alerta</span>':'')+'</span></div>'; });
     h+='</div>'; }
   return {html: appbar('Registro de accesos')+
-  '<div class="body"><p class="t-small">Cada vez que alguien de la familia abre la vista en vivo '+deRoom(roomOf(st))+', queda registrado quién la vio, cuándo empezó y cuánto duró. Toda la familia ve este registro.</p>'+h+
+  '<div class="body"><p class="t-small">Quién abrió la vista en vivo '+deRoom(roomOf(st))+', cuándo y cuánto duró. Toda la familia lo ve.</p>'+h+
   (st.consent.given? '<p class="t-meta mt20 flex" style="align-items:flex-start;gap:8px">'+ic('shield','style="width:18px;height:18px;flex:none;margin-top:1px"')+'<span>'+esc(st.senior.first)+' autorizó la vista en vivo en su consentimiento del '+dYear(st.consent.date)+'.</span></p>' : '')+'</div>'};
 };
 
@@ -1221,10 +1367,10 @@ function detailCard(a, st){
 }
 S.detalle = st => { const a=alertById(st,st.sel)||st.alerts[0];
   return {html: appbar('Alerta del '+dShort(a.date))+
-  '<div class="body">'+(a.byOther && a.status!=='activa'? '<div class="mb16">'+notice('ok','check',esc(a.by.split(' ')[0])+' '+(a.status==='falsa'?'la marcó como falsa alarma':'ya atendió esta alerta'),'A las <span class="mono">'+a.at+'</span>. Toda la familia ve quién la atendió y a qué hora.')+'</div>':'')+detailCard(a,st)+
+  '<div class="body">'+detailCard(a,st)+
   '<h2 class="sec-h">Grabación</h2>'+clipBlock(a,st,{progress:0,pos:'00'})+
   (a.clip==='ok'? '<button class="btn btn-secondary mt12" data-act="download" data-arg="'+a.id+'">'+ic('download')+'Descargar grabación</button><p class="t-meta center mt8">MP4 · 12 s · 4,1 MB · disponible hasta el '+dYear(addDays(a.date,30))+'</p>':'')+
-  '<h2 class="sec-h">Registro</h2><div class="card card-pad">'+timeline(a,st)+'</div></div>'};
+  '<div class="list mt20">'+fold('dt-reg','clock','Registro del evento',tlCount(a,st)+' momentos','<div style="padding-top:8px">'+timeline(a,st)+'</div>')+'</div></div>'};
 };
 
 /* ---------- Historial y resumen ---------- */
@@ -1241,7 +1387,7 @@ function filtered(st){
 const FLBL={rango:{'7':'Últimos 7 días','30':'Últimos 30 días'},tipo:{caida:'Caídas',inestable:'Movimientos inestables'},estado:{activa:'Activas',atendida:'Atendidas',falsa:'Falsas alarmas'}};
 function historialList(st){
   const all=(st.active?[st.active]:[]).concat(st.alerts);
-  if(!all.length) return '<div class="empty">'+emptyIll('cal')+'<h2 class="t-h2">Sin eventos registrados</h2><p class="t-small">Aquí aparecerán las alertas de caída y de movimiento inestable, con su fecha, hora, habitación y estado.</p></div>';
+  if(!all.length) return '<div class="empty">'+emptyIll('cal')+'<h2 class="t-h2">Sin eventos registrados</h2><p class="t-small">Aquí verás cada caída y movimiento inestable.</p></div>';
   const f=st.filt; const act=Object.keys(f).filter(k=>f[k]!=='todo'&&f[k]!=='todas');
   let h='<div class="flex" style="flex-wrap:wrap;gap:8px"><button class="chip" data-act="openFilters">'+ic('filter')+'Filtrar'+(act.length?' ('+act.length+')':'')+'</button>'+act.map(k=>'<button class="chip sel" data-act="clearFilt" data-arg="'+k+'" aria-label="Quitar filtro '+FLBL[k][f[k]]+'">'+FLBL[k][f[k]]+ic('x')+'</button>').join('')+'</div>';
   const list=filtered(st);
@@ -1249,10 +1395,11 @@ function historialList(st){
   let day='';
   list.forEach(a=>{
     if(a.date!==day){ if(day) h+='</div>'; day=a.date; h+='<p class="day-h">'+(a.date===st.today?'Hoy, ':'')+dLong(a.date)+'</p><div class="list">'; }
-    h+='<button class="alert-row" data-act="openAlert" data-arg="'+a.id+'"><span class="tm">'+a.time+'</span>'+markSVG(a.status==='falsa'?'falsa':a.type)+'<span class="grow"><span class="ttl">'+typeName(a.type)+'</span><span class="sub">'+esc(a.room)+(a.status==='activa'?'':' · '+(a.by||'').split(' ')[0])+'</span></span>'+stamp(a)+'</button>';
+    h+='<button class="alert-row" data-act="openAlert" data-arg="'+a.id+'"><span class="tm">'+a.time+'</span>'+markSVG(a.status==='falsa'?'falsa':a.type)+'<span class="grow"><span class="ttl">'+(a.type==='caida'?'Caída':'Inestable')+'</span><span class="sub">'+(st.cams.length>1?esc(a.room)+' · ':'')+(a.status==='activa'?'Sin marcar':a.status==='evoluciono'?'Terminó en caída':'por '+esc((a.by||'').split(' ')[0]))+'</span></span>'+stamp(a)+'</button>';
   });
   return h+'</div>';
 }
+function rng(a,b,M){ const x=D(a), y=D(b); return x.getMonth()===y.getMonth()? x.getDate()+' – '+y.getDate()+' '+M[y.getMonth()] : x.getDate()+' '+MON[x.getMonth()]+' – '+y.getDate()+' '+MON[y.getMonth()]; }
 function resumenView(st){
   const off=st.week; const wc=weekCounts(st,off); const [a,b]=wc.range;
   const lbl= off===0?'Esta semana': off===-1?'Semana pasada':'Hace '+(-off)+' semanas';
@@ -1263,14 +1410,14 @@ function resumenView(st){
     grid+='<div class="d'+(d===st.today?' today':'')+'"><span class="lbl">'+days[i]+'</span><span class="cell">'+ev.map(x=>markSVG(x.status==='falsa'?'falsa':x.type)).join('')+'</span><span class="t-meta mono" style="font-size:13px">'+D(d).getDate()+'</span></div>'; }
   grid+='</div>';
   const pv=weekCounts(st,off-1); const [pa,pb]=pv.range;
-  const trend=(n,p,alarm)=>{ const d=n-p; if(!d) return '<span class="trend same">'+ic('equal')+'Igual que la semana anterior</span>';
-    return '<span class="trend '+(d>0?(alarm?'up':'upn'):'down')+'">'+ic(d>0?'up':'down')+(d>0?'Aumentó':'Disminuyó')+': '+Math.abs(d)+' '+(d>0?'más':'menos')+' que la semana anterior ('+p+')</span>'; };
+  const trend=(n,p,alarm)=>{ const d=n-p; if(!d) return '<span class="trend same">'+ic('equal')+'Igual ('+p+')</span>';
+    return '<span class="trend '+(d>0?(alarm?'up':'upn'):'down')+'">'+ic(d>0?'up':'down')+(d>0?'Subió':'Bajó')+' de '+p+' a '+n+'</span>'; };
   const row=(n,t,col,m,p,alarm)=>'<div class="count-row"><span class="n">'+n+'</span><span class="grow"><b class="flex" style="gap:8px">'+markSVG(m)+t+'</b><span class="bar"><i style="width:'+(n/max*100)+'%;background:'+col+'"></i></span>'+trend(n,p,alarm)+'</span></div>';
-  return '<div class="flex between mt16"><button class="iconbtn" data-act="week" data-arg="-1" aria-label="Semana anterior">'+ic('chevL')+'</button><div class="center"><b style="font-size:18px">'+lbl+'</b><p class="t-meta">'+D(a).getDate()+' – '+D(b).getDate()+' '+MONL[D(b).getMonth()]+' 2026</p></div><button class="iconbtn" data-act="week" data-arg="1" aria-label="Semana siguiente"'+(off>=0?' disabled style="opacity:.3"':'')+'>'+ic('chevR')+'</button></div>'+
-  (total===0? '<div class="empty" style="padding-top:18px">'+emptyIll('week')+'<h2 class="t-h2">Semana sin eventos</h2><p class="t-small">No hubo caídas ni movimientos inestables del '+D(a).getDate()+' al '+D(b).getDate()+' de '+MONL[D(b).getMonth()]+'.</p></div>' : '<div class="card card-pad mt12">'+grid+'</div>')+
-  '<h2 class="sec-h" style="margin-top:22px">Por tipo<span class="t-meta" style="font-weight:600">vs. '+D(pa).getDate()+' – '+D(pb).getDate()+' '+MON[D(pb).getMonth()]+'</span></h2>'+
+  return '<div class="flex between mt16"><button class="iconbtn" data-act="week" data-arg="-1" aria-label="Semana anterior"'+(off<=-6?' disabled style="opacity:.3"':'')+'>'+ic('chevL')+'</button><div class="center"><b style="font-size:18px">'+lbl+'</b><p class="t-meta">'+rng(a,b,MONL)+(off===0?' · hasta hoy':' 2026')+'</p></div><button class="iconbtn" data-act="week" data-arg="1" aria-label="Semana siguiente"'+(off>=0?' disabled style="opacity:.3"':'')+'>'+ic('chevR')+'</button></div>'+
+  (total===0? '<div class="empty" style="padding-top:18px">'+emptyIll('week')+'<h2 class="t-h2">Semana sin eventos</h2><p class="t-small">No hubo caídas ni movimientos inestables.</p></div>' : '<div class="card card-pad mt12">'+grid+'</div>')+
+  '<h2 class="sec-h" style="margin-top:22px">Por tipo<span class="t-meta" style="font-weight:600">vs. '+rng(pa,pb,MON)+'</span></h2>'+
   '<div class="card card-pad" style="padding-top:6px;padding-bottom:6px">'+row(wc.caidas,'Caídas','var(--caida)','caida',pv.caidas,1)+row(wc.inest,'Movimientos inestables','var(--inestable-deep)','inestable',pv.inest,1)+row(wc.falsas,'Falsas alarmas','var(--ink-3)','falsa',pv.falsas,0)+'</div>'+
-  '<p class="t-meta mt12">'+(off===0?'Esta semana va hasta hoy. ':'')+'Las falsas alarmas no se suman a las caídas ni a los movimientos inestables.</p>';
+  '<p class="t-meta mt12">Las falsas alarmas no suman a caídas ni a inestables.</p>';
 }
 S.historial = st => ({tab:'historial', strip:true, html:
   '<div class="body"><h1 class="t-title" style="padding:6px 0 14px">Historial</h1>'+
@@ -1281,15 +1428,15 @@ S.historial = st => ({tab:'historial', strip:true, html:
 const ROLE_LBL={principal:'Principal',secundario:'Secundario',familiar:'Recibe alertas',pendiente:'Pendiente'};
 function famOrder(st){ const o={principal:0,secundario:1,familiar:2,pendiente:3}; return st.fam.slice().sort((a,b)=>o[a.role]-o[b.role]); }
 function famRow(st,f){
-  const inner='<span class="avatar '+f.av+'">'+f.ini+'</span><span class="grow"><span class="ttl">'+esc(f.name)+(f.you?' (tú)':'')+'</span><span class="sub">'+f.rel+(f.titular?' · titular de la cuenta':'')+(f.role==='pendiente'?' · invitación sin aceptar':'')+'</span></span><span class="role'+(f.role==='secundario'?' sec':f.role==='principal'?'':' pend')+'">'+ROLE_LBL[f.role]+'</span>';
+  const inner='<span class="avatar '+f.av+'">'+f.ini+'</span><span class="grow"><span class="ttl">'+esc(f.name)+(f.you?' (tú)':'')+'</span><span class="sub">'+f.rel+(f.titular?' · titular':'')+'</span></span><span class="role'+(f.role==='secundario'?' sec':f.role==='principal'?'':' pend')+'">'+ROLE_LBL[f.role]+'</span>';
   return isAdmin(st)? '<button class="row" data-act="openFam" data-arg="'+f.id+'">'+inner+'</button>' : '<div class="row static">'+inner+'</div>';
 }
 S.familia = st => { const sec=secondary(st), pri=principal(st); const adm=isAdmin(st);
   return {tab:'familia', strip:true, html:
-  '<div class="body"><h1 class="t-title" style="padding:6px 0 6px">Familia</h1><p class="t-small mb16">Quienes reciben las alertas de '+esc(st.senior.first)+' y en qué orden responden.</p>'+
+  '<div class="body"><h1 class="t-title" style="padding:6px 0 6px">Familia</h1><p class="t-small mb16">Reciben las alertas de '+esc(st.senior.first)+'.</p>'+
   '<div class="list">'+famOrder(st).map(f=>famRow(st,f)).join('')+'</div>'+
   '<div class="list mt16"><button class="row" data-go="ordenAviso"><span class="ico">'+ic('swap')+'</span><span class="grow"><span class="ttl">Orden de aviso y tiempo de espera</span><span class="sub">'+esc(pri.name.split(' ')[0])+(sec?' → '+esc(sec.name.split(' ')[0])+' · '+st.escMin+' min de espera':' · sin contacto secundario')+'</span></span>'+ic(adm?'chevR':'lock','class="chev"')+'</button></div>'+
-  (!sec? '<div class="mt16">'+notice('warn','warn','No hay contacto secundario','Si '+esc(pri.name.split(' ')[0])+' no atiende una alerta a tiempo, nadie más será avisado.'+(adm?' Elige a un familiar como secundario.':''))+'</div>':'')+
+  (!sec? '<div class="mt16">'+notice('warn','warn','No hay contacto secundario','Si '+esc(pri.name.split(' ')[0])+' no atiende a tiempo, nadie más será avisado.')+'</div>':'')+
   (adm? '<button class="btn btn-primary mt20" data-go="invitar">'+ic('plus')+'Invitar a un familiar</button>' : '<div class="mt16">'+lockNote(st,'invitar o retirar familiares y cambiar el orden de aviso')+'</div>')+'</div>'};
 };
 S.ordenAviso = st => { const sec=secondary(st), pri=principal(st); const adm=isAdmin(st); const linked=st.fam.filter(f=>f.role!=='pendiente');
@@ -1297,20 +1444,19 @@ S.ordenAviso = st => { const sec=secondary(st), pri=principal(st); const adm=isA
   const slot=(n,f,role,sub)=>'<div class="row static order"><span class="order-n'+(f?'':' none')+'">'+n+'</span><span class="grow"><span class="ttl">'+(f?esc(f.name)+(f.you?' (tú)':''):'Sin contacto secundario')+'</span><span class="sub">'+sub+'</span></span>'+(adm&&f&&linked.length>1?'<button class="link" data-act="pickSlot" data-arg="'+role+'" aria-label="Cambiar contacto '+role+'">Cambiar</button>':'')+'</div>';
   return {html: appbar('Orden de aviso')+
   '<div class="body">'+(adm?'':'<div class="mb16">'+lockNote(st,'cambiar el orden de aviso y el tiempo de espera')+'</div>')+
-  '<p class="t-small mb16">Todos los familiares reciben cada alerta. El contacto principal es quien debe atenderla primero; si no la marca como atendida a tiempo, avisamos al secundario.</p>'+
+  '<p class="t-small mb16">Todos reciben cada alerta. Si el principal no la marca a tiempo, avisamos al secundario.</p>'+
   '<h2 class="sec-h" style="margin-top:4px">Quién responde</h2><div class="list">'+
   slot(1,pri,'principal','Contacto principal')+
-  slot(2,sec,'secundario', sec?'Contacto secundario · a los '+st.escMin+' min':'No hay otro familiar vinculado. Si nadie atiende una alerta, no habrá a quién avisar.')+'</div>'+
+  slot(2,sec,'secundario', sec?'Contacto secundario · a los '+st.escMin+' min':'Si nadie atiende, no habrá a quién más avisar.')+'</div>'+
   (!sec && adm? '<button class="btn btn-secondary mt12" data-go="invitar">'+ic('plus')+'Invitar a un familiar</button>':'')+
   (pend.length? '<p class="t-meta mt8">'+pend.map(f=>esc(f.name.split(' ')[0])).join(', ')+' podrá'+(pend.length>1?'n':'')+' ser contacto cuando acepte'+(pend.length>1?'n':'')+' la invitación.</p>':'')+
-  '<h2 class="sec-h">Tiempo de espera</h2><p class="t-small mb12">Cuánto esperamos a que el contacto principal marque la alerta antes de avisar al secundario.</p>'+
+  '<h2 class="sec-h">Tiempo de espera</h2><p class="t-small mb12">Antes de avisar al secundario.</p>'+
   '<div class="'+(adm?'':'ro')+'">'+[3,5,10].map(m=>'<label class="choice'+(st.escMin===m?' sel':'')+'"'+(adm?' data-act="escMin" data-arg="'+m+'"':' aria-disabled="true"')+'><input type="radio" name="esc"'+(st.escMin===m?' checked':'')+(adm?'':' disabled')+'><span class="dot"></span><span>'+m+' minutos'+(m===5?'<span class="sub">Predeterminado</span>':'')+'</span></label>').join('')+'</div>'+
-  (!st.escSet? '<p class="t-meta">Mientras no elijas otro, usamos 5 minutos.</p>':'')+
   (sec? '<div class="mt16">'+notice('info','clock','','Ejemplo: si llega una alerta a las <span class="mono">10:42</span> y nadie la atiende, avisamos a '+esc(sec.name.split(' ')[0])+' a las <span class="mono">'+addMin('10:42',st.escMin)+'</span>.')+'</div>' : '<div class="mt16">'+notice('neutral','info','','Este tiempo se usará cuando tengas un contacto secundario.')+'</div>')+'</div>'};
 };
 S.invitar = st => { const f=F(st,'inv'), e=E(st,'inv'); const role=f.role||(secondary(st)?'familiar':'secundario');
   return {html: appbar('Invitar a un familiar')+
-  '<div class="body"><p class="t-small mb16">Le enviaremos un enlace para que cree su acceso a la familia de '+esc(st.senior.first)+'.</p>'+
+  '<div class="body"><p class="t-small mb16">Le enviaremos un enlace para crear su acceso.</p>'+
   '<form data-form="inv" novalidate>'+field({id:'i-nombre', label:'Nombre', value:f.nombre, err:e.nombre, ph:'Ej.: Milagros Quispe'})+
   field({id:'i-correo', label:'Correo electrónico', type:'email', value:f.correo, im:'email', err:e.correo})+
   field({id:'i-rel', label:'Parentesco con '+esc(st.senior.first), value:f.rel, ph:'Ej.: Sobrina'})+
@@ -1318,9 +1464,9 @@ S.invitar = st => { const f=F(st,'inv'), e=E(st,'inv'); const role=f.role||(seco
   [['secundario','Contacto secundario','Le avisamos si nadie atiende una alerta en '+st.escMin+' min'],['familiar','Solo recibe alertas','Se entera de todo, sin escalamiento']].map(([k,t,s])=>'<label class="choice'+(role===k?' sel':'')+'" data-act="pick" data-arg="inv.role:'+k+'"><input type="radio" name="role"'+(role===k?' checked':'')+'><span class="dot"></span><span>'+t+'<span class="sub">'+s+'</span></span></label>').join('')+
   (role==='secundario'&&secondary(st)?'<p class="hint">Reemplazará a '+esc(secondary(st).name)+' como secundario.</p>':'')+'</div>'+
   '<div class="card card-pad mb16" style="box-shadow:0 0 0 1.5px var(--line) inset"><p class="t-h3 mb8">Qué podrá hacer</p><ul class="bul" style="margin-top:0">'+
-  '<li>'+ic('check','style="color:var(--calma)"')+'<span>Ver las alertas, los clips, la vista en vivo en cualquier momento, el historial y el resumen. Sus accesos en vivo quedan registrados.</span></li>'+
-  '<li>'+ic('check','style="color:var(--calma)"')+'<span>Marcar alertas como atendidas o falsa alarma y pausar la cámara.</span></li>'+
-  '<li>'+ic('lock','style="color:var(--ink-3)"')+'<span>No podrá cambiar los datos de '+esc(st.senior.first)+', el consentimiento, la cámara, la familia ni el orden de aviso. Eso lo haces tú.</span></li></ul></div>'+
+  '<li>'+ic('check','style="color:var(--calma)"')+'<span>Ver alertas, clips, historial y la cámara en vivo (con registro)</span></li>'+
+  '<li>'+ic('check','style="color:var(--calma)"')+'<span>Marcar alertas y pausar la cámara</span></li>'+
+  '<li>'+ic('lock','style="color:var(--ink-3)"')+'<span>No podrá cambiar los datos de '+esc(st.senior.first)+', el consentimiento, la cámara ni la familia</span></li></ul></div>'+
   '<button class="btn btn-primary" type="submit">'+ic('send')+'Enviar invitación</button></form></div>'};
 };
 S.invitacion = st => { const f=F(st,'acep'), e=E(st,'acep'); const inv=st.fam.find(x=>x.id==='f3')||{name:'Milagros Quispe', email:'milagros.quispe@outlook.com'};
@@ -1330,7 +1476,7 @@ S.invitacion = st => { const f=F(st,'acep'), e=E(st,'acep'); const inv=st.fam.fi
   '<p class="t-body mt8 mb16" style="color:var(--ink-2)">Crea tu acceso para recibir las alertas de '+esc(st.senior.name)+' ('+esc(st.senior.address.split(',')[1]||'').trim()+') en este celular.</p>'+
   '<form data-form="acep" novalidate>'+field({id:'a-nombre', label:'Tu nombre y apellido', value:f.nombre==null?inv.name:f.nombre, err:e.nombre})+
   field({id:'a-correo', label:'Correo electrónico', type:'email', value:inv.email, disabled:true, hint:'Es el correo al que llegó la invitación.'})+
-  field({id:'a-clave', label:'Crea una contraseña', type:'password', value:f.clave, ac:'new-password', err:e.clave, hint:'Mínimo 8 caracteres, con al menos un número.'})+
+  field({id:'a-clave', label:'Crea una contraseña', type:'password', value:f.clave, ac:'new-password', err:e.clave, hint:'8 caracteres o más, con un número.'})+
   '<button class="btn btn-primary" type="submit">Crear mi acceso</button></form>'+
   '<p class="t-meta center mt16">La invitación vence en 7 días.</p></div>'};
 };
@@ -1338,9 +1484,9 @@ S.invitacionOk = st => ({html:
   '<div class="body" style="display:flex;flex-direction:column;padding:0 22px 24px"><div style="flex:1">'+
   '<div style="width:72px;height:72px;border-radius:22px;background:var(--calma-soft);color:var(--calma-ink);display:grid;place-items:center;margin-top:34px">'+ic('bell','style="width:40px;height:40px"')+'</div>'+
   '<h1 class="t-title mt20">Listo, '+esc(st.user.first)+'. Ya recibes las alertas de '+esc(st.senior.first)+'.</h1>'+
-  '<p class="t-body mt8" style="color:var(--ink-2)">Tu acceso quedó unido a la cuenta de '+esc(ownerFirst(st))+'. Te llegará cada alerta aunque tengas la app cerrada.</p>'+
-  '<div class="list mt20"><div class="row static"><span class="ico">'+ic('check')+'</span><span class="grow"><span class="ttl">Puedes</span><span class="sub">Ver alertas, clips, historial y resumen, y la cámara en vivo cuando quieras. Marcar alertas y pausar la cámara.</span></span></div>'+
-  '<div class="row static"><span class="ico">'+ic('lock')+'</span><span class="grow"><span class="ttl">Solo '+esc(ownerFirst(st))+' puede</span><span class="sub">Cambiar los datos de '+esc(st.senior.first)+', el consentimiento, la cámara, la familia y el orden de aviso.</span></span></div></div></div>'+
+  '<p class="t-body mt8" style="color:var(--ink-2)">Te llegarán aunque tengas la app cerrada.</p>'+
+  '<div class="list mt20"><div class="row static"><span class="ico">'+ic('check')+'</span><span class="grow"><span class="ttl">Puedes</span><span class="sub">Ver alertas, clips, historial y la cámara en vivo. Marcar alertas y pausar la cámara.</span></span></div>'+
+  '<div class="row static"><span class="ico">'+ic('lock')+'</span><span class="grow"><span class="ttl">Solo '+esc(ownerFirst(st))+' puede</span><span class="sub">Cambiar los datos de '+esc(st.senior.first)+', el consentimiento, la cámara y la familia.</span></span></div></div></div>'+
   '<button class="btn btn-primary mt20" data-act="finishInvite">Ir al inicio</button></div>'});
 
 /* ---------- Ajustes ---------- */
@@ -1348,7 +1494,7 @@ S.ajustes = st => { const c0=st.cams[0], cs=camState(c0,st); const adm=isAdmin(s
   const tail=adm? ic('chevR','class="chev"') : '<span class="ro-tag">'+ic('lock')+'Solo ver</span>';
   return {tab:'ajustes', strip:true, html:
   '<div class="body"><h1 class="t-title" style="padding:6px 0 14px">Ajustes</h1>'+
-  (adm? '' : '<div class="mb16">'+notice('info','users','Eres familiar invitado','Ves las mismas alertas, clips e historial que '+esc(ownerFirst(st))+'. Lo marcado con candado solo lo puede cambiar '+esc(ownerFirst(st))+' (titular).')+'</div>')+
+  (adm? '' : '<div class="mb16">'+notice('info','users','Eres familiar invitado','Ves lo mismo que '+esc(ownerFirst(st))+'. Lo que tiene candado solo lo cambia '+esc(ownerFirst(st))+' (titular).')+'</div>')+
   '<div class="list"><button class="row" data-go="perfilRosa"><span class="avatar rosa">RH</span><span class="grow"><span class="ttl">'+esc(st.senior.name)+'</span><span class="sub">'+st.senior.age+' años · '+({solo:'Vive sola',familiar:'Vive contigo',cuidador:'Vive con otro cuidador'}[st.senior.conv])+'</span></span>'+tail+'</button></div>'+
   '<div class="list mt16">'+
    '<button class="row" data-act="openCam" data-arg="'+c0.id+'"><span class="ico">'+ic('cam')+'</span><span class="grow"><span class="ttl">Cámara · '+esc(c0.room)+'</span><span class="sub">'+cs.txt+'</span></span>'+ic('chevR','class="chev"')+'</button>'+
@@ -1357,37 +1503,40 @@ S.ajustes = st => { const c0=st.cams[0], cs=camState(c0,st); const adm=isAdmin(s
    '<button class="row" data-go="privacidad"><span class="ico">'+ic('shield')+'</span><span class="grow"><span class="ttl">Privacidad y consentimiento</span><span class="sub">'+(st.consent.given?'Vigente desde el '+dYear(st.consent.date):'Sin consentimiento')+'</span></span>'+tail+'</button></div>'+
   '<div class="list mt16"><div class="row static"><span class="ico">'+ic('user')+'</span><span class="grow"><span class="ttl">Tu cuenta · '+(adm?'Titular':'Familiar invitado')+'</span><span class="sub">'+esc(st.user.email)+'</span></span></div>'+
    '<button class="row danger" data-act="askLogout"><span class="ico">'+ic('logout')+'</span><span class="grow"><span class="ttl">Cerrar sesión</span></span></button></div>'+
-  '<p class="t-meta center mt20">Te Tengo 1.0 · prueba piloto</p></div>'};
+  '<p class="t-meta center mt20">Te Tengo 1.0</p></div>'};
 };
 S.perfilRosa = st => { const s=st.senior; const e=E(st,'perfilRosa'); const adm=isAdmin(st);
   return {html: appbar('Persona cuidada')+
   '<div class="body">'+(adm?'':'<div class="mb16">'+lockNote(st,'cambiar los datos de '+esc(s.first))+'</div>')+
-  field({id:'pr-nombre', label:'Nombre y apellido', value:s.name, disabled:!adm})+field({id:'pr-edad', label:'Edad', value:String(s.age), im:'numeric', disabled:!adm})+field({id:'pr-dir', label:'Dirección de la vivienda', value:s.address, disabled:!adm})+
-  '<div class="field'+(adm?'':' ro')+'"><span class="label">¿Con quién vive?</span>'+convChoices(s.conv,'senior.conv')+'</div>'+
+  field({id:'pr-nombre', label:'Nombre y apellido', value:s.name, disabled:!adm})+field({id:'pr-edad', label:'Edad', value:String(s.age), im:'numeric', disabled:!adm, err:e.edad})+field({id:'pr-dir', label:'Dirección de la vivienda', value:s.address, disabled:!adm})+
+  '<div class="field'+(adm?'':' ro')+'"><span class="label">¿Con quién vive?</span>'+convChoices((st.form.pr||{}).conv||s.conv,'pr.conv')+'</div>'+
   (adm? '<button class="btn btn-primary" data-act="saveSenior">Guardar cambios</button>'+
   '<h2 class="sec-h">¿Cuidas a otra persona?</h2>'+
-  (e.otra? notice('info','info','Cada cuenta cuida a una sola persona','Te Tengo no usa reconocimiento facial, así que no puede distinguir entre dos personas en la misma casa. Para cuidar a alguien más, crea otra cuenta con un correo distinto.') : '<button class="btn btn-secondary" data-act="otherSenior">'+ic('plus')+'Agregar otra persona</button>') : '')+'</div>'};
+  (e.otra? notice('info','info','Cada cuenta cuida a una sola persona','Sin reconocimiento facial no podemos distinguir a dos personas en la misma casa. Para cuidar a alguien más, crea otra cuenta.') : '<button class="btn btn-secondary" data-act="otherSenior">'+ic('plus')+'Agregar otra persona</button>') : '')+'</div>'};
 };
-function sw(on, act){ return '<button class="switch'+(on?' on':'')+'" role="switch" aria-checked="'+on+'" data-act="'+act+'"><i></i></button>'; }
+function sw(on, act, label){ const fixed=act==='noop'; return '<button class="switch'+(on?' on':'')+(fixed?' fixed':'')+'" role="switch" aria-checked="'+on+'" aria-label="'+label+'"'+(fixed?' aria-disabled="true"':' data-act="'+act+'"')+'><i></i></button>'; }
 S.notificaciones = st => ({html: appbar('Notificaciones')+
-  '<div class="body">'+(st.perm? notice('ok','bell','Notificaciones activadas','Recibirás las alertas aunque tengas la app cerrada.') : notice('warn','bellOff','Desactivadas en tu celular','Sin permiso de notificaciones no te enterarás de una caída con la app cerrada.','<button class="btn btn-ink btn-sm" data-act="enablePerm">Activar notificaciones</button>'))+
+  '<div class="body">'+(st.perm? notice('ok','bell','Notificaciones activadas','Recibirás las alertas aunque tengas la app cerrada.') : notice('warn','bellOff','Desactivadas en tu celular','Con la app cerrada no te enterarás de una caída.','<button class="btn btn-ink btn-sm" data-act="enablePerm">Activar notificaciones</button>'))+
   '<h2 class="sec-h">Qué te avisamos en este celular</h2><div class="list">'+
-  '<div class="row static"><span class="grow"><span class="ttl">Caídas</span><span class="sub">Siempre activas. No se pueden silenciar.</span></span>'+sw(true,'noop')+'</div>'+
-  '<div class="row static"><span class="grow"><span class="ttl">Movimientos inestables</span><span class="sub">Severidad media</span></span>'+sw(st.nInest!==false,'toggleInest')+'</div>'+
-  '<div class="row static"><span class="grow"><span class="ttl">Estado de la cámara</span><span class="sub">Desconectada, reconectada o detección no confiable. Siempre activas, para que '+esc(st.senior.first)+' no quede sin monitoreo.</span></span>'+sw(true,'noop')+'</div>'+
-  '<div class="row static"><span class="grow"><span class="ttl">Fin de una pausa</span><span class="sub">Cuando la cámara se reactiva sola</span></span>'+sw(st.nCams!==false,'toggleCams')+'</div></div>'+
-  '<h2 class="sec-h">Escalamiento</h2><div class="list"><button class="row" data-go="ordenAviso"><span class="ico">'+ic('clock')+'</span><span class="grow"><span class="ttl">Esperar '+st.escMin+' minutos antes de escalar</span><span class="sub">Se define en el orden de aviso de la familia</span></span>'+ic(isAdmin(st)?'chevR':'lock','class="chev"')+'</button></div></div>'});
+  '<div class="row static"><span class="grow"><span class="ttl">Caídas</span><span class="sub">Siempre activas. No se pueden silenciar.</span></span>'+sw(true,'noop','Caídas')+'</div>'+
+  '<div class="row static"><span class="grow"><span class="ttl">Sonar en silencio</span><span class="sub">Las caídas suenan aunque el celular esté en silencio</span></span>'+(st.critical? sw(true,'toggleCritical','Sonar en silencio') : '<button class="btn btn-secondary btn-sm" data-act="askCritical">Permitir</button>')+'</div>'+
+  '<div class="row static"><span class="grow"><span class="ttl">Movimientos inestables</span><span class="sub">Severidad media</span></span>'+sw(st.nInest!==false,'toggleInest','Movimientos inestables')+'</div>'+
+  '<div class="row static"><span class="grow"><span class="ttl">Estado de la cámara</span><span class="sub">Desconexión, reconexión o detección no confiable. Siempre activas.</span></span>'+sw(true,'noop','Estado de la cámara')+'</div>'+
+  '<div class="row static"><span class="grow"><span class="ttl">Fin de una pausa</span><span class="sub">Cuando la cámara se reactiva sola</span></span>'+sw(st.nCams!==false,'toggleCams','Fin de una pausa')+'</div></div>'+
+  '<h2 class="sec-h">Si nadie atiende</h2><div class="list"><button class="row" data-go="ordenAviso"><span class="ico">'+ic('clock')+'</span><span class="grow"><span class="ttl">Avisar al secundario a los '+st.escMin+' min</span><span class="sub">Se cambia en Orden de aviso</span></span>'+ic(isAdmin(st)?'chevR':'lock','class="chev"')+'</button></div></div>'});
 
 S.privacidad = st => { const c=st.consent; const adm=isAdmin(st);
   return {html: appbar('Privacidad')+
   '<div class="body">'+(c.given? constancia(st,{doc:'Ver el documento aceptado'}) :
    '<div class="card"><div class="band pausa"></div><div class="card-pad"><div class="flex">'+ic('lock','style="width:28px;height:28px;color:var(--pausa)"')+'<p class="t-h2">Sin consentimiento</p></div><p class="t-small mt8">'+(c.revokedAt? 'Revocado el '+dYear(st.today)+' a las <span class="mono">'+c.revokedAt+'</span>. La cámara no captura y las grabaciones fueron eliminadas.' : 'Aún no se registra. La cámara está instalada, pero no envía video.')+'</p>'+(adm?'<button class="btn btn-primary mt16" data-act="goConsent">Registrar consentimiento</button>':'')+'</div></div>')+
   '<h2 class="sec-h">Cómo cuidamos sus datos</h2><div class="list"><div class="row static"><span class="grow"><span class="ttl">Clips de las alertas</span><span class="sub">Se guardan 30 días y luego se eliminan</span></span></div>'+
-  '<div class="row static"><span class="grow"><span class="ttl">Video en vivo</span><span class="sub">Los familiares vinculados pueden verlo en cualquier momento. No se graba.</span></span></div>'+
+  '<div class="row static"><span class="grow"><span class="ttl">Video en vivo</span><span class="sub">La familia puede verlo cuando quiera. No se graba.</span></span></div>'+
   '<div class="row static"><span class="grow"><span class="ttl">Reconocimiento facial</span><span class="sub">No se usa</span></span></div>'+
   '<button class="row" data-go="accesos"><span class="ico">'+ic('eye')+'</span><span class="grow"><span class="ttl">Registro de accesos a la vista en vivo</span><span class="sub">Quién la vio, cuándo y cuánto tiempo</span></span>'+ic('chevR','class="chev"')+'</button></div>'+
-  '<p class="t-small mt16">Según la Ley N.° 29733, '+esc(st.senior.first)+' puede pedir acceder, corregir o eliminar sus datos escribiendo a <b>privacidad@tetengo.pe</b>.</p>'+
-  (c.given? '<h2 class="sec-h">Revocar</h2>'+(adm? '<p class="t-small mb12">Detiene la captura de la cámara, la vista en vivo y elimina las grabaciones guardadas.</p><button class="btn btn-danger-ghost" data-act="askRevoke">Revocar consentimiento</button>' : lockNote(st,'revocar el consentimiento. Si '+esc(st.senior.first)+' quiere retirarlo, avísale')):'')+'</div>'};
+  '<p class="t-small mt16">'+esc(st.senior.first)+' puede pedir ver, corregir o borrar sus datos en <b>privacidad@tetengo.pe</b> (Ley N.° 29733).</p>'+
+  '<div class="list mt16"><button class="row" data-go="politica"><span class="ico">'+ic('doc')+'</span><span class="grow"><span class="ttl">Política de privacidad</span></span>'+ic('chevR','class="chev"')+'</button>'+
+  '<button class="row" data-go="terminos"><span class="ico">'+ic('doc')+'</span><span class="grow"><span class="ttl">Términos de uso</span></span>'+ic('chevR','class="chev"')+'</button></div>'+
+  (c.given? '<h2 class="sec-h">Revocar</h2>'+(adm? '<p class="t-small mb12">Detiene la cámara y borra las grabaciones.</p><button class="btn btn-danger-ghost" data-act="askRevoke">Revocar consentimiento</button>' : lockNote(st,'revocar el consentimiento. Si '+esc(st.senior.first)+' quiere retirarlo, avísale')):'')+'</div>'};
 };
 S.revocado = st => { const done=st.revoking==='done'; const t=st.consent.revokedAt||st.clock;
   return {html:
@@ -1402,20 +1551,52 @@ S.revocado = st => { const done=st.revoking==='done'; const t=st.consent.revoked
   '<button class="btn btn-primary mt20" data-act="revokeHome"'+(done?'':' disabled')+'>Volver al inicio</button></div>'};
 };
 
+/* ---------- Documentos legales: solo hechos que el producto ya muestra ---------- */
+function docPage(title, intro, secs, extra){
+  return {html: appbar(title)+'<div class="body"><p class="t-small">'+intro+'</p>'+
+    secs.map(([h,p])=>'<section class="doc-sec"><h2>'+h+'</h2>'+[].concat(p).map(x=>'<p>'+x+'</p>').join('')+'</section>').join('')+(extra||'')+'</div>'};
+}
+S.terminos = st => docPage('Términos de uso','Las reglas para usar Te Tengo.',[
+  ['Qué es Te Tengo','Te Tengo avisa a tu familia cuando la cámara instalada en la casa de la persona cuidada detecta una posible caída o un movimiento inestable. No es una cámara de seguridad.'],
+  ['Tu cuenta',['Quien crea la cuenta es el titular. Solo el titular cambia los datos de la persona cuidada, el consentimiento, el nombre de la habitación, la familia y el orden de aviso.','Cada cuenta cuida a una sola persona. La contraseña debe tener 8 caracteres o más, con un número. Tras 5 intentos fallidos, el acceso se bloquea 15 minutos.']],
+  ['Familiares invitados','Ven las mismas alertas, clips, historial y la cámara en vivo, y pueden marcar alertas y pausar la cámara. La invitación vence en 7 días y el titular puede retirar su acceso cuando quiera.'],
+  ['Consentimiento','La cámara solo envía video si la persona cuidada, o su representante legal, acepta el consentimiento informado. Se puede revocar en Ajustes: la captura se detiene y las grabaciones se borran.'],
+  ['Alertas','Todos los familiares vinculados reciben cada alerta. Si el contacto principal no la marca en el tiempo de espera (3, 5 o 10 minutos), avisamos al contacto secundario.'],
+  ['Límites del servicio',['Solo detectamos caídas cuando la cámara está en línea. No hay detección si está desconectada, en pausa o sin consentimiento, y no es confiable si la cámara no ve bien a la persona por la luz o el encuadre.','Para recibir las alertas con la app cerrada, las notificaciones del celular deben estar activadas.']]
+], '<button class="link mt20" data-go="politica">Ver la política de privacidad</button>');
+S.politica = st => docPage('Política de privacidad','Qué datos usamos, quién los ve y cuánto tiempo los guardamos.',[
+  ['Qué datos guardamos',['De tu cuenta: nombre, correo y contraseña.','De la persona cuidada: nombre, edad, dirección y con quién vive.','De cada alerta: tipo, habitación, fecha, hora, quién la atendió y la nota que dejó.']],
+  ['Video',['La cámara envía video para analizar la postura del cuerpo. No reconocemos rostros ni grabamos de forma continua.','Solo guardamos el clip de cada alerta (6 s antes y 6 s después) durante 30 días; luego se elimina. La vista en vivo no se graba.']],
+  ['Quién ve los datos','Solo los familiares vinculados a la cuenta. Cada acceso a la vista en vivo queda registrado: quién, cuándo y cuánto duró, y toda la familia ve ese registro.'],
+  ['Revocar el consentimiento','Detiene la captura y la vista en vivo y borra las grabaciones. Te enviamos la constancia por correo.'],
+  ['Tus derechos','Según la Ley N.° 29733 de Protección de Datos Personales, puedes pedir acceder a tus datos, corregirlos, eliminarlos u oponerte a su uso. Escríbenos a <b>privacidad@tetengo.pe</b>.']
+]);
+S.docConsent = st => { const c=st.consent; const nm=esc(st.senior.first||'la persona cuidada');
+  return docPage('Consentimiento','Lo acepta '+nm+' o su representante legal antes de que la cámara envíe video.',
+    CONSENT_SEC.map(x=>[x[2],x[4]]).concat([['Cómo se registra','Guardamos quién lo otorgó, quién lo registró, la fecha y la hora, como constancia exigida por la Ley N.° 29733.']]),
+    c.given? '<div class="card card-pad mt20"><p class="t-h3">Constancia</p>'+
+      '<div class="kv mt8"><span class="k">Otorgado por</span><span class="v">'+esc(c.by)+'</span></div>'+
+      '<div class="kv"><span class="k">Registrado por</span><span class="v">'+esc(c.witness||st.owner.name)+'</span></div>'+
+      '<div class="kv"><span class="k">Fecha</span><span class="v">'+dYear(c.date)+'</span></div>'+
+      '<div class="kv"><span class="k">Hora</span><span class="v mono">'+c.time+'</span></div></div>' : ''); };
+
 /* ---------- Superposiciones ---------- */
 const O = {};
+O.clipFull = st => { const a=st.screen==='detalle'? alertById(st,st.sel) : st.active; if(!a) return '';
+  return '<div class="clipfull" role="dialog" aria-modal="true" aria-labelledby="cf-t"><div class="cf-land"><header class="cf-top"><button class="iconbtn" data-act="closeOv" aria-label="Salir de pantalla completa">'+ic('x')+'</button><h2 id="cf-t">'+typeName(a.type)+' '+enRoom(a.room)+' · <span class="mono">'+a.time+'</span></h2></header>'+
+  clipBlock(a, st, {full:true})+'</div></div>'; };
 O.marcar = st => { const f=F(st,'mark'), e=E(st,'mark'); const a=st.active;
   return '<div class="scrim" data-act="closeOv"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mk-t"><div class="grab"></div><h2 class="t-h2" id="mk-t">¿Cómo terminó esta alerta?</h2><p class="t-small mt8 mb16">'+typeName(a.type)+' '+enRoom(a.room)+' a las <span class="mono">'+a.time+'</span>.</p>'+
   '<div class="field'+(e.pick?' err':'')+'" style="margin-bottom:10px">'+
   [['atendida','Atendida',esc(st.senior.first)+' recibió ayuda o está bien'],['falsa','Falsa alarma','No hubo '+(a.type==='caida'?'caída':'movimiento inestable')+'. No contará en el resumen.']].map(([k,t,s])=>'<label class="choice'+(f.pick===k?' sel':'')+'" data-act="pick" data-arg="mark.pick:'+k+'"><input type="radio" name="mk"'+(f.pick===k?' checked':'')+'><span class="dot"></span><span>'+t+'<span class="sub">'+s+'</span></span></label>').join('')+
   (e.pick?'<p class="field-msg">'+ic('warn')+'<span>Elige una opción.</span></p>':'')+'</div>'+
-  '<label class="label" for="mk-note">Nota para la familia (opcional)</label><textarea class="input" id="mk-note" rows="2" style="padding:14px 16px;min-height:80px;resize:none" placeholder="Ej.: La llamé y está bien, la vecina fue a verla">'+esc(f.note||'')+'</textarea>'+
+  '<label class="label" for="mk-note">Nota para la familia (opcional)</label><textarea class="input" id="mk-note" rows="2" style="padding:14px 16px;min-height:80px;resize:none" placeholder="Ej.: La llamé y está bien, la vecina fue a verla">'+esc(VALS['mk-note']!=null?VALS['mk-note']:(f.note||''))+'</textarea>'+
   '<p class="t-meta mt12 mb16">Quedará registrado: '+esc(st.user.name)+' · <span class="mono">'+st.clock+'</span></p>'+
   '<button class="btn btn-primary" data-act="saveMark">Guardar</button></div>';
 };
 O.pausar = st => { const c=st.cams.find(x=>x.id===st.selCam); const f=F(st,'pause'); const v=f.dur||'60';
   const opts=[['30','30 minutos','hasta las '+addMin(st.clock,30)],['60','1 hora','hasta las '+addMin(st.clock,60)],['120','2 horas','hasta las '+addMin(st.clock,120)],['m','Hasta mañana','a las 07:00']];
-  return '<div class="scrim" data-act="closeOv"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pz-t"><div class="grab"></div><h2 class="t-h2" id="pz-t">Pausar la cámara '+deRoom(c.room)+'</h2><p class="t-small mt8 mb16">Mientras esté en pausa no se detectarán caídas y nadie podrá verla en vivo. Se reactivará sola.</p>'+
+  return '<div class="scrim" data-act="closeOv"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pz-t"><div class="grab"></div><h2 class="t-h2" id="pz-t">Pausar la cámara '+deRoom(c.room)+'</h2><p class="t-small mt8 mb16">Sin detección ni vista en vivo. Se reactiva sola.</p>'+
   opts.map(([k,t,s])=>'<label class="choice'+(v===k?' sel':'')+'" data-act="pick" data-arg="pause.dur:'+k+'"><input type="radio" name="pz"'+(v===k?' checked':'')+'><span class="dot"></span><span>'+t+'<span class="sub">'+s+'</span></span></label>').join('')+
   '<button class="btn btn-primary mt8" data-act="doPause">'+ic('pause')+'Pausar</button></div>';
 };
@@ -1430,11 +1611,11 @@ O.filtros = st => { const f=st.filtDraft||st.filt; const n=(()=>{const s=st.filt
 O.miembro = st => { const f=st.fam.find(x=>x.id===st.selFam);
   const opts=[];
   if(f.role!=='principal' && f.role!=='pendiente') opts.push('<button class="row" data-act="setRole" data-arg="principal"><span class="ico">'+ic('swap')+'</span><span class="grow"><span class="ttl">Hacer contacto principal</span><span class="sub">Recibirá cada alerta primero</span></span></button>');
-  if(f.role!=='secundario' && f.role!=='pendiente') opts.push('<button class="row" data-act="setRole" data-arg="secundario"><span class="ico">'+ic('users')+'</span><span class="grow"><span class="ttl">Hacer contacto secundario</span><span class="sub">Recibe la alerta si nadie atiende en '+st.escMin+' min</span></span></button>');
+  if(f.role!=='secundario' && f.role!=='pendiente' && f.role!=='principal') opts.push('<button class="row" data-act="setRole" data-arg="secundario"><span class="ico">'+ic('users')+'</span><span class="grow"><span class="ttl">Hacer contacto secundario</span><span class="sub">Recibe la alerta si nadie atiende en '+st.escMin+' min</span></span></button>');
   if(f.role==='pendiente') opts.push('<button class="row" data-act="resend"><span class="ico">'+ic('send')+'</span><span class="grow"><span class="ttl">Reenviar invitación</span><span class="sub">'+esc(f.email)+'</span></span></button>');
-  if(!f.you) opts.push('<button class="row danger" data-act="askRemove"><span class="ico">'+ic('trash')+'</span><span class="grow"><span class="ttl">'+(f.role==='pendiente'?'Cancelar invitación':'Retirar acceso')+'</span></span></button>');
+  if(!f.you && f.role!=='principal') opts.push('<button class="row danger" data-act="askRemove"><span class="ico">'+ic('trash')+'</span><span class="grow"><span class="ttl">'+(f.role==='pendiente'?'Cancelar invitación':'Retirar acceso')+'</span></span></button>');
   return '<div class="scrim" data-act="closeOv"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mb-t"><div class="grab"></div><div class="flex mb16"><span class="avatar '+f.av+'">'+f.ini+'</span><div><h2 class="t-h2" id="mb-t">'+esc(f.name)+'</h2><p class="t-small">'+f.rel+(f.phone?' · '+f.phone:'')+'</p></div></div>'+
-  (f.you? notice('neutral','info','','Eres titular de la cuenta: solo tú puedes invitar, retirar el acceso y cambiar el orden de aviso. Para dejar de ser principal, elige a otra persona como principal.'):'')+
+  (f.you? notice('neutral','info','','Eres titular: solo tú invitas, retiras accesos y cambias el orden de aviso. Para dejar de ser principal, elige a otra persona.') : f.role==='principal'? notice('neutral','info','','Para retirar su acceso, primero elige a otro contacto principal.') : '')+
   (opts.length?'<div class="list mt12" style="box-shadow:0 0 0 1.5px var(--line) inset">'+opts.join('')+'</div>':'')+'</div>';
 };
 function dialog(icon, tone, title, text, btns){
@@ -1443,12 +1624,15 @@ function dialog(icon, tone, title, text, btns){
 O.retirar = st => { const f=st.fam.find(x=>x.id===st.selFam); const sec=f.role==='secundario';
   return dialog('trash','caida', f.role==='pendiente'?'¿Cancelar la invitación de '+esc(f.name.split(' ')[0])+'?':'¿Retirar el acceso de '+esc(f.name)+'?', f.role==='pendiente'?'El enlace que le enviamos dejará de funcionar.':'Dejará de recibir las alertas de '+esc(st.senior.first)+' y no podrá ver el historial ni los clips.'+(sec?' Te quedarás sin contacto secundario.':''), '<button class="btn btn-danger" data-act="doRemove">'+(f.role==='pendiente'?'Cancelar invitación':'Retirar acceso')+'</button><button class="btn btn-secondary" data-act="closeOv">'+(f.role==='pendiente'?'Mantenerla':'Cancelar')+'</button>');
 };
-O.revocar = st => dialog('warn','caida','¿Revocar el consentimiento?','La cámara '+deRoom(roomOf(st))+' dejará de capturar de inmediato, ya no se podrá ver en vivo y se eliminarán las grabaciones guardadas. Nadie de la familia recibirá más alertas de caída. Esta acción no se puede deshacer.','<button class="btn btn-danger" data-act="doRevoke">Sí, revocar y eliminar</button><button class="btn btn-secondary" data-act="keepConsent">Cancelar, mantenerlo</button>');
+O.revocar = st => dialog('warn','caida','¿Revocar el consentimiento?','La cámara '+deRoom(roomOf(st))+' dejará de capturar, nadie recibirá más alertas y se borrarán las grabaciones. No se puede deshacer.','<button class="btn btn-danger" data-act="doRevoke">Sí, revocar y eliminar</button><button class="btn btn-secondary" data-act="keepConsent">Cancelar, mantenerlo</button>');
 O.elegir = st => { const slot=st.pickSlot||'secundario'; const cur=slot==='principal'?principal(st):secondary(st); const opts=st.fam.filter(f=>f.role!=='pendiente');
   return '<div class="scrim" data-act="closeOv"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="el-t"><div class="grab"></div><h2 class="t-h2" id="el-t">¿Quién será el contacto '+slot+'?</h2><p class="t-small mt8 mb16">'+(slot==='principal'?'Recibe cada alerta y es quien debe atenderla primero.':'Le avisamos si nadie marca la alerta en '+st.escMin+' minutos.')+'</p>'+
   opts.map(f=>'<label class="choice'+(cur===f?' sel':'')+'" data-act="setSlot" data-arg="'+f.id+'"><input type="radio" name="slot"'+(cur===f?' checked':'')+'><span class="dot"></span><span>'+esc(f.name)+(f.you?' (tú)':'')+'<span class="sub">'+f.rel+' · ahora: '+ROLE_LBL[f.role].toLowerCase()+'</span></span></label>').join('')+
   (slot==='secundario'&&cur? '<button class="btn btn-ghost" data-act="setSlot" data-arg="none">Quitar contacto secundario</button>':'')+'</div>';
 };
+function sysDialog(title, text, yes){ return '<div class="scrim"></div><div class="dialog sys" role="alertdialog" aria-modal="true" aria-labelledby="sy-t"><h2 id="sy-t">'+title+'</h2><p>'+text+'</p><div class="sys-btns"><button data-act="closeOv">No permitir</button><button data-act="'+yes+'">Permitir</button></div></div>'; }
+O.sysNotif = st => sysDialog('«Te Tengo» quiere enviarte notificaciones','Pueden incluir alertas, sonidos y globos en el ícono.','grantNotif');
+O.sysCritical = st => sysDialog('«Te Tengo» quiere enviarte alertas críticas','Suenan aunque el celular esté en silencio o en No molestar.','grantCritical');
 O.cerrar = st => dialog('logout','morado','¿Cerrar sesión?','Dejarás de recibir las alertas de '+esc(st.senior.first)+' en este celular hasta que vuelvas a iniciar sesión.','<button class="btn btn-primary" data-act="doLogout">Cerrar sesión</button><button class="btn btn-secondary" data-act="closeOv">Cancelar</button>');
 
 /* ---------- Render ---------- */
@@ -1456,7 +1640,7 @@ function renderPhone(st){
   const fn=S[st.screen]||S.inicio; const r=fn(st);
   let h='<div class="scr '+(r.cls||'')+'">';
   if(!r.bare) h+=statusbar(st, r.light);
-  if(r.tab && st.offline) h+='<div class="offline-bar" role="status">'+ic('wifiOff')+'<span><b>Tu celular no tiene internet</b>Las alertas llegarán cuando vuelvas a conectarte. Si no atiendes una a tiempo, avisamos a tu contacto secundario.</span></div>';
+  if(r.tab && st.offline) h+='<div class="offline-bar" role="status">'+ic('wifiOff')+'<span><b>Tu celular no tiene internet</b>Las alertas llegarán al reconectarte. Si no atiendes a tiempo, avisamos a tu secundario.</span></div>';
   if(r.strip && st.active && !st.active.test) h+=strip(st);
   h+=r.html;
   if(r.tab) h+=tabbar(r.tab, st);
@@ -1484,6 +1668,8 @@ const G = [
   ['Crear cuenta', s=>{s.screen='registro';}],
   ['Crear cuenta · campos obligatorios vacíos', s=>{s.screen='registro'; s.form.registro={nombre:'Carmen Huamán'}; s.err.registro={any:1, correo:'Escribe tu correo electrónico.', clave:'Crea una contraseña.'};}],
   ['Crear cuenta · correo ya registrado', s=>{s.screen='registro'; s.form.registro={nombre:'Carmen Huamán', correo:'carmen.huaman@gmail.com', clave:'Cuidar2026'}; s.err.registro={dup:1, correo:'Este correo ya está registrado.'};}],
+  ['Términos de uso', s=>{s.screen='terminos';}],
+  ['Política de privacidad', s=>{s.screen='politica';}],
   ['Cuenta creada', s=>{s.screen='cuentaCreada'; s.form.registro={nombre:'Carmen Huamán'};}],
   ['Iniciar sesión', s=>{s.screen='login'; s.form.login={correo:'carmen.huaman@gmail.com'};}],
   ['Iniciar sesión · datos incorrectos', s=>{s.screen='login'; s.loginFails=3; s.form.login={correo:'carmen.huaman@gmail.com', clave:'rosa1234'}; s.err.login={bad:1};}],
@@ -1497,21 +1683,24 @@ const G = [
  ['Configuración inicial','Primer uso: la persona cuidada, su consentimiento (con la vista en vivo), la cámara ya instalada y otro familiar.',[
   ['Datos de la persona cuidada', s=>{newAcct(s); s.screen='perfil'; s.form.perfil={nombre:'Rosa Huamán', edad:'78', dir:'Jr. Los Pinos 482, San Miguel, Lima', conv:'solo'};}],
   ['Datos de la persona · campos vacíos', s=>{newAcct(s); s.screen='perfil'; s.form.perfil={nombre:'Rosa Huamán'}; s.err.perfil={any:1, edad:'Escribe su edad.', dir:'Escribe la dirección de la vivienda.', conv:1};}],
-  ['Consentimiento informado · vista en vivo', s=>{newAcct(s); s.screen='consentimiento'; s.form.consent={c1:true};}, 150],
+  ['Consentimiento informado · vista en vivo', s=>{newAcct(s); s.screen='consentimiento'; s.form.consent={c1:true};}],
   ['Consentimiento informado · casillas sin marcar', s=>{newAcct(s); s.screen='consentimiento'; s.err.consent={checks:1};}, 900],
+  ['Documento de consentimiento completo', s=>{newAcct(s); s.screen='docConsent';}],
   ['Consentimiento registrado · constancia', s=>{newAcct(s); consentOk(s); s.screen='consentOk';}],
   ['Tu cámara ya está lista', s=>{newAcct(s); consentOk(s); s.screen='camaraLista';}],
   ['Cambiar el nombre de la habitación', s=>{newAcct(s); consentOk(s); s.screen='habitacion'; s.form.hab={nombre:'Sala comedor'};}],
   ['Nombre de la habitación vacío', s=>{newAcct(s); consentOk(s); s.screen='habitacion'; s.form.hab={nombre:''}; s.err.hab={nombre:'Escribe el nombre de la habitación.'};}],
   ['Cámara instalada sin consentimiento', s=>{newAcct(s); s.screen='camaraLista';}],
   ['Invitar a un familiar', s=>{newAcct(s); consentOk(s); s.form.fs={correo:'luis.huaman.r@gmail.com', rel:'Hijo'}; s.screen='familiaSetup';}],
+  ['Activa los avisos', s=>{newAcct(s); consentOk(s); s.invitedSetup='luis.huaman.r@gmail.com'; s.perm=false; s.critical=false; s.screen='avisos';}],
+  ['Permiso del celular para notificaciones', s=>{newAcct(s); consentOk(s); s.perm=false; s.critical=false; s.screen='avisos'; s.ov='sysNotif';}],
   ['Todo listo', s=>{newAcct(s); consentOk(s); s.invitedSetup='luis.huaman.r@gmail.com'; s.screen='listo';}]
  ]],
  ['Inicio y cámara','El estado de Rosa y de la cámara de su casa, de un vistazo.',[
   ['Inicio', s=>{}],
   ['Aviso: notificaciones desactivadas', s=>{s.perm=false;}],
   ['Aviso: celular sin internet', s=>{s.offline=true;}],
-  ['Aviso: cámara desconectada', s=>{cam(s).status='offline'; cam(s).lastAt='10:31'; s.inapp={title:'La cámara de la Sala se desconectó', text:'Revisa el cable de la cámara, que la PC esté encendida y el internet de la casa.'};}],
+  ['Aviso: cámara desconectada', s=>{cam(s).status='offline'; cam(s).lastAt='10:31'; s.inapp={title:'La cámara de la Sala se desconectó', text:'Revisa el cable, la PC y el internet de la casa.'};}],
   ['Cámara reconectada', s=>{s.clock='10:52'; s.toast={tone:'ok', icon:'wifi', title:'La cámara de la Sala volvió a estar en línea', text:'El monitoreo se restableció a las 10:52.'};}],
   ['Detalle de la cámara · en línea', s=>{s.screen='camara'; s.selCam='c1';}],
   ['Detalle de la cámara · desconectada', s=>{cam(s).status='offline'; cam(s).lastAt='10:31'; s.screen='camara'; s.selCam='c1';}],
@@ -1519,7 +1708,7 @@ const G = [
   ['Pausar la cámara', s=>{s.screen='camara'; s.selCam='c1'; s.ov='pausar'; s.form.pause={dur:'60'};}],
   ['Cámara en pausa', s=>{cam(s).status='paused'; cam(s).until='11:42';}],
   ['Fin de la pausa', s=>{s.toast={tone:'ok', icon:'cam', title:'La cámara de la Sala se reactivó', text:'Terminó la pausa de 1 hora a las 11:42.'}; s.clock='11:42';}],
-  ['Aviso: detección no confiable', s=>{cam(s).unreliable=true; cam(s).unrelAt='10:36'; s.clock='10:41'; s.inapp={title:'La detección no es confiable en la Sala', text:'Hace más de 5 minutos que la cámara no ve bien a Rosa. Revisa la luz y el encuadre.'};}],
+  ['Aviso: detección no confiable', s=>{cam(s).unreliable=true; cam(s).unrelAt='10:36'; s.clock='10:41'; s.inapp={title:'La detección no es confiable en la Sala', text:'No ve bien a Rosa. Revisa la luz y el encuadre.'};}],
   ['Detección no confiable · qué revisar', s=>{cam(s).unreliable=true; cam(s).unrelAt='10:36'; s.clock='10:41'; s.screen='camara'; s.selCam='c1';}, 120]
  ]],
  ['Vista en vivo y registro de accesos','Cualquier familiar vinculado ve la cámara en vivo cuando quiere; cada acceso queda registrado.',[
@@ -1534,19 +1723,20 @@ const G = [
   ['Notificación de caída con la app cerrada', s=>{act(s); s.screen='lock'; s.lockNotifs=[L(0)];}],
   ['Alerta de caída', s=>{act(s); s.clock='10:42'; s.screen='alerta';}],
   ['Alerta de caída · sigue en el suelo, confirmada', s=>{act(s,{confirmed:'10:43'}); s.clock='10:43'; s.screen='alerta';}],
-  ['Alerta de caída · qué hacer y clip', s=>{act(s,{confirmed:'10:43'}); s.clock='10:43'; s.screen='alerta';}, 560],
+  ['Alerta de caída · clip del evento', s=>{act(s,{confirmed:'10:43'}); s.clock='10:43'; s.screen='alerta'; s.foldOpen='al-clip';}, 330],
   ['Alerta visible al abrir (falló el envío)', s=>{act(s,{pushFailed:true, confirmed:'10:43'}); s.clock='10:44'; s.screen='alerta';}],
   ['Notificación de movimiento inestable', s=>{act(s,{type:'inestable', time:'10:39'}); s.clock='10:39'; s.screen='lock'; s.lockNotifs=[{sev:'inestable', title:'Rosa tuvo un movimiento inestable en la Sala', body:'10:39 · No es una caída. Revisa cómo está.', ago:'ahora'}];}],
   ['Alerta de movimiento inestable', s=>{act(s,{type:'inestable', time:'10:39', sentIn:5}); s.clock='10:40'; s.screen='alerta';}],
   ['De movimiento inestable a caída', s=>{act(s,{time:'10:41', fromInestable:{time:'10:39', room:'Sala'}}); s.clock='10:41'; s.screen='lock'; s.lockNotifs=[{sev:'caida', title:'Ahora: posible caída de Rosa en la Sala', body:'10:41 · Empezó como movimiento inestable a las 10:39.', ago:'ahora'},{sev:'inestable', title:'Rosa tuvo un movimiento inestable en la Sala', body:'10:39 · No es una caída. Revisa cómo está.', ago:'hace 2 min'}];}],
-  ['Alerta de caída · empezó como inestable', s=>{act(s,{time:'10:41', confirmed:'10:42', fromInestable:{time:'10:39', room:'Sala'}}); s.clock='10:42'; s.screen='alerta';}, 390],
-  ['Clip no disponible', s=>{act(s,{clip:'none', confirmed:'10:43'}); s.clock='10:43'; s.screen='alerta';}, 860],
+  ['Alerta de caída · empezó como inestable', s=>{act(s,{time:'10:41', confirmed:'10:42', fromInestable:{time:'10:39', room:'Sala'}}); s.clock='10:42'; s.screen='alerta'; s.foldOpen='al-det';}, 420],
+  ['Clip en pantalla completa (celular en horizontal) · velocidad 1,5×', s=>{act(s,{confirmed:'10:43'}); s.clock='10:43'; s.screen='alerta'; s.clipSpeed='1.5'; s.ov='clipFull';}],
+  ['Clip no disponible', s=>{act(s,{clip:'none', confirmed:'10:43'}); s.clock='10:43'; s.screen='alerta'; s.foldOpen='al-clip';}, 330],
   ['Ver en vivo desde la alerta', s=>{act(s,{confirmed:'10:43'}); s.clock='10:44'; s.live={from:'alert', start:'10:44'}; s.screen='vivo';}],
   ['Marcar la alerta', s=>{act(s,{confirmed:'10:43'}); s.clock='10:46'; s.screen='alerta'; s.ov='marcar'; s.form.mark={pick:'atendida', note:'La llamé y está bien. La vecina Teresa fue a verla.'};}],
   ['Atendida a tiempo · sin escalar', s=>{marked(s); s.toast={tone:'ok', icon:'check', title:'Alerta atendida', text:'La familia verá que la marcaste a las 10:46.'};}, 700],
-  ['Aviso de recuperación: Rosa se levantó', s=>{act(s,{confirmed:'10:43', recovered:'10:45'}); s.clock='10:45'; s.screen='alerta'; s.inapp={title:'Rosa se levantó', text:'10:45 · Se puso de pie en la Sala. Confirma cómo está.'};}, 390],
-  ['Alerta escalada al contacto secundario', s=>{act(s,{confirmed:'10:43', escalated:'10:47', escTo:'Luis Huamán'}); s.clock='10:48'; s.screen='alerta';}, 420],
-  ['Sin contacto secundario para escalar', s=>{s.fam=[s.fam[0], s.fam[2]]; act(s,{confirmed:'10:43', escalated:'10:47'}); s.clock='10:48'; s.screen='alerta';}, 420],
+  ['Aviso de recuperación: Rosa se levantó', s=>{act(s,{confirmed:'10:43', recovered:'10:45'}); s.clock='10:45'; s.screen='alerta'; s.inapp={title:'Rosa se levantó', text:'10:45 · Se puso de pie en la Sala. Confirma cómo está.'};}],
+  ['Alerta escalada al contacto secundario', s=>{act(s,{confirmed:'10:43', escalated:'10:47', escTo:'Luis Huamán'}); s.clock='10:48'; s.screen='alerta';}, 170],
+  ['Sin contacto secundario para escalar', s=>{s.fam=[s.fam[0], s.fam[2]]; act(s,{confirmed:'10:43', escalated:'10:47'}); s.clock='10:48'; s.screen='alerta';}, 170],
   ['Alerta atendida · registro de quién y cuándo', s=>{s.screen='detalle'; s.sel='h4';}, 520],
   ['Falsa alarma', s=>{s.screen='detalle'; s.sel='h5';}]
  ]],
@@ -1566,7 +1756,7 @@ const G = [
  ['Vista de un familiar invitado','Luis ve las mismas alertas, clips, historial y vista en vivo que Carmen, pero no cambia la configuración.',[
   ['Inicio · familiar invitado', s=>{asGuest(s);}],
   ['Vista en vivo · familiar invitado', s=>{asGuest(s); s.live={from:'home', cam:'c1', start:'10:42'}; s.screen='vivo';}],
-  ['Alerta de caída · vista del secundario', s=>{asGuest(s); act(s,{confirmed:'10:43'}); s.clock='10:43'; s.screen='alerta';}, 420],
+  ['Alerta de caída · vista del secundario', s=>{asGuest(s); act(s,{confirmed:'10:43'}); s.clock='10:43'; s.screen='alerta'; s.foldOpen='al-det';}, 420],
   ['Carmen atendió la alerta', s=>{asGuest(s); marked(s,{byOther:true});}],
   ['Cámara · familiar invitado', s=>{asGuest(s); s.screen='camara'; s.selCam='c1';}, 330],
   ['Familia · familiar invitado', s=>{asGuest(s); s.screen='familia';}],
@@ -1598,6 +1788,14 @@ const G = [
   ['Eliminando las grabaciones', s=>{s.consent={given:false, revokedAt:'10:50'}; s.clock='10:50'; s.revoking='progress'; s.screen='revocado';}],
   ['Grabaciones eliminadas', s=>{s.consent={given:false, revokedAt:'10:50'}; s.clock='10:51'; s.revoking='done'; s.screen='revocado';}],
   ['Inicio sin consentimiento', s=>{s.consent={given:false, revokedAt:'10:50'}; s.clock='10:52';}]
+ ]],
+ ['Modo oscuro y letra grande','La app sigue el tema y el tamaño de letra del celular. Las alertas conservan su color de severidad.',[
+  ['Inicio · modo oscuro', s=>{s.dark=true;}],
+  ['Alerta de caída · modo oscuro', s=>{s.dark=true; act(s); s.clock='10:42'; s.screen='alerta';}],
+  ['Alerta de movimiento inestable · modo oscuro', s=>{s.dark=true; act(s,{type:'inestable', time:'10:39'}); s.clock='10:40'; s.screen='alerta';}],
+  ['Historial · modo oscuro', s=>{s.dark=true; s.screen='historial';}],
+  ['Inicio · letra grande', s=>{s.big=true;}],
+  ['Alerta de caída · letra grande', s=>{s.big=true; act(s); s.clock='10:42'; s.screen='alerta';}]
  ]]
 ];
 
@@ -1615,7 +1813,7 @@ const G = [
       n++; flat.push({n, name, g});
       if(solo!=null && String(n)!==solo) return;
       const s=base(); fn(s);
-      html+='<figure class="shot" data-scroll="'+(scroll||0)+'"><div class="phone"><div class="screen">'+renderPhone(s)+'</div></div><figcaption><span class="num">'+String(n).padStart(2,'0')+'</span>'+name+'</figcaption></figure>';
+      html+='<figure class="shot" data-scroll="'+(scroll||0)+'"><div class="phone"><div class="screen'+(s.dark?' dark':'')+(s.big?' big':'')+'">'+renderPhone(s)+'</div></div><figcaption><span class="num">'+String(n).padStart(2,'0')+'</span>'+name+'</figcaption></figure>';
     });
     if(solo==null) html+='</div></section>';
   });

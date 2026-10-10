@@ -4,6 +4,23 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **Dark mode** that follows the phone or the browser (`ThemeMode.system`): `Paleta`, a `ThemeExtension` read with `context.colores`, holds the tokens that change (the prototype's `.screen.dark`). Alert floods keep their severity color and the sheet below turns dark; ink buttons, chips, toasts and the offline bar invert. Every dark text pair meets 4.5:1.
+- **Legal pages:** «Términos de uso», «Política de privacidad» and the full consent document, opened from sign-up, the consent summary, the certificate and Ajustes › Privacidad. One consent text feeds the summary and the document.
+- **Setup step 5 «Avisos»** before the notification prompt: «Notificaciones» asks for the permission (Android 13+, iOS, the browser), an iPhone browser tab first shows how to install the app, and «Sonar en silencio» opens the system notification settings on Android and iOS (it never claims to be on; not offered in the browser). «Paso N de 5» sits above the progress bar.
+- **Clip speed** (0,5×, 1×, 1,5×, 2×) and a full-screen button over the image that opens a black landscape view with letterboxing on Android and iOS (the browser's Fullscreen API on the web).
+- Disclosure widgets `FilaPlegable` and `VerMas` (the prototype's `fold()` and `more()`).
+- Quality tests of the main screens, every setup step, the unstable alert and the legal pages in dark mode and with the text at 200 %, also with the alert folds open.
+
+### Changed
+- **The alert fits one screen:** severity, headline, presence chip, room, time and «Hace» («ahora»), «Llamar a Rosa» and «Ver en vivo». Falls add «¿Rosa no contesta?» with «Llamar al SAMU · 106»; the escalation notices that ask to act stay; «Clip del evento» (open for unstable movements) and «Más detalles» (address, phone, Bomberos 116, the confirmation note, who is told next and the record) fold. The «Qué hacer ahora» steps are gone.
+- **Shorter copy** on every screen, taken from the synthesized prototype, with no pilot or project wording («Equipo de Te Tengo», «Te Tengo 1.0»).
+- **Home:** greeting, status card (no date or address), «Cámara» («No disponible ahora» when the live view cannot open) and «Esta semana» as one card with three mono figures; no last event.
+- **History rows** read «Caída»/«Inestable» and «por Carmen»/«Sin marcar», with the room only when there is more than one camera; the weekly trend reads «Subió de 1 a 2», «Bajó de 2 a 1» or «Igual (2)», and ranges across months read «31 ago – 6 sep».
+- Camera installation data, the consent sections and a past alert's record fold.
+- The family always keeps a principal contact: the principal's sheet no longer offers «Hacer contacto secundario» or «Retirar acceso».
+- `docs/references/` updated to the synthesized prototype (115 screens, DESIGN.md, prototype HTML).
+
 ### Fixed
 - The back-merge job of `produccion.yml` runs when the tag job succeeded even if a switched-off channel (Google Play, TestFlight) was skipped: GitHub's implicit `success()` saw the skipped jobs and skipped the back-merge, so release 0.3.2 was back-merged by hand.
 
