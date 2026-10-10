@@ -25,6 +25,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - **SBOM and attestations of each release candidate.** `te-tengo-sbom.spdx.json` (Dart and Swift packages) is an asset of the candidate and of the final release, and every file gets a build provenance attestation, plus an SBOM attestation for the APK, PWA, AAB and IPA (`gh attestation verify <file> --repo Te-Tengo-Tech/te-tengo-mobile-flutter`).
 - Dependabot also updates the Android Gradle build (`/android`).
 - A rollback rehearsal procedure in [docs/RELEASES.md](docs/RELEASES.md#rollback-rehearsal).
+- A weekly `branch-cleanup.yml` (Mondays 04:00 UTC, or by hand with a dry run) deletes branches merged 7+ days ago and unmerged branches with no commits for 30+ days; it never touches `main`, `develop`, `release/*`, `hotfix/*`, branches with an open pull request or pull requests labelled `do-not-delete`, and `BRANCH_CLEANUP_ENABLED=false` turns it off.
 
 ### Removed
 - The cross-repository mode of `build-apk.yml` (`ref` input and `MOBILE_REPO_TOKEN`): the landing no longer builds the app.
