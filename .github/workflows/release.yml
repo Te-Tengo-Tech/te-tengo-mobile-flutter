@@ -4,35 +4,40 @@ run-name: >-
   && format('Release build check (#{0})', github.event.pull_request.number)
   || format('Release candidate {0}', github.ref_name) }}
 
-# Release candidate and staging of the mobile app (docs/RELEASES.md): build once, store the files as a
-# release candidate, test them on staging, then open the pull request release → main. Produccion runs
-# on main (produccion.yml) and publishes these same files without rebuilding.
+# Release candidate and staging of the mobile app (docs/RELEASES.md): test the commit once, build once,
+# store the files as a release candidate, test them on staging, then open the pull request release →
+# main. Produccion runs on main (produccion.yml) and publishes these same files without rebuilding.
 #
 # A push to release/x.y.z or hotfix/x.y.z runs:
-#   1. build (no environment):
-#        - `Version and configuration` reads x.y.z from pubspec.yaml (it must match the branch), numbers
-#          the candidate x.y.z-rc.N and its build number B (below), checks every secret and variable of
-#          the channels that are on (an error names each missing one, before any build) and writes the
-#          plan to the summary;
-#        - `APK`: the signed universal APK te-tengo.apk (reusable build-apk.yml);
+#   1. test and build:
+#        - `CI` calls ci.yml on this commit (format, analyze, tests; build-pwa false): the commit is
+#          tested once, here, and the pull request into main does not test it again;
+#        - `Version and configuration` (environment `firma`) reads x.y.z from pubspec.yaml (it must match
+#          the branch), numbers the candidate x.y.z-rc.N and its build number B (below), checks the
+#          signing secrets and the variables of the channels that are on (an error names each missing
+#          one, before any build) and writes the plan to the summary;
+#        - `APK` (environment `firma`): the signed universal APK te-tengo.apk (reusable build-apk.yml);
 #        - `PWA`: the web build with base href / and its Pages files (reusable build-web.yml);
-#        - `AAB`: only when ENABLE_PLAY_STORE is 'true';
-#        - `IPA`: only when ENABLE_IOS is 'true' (macOS runner, manual signing).
+#        - `AAB` (environment `firma`): only when ENABLE_PLAY_STORE is 'true';
+#        - `IPA` (environment `firma`): only when ENABLE_IOS is 'true' (macOS runner, manual signing).
 #      Every file carries the final version x.y.z and build number B inside; "rc" is only a label.
-#   2. `Release candidate`: creates the GitHub pre-release vx.y.z-rc.N on this commit with every file as
-#      an asset (te-tengo.apk, te-tengo.apk.sha256, te-tengo-pwa.tar.gz, te-tengo.aab, te-tengo.ipa) and
-#      SHA256SUMS. Its notes record the commit, the git tree, B, the SHA-256 of each asset and the
-#      channels checked (.github/scripts/candidata.sh). Pre-releases do not expire, unlike artifacts.
+#   2. `Release candidate`, only after CI passed: an SBOM (te-tengo-sbom.spdx.json), build provenance
+#      and SBOM attestations of the files, then the GitHub pre-release vx.y.z-rc.N on this commit with
+#      every file as an asset (te-tengo.apk, te-tengo.apk.sha256, te-tengo-pwa.tar.gz, te-tengo.aab,
+#      te-tengo.ipa, te-tengo-sbom.spdx.json) and SHA256SUMS. Its notes record the commit, the git tree,
+#      B, the SHA-256 of each asset and the channels checked (.github/scripts/candidata.sh).
+#      Pre-releases do not expire, unlike artifacts.
 #   3. staging (environment `staging`, approval), when ENABLE_STAGING is 'true', with the candidate's
 #      assets after checking their SHA-256:
 #        - PWA → Pages project te-tengo-app, alias `staging` (https://staging.te-tengo-app.pages.dev);
 #        - APK → R2 `staging/te-tengo.apk`;
 #      each with a smoke check. Both wait together, so one approval covers them.
 #   4. `Pull request to main`: records the staging result in the candidate, then opens `release: x.y.z`
-#      (release/x.y.z → main), or updates its description to the new candidate.
+#      (release/x.y.z → main) as the GitHub App te-tengo-release-bot, or updates its description to the
+#      new candidate. The `edited` event re-runs release-gate.yml, which turns green now.
 # A new push to the branch builds the next candidate, rc.N+1, with a higher B.
-# A pull request that changes the Android build or this workflow only builds the APK (and the AAB when
-# ENABLE_PLAY_STORE is 'true'), as a check.
+# A pull request into develop (or a release branch) that changes the Android build or this workflow
+# builds a debug-signed APK as a check (`APK build check`): no secret reaches pull request code.
 #
 # BUILD NUMBER B (Android versionCode, iOS CFBundleVersion, PWA version.json): computed, not typed.
 # B = 1 + the highest B recorded by any candidate of any version, and never below the +N of
@@ -45,17 +50,21 @@ run-name: >-
 # ENABLE_IOS. The channels that are on are recorded in the candidate: produccion refuses to publish a
 # channel that was off (so neither checked nor staged) when the candidate was built.
 #
-# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (PWA and APK); ANDROID_KEYSTORE_BASE64,
-# ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD, GOOGLE_SERVICES_JSON (APK and
-# AAB); PLAY_SERVICE_ACCOUNT_JSON (Play); IOS_DIST_CERT_P12_BASE64, IOS_DIST_CERT_PASSWORD,
-# IOS_PROVISIONING_PROFILE_BASE64, GOOGLE_SERVICE_INFO_PLIST, APP_STORE_CONNECT_KEY_ID,
-# APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_PRIVATE_KEY (TestFlight).
+# Secrets, each read only by the step that needs it:
+#   environment `firma` (signing; only release/* and hotfix/* runs): ANDROID_KEYSTORE_BASE64,
+#     ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD, GOOGLE_SERVICES_JSON (APK and
+#     AAB); IOS_DIST_CERT_P12_BASE64, IOS_DIST_CERT_PASSWORD, IOS_PROVISIONING_PROFILE_BASE64,
+#     GOOGLE_SERVICE_INFO_PLIST (IPA);
+#   environment `staging`: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (the staging jobs check them);
+#   organization: RELEASE_APP_PRIVATE_KEY + variable RELEASE_APP_ID (the pull request to main).
 # Variables: TT_API_URL; TT_FIREBASE_WEB_* and TT_FCM_VAPID_KEY (PWA); DESCARGAS_BASE_URL (APK);
 # optional DESCARGAS_R2_BUCKET (default te-tengo-descargas).
 on:
   push:
     branches: ["release/**", "hotfix/**"]
+  # A build check only; pull requests into main carry an already built candidate (release-gate.yml).
   pull_request:
+    branches-ignore: [main]
     paths:
       - android/**
       - pubspec.yaml
@@ -90,6 +99,8 @@ jobs:
     name: Version and configuration
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # `firma` holds the signing secrets whose presence this job checks; pull requests get no environment.
+    environment: ${{ github.event_name == 'push' && 'firma' || '' }}
     permissions:
       contents: read
     outputs:
@@ -99,7 +110,7 @@ jobs:
       tag: ${{ steps.numero.outputs.tag }}
       canales: ${{ steps.config.outputs.canales }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: |
@@ -138,6 +149,8 @@ jobs:
           CODE: ${{ steps.version.outputs.code }}
         run: .github/scripts/candidata.sh numerar "$NAME" "$CODE"
 
+      # The signing secrets and the build variables. The deploy secrets (Cloudflare, Google Play, App
+      # Store Connect) belong to the environments `staging` and `produccion`: their jobs check them.
       - name: Check the configuration of the channels that are on
         id: config
         if: github.event_name == 'push'
@@ -148,18 +161,13 @@ jobs:
           ENABLE_APK: ${{ vars.ENABLE_APK }}
           ENABLE_PLAY_STORE: ${{ vars.ENABLE_PLAY_STORE }}
           ENABLE_IOS: ${{ vars.ENABLE_IOS }}
-          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
           HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
           HAS_GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON != '' }}
-          HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
           IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 != '' }}
           IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD != '' }}
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 != '' }}
           GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST != '' }}
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID != '' }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID != '' }}
-          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY != '' }}
-          TT_API_URL: ${{ vars.TT_API_URL || secrets.TT_API_URL }}
+          TT_API_URL: ${{ (vars.TT_API_URL != '' || secrets.TT_API_URL != '') && 'set' || '' }}
           DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
           TT_FIREBASE_WEB_API_KEY: ${{ vars.TT_FIREBASE_WEB_API_KEY }}
           TT_FIREBASE_WEB_APP_ID: ${{ vars.TT_FIREBASE_WEB_APP_ID }}
@@ -170,13 +178,11 @@ jobs:
           errors=()
           # falta <switch> <what is missing>
           falta() { errors+=("$1|$2"); }
-          cloudflare="CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit)"
-          keystore="ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD secrets (the release key; a debug-signed build cannot be updated or uploaded)"
+          keystore="ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD secrets of the environment firma (the release key; a debug-signed build cannot be updated or uploaded)"
           api="TT_API_URL variable (the app would point to http://10.0.2.2:8080)"
           canales=()
           if [ "$ENABLE_PWA" = true ]; then
             canales+=(pwa)
-            [ "$HAS_CLOUDFLARE" = true ] || falta ENABLE_PWA "$cloudflare"
             [ -n "$TT_API_URL" ] || falta ENABLE_PWA "$api"
             for name in TT_FIREBASE_WEB_API_KEY TT_FIREBASE_WEB_APP_ID TT_FIREBASE_WEB_MESSAGING_SENDER_ID \
               TT_FIREBASE_WEB_PROJECT_ID TT_FCM_VAPID_KEY; do
@@ -185,25 +191,22 @@ jobs:
           fi
           if [ "$ENABLE_APK" = true ]; then
             canales+=(apk)
-            [ "$HAS_CLOUDFLARE" = true ] || falta ENABLE_APK "$cloudflare"
             [ "$HAS_KEYSTORE" = true ] || falta ENABLE_APK "$keystore"
-            [ "$HAS_GOOGLE_SERVICES" = true ] || falta ENABLE_APK "GOOGLE_SERVICES_JSON secret (push notifications)"
+            [ "$HAS_GOOGLE_SERVICES" = true ] || falta ENABLE_APK "GOOGLE_SERVICES_JSON secret of the environment firma (push notifications)"
             [ -n "$TT_API_URL" ] || falta ENABLE_APK "$api"
             [ -n "$DESCARGAS_BASE_URL" ] || falta ENABLE_APK "DESCARGAS_BASE_URL variable (public URL of the R2 bucket, for the smoke check)"
           fi
           if [ "$ENABLE_PLAY_STORE" = true ]; then
             canales+=(play)
             [ "$HAS_KEYSTORE" = true ] || falta ENABLE_PLAY_STORE "$keystore"
-            [ "$HAS_GOOGLE_SERVICES" = true ] || falta ENABLE_PLAY_STORE "GOOGLE_SERVICES_JSON secret (push notifications)"
-            [ "$HAS_PLAY" = true ] || falta ENABLE_PLAY_STORE "PLAY_SERVICE_ACCOUNT_JSON secret (Play Console service account)"
+            [ "$HAS_GOOGLE_SERVICES" = true ] || falta ENABLE_PLAY_STORE "GOOGLE_SERVICES_JSON secret of the environment firma (push notifications)"
             [ -n "$TT_API_URL" ] || falta ENABLE_PLAY_STORE "$api"
           fi
           if [ "$ENABLE_IOS" = true ]; then
             canales+=(ios)
             for name in IOS_DIST_CERT_P12_BASE64 IOS_DIST_CERT_PASSWORD IOS_PROVISIONING_PROFILE_BASE64 \
-              GOOGLE_SERVICE_INFO_PLIST APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID \
-              APP_STORE_CONNECT_PRIVATE_KEY; do
-              [ "${!name}" = true ] || falta ENABLE_IOS "$name secret"
+              GOOGLE_SERVICE_INFO_PLIST; do
+              [ "${!name}" = true ] || falta ENABLE_IOS "$name secret of the environment firma"
             done
             [ -n "$TT_API_URL" ] || falta ENABLE_IOS "$api"
           fi
@@ -250,8 +253,19 @@ jobs:
             done
             echo "$action"
           }
-          if [ "$GITHUB_EVENT_NAME" = push ]; then pwa_build=built; else pwa_build="skipped (pull request: CI builds it)"; fi
-          if [ "$GITHUB_EVENT_NAME" = push ]; then ipa_build=$(estado built ENABLE_IOS); else ipa_build="skipped (pull request)"; fi
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            ci="run on this commit (\`CI\`)"
+            apk_build="built, signed with the release key (environment \`firma\`)"
+            pwa_build=built
+            aab_build=$(estado built ENABLE_PLAY_STORE)
+            ipa_build=$(estado built ENABLE_IOS)
+          else
+            ci="skipped (pull request: \`CI\` runs on its own)"
+            apk_build="built, debug-signed (a check: no secret reaches pull request code)"
+            pwa_build="skipped (pull request: \`CI\` builds it)"
+            aab_build="skipped (pull request)"
+            ipa_build="skipped (pull request)"
+          fi
           base=${DESCARGAS_BASE_URL:-<DESCARGAS_BASE_URL>}
           stg="after approval on \`staging\`"
           {
@@ -263,11 +277,12 @@ jobs:
             echo
             echo "| Stage | Channel | Target | This run |"
             echo "|---|---|---|---|"
-            echo "| build | APK | \`te-tengo.apk\` | built |"
+            echo "| test | CI | format, analyze, tests | $ci |"
+            echo "| build | APK | \`te-tengo.apk\` | $apk_build |"
             echo "| build | PWA | \`te-tengo-pwa.tar.gz\` | $pwa_build |"
-            echo "| build | AAB | \`te-tengo.aab\` | $(estado built ENABLE_PLAY_STORE) |"
+            echo "| build | AAB | \`te-tengo.aab\` | $aab_build |"
             echo "| build | IPA | \`te-tengo.ipa\` | $ipa_build |"
-            echo "| candidate | GitHub pre-release | \`${TAG:-vX.Y.Z-rc.N}\` with every file above and \`SHA256SUMS\` | $(estado 'created after the builds') |"
+            echo "| candidate | GitHub pre-release | \`${TAG:-vX.Y.Z-rc.N}\` with every file above, the SBOM and \`SHA256SUMS\`, attested | $(estado 'created after CI and the builds') |"
             echo "| staging | PWA | https://staging.te-tengo-app.pages.dev | $(estado "$stg" ENABLE_STAGING ENABLE_PWA) |"
             echo "| staging | APK | $base/staging/te-tengo.apk | $(estado "$stg" ENABLE_STAGING ENABLE_APK) |"
             echo "| main | Pull request | \`$GITHUB_REF_NAME\` → \`main\` | $(estado 'opened or updated after staging') |"
@@ -275,10 +290,23 @@ jobs:
             echo "Produccion (PWA, APK, Google Play, TestFlight) runs when the pull request is merged into \`main\` (\`produccion.yml\`), with this candidate's files."
           } >> "$GITHUB_STEP_SUMMARY"
 
+  # The commit is tested once, here; the candidate is created only if CI passed. The PWA build of CI
+  # is left out: the PWA job below builds the candidate's, with its version and build number.
+  ci:
+    name: CI
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+    with:
+      build-pwa: false
+
   apk:
-    # The universal release APK for sideloading: te-tengo.apk and te-tengo.apk.sha256.
+    # The universal release APK for sideloading: te-tengo.apk and te-tengo.apk.sha256. Signed in the
+    # environment `firma`, which only release/* and hotfix/* runs reach.
     name: APK
     needs: preparar
+    if: github.event_name == 'push'
     uses: ./.github/workflows/build-apk.yml
     permissions:
       contents: read
@@ -287,8 +315,26 @@ jobs:
       build_number: ${{ needs.preparar.outputs.code }}
       artifact_name: te-tengo-apk
       # The candidate job copies it to the pre-release right after the builds.
-      retention_days: ${{ github.event_name == 'pull_request' && 3 || 7 }}
+      retention_days: 7
+      environment: firma
+      # A channel that publishes the APK or the AAB needs the release key: fail instead of debug-signing.
+      require-release-key: ${{ vars.ENABLE_APK == 'true' || vars.ENABLE_PLAY_STORE == 'true' }}
     secrets: inherit
+
+  # Pull requests: the same build, debug-signed. No secret is passed: pull request code never sees the
+  # release key, Firebase config or API secrets.
+  apk-check:
+    name: APK build check
+    needs: preparar
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/build-apk.yml
+    permissions:
+      contents: read
+    with:
+      build_name: ${{ needs.preparar.outputs.name }}
+      build_number: ${{ needs.preparar.outputs.code }}
+      artifact_name: te-tengo-apk-check
+      retention_days: 3
 
   web:
     name: PWA
@@ -307,7 +353,8 @@ jobs:
   aab:
     name: AAB
     needs: preparar
-    if: vars.ENABLE_PLAY_STORE == 'true'
+    if: github.event_name == 'push' && vars.ENABLE_PLAY_STORE == 'true'
+    environment: firma
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -317,15 +364,10 @@ jobs:
       artifact: ${{ steps.artifact.outputs.name }}
       signed: ${{ steps.key.outputs.release_key }}
     env:
-      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
       NAME: ${{ needs.preparar.outputs.name }}
       CODE: ${{ needs.preparar.outputs.code }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -341,26 +383,35 @@ jobs:
           echo "package=$package" >> "$GITHUB_OUTPUT"
           echo "Version $NAME ($CODE), package $package"
 
-      - uses: actions/setup-java@v6
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: "21"
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: 3.44.8
           channel: stable
           cache: true
 
       - name: Firebase config (google-services.json)
-        if: env.GOOGLE_SERVICES_JSON != ''
-        run: echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+          fi
+      # Google Play rejects a debug-signed bundle: without the release key the job fails.
       - name: Release key (key.properties)
         id: key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
-            echo "release_key=false" >> "$GITHUB_OUTPUT"
-            echo "::notice title=AAB debug-signed::The release keystore secrets are missing, so the AAB is signed with this runner's throwaway debug key, which Google Play rejects."
-            exit 0
+            echo "::error title=Release key missing::ENABLE_PLAY_STORE is 'true', but the secrets ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD of the environment firma are not set; Google Play rejects a debug-signed bundle (docs/RELEASE_ANDROID.md)."
+            exit 1
           fi
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
           {
@@ -390,18 +441,19 @@ jobs:
           SUFFIX: ${{ steps.key.outputs.release_key != 'true' && '-debug-signed' || '' }}
         run: echo "name=te-tengo-$NAME-$CODE$SUFFIX-aab" >> "$GITHUB_OUTPUT"
       - name: Upload the AAB as an artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ steps.artifact.outputs.name }}
           path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           # The candidate job copies it to the pre-release right after the builds.
-          retention-days: ${{ github.event_name == 'pull_request' && 3 || 7 }}
+          retention-days: 7
 
   ipa:
     name: IPA
     needs: preparar
     if: github.event_name == 'push' && vars.ENABLE_IOS == 'true'
+    environment: firma
     runs-on: macos-26
     timeout-minutes: 60
     permissions:
@@ -414,7 +466,7 @@ jobs:
       NAME: ${{ needs.preparar.outputs.name }}
       CODE: ${{ needs.preparar.outputs.code }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -436,7 +488,7 @@ jobs:
           sudo xcode-select --switch "/Applications/Xcode_${XCODE_VERSION}.app"
           xcodebuild -version
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: 3.44.8
           channel: stable
@@ -641,7 +693,7 @@ jobs:
           git checkout -- ios/Flutter/Release.xcconfig || true
 
       - name: Upload the IPA as an artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ steps.verify.outputs.artifact }}
           path: |
@@ -665,18 +717,24 @@ jobs:
   # ── 2. Release candidate ────────────────────────────────────────────────────────────────────────
   candidata:
     name: Release candidate
-    needs: [preparar, apk, web, aab, ipa]
-    # `!failure()` lets it run when a build was skipped by its switch.
-    if: "!cancelled() && !failure() && github.event_name == 'push'"
+    needs: [preparar, ci, apk, web, aab, ipa]
+    # Only after CI passed on this commit. `!failure()` lets it run when a build was skipped by its switch.
+    if: >-
+      !cancelled() && !failure() && github.event_name == 'push'
+      && needs.ci.result == 'success' && needs.apk.result == 'success' && needs.web.result == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # creates the pre-release vX.Y.Z-rc.N and its tag
+      id-token: write # signs the attestations (Sigstore)
+      attestations: write # stores them
+    # One candidate at a time across branches, so two runs never pick the same rc or build number.
+    concurrency:
+      group: release-candidate
+      cancel-in-progress: false
     outputs:
       tag: ${{ needs.preparar.outputs.tag }}
     env:
-      GH_TOKEN: ${{ github.token }}
       VERSION: ${{ needs.preparar.outputs.name }}
       RC: ${{ needs.preparar.outputs.rc }}
       BUILD: ${{ needs.preparar.outputs.code }}
@@ -694,30 +752,38 @@ jobs:
       BUNDLE_ID: ${{ needs.ipa.outputs.bundle_id }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
-      - uses: actions/checkout@v7
+      # The scripts, and the dependency manifests the SBOM is made from (Dart packages of pubspec.lock,
+      # Swift packages of Package.resolved).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          sparse-checkout: .github/scripts
+          sparse-checkout: |
+            .github/scripts
+            pubspec.yaml
+            pubspec.lock
+            ios/**/Package.resolved
+            android/**/*.gradle.kts
+          sparse-checkout-cone-mode: false
       - name: Download the APK
         if: needs.apk.outputs.signed == 'true'
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ needs.apk.outputs.artifact_name }}
           path: ${{ runner.temp }}/apk
       - name: Download the PWA
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ needs.web.outputs.artifact_name }}
           path: ${{ runner.temp }}/pwa
       - name: Download the AAB
         if: env.AAB == 'true'
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ needs.aab.outputs.artifact }}
           path: ${{ runner.temp }}/aab
       - name: Download the IPA
         if: env.IPA == 'true'
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ needs.ipa.outputs.artifact }}
           path: ${{ runner.temp }}/ipa
@@ -749,18 +815,39 @@ jobs:
           fi
           ls -l "$dir"
 
-      - name: Create the pre-release
-        run: .github/scripts/candidata.sh crear "$RUNNER_TEMP/candidata"
+      # The dependencies built into the app, stored in the candidate (and so in SHA256SUMS and in the
+      # final release).
+      - name: SBOM
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          path: .
+          format: spdx-json
+          output-file: ${{ runner.temp }}/candidata/te-tengo-sbom.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+      # Verify with `gh attestation verify <file> --repo Te-Tengo-Tech/te-tengo-mobile-flutter`.
+      - name: Build provenance attestation
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/candidata/*
+      - name: SBOM attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: |
+            ${{ runner.temp }}/candidata/te-tengo*.apk
+            ${{ runner.temp }}/candidata/te-tengo-pwa.tar.gz
+            ${{ runner.temp }}/candidata/te-tengo*.aab
+            ${{ runner.temp }}/candidata/te-tengo*.ipa
+          sbom-path: ${{ runner.temp }}/candidata/te-tengo-sbom.spdx.json
 
-      - name: Tell the open pull request to main
-        run: |
-          url=$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$GITHUB_REF_NAME" --state open --json url --jq '.[0].url // ""')
-          if [ -n "$url" ]; then
-            gh pr comment "$url" --body "New candidate [\`$TAG\`]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG) (build $BUILD) from \`${GITHUB_SHA:0:12}\`; staging: $STAGING. Do not merge until it has passed staging: produccion refuses a candidate that has not. Run: $RUN_URL"
-          fi
+      - name: Create the pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: .github/scripts/candidata.sh crear "$RUNNER_TEMP/candidata"
 
   # ── 3. Staging ──────────────────────────────────────────────────────────────────────────────────
   # Both jobs need the same jobs, so they wait for approval together and one review approves both.
+  # CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are secrets of the environment `staging`.
   staging-pwa:
     name: Staging · PWA
     needs: candidata
@@ -775,24 +862,34 @@ jobs:
     permissions:
       contents: read
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      GH_TOKEN: ${{ github.token }}
       TAG: ${{ needs.candidata.outputs.tag }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Check the Cloudflare secrets
+        env:
+          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        run: |
+          if [ "$HAS_CLOUDFLARE" != true ]; then
+            echo "::error title=Cloudflare secrets missing::ENABLE_STAGING and ENABLE_PWA are 'true', but the secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID of the environment staging are not set (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit; docs/RELEASES.md)."
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/scripts
       - name: Download the candidate's PWA and check its SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/candidata" te-tengo-pwa.tar.gz
           mkdir -p "$RUNNER_TEMP/pwa"
           tar -xzf "$RUNNER_TEMP/candidata/te-tengo-pwa.tar.gz" -C "$RUNNER_TEMP/pwa"
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Deploy to the staging alias and smoke check
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: .github/scripts/deploy_pwa.sh "$RUNNER_TEMP/pwa" staging https://staging.te-tengo-app.pages.dev
 
   staging-apk:
@@ -809,55 +906,68 @@ jobs:
     permissions:
       contents: read
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       R2_BUCKET: ${{ vars.DESCARGAS_R2_BUCKET || 'te-tengo-descargas' }}
       DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
-      GH_TOKEN: ${{ github.token }}
       TAG: ${{ needs.candidata.outputs.tag }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Check the Cloudflare secrets
+        env:
+          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+        run: |
+          if [ "$HAS_CLOUDFLARE" != true ]; then
+            echo "::error title=Cloudflare secrets missing::ENABLE_STAGING and ENABLE_APK are 'true', but the secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID of the environment staging are not set (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit; docs/RELEASES.md)."
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/scripts
       - name: Download the candidate's APK and check its SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/apk" te-tengo.apk te-tengo.apk.sha256
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Upload to R2 staging/ and smoke check
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: .github/scripts/upload_apk.sh "$RUNNER_TEMP/apk" staging/
 
   # ── 4. Pull request to main ─────────────────────────────────────────────────────────────────────
+  # The staging result is recorded with GITHUB_TOKEN; the pull request is opened or edited by the
+  # GitHub App te-tengo-release-bot, so its checks run (a pull request opened or edited with
+  # GITHUB_TOKEN starts no workflows). The edit re-runs release-gate, now green for this candidate.
   pr-main:
     name: Pull request to main
     needs: [preparar, candidata, staging-pwa, staging-apk]
     # After staging passed, or was skipped by its switches. A failed or rejected staging job stops it,
-    # and the candidate stays `pending`, which produccion refuses.
+    # and the candidate stays `pending`, which produccion and release-gate refuse.
     if: >-
       !cancelled() && !failure() && github.event_name == 'push'
       && needs.candidata.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # records the staging result in the candidate's notes
     env:
-      GH_TOKEN: ${{ github.token }}
       NAME: ${{ needs.preparar.outputs.name }}
       CODE: ${{ needs.preparar.outputs.code }}
       TAG: ${{ needs.candidata.outputs.tag }}
       DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
       STAGING_PWA: ${{ needs.staging-pwa.result }}
       STAGING_APK: ${{ needs.staging-apk.result }}
-      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/scripts
       - name: Record the staging result in the candidate
         id: staging
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ "$STAGING_PWA" = success ] || [ "$STAGING_APK" = success ]; then
             estado=passed
@@ -866,18 +976,36 @@ jobs:
           fi
           .github/scripts/candidata.sh staging "$TAG" "$estado"
           echo "estado=$estado" >> "$GITHUB_OUTPUT"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern SHA256SUMS --dir "$RUNNER_TEMP/sumas"
+      - name: Check the release bot configuration
+        env:
+          APP_ID: ${{ vars.RELEASE_APP_ID }}
+          HAS_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY != '' }}
+        run: |
+          if [ -z "$APP_ID" ] || [ "$HAS_KEY" != true ]; then
+            echo "::error title=Release bot not configured::The organization variable RELEASE_APP_ID and the organization secret RELEASE_APP_PRIVATE_KEY (GitHub App te-tengo-release-bot) are required to open the pull request. Nothing falls back to GITHUB_TOKEN: its pull requests start no workflows."
+            exit 1
+          fi
+      - name: Mint the release bot token
+        id: bot
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          # The App ID; GitHub accepts it as the JWT issuer like the client ID.
+          client-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-pull-requests: write
       - name: Open the pull request, or update it to this candidate
         env:
+          GH_TOKEN: ${{ steps.bot.outputs.token }}
           ESTADO: ${{ steps.staging.outputs.estado }}
         run: |
           set -euo pipefail
           resultado() { if [ "$1" = success ]; then echo "$2"; else echo "skipped"; fi; }
           base=${DESCARGAS_BASE_URL:-<DESCARGAS_BASE_URL>}
           release="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG"
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern SHA256SUMS --dir "$RUNNER_TEMP/sumas"
           body="$RUNNER_TEMP/body.md"
           {
-            echo "Release **$NAME**, candidate [\`$TAG\`]($release) (build number $CODE) from \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`. Pipeline: $RUN_URL"
+            echo "Release **$NAME**, candidate [\`$TAG\`]($release) (build number $CODE) from \`$GITHUB_REF_NAME\` at \`$GITHUB_SHA\`, tested by \`CI\` in the pipeline run: $RUN_URL"
             echo
             echo "| Staging | Target | Result |"
             echo "|---|---|---|"
@@ -890,16 +1018,9 @@ jobs:
             echo "|---|---|"
             while read -r sha file; do echo "| \`$file\` | \`$sha\` |"; done < "$RUNNER_TEMP/sumas/SHA256SUMS"
             echo
-            echo "Merging runs \`produccion.yml\` on \`main\`: it checks that the tree of \`main\` is the tree of this candidate, publishes these same files after an approval on \`produccion\` (PWA https://app.tetengo.reqsai.tech, APK \`$base/te-tengo.apk\`, Google Play and TestFlight when switched on) and, only if every channel succeeds, tags \`v$NAME\` and opens the back-merge pull request into \`develop\`. A new push to \`$GITHUB_REF_NAME\` builds the next candidate and updates this description."
+            echo "Provenance and SBOM attestations: \`gh attestation verify <asset> --repo $GITHUB_REPOSITORY\`."
+            echo
+            echo "\`release-gate\` checks that merging puts exactly this tree into \`main\` and that the candidate passed staging. Merge with a merge commit. Merging runs \`produccion.yml\` on \`main\`: it finds this candidate by the tree of \`main\`, publishes these same files after an approval on \`produccion\` (PWA https://app.tetengo.reqsai.tech, APK \`$base/te-tengo.apk\`, Google Play and TestFlight when switched on) and, only if at least one channel was published and none failed, tags \`v$NAME\` and opens the back-merge pull request into \`develop\`. A new push to \`$GITHUB_REF_NAME\` builds the next candidate and updates this description."
           } > "$body"
-          url=$(gh pr list --repo "$GITHUB_REPOSITORY" --base main --head "$GITHUB_REF_NAME" --state open --json url --jq '.[0].url // ""')
-          if [ -n "$url" ]; then
-            number=$(gh pr view "$url" --repo "$GITHUB_REPOSITORY" --json number --jq .number)
-            gh api -X PATCH "repos/$GITHUB_REPOSITORY/pulls/$number" -f title="release: $NAME" -F body=@"$body" > /dev/null
-            gh pr comment "$url" --body "Candidate \`$TAG\`, staging $ESTADO: the description now lists its files."
-            echo "Updated $url to $TAG" >> "$GITHUB_STEP_SUMMARY"
-          else
-            url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$GITHUB_REF_NAME" \
-              --title "release: $NAME" --body-file "$body")
-            echo "Opened $url" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          .github/scripts/open-release-pr.sh "release: $NAME" "$body" \
+            "Candidate [\`$TAG\`]($release) (commit \`${GITHUB_SHA:0:12}\`), staging $ESTADO: the description now lists its files."

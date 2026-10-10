@@ -10,8 +10,9 @@
 # Smoke check: GET <public url>/ answers 200 and <public url>/version.json has the version and build
 # number of this build (Flutter writes version.json from pubspec.yaml), retried for up to 2 minutes.
 #
-# Environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (secrets), PAGES_PROJECT, WRANGLER_VERSION,
-# GITHUB_STEP_SUMMARY; DEPLOY_COMMIT (the commit the build came from; default GITHUB_SHA).
+# Environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (secrets of the job's environment, staging or
+# produccion), PAGES_PROJECT, WRANGLER_VERSION, GITHUB_STEP_SUMMARY; DEPLOY_COMMIT (the commit the build
+# came from; default GITHUB_SHA).
 set -euo pipefail
 
 dir=$1
@@ -20,7 +21,7 @@ url=${3%/}
 commit=${DEPLOY_COMMIT:-$GITHUB_SHA}
 
 if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
-  echo "::error title=Cloudflare secrets missing::CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must be repository secrets (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit; docs/RELEASES.md)."
+  echo "::error title=Cloudflare secrets missing::CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must reach this step: secrets of the environment staging or produccion (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit; docs/RELEASES.md)."
   exit 1
 fi
 for f in index.html version.json manifest.json firebase-messaging-sw.js _headers robots.txt; do
