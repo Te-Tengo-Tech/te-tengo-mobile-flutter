@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
@@ -77,10 +77,10 @@ class _Contenido extends StatelessWidget {
         if (conConsentimiento) ...[
           Row(
             children: [
-              const IconoGrande(
+              IconoGrande(
                 icono: Ico.check,
-                fondo: Colores.calmaSuave,
-                color: Colores.calmaTinta,
+                fondo: context.colores.calmaSuave,
+                color: context.colores.calmaTinta,
                 tamano: 44,
               ),
               const SizedBox(width: 12),

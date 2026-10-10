@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
@@ -106,7 +106,7 @@ class PantallaFamilia extends ConsumerWidget {
                       'min de espera',
             fin: titular
                 ? null
-                : const Icono(Ico.lock, tamano: 22, color: Colores.tinta3),
+                : Icono(Ico.lock, tamano: 22, color: context.colores.tinta3),
             alTocar: () => context.push(Rutas.ordenAviso),
           ),
         ],

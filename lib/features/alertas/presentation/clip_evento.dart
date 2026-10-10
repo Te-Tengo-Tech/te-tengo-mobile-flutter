@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/dispositivo/pantalla_completa.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
@@ -91,14 +91,16 @@ class ClipNoDisponible extends StatelessWidget {
       constraints: BoxConstraints(minHeight: aRas ? 0 : 170),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colores.fondo2,
+        color: context.colores.fondo2,
         borderRadius: BorderRadius.circular(aRas ? 0 : 18),
-        border: aRas ? null : Border.all(color: Colores.linea2, width: 1.5),
+        border: aRas
+            ? null
+            : Border.all(color: context.colores.linea2, width: 1.5),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icono(icono, tamano: 32, color: Colores.tinta3),
+          Icono(icono, tamano: 32, color: context.colores.tinta3),
           const SizedBox(height: 8),
           Text(titulo, textAlign: TextAlign.center, style: texto.titleMedium),
           const SizedBox(height: 8),

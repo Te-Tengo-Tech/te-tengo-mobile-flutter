@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
 import '../domain/camara.dart';
@@ -14,12 +14,12 @@ extension PresentacionEstado on EstadoVisible {
     EstadoVisible.detenida => Ico.lock,
   };
 
-  /// Text color of the state (`.state-txt`).
-  Color get color => switch (this) {
-    EstadoVisible.enLinea => Colores.calmaTinta,
-    EstadoVisible.desconectada || EstadoVisible.noConfiable => Colores.aviso,
-    EstadoVisible.enPausa => Colores.pausa,
-    EstadoVisible.detenida => Colores.tinta3,
+  /// Text color of the state (`.state-txt`) in the palette [p].
+  Color colorEn(Paleta p) => switch (this) {
+    EstadoVisible.enLinea => p.calmaTinta,
+    EstadoVisible.desconectada || EstadoVisible.noConfiable => p.aviso,
+    EstadoVisible.enPausa => p.pausa,
+    EstadoVisible.detenida => p.tinta3,
   };
 }
 
@@ -34,12 +34,16 @@ class EstadoCamara extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icono(estado.icono, tamano: 18, color: estado.color),
+      Icono(estado.icono, tamano: 18, color: estado.colorEn(context.colores)),
       const SizedBox(width: 6),
       Flexible(
         child: Text(
           estado.texto,
-          style: estiloTexto(tamano, 700, color: estado.color),
+          style: estiloTexto(
+            tamano,
+            700,
+            color: estado.colorEn(context.colores),
+          ),
         ),
       ),
     ],
@@ -58,20 +62,33 @@ class IconoEstadoCamara extends StatelessWidget {
   Widget build(BuildContext context) {
     final radio = BorderRadius.circular(tamano * 0.33);
     final (fondo, color) = switch (estado) {
-      EstadoVisible.enLinea => (Colores.calmaSuave, Colores.calmaTinta),
-      EstadoVisible.desconectada ||
-      EstadoVisible.noConfiable => (Colores.avisoSuave, Colores.aviso),
-      EstadoVisible.enPausa => (Colores.pausaSuave, Colores.pausa),
-      EstadoVisible.detenida => (Colores.fondo2, Colores.tinta3),
+      EstadoVisible.enLinea => (
+        context.colores.calmaSuave,
+        context.colores.calmaTinta,
+      ),
+      EstadoVisible.desconectada || EstadoVisible.noConfiable => (
+        context.colores.avisoSuave,
+        context.colores.aviso,
+      ),
+      EstadoVisible.enPausa => (
+        context.colores.pausaSuave,
+        context.colores.pausa,
+      ),
+      EstadoVisible.detenida => (
+        context.colores.fondo2,
+        context.colores.tinta3,
+      ),
     };
     return ExcludeSemantics(
       child: CustomPaint(
         foregroundPainter: switch (estado) {
           EstadoVisible.desconectada ||
-          EstadoVisible.noConfiable => _Punteado(radio),
+          EstadoVisible.noConfiable => _Punteado(radio, context.colores.aviso),
           _ => null,
         },
-        painter: estado == EstadoVisible.enPausa ? _Rayado(radio) : null,
+        painter: estado == EstadoVisible.enPausa
+            ? _Rayado(radio, context.colores.pausaSuave)
+            : null,
         child: Container(
           width: tamano,
           height: tamano,
@@ -88,15 +105,16 @@ class IconoEstadoCamara extends StatelessWidget {
 }
 
 class _Punteado extends CustomPainter {
-  const _Punteado(this.radio);
+  const _Punteado(this.radio, this.color);
 
   final BorderRadius radio;
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
     final ruta = Path()..addRRect(radio.toRRect(Offset.zero & size).deflate(1));
     final p = Paint()
-      ..color = Colores.aviso
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     for (final m in ruta.computeMetrics()) {
@@ -107,20 +125,21 @@ class _Punteado extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_Punteado old) => false;
+  bool shouldRepaint(_Punteado old) => old.color != color;
 }
 
 class _Rayado extends CustomPainter {
-  const _Rayado(this.radio);
+  const _Rayado(this.radio, this.fondo);
 
   final BorderRadius radio;
+  final Color fondo;
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     canvas.save();
     canvas.clipRRect(radio.toRRect(rect));
-    canvas.drawRect(rect, Paint()..color = Colores.pausaSuave);
+    canvas.drawRect(rect, Paint()..color = fondo);
     final p = Paint()..color = const Color(0xFFD4D9E4);
     for (var x = -size.height; x < size.width + size.height; x += 10) {
       canvas.drawPath(
@@ -137,5 +156,5 @@ class _Rayado extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_Rayado old) => false;
+  bool shouldRepaint(_Rayado old) => old.fondo != fondo;
 }

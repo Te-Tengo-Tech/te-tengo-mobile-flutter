@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
@@ -46,7 +47,9 @@ class PantallaBienvenida extends StatelessWidget {
                     Text(
                       'Una cámara en su casa detecta caídas y te avisa al '
                       'instante.',
-                      style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+                      style: texto.bodyLarge?.copyWith(
+                        color: context.colores.tinta2,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const _Vineta(Ico.user, 'Sin pulseras ni botones'),
@@ -147,7 +150,14 @@ class _Vineta extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(texto, style: estiloTexto(16, 400).copyWith(height: 1.4)),
+          child: Text(
+            texto,
+            style: estiloTexto(
+              16,
+              400,
+              color: context.colores.tinta,
+            ).copyWith(height: 1.4),
+          ),
         ),
       ],
     ),

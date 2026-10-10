@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/ui/botones.dart';
@@ -99,9 +99,12 @@ class PermisoActivado extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      const Icono(Ico.check, tamano: 18, color: Colores.calmaTinta),
+      Icono(Ico.check, tamano: 18, color: context.colores.calmaTinta),
       const SizedBox(width: 6),
-      Text('Activadas', style: estiloTexto(15, 700, color: Colores.calmaTinta)),
+      Text(
+        'Activadas',
+        style: estiloTexto(15, 700, color: context.colores.calmaTinta),
+      ),
     ],
   );
 }

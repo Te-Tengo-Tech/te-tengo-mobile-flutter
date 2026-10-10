@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
 
@@ -42,20 +43,33 @@ class Boton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (fondo, texto, borde) = switch (estilo) {
-      EstiloBoton.primario => (Colores.morado, Colors.white, null),
-      EstiloBoton.secundario => (
-        Colores.tarjeta,
-        Colores.moradoTinta,
-        Colores.linea2,
+      EstiloBoton.primario => (
+        context.colores.botonPrimario,
+        Colors.white,
+        null,
       ),
-      EstiloBoton.fantasma => (Colors.transparent, Colores.moradoTinta, null),
+      EstiloBoton.secundario => (
+        context.colores.tarjeta,
+        context.colores.moradoTinta,
+        context.colores.linea2,
+      ),
+      EstiloBoton.fantasma => (
+        Colors.transparent,
+        context.colores.moradoTinta,
+        null,
+      ),
       EstiloBoton.peligro => (Colores.caida, Colors.white, null),
       EstiloBoton.peligroContorno => (
         Colors.transparent,
-        Colores.caidaTinta,
+        context.colores.caidaTinta,
         const Color(0xFFE7B9B3),
       ),
-      EstiloBoton.tinta => (Colores.tinta, Colors.white, null),
+      EstiloBoton.tinta => (
+        context.colores.inversa,
+        context.colores.sobreInversa,
+        null,
+      ),
+      // Over the red flood: always white with the light red ink.
       EstiloBoton.blanco => (Colors.white, Colores.caidaTinta, null),
       EstiloBoton.sobreRojo => (
         const Color(0x24FFFFFF),
@@ -101,7 +115,7 @@ class Boton extends StatelessWidget {
         child: Material(
           color: habilitado || estilo == EstiloBoton.fantasma
               ? fondo
-              : (fondo == Colors.transparent ? fondo : Colores.linea),
+              : (fondo == Colors.transparent ? fondo : context.colores.linea),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: borde == null

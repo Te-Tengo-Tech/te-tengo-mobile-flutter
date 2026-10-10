@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
 
@@ -91,7 +92,7 @@ class _FilaPlegableState extends State<FilaPlegable> {
                     decoration: BoxDecoration(
                       color: widget.destacada
                           ? Colores.morado
-                          : Colores.moradoSuave,
+                          : context.colores.moradoSuave,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     alignment: Alignment.center,
@@ -100,7 +101,7 @@ class _FilaPlegableState extends State<FilaPlegable> {
                       tamano: 24,
                       color: widget.destacada
                           ? Colors.white
-                          : Colores.moradoTinta,
+                          : context.colores.moradoTinta,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -110,17 +111,28 @@ class _FilaPlegableState extends State<FilaPlegable> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(widget.titulo, style: estiloTexto(17, 700)),
+                      Text(
+                        widget.titulo,
+                        style: estiloTexto(
+                          17,
+                          700,
+                          color: context.colores.tinta,
+                        ),
+                      ),
                       if (resumen != null && !_abierta)
                         Text(
                           resumen,
-                          style: estiloTexto(15, 400, color: Colores.tinta3),
+                          style: estiloTexto(
+                            15,
+                            400,
+                            color: context.colores.tinta3,
+                          ),
                         ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                _Chevron(abierta: _abierta, color: Colores.tinta3),
+                _Chevron(abierta: _abierta, color: context.colores.tinta3),
               ],
             ),
           ),
@@ -145,7 +157,7 @@ class _FilaPlegableState extends State<FilaPlegable> {
                     style: estiloTexto(
                       15,
                       400,
-                      color: Colores.tinta2,
+                      color: context.colores.tinta2,
                     ).copyWith(height: 1.45),
                     child: widget.child,
                   ),
@@ -195,11 +207,15 @@ class _VerMasState extends State<VerMas> {
                 Expanded(
                   child: Text(
                     widget.etiqueta,
-                    style: estiloTexto(16, 700, color: Colores.moradoTinta),
+                    style: estiloTexto(
+                      16,
+                      700,
+                      color: context.colores.moradoTinta,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                _Chevron(abierta: _abierto, color: Colores.moradoTinta),
+                _Chevron(abierta: _abierto, color: context.colores.moradoTinta),
               ],
             ),
           ),

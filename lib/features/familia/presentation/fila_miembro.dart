@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/lista.dart';
 import '../data/familia_repositorio.dart';
@@ -16,8 +17,11 @@ class EtiquetaPapel extends StatelessWidget {
   Widget build(BuildContext context) {
     final (fondo, color) = switch (papel) {
       PapelAviso.principal => (Colores.morado, Colors.white),
-      PapelAviso.secundario => (Colores.moradoSuave, Colores.moradoTinta),
-      PapelAviso.familiar => (Colores.fondo2, Colores.tinta2),
+      PapelAviso.secundario => (
+        context.colores.moradoSuave,
+        context.colores.moradoTinta,
+      ),
+      PapelAviso.familiar => (context.colores.fondo2, context.colores.tinta2),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

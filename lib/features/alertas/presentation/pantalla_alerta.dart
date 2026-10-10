@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/dispositivo/llamada.dart';
 import '../../../core/formato.dart';
@@ -128,6 +129,7 @@ class _Alerta extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final caida = alerta.esCaida;
     final fondo = caida ? Colores.caida : Colores.inestable;
+    // The flood keeps its severity color in dark mode too, with the light ink on yellow.
     final tinta = caida ? Colors.white : Colores.tinta;
     final adulto = hogar.adultoMayor;
     final nombre = adulto.nombrePila;
@@ -158,15 +160,21 @@ class _Alerta extends ConsumerWidget {
               ),
             ),
             SliverToBoxAdapter(
-              child: _Heroe(alerta: alerta, adulto: adulto, color: tinta),
+              // The flood keeps its severity color in dark mode: its buttons and notices stay light.
+              child: Theme(
+                data: temaClaroTeTengo,
+                child: _Heroe(alerta: alerta, adulto: adulto, color: tinta),
+              ),
             ),
             // The sheet takes its own height (folds open and close inside it); the ground below
             // fills the rest of the screen.
             SliverToBoxAdapter(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Colores.fondo,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                decoration: BoxDecoration(
+                  color: context.colores.fondo,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
                 ),
                 padding: const EdgeInsets.fromLTRB(18, 20, 18, 28),
                 child: Column(
@@ -248,17 +256,17 @@ class _Alerta extends ConsumerWidget {
                 ),
               ),
             ),
-            const SliverFillRemaining(
+            SliverFillRemaining(
               hasScrollBody: false,
-              child: ColoredBox(color: Colores.fondo),
+              child: ColoredBox(color: context.colores.fondo),
             ),
           ],
         ),
         bottomNavigationBar: Container(
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-          decoration: const BoxDecoration(
-            color: Color(0xF7EEF0F4),
-            border: Border(top: BorderSide(color: Colores.linea)),
+          decoration: BoxDecoration(
+            color: context.colores.fondo.withValues(alpha: .97),
+            border: Border(top: BorderSide(color: context.colores.linea)),
           ),
           child: SafeArea(
             top: false,
@@ -479,7 +487,7 @@ class _LineaRica extends StatelessWidget {
     children: [
       Padding(
         padding: const EdgeInsets.only(top: 2),
-        child: Icono(icono, tamano: 20, color: Colores.tinta2),
+        child: Icono(icono, tamano: 20, color: context.colores.tinta2),
       ),
       const SizedBox(width: 10),
       Expanded(

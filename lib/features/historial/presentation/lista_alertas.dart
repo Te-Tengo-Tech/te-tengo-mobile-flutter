@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
@@ -199,12 +199,16 @@ class FilaAlerta extends StatelessWidget {
                   children: [
                     Text(
                       a.esCaida ? 'Caída' : 'Inestable',
-                      style: estiloTexto(17, 700),
+                      style: estiloTexto(17, 700, color: context.colores.tinta),
                     ),
                     if (detalle.isNotEmpty)
                       Text(
                         detalle,
-                        style: estiloTexto(14, 400, color: Colores.tinta3),
+                        style: estiloTexto(
+                          14,
+                          400,
+                          color: context.colores.tinta3,
+                        ),
                       ),
                     if (grande) ...[const SizedBox(height: 6), SelloEstado(a)],
                   ],
@@ -229,7 +233,7 @@ class _Cargando extends StatelessWidget {
       width: ancho,
       height: alto,
       decoration: BoxDecoration(
-        color: Colores.fondo2,
+        color: context.colores.fondo2,
         borderRadius: BorderRadius.circular(radio),
       ),
     );

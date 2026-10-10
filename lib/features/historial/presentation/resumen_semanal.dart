@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
@@ -38,7 +38,7 @@ class VistaResumenSemanal extends ConsumerWidget {
           children: [
             IconButton(
               tooltip: 'Semana anterior',
-              icon: const Icono(Ico.chevL, color: Colores.tinta),
+              icon: Icono(Ico.chevL, color: context.colores.tinta),
               onPressed: () => control.mover(-1),
             ),
             Expanded(
@@ -51,7 +51,7 @@ class VistaResumenSemanal extends ConsumerWidget {
                       _ => 'Hace ${-desplazamiento} semanas',
                     },
                     textAlign: TextAlign.center,
-                    style: estiloTexto(18, 800),
+                    style: estiloTexto(18, 800, color: context.colores.tinta),
                   ),
                   Text(
                     '${rangoDias(lunes, domingo)}'
@@ -66,7 +66,9 @@ class VistaResumenSemanal extends ConsumerWidget {
               tooltip: 'Semana siguiente',
               icon: Icono(
                 Ico.chevR,
-                color: desplazamiento >= 0 ? Colores.linea2 : Colores.tinta,
+                color: desplazamiento >= 0
+                    ? context.colores.linea2
+                    : context.colores.tinta,
               ),
               onPressed: desplazamiento >= 0 ? null : () => control.mover(1),
             ),
@@ -89,7 +91,7 @@ class VistaResumenSemanal extends ConsumerWidget {
               arriba: 22,
               accion: Text(
                 'vs. ${rangoDias(lunesAnterior, domingoAnterior, corto: true)}',
-                style: estiloTexto(15, 600, color: Colores.tinta3),
+                style: estiloTexto(15, 600, color: context.colores.tinta3),
               ),
             ),
             ListaTarjeta(
@@ -163,7 +165,7 @@ class _Dias extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
-          color: Colores.tarjeta,
+          color: context.colores.tarjeta,
           borderRadius: BorderRadius.circular(24),
           boxShadow: sombraTarjeta,
         ),
@@ -211,14 +213,19 @@ class _Dia extends StatelessWidget {
     return ExcludeSemantics(
       child: Column(
         children: [
-          Text(inicial, style: estiloTexto(14, 700, color: Colores.tinta3)),
+          Text(
+            inicial,
+            style: estiloTexto(14, 700, color: context.colores.tinta3),
+          ),
           const SizedBox(height: 8),
           Container(
             height: 82,
             margin: const EdgeInsets.symmetric(horizontal: 3),
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: esHoy ? Colores.moradoSuave : Colores.fondo,
+              color: esHoy
+                  ? context.colores.moradoSuave
+                  : context.colores.fondo,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -265,15 +272,19 @@ class _FilaConteo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icono, color, texto) = switch (tendencia) {
-      Tendencia.igual => (Ico.equal, Colores.tinta3, 'Igual ($anterior)'),
+      Tendencia.igual => (
+        Ico.equal,
+        context.colores.tinta3,
+        'Igual ($anterior)',
+      ),
       Tendencia.aumento => (
         Ico.up,
-        falsa ? Colores.tinta3 : Colores.aviso,
+        falsa ? context.colores.tinta3 : context.colores.aviso,
         'Subió de $anterior a $actual',
       ),
       Tendencia.disminucion => (
         Ico.down,
-        Colores.calmaTinta,
+        context.colores.calmaTinta,
         'Bajó de $anterior a $actual',
       ),
     };
@@ -298,7 +309,16 @@ class _FilaConteo extends StatelessWidget {
                   children: [
                     MarcaAlerta(tipo: tipo, falsa: falsa),
                     const SizedBox(width: 8),
-                    Flexible(child: Text(titulo, style: estiloTexto(18, 700))),
+                    Flexible(
+                      child: Text(
+                        titulo,
+                        style: estiloTexto(
+                          18,
+                          700,
+                          color: context.colores.tinta,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -357,7 +377,11 @@ class SemanaEnInicio extends ConsumerWidget {
                   Flexible(
                     child: Text(
                       n == 1 ? singular : plural,
-                      style: estiloTexto(15, 400, color: Colores.tinta2),
+                      style: estiloTexto(
+                        15,
+                        400,
+                        color: context.colores.tinta2,
+                      ),
                     ),
                   ),
                 ],

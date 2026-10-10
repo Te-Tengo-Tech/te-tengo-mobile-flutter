@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
@@ -265,12 +265,12 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
           data: (h) => ListView(
             padding: const EdgeInsets.fromLTRB(22, 34, 22, 24),
             children: [
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: IconoGrande(
                   icono: Ico.shield,
-                  fondo: Colores.calmaSuave,
-                  color: Colores.calmaTinta,
+                  fondo: context.colores.calmaSuave,
+                  color: context.colores.calmaTinta,
                 ),
               ),
               const SizedBox(height: 20),
@@ -285,7 +285,7 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               Text(
                 'La cámara ya envía video y detectamos caídas. Puedes '
                 'revocarlo en Ajustes.',
-                style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+                style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
               ),
               const SizedBox(height: 20),
               if (h.consentimiento case final c?)

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
 import 'reproduccion_clip.dart';
@@ -101,7 +102,7 @@ class ControlesClip extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
         decoration: BoxDecoration(
-          color: Colores.tinta,
+          color: context.colores.barraClip,
           borderRadius: BorderRadius.circular(aRas ? 0 : 14),
         ),
         // No LayoutBuilder: the bar lays out inside folds that measure their content.

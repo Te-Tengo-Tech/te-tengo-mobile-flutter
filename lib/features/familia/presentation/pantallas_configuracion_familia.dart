@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -194,7 +194,7 @@ class PantallaTodoListo extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               'Te avisaremos aunque tengas la app cerrada.',
-              style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+              style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
             ),
             const SizedBox(height: 20),
             ListaTarjeta(
@@ -261,13 +261,13 @@ class _IconoResumen extends StatelessWidget {
     height: 36,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: activo ? Colores.calmaSuave : Colores.fondo2,
+      color: activo ? context.colores.calmaSuave : context.colores.fondo2,
       borderRadius: BorderRadius.circular(12),
     ),
     child: Icono(
       icono,
       tamano: 22,
-      color: activo ? Colores.calmaTinta : Colores.tinta3,
+      color: activo ? context.colores.calmaTinta : context.colores.tinta3,
     ),
   );
 }

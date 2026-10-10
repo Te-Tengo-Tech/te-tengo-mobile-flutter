@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -113,9 +114,9 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colores.tarjeta,
+              color: context.colores.tarjeta,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colores.linea, width: 1.5),
+              border: Border.all(color: context.colores.linea, width: 1.5),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +136,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
                 ),
                 _Punto(
                   Ico.lock,
-                  Colores.tinta3,
+                  context.colores.tinta3,
                   'No podrá cambiar los datos de $nombre, el consentimiento, la '
                   'cámara ni la familia',
                 ),
@@ -173,7 +174,12 @@ class _Punto extends StatelessWidget {
           child: Icono(icono, tamano: 20, color: color),
         ),
         const SizedBox(width: 10),
-        Expanded(child: Text(texto, style: estiloTexto(16, 400))),
+        Expanded(
+          child: Text(
+            texto,
+            style: estiloTexto(16, 400, color: context.colores.tinta),
+          ),
+        ),
       ],
     ),
   );

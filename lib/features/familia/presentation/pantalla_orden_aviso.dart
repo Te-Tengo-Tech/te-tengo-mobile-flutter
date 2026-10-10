@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
@@ -238,16 +238,18 @@ class _Puesto extends StatelessWidget {
       height: 28,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: vacio ? Colores.fondo2 : Colores.tinta,
+        color: vacio ? context.colores.fondo2 : context.colores.inversa,
         shape: BoxShape.circle,
-        border: vacio ? Border.all(color: Colores.linea2, width: 1.5) : null,
+        border: vacio
+            ? Border.all(color: context.colores.linea2, width: 1.5)
+            : null,
       ),
       child: Text(
         '$numero',
         style: estiloTexto(
           15,
           800,
-          color: vacio ? Colores.tinta3 : Colors.white,
+          color: vacio ? context.colores.tinta3 : context.colores.sobreInversa,
         ),
       ),
     ),

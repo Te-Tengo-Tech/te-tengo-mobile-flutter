@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/push.dart';
 import '../../../app/rutas.dart';
+import '../../../app/tema/paleta.dart';
 import '../../historial/presentation/pantalla_historial.dart';
 import '../../historial/presentation/resumen_semanal.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
@@ -103,7 +104,12 @@ class _ContenidoInicio extends ConsumerWidget {
           switch (hogar) {
             AsyncData(value: final h) => TarjetaAdultoMayor(
               adulto: h.adultoMayor,
-              estado: estadoTarjeta(h, camara, alerta: alerta),
+              estado: estadoTarjeta(
+                h,
+                camara,
+                alerta: alerta,
+                paleta: context.colores,
+              ),
               accion: alerta != null
                   ? Boton(
                       'Ver la alerta',

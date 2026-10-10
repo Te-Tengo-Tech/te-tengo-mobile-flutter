@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/lista.dart';
@@ -34,7 +34,7 @@ class PantallaDocumento extends StatelessWidget {
     final parrafo = estiloTexto(
       16,
       400,
-      color: Colores.tinta2,
+      color: context.colores.tinta2,
     ).copyWith(height: 1.5);
     return Scaffold(
       appBar: AppBar(title: Text(titulo)),
@@ -46,7 +46,10 @@ class PantallaDocumento extends StatelessWidget {
             const SizedBox(height: 24),
             Semantics(
               header: true,
-              child: Text(titulo, style: estiloTexto(18, 800)),
+              child: Text(
+                titulo,
+                style: estiloTexto(18, 800, color: context.colores.tinta),
+              ),
             ),
             const SizedBox(height: 6),
             for (var i = 0; i < parrafos.length; i++) ...[

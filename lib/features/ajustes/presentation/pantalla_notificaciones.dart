@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/push.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
@@ -127,7 +128,11 @@ class PantallaNotificaciones extends ConsumerWidget {
                 subtitulo: 'Se cambia en Orden de aviso',
                 fin: titular
                     ? null
-                    : const Icono(Ico.lock, tamano: 22, color: Colores.tinta3),
+                    : Icono(
+                        Ico.lock,
+                        tamano: 22,
+                        color: context.colores.tinta3,
+                      ),
                 alTocar: () => context.push(Rutas.ordenAviso),
               ),
             ],
@@ -164,7 +169,7 @@ class _FilaInterruptor extends StatelessWidget {
         activeThumbColor: Colors.white,
         activeTrackColor: Colores.calma,
         inactiveThumbColor: Colors.white,
-        inactiveTrackColor: Colores.linea2,
+        inactiveTrackColor: context.colores.linea2,
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
     ),

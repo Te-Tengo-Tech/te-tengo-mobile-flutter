@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
@@ -94,9 +94,13 @@ class PantallaAccesos extends ConsumerWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 1),
-                    child: Icono(Ico.shield, tamano: 18, color: Colores.tinta3),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 1),
+                    child: Icono(
+                      Ico.shield,
+                      tamano: 18,
+                      color: context.colores.tinta3,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -166,12 +170,12 @@ class _FilaAcceso extends StatelessWidget {
                 margin: const EdgeInsets.only(top: 6),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colores.fondo2,
+                  color: context.colores.fondo2,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   'Desde una alerta',
-                  style: estiloTexto(13, 800, color: Colores.tinta2),
+                  style: estiloTexto(13, 800, color: context.colores.tinta2),
                 ),
               ),
             )

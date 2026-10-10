@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/dispositivo/llamada.dart';
 import '../../../core/formato.dart';
@@ -813,7 +814,7 @@ class _NoDisponibleVista extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colores.linea2, width: 1.5),
+        border: Border.all(color: context.colores.linea2, width: 1.5),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(17),

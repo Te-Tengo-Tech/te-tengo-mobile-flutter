@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
@@ -35,7 +35,7 @@ class TarjetaConstancia extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icono(Ico.shield, tamano: 26, color: Colores.calmaTinta),
+              Icono(Ico.shield, tamano: 26, color: context.colores.calmaTinta),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

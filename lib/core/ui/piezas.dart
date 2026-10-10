@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'aviso.dart';
 import 'avisos_flotantes.dart';
@@ -76,9 +77,12 @@ class EtiquetaSoloVer extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      const Icono(Ico.lock, tamano: 15, color: Colores.tinta3),
+      Icono(Ico.lock, tamano: 15, color: context.colores.tinta3),
       const SizedBox(width: 4),
-      Text('Solo ver', style: estiloTexto(13, 700, color: Colores.tinta3)),
+      Text(
+        'Solo ver',
+        style: estiloTexto(13, 700, color: context.colores.tinta3),
+      ),
     ],
   );
 }
@@ -136,7 +140,11 @@ class PasosNumerados extends StatelessWidget {
                   children: [
                     Text(
                       pasos[i].$1,
-                      style: estiloTexto(17, pasos[i].$2 == null ? 400 : 700),
+                      style: estiloTexto(
+                        17,
+                        pasos[i].$2 == null ? 400 : 700,
+                        color: context.colores.tinta,
+                      ),
                     ),
                     if (pasos[i].$2 != null)
                       Text(
@@ -167,7 +175,7 @@ class CirculoPaso extends StatelessWidget {
     height: 32,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: hecho ? Colores.calma : Colores.tinta,
+      color: hecho ? Colores.calma : context.colores.inversa,
       shape: BoxShape.circle,
     ),
     child:
@@ -176,7 +184,11 @@ class CirculoPaso extends StatelessWidget {
             ? const Icono(Ico.check, tamano: 18, color: Colors.white)
             : Text(
                 '$numero',
-                style: estiloTexto(16, 800, color: Colors.white),
+                style: estiloTexto(
+                  16,
+                  800,
+                  color: context.colores.sobreInversa,
+                ),
               )),
   );
 }
@@ -231,7 +243,7 @@ class CabeceraConfiguracion extends StatelessWidget
           children: [
             Text(
               'Paso $paso de $pasos',
-              style: estiloTexto(15, 400, color: Colores.tinta3),
+              style: estiloTexto(15, 400, color: context.colores.tinta3),
             ),
             const SizedBox(height: 6),
             ExcludeSemantics(
@@ -243,7 +255,9 @@ class CabeceraConfiguracion extends StatelessWidget
                       child: Container(
                         height: 6,
                         decoration: BoxDecoration(
-                          color: i <= paso ? Colores.morado : Colores.linea,
+                          color: i <= paso
+                              ? Colores.morado
+                              : context.colores.linea,
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
