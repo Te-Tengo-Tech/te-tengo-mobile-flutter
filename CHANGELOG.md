@@ -4,6 +4,17 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-10
+
+### Fixed
+- **The revocation screen stayed on «Eliminando las grabaciones…» forever** although the notification «datos eliminados» arrived: it only completed when the push `DATOS_ELIMINADOS` reached the app's code, which happens only in the foreground (on the web, only while a window of the PWA is visible). While visible, the screen now asks `GET /api/hogar` for `eliminacion` (API 0.3.4) every 3 s **[implementation choice]**, and once more each time the app or the PWA's window comes back; push or poll, whichever arrives first, completes it, once. Opened after a restart or a reload of the PWA, it rebuilds the revocation from the backend instead of waiting with nothing. With an API older than 0.3.4 (no `eliminacion`) it waits for the push only, as before.
+- **Pushes received while the PWA was hidden never reached the app.** `web/firebase-messaging-sw.js` now also posts every push to every open window of the app (`{tipo: 'tt-push-recibida', datos}`), and the app handles it like a foreground push. A push that arrives twice (Firebase and the worker, or received and then tapped) is handled once, by `tipo`, ids and `ocurridaEn`.
+- **The revocation screen always said «0 clips».** It counted the clips with `GET /api/alertas?tamano=200`, which the API rejects (`tamano` is at most 100, `400 VALIDACION`), and the error was swallowed as 0 (in production 2 recordings were deleted while the screen said «0 clips»). The screen now shows the `clips` that the API 0.3.4 returns with the revocation (`202`) and with `eliminacion`; with an older API it counts the available clips page by page (`tamano` 100). When the count is unknown it shows no figure instead of a wrong one.
+- A tapped notification, or an alert push, for the screen already on top opened it again: the check compared the router's last `go` location, which ignores pushed screens, so an alert opened by a push was stacked twice when it became a fall. It now compares the screen on top.
+
+### Changed
+- `docs/API_CONTRACT.md` (from te-tengo-general-api 0.3.4): `GET /api/hogar` `eliminacion`, `clips` in the revocation's `202`, and `tamano` at most 100 in `GET /api/alertas`. `docs/WEB_PWA.md`: the worker's `tt-push-recibida` message.
+
 ## [0.5.0] - 2026-10-10
 
 

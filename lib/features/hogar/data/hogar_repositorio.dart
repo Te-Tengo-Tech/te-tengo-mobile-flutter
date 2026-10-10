@@ -25,8 +25,10 @@ abstract interface class HogarRepositorio {
   Future<Consentimiento> registrarConsentimiento({required String otorgadoPor});
 
   /// `DELETE /api/hogar/consentimiento` (owner): stops capture and schedules the deletion of every
-  /// recording (CA-09.1); the push `DATOS_ELIMINADOS` arrives when done (CA-09.3).
-  Future<void> revocarConsentimiento();
+  /// recording (CA-09.1); the push `DATOS_ELIMINADOS` arrives when done (CA-09.3), and
+  /// `GET /api/hogar` `eliminacion` tells it too. Returns `clips`, how many recordings it deletes;
+  /// null with a backend older than 0.3.4.
+  Future<int?> revocarConsentimiento();
 }
 
 class HogarRepositorioApi implements HogarRepositorio {
@@ -75,9 +77,11 @@ class HogarRepositorioApi implements HogarRepositorio {
   });
 
   @override
-  Future<void> revocarConsentimiento() => llamarApi(
-    () => _dio.delete<Map<String, dynamic>>('/api/hogar/consentimiento'),
-  );
+  Future<int?> revocarConsentimiento() => llamarApi(() async {
+    final r = await _dio.delete<Object?>('/api/hogar/consentimiento');
+    final cuerpo = r.data;
+    return cuerpo is Map ? (cuerpo['clips'] as num?)?.toInt() : null;
+  });
 }
 
 final hogarRepositorioProvider = Provider<HogarRepositorio>(

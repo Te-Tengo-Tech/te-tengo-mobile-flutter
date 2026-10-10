@@ -122,3 +122,19 @@ class DispositivosFalsos implements DispositivosRepositorio {
   Future<void> eliminar(String tokenPush, {String? tokenAcceso}) async =>
       eliminados.add('$tokenPush|$tokenAcceso');
 }
+
+/// The PWA's pushes: Firebase hands them to a visible window ([firebase]); the service worker posts
+/// their data to every window ([trabajador], `tt-push-recibida`).
+class NotificacionesPushWebFalsas extends NotificacionesPushFalsas {
+  NotificacionesPushWebFalsas({super.tokenActual});
+
+  final firebase = StreamController<MensajePush>.broadcast();
+  final trabajador = StreamController<Map<String, Object?>>.broadcast();
+
+  @override
+  String get plataforma => 'WEB';
+
+  @override
+  Stream<MensajePush> get recibidas =>
+      recibidasEnLaWeb(firebase.stream, trabajador.stream);
+}

@@ -24,7 +24,12 @@ class FiltroAlertas {
 
   /// Zero-based page (docs/BLOCKERS.md).
   final int pagina;
+
+  /// At most [tamanoMaximo].
   final int tamano;
+
+  /// The largest page the backend answers (contract §5); a larger one is `400 VALIDACION`.
+  static const tamanoMaximo = 100;
 
   Map<String, Object> get consulta => {
     'tipo': ?tipo?.codigo,

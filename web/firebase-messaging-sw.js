@@ -8,7 +8,8 @@
 //   (`firebase-messaging-sw.js?apiKey=…&appId=…&messagingSenderId=…&projectId=…`), built from the
 //   --dart-define values. Without it the worker only caches.
 // - Every push shows a notification, also while a window of the app is visible (see the `push`
-//   listener below).
+//   listener below), and is posted to every open window of the app, visible or hidden, as
+//   `{tipo: 'tt-push-recibida', datos}` (lib/core/web/navegador_web.dart).
 
 'use strict';
 
@@ -109,17 +110,36 @@ self.addEventListener('push', (evento) => {
   const tag = aviso.tag || datos.alertaId || datos.tipo || undefined;
   const urgente = aviso.requireInteraction === true || URGENTES.has(datos.tipo);
   evento.waitUntil(
-    self.registration.showNotification(aviso.title || 'Te Tengo', {
-      body: aviso.body || '',
-      icon: aviso.icon || new URL('icons/Icon-192.png', ALCANCE).href,
-      tag,
-      // A later notice of the same alert (confirmed fall, escalation) alerts again.
-      renotify: Boolean(tag) && urgente,
-      requireInteraction: urgente,
-      data: { FCM_MSG: carga },
-    }),
+    Promise.all([
+      self.registration.showNotification(aviso.title || 'Te Tengo', {
+        body: aviso.body || '',
+        icon: aviso.icon || new URL('icons/Icon-192.png', ALCANCE).href,
+        tag,
+        // A later notice of the same alert (confirmed fall, escalation) alerts again.
+        renotify: Boolean(tag) && urgente,
+        requireInteraction: urgente,
+        data: { FCM_MSG: carga },
+      }),
+      avisarVentanas(datos),
+    ]),
   );
 });
+
+// Firebase hands a push to the page only while one of its windows is visible, so an open but
+// hidden PWA (another tab, the phone's app switcher) never learned it, e.g. the revocation screen
+// waiting for DATOS_ELIMINADOS. Every window gets it here; a visible one also gets Firebase's copy,
+// and the app handles each push once (GestorPush in lib/app/push.dart).
+async function avisarVentanas(datos) {
+  if (!datos.tipo) return;
+  try {
+    const ventanas = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const ventana of ventanas) {
+      if (ventana.url.startsWith(ALCANCE)) ventana.postMessage({ tipo: 'tt-push-recibida', datos });
+    }
+  } catch (_) {
+    // The notification is still shown; the screens also ask the API.
+  }
+}
 
 // A tapped notification opens the app on its screen. Registered before Firebase's own handler,
 // which only opens `fcmOptions.link`; the route is chosen in Dart (rutaDePush in lib/app/push.dart).

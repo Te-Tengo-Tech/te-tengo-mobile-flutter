@@ -45,8 +45,31 @@ class HogarRepositorioFalso implements HogarRepositorio {
   final creados = <AdultoMayor>[];
   final actualizados = <AdultoMayor>[];
 
+  /// `GET /api/hogar` `eliminacion`, sent only while [informaEliminacion] (backend 0.3.4+).
+  Eliminacion? eliminacion;
+  bool informaEliminacion = false;
+
+  /// `clips` of the revocation's `202`; null as a backend older than 0.3.4.
+  int? clipsAlRevocar;
+
+  /// Thrown by [obtener], as a failing network does.
+  ProblemaApi? errorObtener;
+  int consultas = 0;
+
   @override
-  Future<Hogar> obtener() async => hogar;
+  Future<Hogar> obtener() async {
+    consultas++;
+    if (errorObtener != null) throw errorObtener!;
+    return Hogar(
+      hogarId: hogar.hogarId,
+      adultoMayor: hogar.adultoMayor,
+      rol: hogar.rol,
+      consentimiento: hogar.consentimiento,
+      dispositivosActivos: hogar.dispositivosActivos,
+      eliminacion: informaEliminacion ? eliminacion : null,
+      informaEliminacion: informaEliminacion,
+    );
+  }
 
   @override
   Future<Sesion> crear(AdultoMayor adultoMayor) async {
@@ -60,7 +83,7 @@ class HogarRepositorioFalso implements HogarRepositorio {
   ProblemaApi? errorRevocar;
 
   @override
-  Future<void> revocarConsentimiento() async {
+  Future<int?> revocarConsentimiento() async {
     revocaciones++;
     if (errorRevocar != null) throw errorRevocar!;
     final c = hogar.consentimiento!;
@@ -76,6 +99,7 @@ class HogarRepositorioFalso implements HogarRepositorio {
         vigente: false,
       ),
     );
+    return clipsAlRevocar;
   }
 
   @override

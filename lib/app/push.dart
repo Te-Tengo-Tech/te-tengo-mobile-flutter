@@ -111,6 +111,13 @@ class GestorPush {
   Future<RecepcionPush>? _siguiente;
   bool _forzarSiguiente = false;
 
+  /// [MensajePush.clave] of the pushes handled lately, and when: on the web a visible window gets
+  /// each push twice (Firebase and the service worker's message).
+  final _recientes = <String, DateTime>{};
+
+  /// How long a handled push is remembered **[implementation choice]**.
+  static const _ventanaRepetidos = Duration(minutes: 10);
+
   /// `hogarId|token` of the last successful registration, and when it happened.
   String? _registrado;
   DateTime? _registradoEn;
@@ -282,17 +289,31 @@ class GestorPush {
     }
   }
 
-  /// A tapped push opens its screen; alerts never wait for the splash.
+  /// Whether [m] was already handled; remembers it otherwise.
+  bool _repetido(MensajePush m) {
+    final ahora = DateTime.now();
+    _recientes.removeWhere((_, t) => ahora.difference(t) > _ventanaRepetidos);
+    if (_recientes.containsKey(m.clave)) return true;
+    _recientes[m.clave] = ahora;
+    return false;
+  }
+
+  /// A tapped push opens its screen; alerts never wait for the splash. A screen already open (the
+  /// push was received first) is not opened twice.
   void abrir(MensajePush m, {bool desdeCerrada = false}) {
+    _repetido(m);
     _refrescar(m);
     final router = _ref.read(routerProvider);
     final ruta = rutaDePush(m);
+    final abierta = !desdeCerrada && _enPantalla(router, ruta);
     if (desdeCerrada || ruta == Rutas.inicio) router.go(Rutas.inicio);
-    if (ruta != Rutas.inicio) router.push(ruta);
+    if (ruta != Rutas.inicio && !abierta) router.push(ruta);
   }
 
-  /// A push received with the app open.
+  /// A push received with the app open, from Firebase or (web) from the service worker; each push
+  /// is handled once.
   void enPrimerPlano(MensajePush m) {
+    if (_repetido(m)) return;
     _refrescar(m);
     final router = _ref.read(routerProvider);
     final habitacion = m.habitacion ?? '';
@@ -364,7 +385,8 @@ class GestorPush {
           ),
         );
       case TipoPush.datosEliminados:
-        // CA-09.3: the revocation screen shows the recordings as deleted.
+        // CA-09.3: the revocation screen shows the recordings as deleted (or its polling does,
+        // whichever comes first).
         _ref
             .read(revocacionProvider.notifier)
             .terminar(m.ocurridaEn ?? _ref.read(relojProvider)());
@@ -483,8 +505,11 @@ class GestorPush {
     }
   }
 
+  /// Whether [ruta] is the screen on top. The configuration's `uri` keeps the last `go` location
+  /// and ignores the screens pushed on it, so the top match is compared instead.
   static bool _enPantalla(GoRouter router, String ruta) =>
-      router.routerDelegate.currentConfiguration.uri.path == ruta;
+      router.routerDelegate.currentConfiguration.lastOrNull?.matchedLocation ==
+      ruta;
 
   void _refrescar(MensajePush m) {
     if (m.tipo.deCamara) _ref.invalidate(camarasProvider);

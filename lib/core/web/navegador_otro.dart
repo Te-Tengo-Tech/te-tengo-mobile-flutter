@@ -12,6 +12,8 @@ Future<String?> pedirPermisoNotificacionesNavegador() async => null;
 
 Stream<Map<String, Object?>> pushAbiertasNavegador() => const Stream.empty();
 
+Stream<Map<String, Object?>> pushRecibidasNavegador() => const Stream.empty();
+
 Map<String, Object?>? tomarPushInicialNavegador() => null;
 
 void descargarEnNavegador(Uri url, String nombre) =>

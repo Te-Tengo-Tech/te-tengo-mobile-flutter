@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -213,11 +215,14 @@ class _Privacidad extends ConsumerWidget {
       return;
     }
     try {
-      final clips = await _clipsGuardados(ref);
-      await ref.read(hogarRepositorioProvider).revocarConsentimiento();
+      // An older backend does not say how many recordings it deletes: count them before revoking.
+      final contados = _clipsGuardados(ref);
+      final clips = await ref
+          .read(hogarRepositorioProvider)
+          .revocarConsentimiento();
       ref
           .read(revocacionProvider.notifier)
-          .iniciar(ref.read(relojProvider)(), clips);
+          .iniciar(ref.read(relojProvider)(), clips ?? await contados);
       ref
         ..invalidate(hogarProvider)
         ..invalidate(camarasProvider)
@@ -238,27 +243,137 @@ class _Privacidad extends ConsumerWidget {
     }
   }
 
-  /// Clips that the revocation deletes.
-  Future<int> _clipsGuardados(WidgetRef ref) async {
+  /// Clips that the revocation deletes, counted on the phone for a backend older than 0.3.4. Null
+  /// when they cannot be counted: the screen then shows no count rather than a wrong «0 clips».
+  Future<int?> _clipsGuardados(WidgetRef ref) async {
     try {
-      final pagina = await ref
-          .read(alertasRepositorioProvider)
-          .listar(const FiltroAlertas(tamano: 200));
-      return pagina.elementos
-          .where((a) => a.clip == EstadoClip.disponible)
-          .length;
-    } on Object {
-      return 0;
+      return await contarClipsGuardados(ref.read(alertasRepositorioProvider));
+    } on Object catch (e) {
+      debugPrint('No se pudieron contar los clips guardados: $e');
+      return null;
+    }
+  }
+}
+
+/// Alerts whose clip is still stored (`clip == DISPONIBLE`), read page by page: `GET /api/alertas`
+/// answers at most [FiltroAlertas.tamanoMaximo] per page (`400 VALIDACION` above it).
+Future<int> contarClipsGuardados(AlertasRepositorio alertas) async {
+  var clips = 0;
+  var leidas = 0;
+  for (var pagina = 0; ; pagina++) {
+    final r = await alertas.listar(
+      FiltroAlertas(pagina: pagina, tamano: FiltroAlertas.tamanoMaximo),
+    );
+    clips += r.elementos.where((a) => a.clip == EstadoClip.disponible).length;
+    leidas += r.elementos.length;
+    if (r.elementos.length < FiltroAlertas.tamanoMaximo || leidas >= r.total) {
+      return clips;
     }
   }
 }
 
 /// Screens 100 and 101: capture stopped, recordings being deleted, then deleted (CA-09.1, CA-09.3).
-class PantallaRevocado extends ConsumerWidget {
-  const PantallaRevocado({super.key});
+///
+/// The push `DATOS_ELIMINADOS` completes it, but a push only reaches the app's code while the app is
+/// in the foreground (and a PWA's window is visible). So, while visible, the screen also asks
+/// `GET /api/hogar` for `eliminacion` every [intervalo], and once more each time the app comes back;
+/// whichever arrives first completes it. Opened without a revocation in memory (the app restarted,
+/// the PWA was reloaded), it rebuilds it from the backend. A backend older than 0.3.4 does not send
+/// `eliminacion`: the screen then waits for the push only.
+class PantallaRevocado extends ConsumerStatefulWidget {
+  const PantallaRevocado({
+    super.key,
+    this.intervalo = const Duration(seconds: 3),
+  });
+
+  /// How often the deletion is asked while the screen is visible **[implementation choice]**.
+  final Duration intervalo;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PantallaRevocado> createState() => _PantallaRevocadoState();
+}
+
+class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
+  late final AppLifecycleListener _ciclo;
+  Timer? _temporizador;
+  bool _consultando = false;
+
+  /// The backend does not send `eliminacion` (older than 0.3.4), or the deletion is done.
+  bool _sinConsultar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ciclo = AppLifecycleListener(
+      onShow: _alVolver,
+      onResume: _alVolver,
+      onHide: _detener,
+    );
+    unawaited(_consultar());
+    _programar();
+  }
+
+  @override
+  void dispose() {
+    _detener();
+    _ciclo.dispose();
+    super.dispose();
+  }
+
+  void _programar() {
+    _temporizador?.cancel();
+    if (_sinConsultar || (ref.read(revocacionProvider)?.terminada ?? false)) {
+      return;
+    }
+    _temporizador = Timer.periodic(
+      widget.intervalo,
+      (_) => unawaited(_consultar()),
+    );
+  }
+
+  void _detener() {
+    _temporizador?.cancel();
+    _temporizador = null;
+  }
+
+  void _alVolver() {
+    unawaited(_consultar());
+    _programar();
+  }
+
+  Future<void> _consultar() async {
+    if (_consultando || _sinConsultar || !mounted) return;
+    if (ref.read(revocacionProvider)?.terminada ?? false) return _detener();
+    _consultando = true;
+    try {
+      final hogar = await ref.read(hogarRepositorioProvider).obtener();
+      if (!mounted) return;
+      if (!hogar.informaEliminacion) {
+        // An older backend: only the push can tell it.
+        _sinConsultar = true;
+        return _detener();
+      }
+      final eliminacion = hogar.eliminacion;
+      if (eliminacion == null) return;
+      final antes = ref.read(revocacionProvider)?.terminada ?? false;
+      ref.read(revocacionProvider.notifier).sincronizar(eliminacion);
+      if (!antes && (ref.read(revocacionProvider)?.terminada ?? false)) {
+        _detener();
+        // As the push does: the household and the camera show the revocation.
+        ref
+          ..invalidate(hogarProvider)
+          ..invalidate(camarasProvider);
+      }
+    } on Object catch (e) {
+      // Network or backend error: asked again on the next tick or return to the app.
+      debugPrint('No se pudo consultar la eliminación de las grabaciones: $e');
+    } finally {
+      _consultando = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final r = ref.watch(revocacionProvider);
     final texto = Theme.of(context).textTheme;
     final correo = ref.watch(sesionControllerProvider)?.usuario.correo ?? '';
@@ -268,7 +383,7 @@ class PantallaRevocado extends ConsumerWidget {
     final camaraTexto = camara == null
         ? 'La cámara'
         : 'La cámara ${deHabitacion(camara.nombreHabitacion)}';
-    final clips = r?.clips ?? 0;
+    final clips = r?.clips;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -330,7 +445,10 @@ class PantallaRevocado extends ConsumerWidget {
                             titulo: terminada
                                 ? 'Grabaciones eliminadas'
                                 : 'Eliminando las grabaciones…',
-                            detalle: terminada
+                            // Without a known count, no line rather than a wrong «0 clips».
+                            detalle: clips == null
+                                ? null
+                                : terminada
                                 ? conHora(
                                     '$clips clip${clips == 1 ? '' : 's'} '
                                     'borrado${clips == 1 ? '' : 's'} de '
@@ -387,7 +505,7 @@ class _Paso extends StatelessWidget {
   final bool enCurso;
   final int? numero;
   final String titulo;
-  final InlineSpan detalle;
+  final InlineSpan? detalle;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -415,7 +533,11 @@ class _Paso extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(titulo, style: Theme.of(context).textTheme.titleMedium),
-              Text.rich(detalle, style: Theme.of(context).textTheme.bodyMedium),
+              if (detalle case final detalle?)
+                Text.rich(
+                  detalle,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
             ],
           ),
         ),
