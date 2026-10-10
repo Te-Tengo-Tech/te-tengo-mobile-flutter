@@ -10,8 +10,8 @@
 # Smoke check: HEAD <DESCARGAS_BASE_URL>/<prefix>te-tengo.apk answers 200 with the file's size, and the
 # public .sha256 equals the uploaded one, retried for up to 1 minute.
 #
-# Environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (secrets), R2_BUCKET, DESCARGAS_BASE_URL,
-# WRANGLER_VERSION, GITHUB_STEP_SUMMARY.
+# Environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (secrets of the job's environment, staging or
+# produccion), R2_BUCKET, DESCARGAS_BASE_URL, WRANGLER_VERSION, GITHUB_STEP_SUMMARY.
 set -euo pipefail
 
 dir=$1
@@ -19,7 +19,7 @@ prefix=$2
 apk="${prefix}te-tengo.apk"
 
 if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
-  echo "::error title=Cloudflare secrets missing::CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must be repository secrets (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit; docs/RELEASES.md)."
+  echo "::error title=Cloudflare secrets missing::CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must reach this step: secrets of the environment staging or produccion (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit; docs/RELEASES.md)."
   exit 1
 fi
 if [ -z "${DESCARGAS_BASE_URL:-}" ]; then
