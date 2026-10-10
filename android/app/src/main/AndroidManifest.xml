@@ -37,6 +37,11 @@
                 <data android:scheme="tetengo" android:host="app"/>
             </intent-filter>
         </activity>
+        <!-- Pushes that name no channel go to the alert channel, created with high importance in
+             MainActivity (API contract §7). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="alertas_caida" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,6 +38,21 @@ class _SesionesFalsas implements SesionRepositorio {
 
   @override
   Future<List<HogarResumen>> hogares() async => [];
+}
+
+/// The app goes to the background and comes back.
+Future<void> volverALaApp(WidgetTester tester) async {
+  for (final estado in [
+    AppLifecycleState.inactive,
+    AppLifecycleState.hidden,
+    AppLifecycleState.paused,
+    AppLifecycleState.hidden,
+    AppLifecycleState.inactive,
+    AppLifecycleState.resumed,
+  ]) {
+    tester.binding.handleAppLifecycleStateChanged(estado);
+  }
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -91,6 +108,17 @@ void main() {
       expect(token, isNull);
       expect(apns, 3);
       expect(fcm, 0);
+    });
+
+    test('otro error de Firebase se propaga para avisarlo', () async {
+      await expectLater(
+        obtenerTokenPush(
+          esIos: false,
+          tokenApns: () async => null,
+          tokenFcm: () async => throw Exception('messaging/permission-blocked'),
+        ),
+        throwsException,
+      );
     });
 
     test('un error de Firebase deja la app sin token', () async {
@@ -310,6 +338,114 @@ void main() {
       expect(dispositivos.registrados, ['fcm-1|ANDROID']);
     });
 
+    testWidgets('varios registros a la vez envían uno y, al terminar, uno más', (
+      tester,
+    ) async {
+      await abrir(tester);
+      // Start, session listener and Inicio register at once: only one POST (it was 2 tokens).
+      expect(dispositivos.registrados, ['fcm-1|ANDROID']);
+      final c = ProviderScope.containerOf(
+        tester.element(find.byType(PantallaInicio)),
+      );
+      final gestor = c.read(gestorPushProvider);
+      final espera = Completer<void>();
+      push.esperaToken = espera.future;
+      final primero = gestor.registrar(forzar: true);
+      final segundo = gestor.registrar(forzar: true);
+      final tercero = gestor.registrar();
+      // Those who asked meanwhile share the one that runs after the first.
+      expect(identical(segundo, tercero), isTrue);
+      espera.complete();
+      final resultados = await Future.wait([primero, segundo, tercero]);
+      await tester.pumpAndSettle();
+      expect(push.maxTokensALaVez, 1);
+      expect(dispositivos.registrados, hasLength(3));
+      expect(resultados, everyElement(RecepcionPush.activa));
+      expect(c.read(recepcionPushProvider), RecepcionPush.activa);
+    });
+
+    testWidgets(
+      'quien pide registrar durante otro registro recibe el resultado del siguiente',
+      (tester) async {
+        // The web token exists only once the permission was granted: a registration that started
+        // before must not answer «Activar notificaciones».
+        push.tokenActual = null;
+        await abrir(
+          tester,
+          entorno: const EntornoNavegador(esWeb: true, instalada: true),
+        );
+        final gestor = ProviderScope.containerOf(
+          tester.element(find.byType(PantallaInicio)),
+        ).read(gestorPushProvider);
+        final espera = Completer<void>();
+        push.esperaToken = espera.future;
+        final antes = gestor.registrar();
+        final despues = gestor.registrar(forzar: true);
+        // The first one already asked Firebase, before the permission was granted.
+        await tester.pump();
+        push.tokenActual = 'fcm-web';
+        espera.complete();
+        expect(await antes, RecepcionPush.sinToken);
+        expect(await despues, RecepcionPush.activa);
+        await tester.pumpAndSettle();
+        expect(dispositivos.registrados, ['fcm-web|ANDROID']);
+      },
+    );
+
+    testWidgets('quita del backend el token que el celular ya no usa', (
+      tester,
+    ) async {
+      await abrir(tester);
+      push.renovar('fcm-2');
+      await tester.pumpAndSettle();
+      expect(dispositivos.registrados, ['fcm-1|ANDROID', 'fcm-2|ANDROID']);
+      expect(dispositivos.eliminados, ['fcm-1|null']);
+    });
+
+    testWidgets('al volver a la app registra el celular otra vez', (
+      tester,
+    ) async {
+      await abrir(tester);
+      await volverALaApp(tester);
+      expect(dispositivos.registrados, ['fcm-1|ANDROID', 'fcm-1|ANDROID']);
+      // It first asked the backend whether it still sends to this phone.
+      expect(dispositivos.consultados, ['d-fcm-1']);
+    });
+
+    testWidgets(
+      'si el backend ya no envía a este celular, pide otro token y lo registra',
+      (tester) async {
+        await abrir(tester);
+        dispositivos.inactivos.add('d-fcm-1');
+        push.tokenTrasBorrar = 'fcm-2';
+        await volverALaApp(tester);
+        expect(push.tokensBorrados, 1);
+        expect(dispositivos.registrados.last, 'fcm-2|ANDROID');
+        expect(dispositivos.eliminados, ['fcm-1|null']);
+        expect(find.text('Este celular no recibe las alertas'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'si no consigue otro token, avisa que este celular no recibe las alertas',
+      (tester) async {
+        await abrir(tester);
+        dispositivos.inactivos.add('d-fcm-1');
+        push.tokenTrasBorrar = 'fcm-1';
+        await volverALaApp(tester);
+        expect(find.text('Este celular no recibe las alertas'), findsOneWidget);
+      },
+    );
+
+    testWidgets('un error de Firebase al pedir el token no se calla', (
+      tester,
+    ) async {
+      push.errorToken = Exception('messaging/token-subscribe-failed');
+      await abrir(tester);
+      expect(dispositivos.registrados, isEmpty);
+      expect(find.text('Este celular no recibe las alertas'), findsOneWidget);
+    });
+
     testWidgets('al cerrar sesión deja de recibir alertas en este celular', (
       tester,
     ) async {
@@ -366,6 +502,81 @@ void main() {
   });
 
   group('DispositivosRepositorioApi', () {
+    ProviderContainer contenedor(AdaptadorFalso http) {
+      final c = ProviderContainer(
+        overrides: [
+          almacenSesionProvider.overrideWithValue(
+            AlmacenSesionMemoria(sesionTitular),
+          ),
+          adaptadorHttpProvider.overrideWithValue(http),
+        ],
+      );
+      addTearDown(c.dispose);
+      return c;
+    }
+
+    test(
+      'POST /api/dispositivos devuelve el Dispositivo del contrato',
+      () async {
+        final http = AdaptadorFalso()
+          ..cuando(
+            'POST',
+            '/api/dispositivos',
+            const Respuesta(201, {
+              'id': 'd-1',
+              'plataforma': 'ANDROID',
+              'activo': true,
+              'vistoEn': '2026-10-10T15:00:00Z',
+              'desactivadoEn': null,
+            }),
+          );
+        final d = await contenedor(http)
+            .read(dispositivosRepositorioProvider)
+            .registrar(tokenPush: 'fcm-1', plataforma: 'ANDROID');
+        expect(d.id, 'd-1');
+        expect(d.activo, isTrue);
+        expect(d.vistoEn, isNotNull);
+      },
+    );
+
+    test('un backend anterior a 0.3.1 responde sin cuerpo', () async {
+      final http = AdaptadorFalso()
+        ..cuando('POST', '/api/dispositivos', const Respuesta(201));
+      final d = await contenedor(http)
+          .read(dispositivosRepositorioProvider)
+          .registrar(tokenPush: 'fcm-1', plataforma: 'ANDROID');
+      expect(d.id, isNull);
+      expect(d.activo, isTrue);
+    });
+
+    test(
+      'GET /api/dispositivos/{id}: activo, inactivo o desconocido',
+      () async {
+        final http = AdaptadorFalso()
+          ..cuando(
+            'GET',
+            '/api/dispositivos/d-1',
+            const Respuesta(200, {
+              'id': 'd-1',
+              'plataforma': 'WEB',
+              'activo': false,
+              'vistoEn': '2026-10-10T15:00:00Z',
+              'desactivadoEn': '2026-10-10T15:05:00Z',
+            }),
+          )
+          ..cuando(
+            'GET',
+            '/api/dispositivos/d-2',
+            Respuesta.problema(404, 'DISPOSITIVO_NO_ENCONTRADO'),
+          );
+        final repo = contenedor(http).read(dispositivosRepositorioProvider);
+        final d = await repo.consultar('d-1');
+        expect(d!.activo, isFalse);
+        expect(d.desactivadoEn, isNotNull);
+        expect(await repo.consultar('d-2'), isNull);
+      },
+    );
+
     test(
       'POST /api/dispositivos y DELETE /api/dispositivos/{tokenPush}',
       () async {

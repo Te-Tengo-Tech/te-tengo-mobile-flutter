@@ -7,6 +7,7 @@ import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/alertas/presentation/pantalla_detalle_alerta.dart';
 
 import '../../apoyo/app_de_prueba.dart';
+import '../../apoyo/clip_falso.dart';
 import 'alertas_falso.dart';
 import 'apoyo_alertas.dart';
 
@@ -27,12 +28,14 @@ void main() {
     WidgetTester tester,
     List<Alerta> lista, {
     String? ubicacion,
+    FabricaClipFalsa? clips,
   }) async {
     final alertas = AlertasRepositorioFalso(lista);
     await abrirConAlertas(
       tester,
       ubicacion: ubicacion ?? Rutas.historial,
       alertas: alertas,
+      clips: clips,
       ahora: DateTime(2026, 9, 23, 10, 42),
       overrides: [
         guardarArchivoProvider.overrideWithValue((url, nombre) async {
@@ -49,7 +52,8 @@ void main() {
   testWidgets('CA-26.1: desde el historial reproduce la grabación', (
     tester,
   ) async {
-    final alertas = await abrir(tester, [pasada]);
+    final clips = FabricaClipFalsa();
+    final alertas = await abrir(tester, [pasada], clips: clips);
     await tocar(tester, find.text('Movimiento inestable'));
     expect(find.byType(PantallaDetalleAlerta), findsOneWidget);
     expect(find.text('Alerta del lun 21 sep'), findsOneWidget);
@@ -61,6 +65,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    clips.ultimo.avanzar(const Duration(seconds: 8));
+    await tester.pump();
     expect(find.text('0:08 / 0:12'), findsOneWidget);
   });
 

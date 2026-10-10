@@ -42,6 +42,29 @@ enum EstadoClip {
       values.where((e) => e.codigo == v).firstOrNull ?? noDisponible;
 }
 
+/// Whether the family got the alert's push (contract §5 `estadoAviso`, §7).
+enum EstadoAviso {
+  /// Just created: the push goes out once the agent's event is saved.
+  enviando('ENVIANDO'),
+
+  /// The push service accepted it for at least one phone.
+  entregado('ENTREGADO'),
+
+  /// Not delivered yet, and the backend keeps trying (CA-16.4).
+  reintentando('REINTENTANDO'),
+
+  /// The backend stopped trying without delivering it.
+  noEntregado('NO_ENTREGADO');
+
+  const EstadoAviso(this.codigo);
+
+  final String codigo;
+
+  /// Null for an unknown value or a backend older than 0.3.1.
+  static EstadoAviso? desde(Object? v) =>
+      values.where((e) => e.codigo == v).firstOrNull;
+}
+
 /// `Alerta` of the contract (§5).
 class Alerta {
   const Alerta({
@@ -53,6 +76,7 @@ class Alerta {
     required this.ocurridaEn,
     this.confirmada = false,
     this.notificadaEn,
+    this.estadoAviso,
     this.recuperadaEn,
     this.atendidaPor,
     this.atendidaPorId,
@@ -74,6 +98,15 @@ class Alerta {
 
   /// Null while the push could not be delivered (CA-16.4).
   final DateTime? notificadaEn;
+
+  /// Null with a backend older than 0.3.1.
+  final EstadoAviso? estadoAviso;
+
+  /// The push was not delivered and the backend is still trying (CA-16.4).
+  bool get avisoReintentando => estadoAviso == EstadoAviso.reintentando;
+
+  /// The push was not delivered and the backend no longer tries.
+  bool get avisoNoEntregado => estadoAviso == EstadoAviso.noEntregado;
 
   /// «Se levantó» (CA-13.2, CA-21.1).
   final DateTime? recuperadaEn;
@@ -113,6 +146,7 @@ class Alerta {
       habitacion: json['habitacion'] as String? ?? '',
       ocurridaEn: fechaDesdeJson(json['ocurridaEn'])!,
       notificadaEn: fechaDesdeJson(json['notificadaEn']),
+      estadoAviso: EstadoAviso.desde(json['estadoAviso']),
       recuperadaEn: fechaDesdeJson(json['recuperadaEn']),
       atendidaPor: atendidaPor is Map ? atendidaPor['nombre'] as String? : null,
       atendidaPorId: atendidaPor is Map ? atendidaPor['id'] as String? : null,

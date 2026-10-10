@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/cache/cache_local.dart';
 import '../core/dispositivo/permiso_notificaciones.dart';
 import '../core/notificaciones/dispositivos_repositorio.dart';
 import '../core/notificaciones/mensaje_push.dart';
@@ -42,6 +44,54 @@ String rutaDePush(MensajePush m) {
   };
 }
 
+/// Whether this phone receives the alerts, as the backend sees it (contract §7), not only whether
+/// the system allows notifications.
+enum RecepcionPush {
+  /// Not registered yet in this run (no session, or the registration is under way).
+  desconocida,
+
+  /// The backend has this phone's token and sends to it.
+  activa,
+
+  /// No token: push unavailable (no Firebase), permission not granted yet, or iOS still waiting
+  /// for APNs.
+  sinToken,
+
+  /// The push service no longer accepts this phone's token and a new one could not be registered.
+  rechazada,
+
+  /// The registration failed (network, backend or Firebase error); retried on the next start or
+  /// return to the foreground.
+  error,
+}
+
+class RecepcionPushController extends Notifier<RecepcionPush> {
+  @override
+  RecepcionPush build() => RecepcionPush.desconocida;
+
+  void cambiar(RecepcionPush nueva) => state = nueva;
+}
+
+final recepcionPushProvider =
+    NotifierProvider<RecepcionPushController, RecepcionPush>(
+      RecepcionPushController.new,
+    );
+
+/// This phone could be receiving alerts but is not: the backend dropped its token or the
+/// registration failed.
+final celularSinAlertasProvider = Provider<bool>(
+  (ref) => switch (ref.watch(recepcionPushProvider)) {
+    RecepcionPush.rechazada || RecepcionPush.error => true,
+    _ => false,
+  },
+);
+
+/// Nobody in the family can receive alerts on a phone (`GET /api/hogar` `dispositivosActivos == 0`).
+/// False while unknown or with a backend older than 0.3.1.
+final familiaSinAlertasProvider = Provider<bool>(
+  (ref) => ref.watch(hogarProvider).value?.dispositivosActivos == 0,
+);
+
 /// Registers this phone for push while there is a session with a household, and turns pushes into
 /// screens (tapped) or in-app notices (received with the app open).
 class GestorPush {
@@ -49,10 +99,28 @@ class GestorPush {
 
   final Ref _ref;
   final _suscripciones = <StreamSubscription<Object?>>[];
-  String? _token;
-  String? _registrado;
   bool _iniciado = false;
   bool _permisoPedido = false;
+
+  /// The registration under way (single flight).
+  Future<RecepcionPush>? _enCurso;
+
+  /// The one registration that runs after [_enCurso], shared by every caller that asked while it
+  /// was under way: what they asked for (a new household, a permission just granted) may have come
+  /// too late for it.
+  Future<RecepcionPush>? _siguiente;
+  bool _forzarSiguiente = false;
+
+  /// `hogarId|token` of the last successful registration, and when it happened.
+  String? _registrado;
+  DateTime? _registradoEn;
+
+  /// Registrations closer than this to the last successful one, for the same household and token,
+  /// are skipped unless forced: the app starts and resumes from several places at once.
+  static const _intervaloMinimo = Duration(seconds: 30);
+
+  /// Where the backend's id of this phone is kept, with the token it belongs to.
+  static const _claveDispositivo = '${deDispositivo}push';
 
   NotificacionesPush get _push => _ref.read(notificacionesPushProvider);
 
@@ -67,47 +135,150 @@ class GestorPush {
       ..add(_push.abiertas.listen(abrir))
       ..add(_push.recibidas.listen(enPrimerPlano))
       ..add(
-        _push.tokenRenovado.listen((t) {
-          _token = t;
-          _registrado = null;
-          unawaited(registrar());
-        }),
+        _push.tokenRenovado.listen((_) => unawaited(registrar(forzar: true))),
       );
-    await registrar();
+    await registrar(forzar: true);
     final inicial = await _push.inicial();
     if (inicial != null) abrir(inicial, desdeCerrada: true);
   }
 
-  /// `POST /api/dispositivos` once per household and token. The first time there is a household,
-  /// it asks for the notification permission (CA-16.2), except on the web. Without a token yet (no Firebase, or iOS
-  /// still waiting for APNs) it does nothing; it is called again when the session changes, the
-  /// token is refreshed, the app resumes or the user turns notifications on.
-  Future<void> registrar() async {
+  /// `POST /api/dispositivos` on every start, return to the foreground, session change, token
+  /// refresh and «Activar notificaciones», so the backend knows this phone is still there. Only one
+  /// registration runs at a time (two at once got two FCM tokens): callers during one wait for a
+  /// single one that runs right after it. The first time there is a household, it asks for the
+  /// notification permission (CA-16.2), except on the web. Before registering, it asks the backend
+  /// whether it still sends to this phone; if not, it gets a new token. Returns how it went, also
+  /// in [recepcionPushProvider]; it never throws.
+  Future<RecepcionPush> registrar({bool forzar = false}) {
+    final enCurso = _enCurso;
+    if (enCurso == null && _siguiente == null) return _empezar(forzar);
+    _forzarSiguiente = _forzarSiguiente || forzar;
+    return _siguiente ??= enCurso!.then((_) {
+      final forzarla = _forzarSiguiente;
+      _siguiente = null;
+      _forzarSiguiente = false;
+      return _empezar(forzarla);
+    });
+  }
+
+  Future<RecepcionPush> _empezar(bool forzar) {
+    final nuevo = _registrar(forzar: forzar);
+    _enCurso = nuevo;
+    nuevo.whenComplete(() {
+      if (identical(_enCurso, nuevo)) _enCurso = null;
+    }).ignore();
+    return nuevo;
+  }
+
+  Future<RecepcionPush> _registrar({required bool forzar}) async {
+    // Callers may be building widgets (initState): the state changes after that.
+    await Future<void>.value();
     final sesion = _ref.read(sesionControllerProvider);
     if (sesion == null || !sesion.tieneHogar) {
       _registrado = null;
-      return;
+      return _estado(RecepcionPush.desconocida);
     }
-    // On the web the browser only asks from a tap: «Activar notificaciones» in Inicio asks, and
-    // then calls this again.
-    if (!_permisoPedido && !_ref.read(entornoNavegadorProvider).esWeb) {
-      _permisoPedido = true;
-      await _push.pedirPermiso();
-      _ref.invalidate(notificacionesActivasProvider);
-    }
-    final token = _token ??= await _push.token();
-    if (token == null) return;
-    final clave = '${sesion.hogarId}|$token';
-    if (_registrado == clave) return;
     try {
-      await _ref
+      // On the web the browser only asks from a tap: «Activar notificaciones» in Inicio asks, and
+      // then calls this again.
+      if (!_permisoPedido && !_ref.read(entornoNavegadorProvider).esWeb) {
+        _permisoPedido = true;
+        await _push.pedirPermiso();
+        _ref.invalidate(notificacionesActivasProvider);
+      }
+      var token = await _push.token();
+      if (token == null) return _estado(RecepcionPush.sinToken);
+      final clave = '${sesion.hogarId}|$token';
+      final ultimo = _registradoEn;
+      if (!forzar &&
+          _registrado == clave &&
+          ultimo != null &&
+          DateTime.now().difference(ultimo) < _intervaloMinimo) {
+        return _ref.read(recepcionPushProvider);
+      }
+      final guardado = await _leerGuardado();
+      // A token this phone registered before and no longer uses (FCM issued a new one).
+      final sobrante = guardado != null && guardado.token != token
+          ? guardado.token
+          : null;
+      if (guardado != null && guardado.token == token) {
+        final dispositivo = await _ref
+            .read(dispositivosRepositorioProvider)
+            .consultar(guardado.id);
+        if (dispositivo != null && !dispositivo.activo) {
+          // The push service dropped this token: registering it again would not help.
+          debugPrint(
+            'El backend ya no envía a este celular: se pide otro token.',
+          );
+          final nuevo = await _renovarToken(token);
+          if (nuevo == null) return _estado(RecepcionPush.rechazada);
+          token = nuevo;
+        }
+      }
+      final dispositivo = await _ref
           .read(dispositivosRepositorioProvider)
           .registrar(tokenPush: token, plataforma: _push.plataforma);
-      _registrado = clave;
+      if (!dispositivo.activo) return _estado(RecepcionPush.rechazada);
+      if (dispositivo.id case final id?) await _guardar(token, id);
+      if (sobrante != null) await _eliminarDelBackend(sobrante);
+      final anterior = _ref.read(recepcionPushProvider);
+      _registrado = '${sesion.hogarId}|$token';
+      _registradoEn = DateTime.now();
       // To send a test message from the Firebase console (docs/FIREBASE.md).
       if (kDebugMode) debugPrint('Token de push: $token');
+      // The family's count of active phones may have changed (`dispositivosActivos`).
+      if (anterior != RecepcionPush.activa) _ref.invalidate(hogarProvider);
+      return _estado(RecepcionPush.activa);
+    } on Object catch (e) {
+      // Shown in Inicio and Notificaciones; retried on the next start or return to the foreground.
+      debugPrint('No se pudo registrar el celular para las alertas: $e');
+      return _estado(RecepcionPush.error);
+    }
+  }
+
+  /// Deletes the rejected token, gets a new one and drops the old one from the backend.
+  Future<String?> _renovarToken(String anterior) async {
+    await _push.borrarToken();
+    final nuevo = await _push.token();
+    if (nuevo != null && nuevo != anterior) await _eliminarDelBackend(anterior);
+    return nuevo == anterior ? null : nuevo;
+  }
+
+  /// `DELETE /api/dispositivos/{tokenPush}` of a token this phone no longer uses, so the backend
+  /// stops counting and sending to it. Best effort: the push service rejects it anyway.
+  Future<void> _eliminarDelBackend(String token) async {
+    try {
+      await _ref.read(dispositivosRepositorioProvider).eliminar(token);
+    } on Object catch (e) {
+      debugPrint('No se pudo quitar un token anterior: $e');
+    }
+  }
+
+  RecepcionPush _estado(RecepcionPush estado) {
+    if (_ref.read(recepcionPushProvider) != estado) {
+      _ref.read(recepcionPushProvider.notifier).cambiar(estado);
+    }
+    return estado;
+  }
+
+  Future<({String token, String id})?> _leerGuardado() async {
+    try {
+      final texto = await _ref.read(cacheLocalProvider).leer(_claveDispositivo);
+      if (texto == null) return null;
+      final json = jsonDecode(texto) as Map<String, dynamic>;
+      return (token: json['token'] as String, id: json['id'] as String);
     } on Object {
-      // Retried on the next session change or token refresh.
+      return null;
+    }
+  }
+
+  Future<void> _guardar(String token, String id) async {
+    try {
+      await _ref
+          .read(cacheLocalProvider)
+          .guardar(_claveDispositivo, jsonEncode({'token': token, 'id': id}));
+    } on Object {
+      // Without it the next start registers without asking first.
     }
   }
 
@@ -345,7 +516,8 @@ final gestorPushProvider = Provider<GestorPush>((ref) {
   final gestor = GestorPush(ref);
   ref.listen<Sesion?>(
     sesionControllerProvider,
-    (_, _) => unawaited(gestor.registrar()),
+    (antes, ahora) =>
+        unawaited(gestor.registrar(forzar: antes?.hogarId != ahora?.hogarId)),
   );
   ref.onDispose(gestor.cerrar);
   return gestor;

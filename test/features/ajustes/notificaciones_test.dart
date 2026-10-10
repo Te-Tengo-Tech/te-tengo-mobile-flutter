@@ -42,8 +42,23 @@ void main() {
 
   setUp(() {
     preferencias = AlmacenPreferenciasMemoria();
-    push = NotificacionesPushFalsas();
+    push = NotificacionesPushFalsas(tokenActual: 'fcm-1');
   });
+
+  testWidgets(
+    'con permiso pero sin registro en el backend no dice que llegarán',
+    (tester) async {
+      push.errorToken = Exception('messaging/token-subscribe-failed');
+      await abrir(tester, Rutas.notificaciones);
+      expect(find.text('Notificaciones activadas'), findsNothing);
+      expect(
+        find.text('Recibirás las alertas aunque tengas la app cerrada.'),
+        findsNothing,
+      );
+      expect(find.text('Este celular no recibe las alertas'), findsOneWidget);
+      expect(find.text('Activar notificaciones'), findsOneWidget);
+    },
+  );
 
   testWidgets('desde Ajustes abre las preferencias de este celular', (
     tester,

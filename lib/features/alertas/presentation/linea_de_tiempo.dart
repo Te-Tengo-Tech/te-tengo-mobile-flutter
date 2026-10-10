@@ -64,12 +64,15 @@ List<ItemLinea> itemsDeAlerta(
       '${enHabitacion(a.habitacion)}',
       caida ? PuntoLinea.caida : PuntoLinea.inestable,
     ),
-    if (notificada == null)
+    // Only what the backend says (`estadoAviso`): «reintentando» only while it does.
+    if (notificada == null && a.avisoReintentando)
       ItemLinea(
         a.ocurridaEn,
         'La notificación no se pudo entregar; reintentando el envío',
       )
-    else
+    else if (notificada == null && a.avisoNoEntregado)
+      ItemLinea(a.ocurridaEn, 'La notificación no se pudo entregar')
+    else if (notificada != null)
       ItemLinea(
         notificada,
         'Aviso enviado a $avisadosTexto, '
