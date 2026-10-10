@@ -9,6 +9,7 @@ import 'package:te_tengo/features/alertas/domain/alerta.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
+import '../../apoyo/clip_falso.dart';
 import '../../apoyo/datos.dart';
 import 'alertas_falso.dart';
 import 'apoyo_alertas.dart';
@@ -18,10 +19,12 @@ void main() {
     tester,
   ) async {
     final alertas = AlertasRepositorioFalso([caidaSala()]);
+    final clips = FabricaClipFalsa();
     await abrirConAlertas(
       tester,
       ubicacion: Rutas.alerta('a-1'),
       alertas: alertas,
+      clips: clips,
     );
     await verHasta(tester, find.text('0:00 / 0:12'));
     expect(find.text('Clip del evento'), findsOneWidget);
@@ -34,6 +37,8 @@ void main() {
       findsOneWidget,
     );
     await tocar(tester, find.bySemanticsLabel('Reproducir clip'));
+    clips.ultimo.avanzar(const Duration(seconds: 8));
+    await tester.pump();
     expect(find.text('0:08 / 0:12'), findsOneWidget);
     expect(find.bySemanticsLabel('Pausar clip'), findsOneWidget);
   });

@@ -8,6 +8,7 @@ Alerta caidaSala({
   bool confirmada = false,
   DateTime? notificadaEn,
   bool sinNotificar = false,
+  EstadoAviso? estadoAviso,
   DateTime? recuperadaEn,
   EstadoAlerta estado = EstadoAlerta.activa,
   TipoAlerta tipo = TipoAlerta.caida,
@@ -31,6 +32,9 @@ Alerta caidaSala({
     notificadaEn: sinNotificar
         ? null
         : notificadaEn ?? ocurrida.add(const Duration(seconds: 6)),
+    estadoAviso:
+        estadoAviso ??
+        (sinNotificar ? EstadoAviso.reintentando : EstadoAviso.entregado),
     recuperadaEn: recuperadaEn,
     origenInestable: origenInestable,
     atendidaPor: atendidaPor,
@@ -92,10 +96,14 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
   Future<EnlaceClip> clip(String id, {bool descarga = false}) async {
     (descarga ? descargas : clips).add(id);
     if (errorClip != null) throw errorClip!;
+    if (!descarga && enlaces.isNotEmpty) return enlaces.removeAt(0);
     return EnlaceClip(
       url: 'https://clips.tetengo.pe/$id.mp4${descarga ? '?descarga' : ''}',
     );
   }
+
+  /// Answers of the next clip requests, in order (pre-signed URLs with `expiraEn`).
+  final enlaces = <EnlaceClip>[];
 
   final marcadas = <String, EstadoAlerta>{};
   ProblemaApi? errorMarcar;
@@ -125,6 +133,7 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
       habitacion: a.habitacion,
       ocurridaEn: a.ocurridaEn,
       notificadaEn: a.notificadaEn,
+      estadoAviso: a.estadoAviso,
       recuperadaEn: a.recuperadaEn,
       atendidaPor: marcaNombre,
       atendidaPorId: marcaId,

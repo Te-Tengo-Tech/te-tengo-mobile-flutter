@@ -1,19 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/colores.dart';
-import '../../../app/tema/tema.dart';
+import '../../../core/dispositivo/pantalla_completa.dart';
 import '../../../core/formato.dart';
+import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/ilustraciones.dart';
 import '../../sesion/presentation/pantalla_bienvenida.dart' show EtiquetaClip;
 import '../data/alertas_repositorio.dart';
 import '../domain/alerta.dart';
+import 'controles_clip.dart';
+import 'reproduccion_clip.dart';
 import 'reproductor.dart';
 
 /// Event clip (US-18): 6 s before and 6 s after the event (CA-18.1). Without a stored video the
-/// alert still shows and says the clip is not available (CA-18.2).
+/// alert still shows and says the clip is not available (CA-18.2). The short-lived URL is renewed by
+/// [ReproduccionClip]; the controls are [ControlesClip], also in full screen.
 class ClipEvento extends ConsumerWidget {
   const ClipEvento({super.key, required this.alerta});
 
@@ -28,7 +34,7 @@ class ClipEvento extends ConsumerWidget {
     return switch (clip) {
       AsyncData(value: final r) when r.enlace != null => _Reproductor(
         alerta: alerta,
-        url: r.enlace!.url,
+        enlace: r.enlace!,
       ),
       AsyncData(value: final r) => ClipNoDisponible(
         alerta: alerta,
@@ -138,30 +144,28 @@ class _Poster extends StatelessWidget {
 }
 
 class _Reproductor extends ConsumerStatefulWidget {
-  const _Reproductor({required this.alerta, required this.url});
+  const _Reproductor({required this.alerta, required this.enlace});
 
   final Alerta alerta;
-  final String url;
+  final EnlaceClip enlace;
 
   @override
   ConsumerState<_Reproductor> createState() => _ReproductorState();
 }
 
 class _ReproductorState extends ConsumerState<_Reproductor> {
-  late final ControladorClip _clip = ref.read(fabricaClipProvider)(widget.url);
-  bool _fallo = false;
+  late final ReproduccionClip _clip = ReproduccionClip(
+    alertaId: widget.alerta.id,
+    enlace: widget.enlace,
+    repositorio: ref.read(alertasRepositorioProvider),
+    fabrica: ref.read(fabricaClipProvider),
+    reloj: ref.read(relojProvider),
+  );
 
   @override
   void initState() {
     super.initState();
-    _clip.iniciar().then(
-      (_) {
-        if (mounted) setState(() {});
-      },
-      onError: (Object _) {
-        if (mounted) setState(() => _fallo = true);
-      },
-    );
+    _clip.iniciar();
   }
 
   @override
@@ -170,140 +174,159 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
     super.dispose();
   }
 
-  String _tiempo(Duration d) =>
-      '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
+  /// Android and iOS: a full-screen route with landscape and immersive bars. The PWA: the browser's
+  /// Fullscreen API, or, without it (Safari on iPhone), the video element's own full screen. Runs
+  /// inside the tap, as browsers require.
+  void _pantallaCompleta() {
+    final modo = ref.read(pantallaCompletaProvider);
+    if (!modo.disponible && _clip.pantallaCompletaNativa()) return;
+    if (modo.disponible) modo.entrar();
+    _clip.enPantallaCompleta = true;
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute<void>(
+            builder: (_) => PantallaClipCompleta(
+              alerta: widget.alerta,
+              reproduccion: _clip,
+            ),
+          ),
+        )
+        .whenComplete(() => _clip.enPantallaCompleta = false);
+  }
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _clip,
+    builder: (context, _) {
+      if (_clip.perdido case final estado?) {
+        return ClipNoDisponible(alerta: widget.alerta, estado: estado);
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _Marco(
+            alerta: widget.alerta,
+            child: _clip.listo && !_clip.enPantallaCompleta
+                ? FittedBox(fit: BoxFit.cover, child: _clip.vista())
+                : _Poster(alerta: widget.alerta),
+          ),
+          const SizedBox(height: 8),
+          ControlesClip(
+            reproduccion: _clip,
+            alPantallaCompleta: _pantallaCompleta,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Ilustración de la habitación con la postura detectada. 6 s antes '
+            'y 6 s después del evento.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      );
+    },
+  );
+}
+
+/// The clip in full screen, with the same controls. Leaving it (the button, back, or the browser's
+/// own exit) restores the orientation and the system bars.
+class PantallaClipCompleta extends ConsumerStatefulWidget {
+  const PantallaClipCompleta({
+    super.key,
+    required this.alerta,
+    required this.reproduccion,
+  });
+
+  final Alerta alerta;
+  final ReproduccionClip reproduccion;
+
+  @override
+  ConsumerState<PantallaClipCompleta> createState() =>
+      _PantallaClipCompletaState();
+}
+
+class _PantallaClipCompletaState extends ConsumerState<PantallaClipCompleta> {
+  late final ModoPantallaCompleta _modo = ref.read(pantallaCompletaProvider);
+  StreamSubscription<bool>? _cambios;
+
+  @override
+  void initState() {
+    super.initState();
+    _cambios = _modo.cambios.listen((dentro) {
+      if (!dentro) _salir();
+    });
+    widget.reproduccion.addListener(_alCambiar);
+  }
+
+  void _alCambiar() {
+    // A clip that is gone is explained inline.
+    if (widget.reproduccion.perdido != null) _salir();
+  }
+
+  void _salir() {
+    if (mounted && ModalRoute.of(context)?.isCurrent == true) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.reproduccion.removeListener(_alCambiar);
+    _cambios?.cancel();
+    _modo.salir();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (_fallo) {
-      return ClipNoDisponible(
-        alerta: widget.alerta,
-        estado: EstadoClip.noDisponible,
-      );
-    }
-    return ListenableBuilder(
-      listenable: _clip,
-      builder: (context, _) {
-        final duracion = _clip.duracion == Duration.zero
-            ? const Duration(seconds: 12)
-            : _clip.duracion;
-        final avance = (_clip.posicion.inMilliseconds / duracion.inMilliseconds)
-            .clamp(0.0, 1.0);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _Marco(
-              alerta: widget.alerta,
-              child: _clip.listo
-                  ? FittedBox(fit: BoxFit.cover, child: _clip.vista())
-                  : _Poster(alerta: widget.alerta),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.fromLTRB(8, 8, 14, 8),
-              decoration: BoxDecoration(
-                color: Colores.tinta,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                children: [
-                  Material(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(11),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(11),
-                      onTap: _clip.listo
-                          ? () => _clip.reproduciendo
-                                ? _clip.pausar()
-                                : _clip.reproducir()
-                          : null,
-                      child: SizedBox(
-                        width: 44,
-                        height: 44,
-                        child: Center(
-                          child: Icono(
-                            _clip.reproduciendo ? Ico.pause : Ico.play,
-                            tamano: 20,
-                            color: Colores.tinta,
-                            etiqueta: _clip.reproduciendo
-                                ? 'Pausar clip'
-                                : 'Reproducir clip',
-                          ),
-                        ),
+    final r = widget.reproduccion;
+    final alerta = widget.alerta;
+    return Scaffold(
+      backgroundColor: Colores.noche,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ListenableBuilder(
+                      listenable: r,
+                      builder: (context, _) => r.listo
+                          ? FittedBox(child: r.vista())
+                          : Center(
+                              child: AspectRatio(
+                                aspectRatio: 16 / 10,
+                                child: ColoredBox(
+                                  color: const Color(0xFFDCD8E6),
+                                  child: _Poster(alerta: alerta),
+                                ),
+                              ),
+                            ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: EtiquetaClip(
+                        texto:
+                            '${alerta.habitacion} · ${hora(alerta.ocurridaEn)}',
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(child: _Pista(avance: avance)),
-                  const SizedBox(width: 12),
-                  Text(
-                    '${_tiempo(_clip.posicion)} / ${_tiempo(duracion)}',
-                    style: estiloMono(
-                      tamano: 14,
-                      peso: 400,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Ilustración de la habitación con la postura detectada. 6 s antes '
-              'y 6 s después del evento.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// Progress track with the event mark in the middle (`.clip-bar .track`).
-class _Pista extends StatelessWidget {
-  const _Pista({required this.avance});
-
-  final double avance;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 16,
-    child: LayoutBuilder(
-      builder: (context, l) => Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          Container(
-            height: 6,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .28),
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
-          Container(
-            height: 6,
-            width: l.maxWidth * avance,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
-          Positioned(
-            left: l.maxWidth / 2 - 2,
-            child: Semantics(
-              label: 'Momento del evento',
-              child: Container(
-                width: 4,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF8A7A),
-                  borderRadius: BorderRadius.circular(2),
+                  ],
                 ),
               ),
-            ),
+              const SizedBox(height: 8),
+              ControlesClip(
+                reproduccion: r,
+                enPantallaCompleta: true,
+                alPantallaCompleta: () => Navigator.of(context).maybePop(),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

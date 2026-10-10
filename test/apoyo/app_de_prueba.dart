@@ -63,8 +63,9 @@ Widget appDePrueba({
     almacenSesionProvider.overrideWithValue(
       almacen ?? AlmacenSesionMemoria(sesion),
     ),
+    // By default this phone has a token and the backend has it: no notice about the alerts.
     notificacionesPushProvider.overrideWithValue(
-      push ?? NotificacionesPushFalsas(),
+      push ?? NotificacionesPushFalsas(tokenActual: 'fcm-prueba'),
     ),
     dispositivosRepositorioProvider.overrideWithValue(
       dispositivos ?? DispositivosFalsos(),

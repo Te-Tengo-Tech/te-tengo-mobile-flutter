@@ -340,15 +340,39 @@ void main() {
               'vistaEnVivoAceptada': true,
               'vigente': true,
             },
+            'dispositivosActivos': 0,
           }),
         );
       final h = await contenedor(http).read(hogarRepositorioProvider).obtener();
+      // Nobody in the family can receive the alerts (contract §2).
+      expect(h.dispositivosActivos, 0);
       expect(h.adultoMayor.nombrePila, 'Rosa');
       expect(h.adultoMayor.convivencia, Convivencia.conFamiliar);
       expect(h.adultoMayor.edad, 78);
       expect(h.adultoMayor.telefono, '987 654 321');
       expect(h.conConsentimiento, isTrue);
       expect(h.consentimiento!.registradoPor, 'Carmen Huamán');
+    });
+
+    test('un backend anterior a 0.3.1 no envía dispositivosActivos', () async {
+      final http = AdaptadorFalso()
+        ..cuando(
+          'GET',
+          '/api/hogar',
+          const Respuesta(200, {
+            'hogarId': 'h-1',
+            'rol': 'TITULAR',
+            'adultoMayor': {
+              'nombre': 'Rosa Huamán',
+              'edad': 78,
+              'direccion': 'Jr. Los Pinos 482',
+              'convivencia': 'SOLO',
+            },
+            'consentimiento': null,
+          }),
+        );
+      final h = await contenedor(http).read(hogarRepositorioProvider).obtener();
+      expect(h.dispositivosActivos, isNull);
     });
   });
 }

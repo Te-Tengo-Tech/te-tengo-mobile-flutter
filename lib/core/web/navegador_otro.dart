@@ -16,3 +16,14 @@ Map<String, Object?>? tomarPushInicialNavegador() => null;
 
 void descargarEnNavegador(Uri url, String nombre) =>
     throw UnsupportedError('Solo en la web');
+
+/// The Fullscreen API exists and is allowed (never outside a browser).
+bool pantallaCompletaDisponibleNavegador() => false;
+
+void entrarPantallaCompletaNavegador() {}
+
+void salirPantallaCompletaNavegador() {}
+
+Stream<bool> cambiosPantallaCompletaNavegador() => const Stream.empty();
+
+bool videoAPantallaCompletaNavegador(String url) => false;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/push.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/colores.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
@@ -25,6 +26,9 @@ class PantallaNotificaciones extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activas = ref.watch(notificacionesActivasProvider).value;
+    final recepcion = ref.watch(recepcionPushProvider);
+    final celularSinAlertas = ref.watch(celularSinAlertasProvider);
+    final familiaSinAlertas = ref.watch(familiaSinAlertasProvider);
     final preferencias =
         ref.watch(preferenciasProvider).value ??
         const PreferenciasNotificaciones();
@@ -56,7 +60,26 @@ class PantallaNotificaciones extends ConsumerWidget {
                 alPresionar: () => activarNotificaciones(context, ref),
               ),
             )
-          else if (activas == true)
+          // The confirmation only once the backend has this phone (contract §7), never from the
+          // permission alone.
+          else if (activas == true && (celularSinAlertas || familiaSinAlertas))
+            Aviso(
+              tono: TonoAviso.advertencia,
+              icono: Ico.bellOff,
+              titulo: familiaSinAlertas
+                  ? 'Nadie de la familia recibe las alertas'
+                  : 'Este celular no recibe las alertas',
+              texto:
+                  'Sin ellas no te enterarás de una caída cuando tengas la '
+                  'app cerrada.',
+              accion: Boton(
+                'Activar notificaciones',
+                estilo: EstiloBoton.tinta,
+                pequeno: true,
+                alPresionar: () => activarNotificaciones(context, ref),
+              ),
+            )
+          else if (activas == true && recepcion == RecepcionPush.activa)
             const Aviso(
               tono: TonoAviso.ok,
               icono: Ico.bell,

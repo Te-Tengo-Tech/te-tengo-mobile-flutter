@@ -16,8 +16,13 @@ abstract interface class NotificacionesPush {
   /// they are allowed; false when push is unavailable, without asking.
   Future<bool> pedirPermiso();
 
-  /// Token to register with `POST /api/dispositivos`; null when push is unavailable.
+  /// Token to register with `POST /api/dispositivos`; null when push is unavailable (no Firebase,
+  /// no permission yet, iOS still waiting for APNs). Throws when Firebase fails to issue one.
   Future<String?> token();
+
+  /// Deletes this phone's token, so the next [token] is a new one: the backend said the push service
+  /// no longer accepts the current one (contract §7, `activo: false`).
+  Future<void> borrarToken();
 
   /// `ANDROID`, `IOS` or `WEB` (contract §7).
   String get plataforma;
@@ -45,6 +50,9 @@ class NotificacionesPushInactivas implements NotificacionesPush {
   Future<String?> token() async => null;
 
   @override
+  Future<void> borrarToken() async {}
+
+  @override
   String get plataforma => 'ANDROID';
 
   @override
@@ -64,7 +72,8 @@ class NotificacionesPushInactivas implements NotificacionesPush {
 /// which arrives some time after launch (and only after the user allows notifications); until then
 /// `getToken` fails with `apns-token-not-set`. So on iOS it first waits for the APNs token, asking up
 /// to [intentos] times, [pausa] apart. Returns null when there is no token yet: the caller tries
-/// again later (when the app resumes or the permission is granted).
+/// again later (when the app resumes or the permission is granted). Any other failure is thrown, so
+/// the caller can tell the family member this phone is not receiving alerts.
 Future<String?> obtenerTokenPush({
   required bool esIos,
   required Future<String?> Function() tokenApns,
@@ -87,8 +96,12 @@ Future<String?> obtenerTokenPush({
     }
     return await tokenFcm();
   } on Object catch (e) {
+    if ('$e'.contains('apns-token-not-set')) {
+      debugPrint('Sin token de APNs todavía: el registro se reintentará.');
+      return null;
+    }
     debugPrint('Sin token de push: $e');
-    return null;
+    rethrow;
   }
 }
 
@@ -129,7 +142,17 @@ class NotificacionesFirebase implements NotificacionesPush {
         return FirebaseMessaging.instance;
       }
       if (Firebase.apps.isEmpty) await Firebase.initializeApp();
-      return FirebaseMessaging.instance;
+      final mensajeria = FirebaseMessaging.instance;
+      if (_esIos) {
+        // A fall that arrives with the app open also shows the system banner with its sound, as
+        // well as the alert screen.
+        await mensajeria.setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+      return mensajeria;
     } on Object catch (e) {
       debugPrint('Push no disponible: $e');
       return null;
@@ -186,6 +209,12 @@ class NotificacionesFirebase implements NotificacionesPush {
             )
           : m.getToken,
     );
+  }
+
+  @override
+  Future<void> borrarToken() async {
+    final m = await _iniciar();
+    await m?.deleteToken();
   }
 
   @override

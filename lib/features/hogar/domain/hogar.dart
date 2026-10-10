@@ -98,12 +98,17 @@ class Hogar {
     required this.adultoMayor,
     required this.rol,
     this.consentimiento,
+    this.dispositivosActivos,
   });
 
   final String hogarId;
   final AdultoMayor adultoMayor;
   final Rol? rol;
   final Consentimiento? consentimiento;
+
+  /// Active push devices of the family (contract §2); 0 means nobody can receive the alerts on a
+  /// phone. Null with a backend older than 0.3.1.
+  final int? dispositivosActivos;
 
   /// Without a valid consent the camera does not send video (CA-05.2).
   bool get conConsentimiento => consentimiento?.vigente ?? false;
@@ -119,5 +124,6 @@ class Hogar {
         : Consentimiento.desdeJson(
             json['consentimiento'] as Map<String, dynamic>,
           ),
+    dispositivosActivos: (json['dispositivosActivos'] as num?)?.toInt(),
   );
 }
