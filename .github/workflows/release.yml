@@ -21,9 +21,10 @@ run-name: >-
 #        - `AAB` (environment `firma`): only when ENABLE_PLAY_STORE is 'true';
 #        - `IPA` (environment `firma`): only when ENABLE_IOS is 'true' (macOS runner, manual signing).
 #      Every file carries the final version x.y.z and build number B inside; "rc" is only a label.
-#   2. `Release candidate`, only after CI passed: the GitHub pre-release vx.y.z-rc.N on this commit
-#      with every file as an asset (te-tengo.apk, te-tengo.apk.sha256, te-tengo-pwa.tar.gz,
-#      te-tengo.aab, te-tengo.ipa) and SHA256SUMS. Its notes record the commit, the git tree,
+#   2. `Release candidate`, only after CI passed: an SBOM (te-tengo-sbom.spdx.json), build provenance
+#      and SBOM attestations of the files, then the GitHub pre-release vx.y.z-rc.N on this commit with
+#      every file as an asset (te-tengo.apk, te-tengo.apk.sha256, te-tengo-pwa.tar.gz, te-tengo.aab,
+#      te-tengo.ipa, te-tengo-sbom.spdx.json) and SHA256SUMS. Its notes record the commit, the git tree,
 #      B, the SHA-256 of each asset and the channels checked (.github/scripts/candidata.sh).
 #      Pre-releases do not expire, unlike artifacts.
 #   3. staging (environment `staging`, approval), when ENABLE_STAGING is 'true', with the candidate's
@@ -281,7 +282,7 @@ jobs:
             echo "| build | PWA | \`te-tengo-pwa.tar.gz\` | $pwa_build |"
             echo "| build | AAB | \`te-tengo.aab\` | $aab_build |"
             echo "| build | IPA | \`te-tengo.ipa\` | $ipa_build |"
-            echo "| candidate | GitHub pre-release | \`${TAG:-vX.Y.Z-rc.N}\` with every file above and \`SHA256SUMS\` | $(estado 'created after CI and the builds') |"
+            echo "| candidate | GitHub pre-release | \`${TAG:-vX.Y.Z-rc.N}\` with every file above, the SBOM and \`SHA256SUMS\`, attested | $(estado 'created after CI and the builds') |"
             echo "| staging | PWA | https://staging.te-tengo-app.pages.dev | $(estado "$stg" ENABLE_STAGING ENABLE_PWA) |"
             echo "| staging | APK | $base/staging/te-tengo.apk | $(estado "$stg" ENABLE_STAGING ENABLE_APK) |"
             echo "| main | Pull request | \`$GITHUB_REF_NAME\` → \`main\` | $(estado 'opened or updated after staging') |"
@@ -725,6 +726,8 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write # creates the pre-release vX.Y.Z-rc.N and its tag
+      id-token: write # signs the attestations (Sigstore)
+      attestations: write # stores them
     # One candidate at a time across branches, so two runs never pick the same rc or build number.
     concurrency:
       group: release-candidate
@@ -749,10 +752,18 @@ jobs:
       BUNDLE_ID: ${{ needs.ipa.outputs.bundle_id }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
+      # The scripts, and the dependency manifests the SBOM is made from (Dart packages of pubspec.lock,
+      # Swift packages of Package.resolved).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          sparse-checkout: .github/scripts
+          sparse-checkout: |
+            .github/scripts
+            pubspec.yaml
+            pubspec.lock
+            ios/**/Package.resolved
+            android/**/*.gradle.kts
+          sparse-checkout-cone-mode: false
       - name: Download the APK
         if: needs.apk.outputs.signed == 'true'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -803,6 +814,31 @@ jobs:
             cp "$RUNNER_TEMP/ipa/$IPA_FILE" "$dir/te-tengo.ipa"
           fi
           ls -l "$dir"
+
+      # The dependencies built into the app, stored in the candidate (and so in SHA256SUMS and in the
+      # final release).
+      - name: SBOM
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          path: .
+          format: spdx-json
+          output-file: ${{ runner.temp }}/candidata/te-tengo-sbom.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+      # Verify with `gh attestation verify <file> --repo Te-Tengo-Tech/te-tengo-mobile-flutter`.
+      - name: Build provenance attestation
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/candidata/*
+      - name: SBOM attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: |
+            ${{ runner.temp }}/candidata/te-tengo*.apk
+            ${{ runner.temp }}/candidata/te-tengo-pwa.tar.gz
+            ${{ runner.temp }}/candidata/te-tengo*.aab
+            ${{ runner.temp }}/candidata/te-tengo*.ipa
+          sbom-path: ${{ runner.temp }}/candidata/te-tengo-sbom.spdx.json
 
       - name: Create the pre-release
         env:
@@ -981,6 +1017,8 @@ jobs:
             echo "| Asset | SHA-256 |"
             echo "|---|---|"
             while read -r sha file; do echo "| \`$file\` | \`$sha\` |"; done < "$RUNNER_TEMP/sumas/SHA256SUMS"
+            echo
+            echo "Provenance and SBOM attestations: \`gh attestation verify <asset> --repo $GITHUB_REPOSITORY\`."
             echo
             echo "\`release-gate\` checks that merging puts exactly this tree into \`main\` and that the candidate passed staging. Merge with a merge commit. Merging runs \`produccion.yml\` on \`main\`: it finds this candidate by the tree of \`main\`, publishes these same files after an approval on \`produccion\` (PWA https://app.tetengo.reqsai.tech, APK \`$base/te-tengo.apk\`, Google Play and TestFlight when switched on) and, only if at least one channel was published and none failed, tags \`v$NAME\` and opens the back-merge pull request into \`develop\`. A new push to \`$GITHUB_REF_NAME\` builds the next candidate and updates this description."
           } > "$body"
