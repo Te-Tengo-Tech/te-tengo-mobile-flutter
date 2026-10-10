@@ -45,7 +45,12 @@ points in [BLOCKERS.md](BLOCKERS.md).
 ## Design system
 - **Colors:** use `context.colores` (the `Paleta` of the current theme) for anything that changes
   in dark mode; `Colores` keeps the fixed ones (severity floods, brand, the live view's night).
-  The app follows the phone's theme (`ThemeMode.system`); the alert flood keeps the light theme.
+  The app follows the phone's theme by default; Ajustes › «Apariencia» (`aparienciaProvider`,
+  `features/ajustes/data/apariencia.dart`) can keep this device light or dark. It is a device
+  setting, not an account one: stored under the `dispositivo|apariencia` key of the local cache,
+  which `vaciar()` keeps on sign-out, and read in `main()` before the first frame (with the session,
+  on the same database the app then uses), so `MaterialApp.themeMode` starts with it and there is no
+  flash of the other theme. The alert flood keeps the light theme.
 - **Progressive disclosure:** a screen shows first what decides the action; secondary detail goes
   in a `FilaPlegable` (a row in a list) or a `VerMas` (inside a card). Nothing is removed.
 - **Large text:** every screen must work with the system text at 200 % (`test/calidad/`).
@@ -68,4 +73,4 @@ Platform code is behind conditional imports (`if (dart.library.js_interop)`): `c
 web code and the web build never imports `dart:ffi`. `entornoNavegadorProvider` tells screens whether
 they run in a browser and whether an iPhone tab must be installed first; tests override it.
 - **Live view:** on demand, behind the `ReproductorVivo` interface. When the session has `urlWebrtc`, `ReproductorWebrtc` (`flutter_webrtc`, WHEP signalling in `ClienteWhep`) plays it first; `PantallaVivo` switches the same session to LL-HLS (`ReproductorHls`, `video_player`) when WebRTC fails, still answers `404` after `esperaPublicacionWebrtc` (8 s), shows no first frame within `esperaWebrtc` (4 s) of MediaMTX's answer, or stops getting frames for `esperaSinImagenWebrtc` (3 s); after a break mid-stream LL-HLS has `esperaRescateHls` (10 s) to show a frame. The camera detail and an open alert send `preparar` once when they open (`PrepararVivo`, `prepararVivo`). The session ends when the screen closes or the app goes to the background.
-- **Local cache:** `drift` (SQLite) keeps the last answers per household and serves them offline; sign-out clears them.
+- **Local cache:** `drift` (SQLite) keeps the last answers per household and serves them offline; sign-out clears them. Keys starting with `dispositivo|` belong to the phone (notification preferences, appearance) and survive sign-out.
