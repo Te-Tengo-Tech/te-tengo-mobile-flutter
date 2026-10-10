@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/ui/aviso.dart';
@@ -71,14 +71,8 @@ class _PantallaRecuperarState extends ConsumerState<PantallaRecuperar> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          Semantics(
-            header: true,
-            child: Text('¿Olvidaste tu contraseña?', style: texto.titleLarge),
-          ),
-          const SizedBox(height: 8),
           Text(
-            'Escribe el correo con el que creaste tu cuenta y te enviaremos un '
-            'enlace para crear una nueva.',
+            'Te enviaremos un enlace para crear una nueva.',
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -154,7 +148,7 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
-    final cuerpo = texto.bodyLarge!.copyWith(color: Colores.tinta2);
+    final cuerpo = texto.bodyLarge!.copyWith(color: context.colores.tinta2);
     final espera =
         '${_restante ~/ 60}:${(_restante % 60).toString().padLeft(2, '0')}';
     return Scaffold(
@@ -162,12 +156,12 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
         children: [
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
             child: IconoGrande(
               icono: Ico.mail,
-              fondo: Colores.moradoSuave,
-              color: Colores.moradoTinta,
+              fondo: context.colores.moradoSuave,
+              color: context.colores.moradoTinta,
               tamano: 64,
             ),
           ),
@@ -184,26 +178,20 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
                 TextSpan(
                   text: widget.correo,
                   style: cuerpo.copyWith(
-                    color: Colores.tinta,
+                    color: context.colores.tinta,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const TextSpan(
                   text:
-                      ' tiene una cuenta en Te Tengo, te llegará un enlace para '
-                      'crear una nueva contraseña. El enlace vence en 30 minutos.',
+                      ' tiene cuenta, te llegará un enlace. Vence en 30 minutos.',
                 ),
               ],
             ),
             style: cuerpo,
           ),
-          const SizedBox(height: 20),
-          const Aviso(
-            tono: TonoAviso.neutral,
-            icono: Ico.info,
-            texto:
-                '¿No llega en unos minutos? Revisa la carpeta de correo no deseado o spam.',
-          ),
+          const SizedBox(height: 12),
+          Text('¿No llega? Revisa la carpeta de spam.', style: texto.bodySmall),
           const SizedBox(height: 24),
           Boton(
             'Volver a iniciar sesión',
@@ -229,7 +217,7 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
                         TextSpan(text: espera, style: estiloMono(tamano: 18)),
                       ],
                     ),
-                    style: estiloTexto(18, 700, color: Colores.tinta3),
+                    style: estiloTexto(18, 700, color: context.colores.tinta3),
                   ),
                 ),
               ),
@@ -383,12 +371,12 @@ class PantallaEnlaceVencido extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
         children: [
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
             child: IconoGrande(
               icono: Ico.clock,
-              fondo: Colores.avisoSuave,
-              color: Colores.aviso,
+              fondo: context.colores.avisoSuave,
+              color: context.colores.aviso,
               tamano: 64,
             ),
           ),
@@ -399,9 +387,8 @@ class PantallaEnlaceVencido extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Por seguridad, los enlaces para cambiar la contraseña duran 30 '
-            'minutos y solo se pueden usar una vez. Pide uno nuevo y ábrelo pronto.',
-            style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+            'Duran 30 minutos y sirven una sola vez. Pide uno nuevo.',
+            style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
           ),
           const SizedBox(height: 24),
           Boton(

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
@@ -44,24 +45,19 @@ class PantallaBienvenida extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Una cámara en su casa reconoce caídas y movimientos '
-                      'inestables. Te avisamos al instante en tu celular.',
-                      style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+                      'Una cámara en su casa detecta caídas y te avisa al '
+                      'instante.',
+                      style: texto.bodyLarge?.copyWith(
+                        color: context.colores.tinta2,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    const _Vineta(
-                      Ico.user,
-                      'Sin pulseras ni botones: tu familiar no tiene que hacer nada.',
-                    ),
+                    const _Vineta(Ico.user, 'Sin pulseras ni botones'),
                     const _Vineta(
                       Ico.video,
-                      'Puedes ver su casa en vivo cuando lo necesites, con su '
-                      'permiso. Cada acceso queda registrado.',
+                      'En vivo con su permiso, con registro',
                     ),
-                    const _Vineta(
-                      Ico.shield,
-                      'Datos protegidos según la Ley N.° 29733.',
-                    ),
+                    const _Vineta(Ico.shield, 'Datos protegidos por ley'),
                     const Spacer(),
                     const SizedBox(height: 18),
                     Boton(
@@ -73,12 +69,6 @@ class PantallaBienvenida extends StatelessWidget {
                       'Ya tengo una cuenta',
                       estilo: EstiloBoton.secundario,
                       alPresionar: () => context.push(Rutas.iniciarSesion),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'La cámara ya viene instalada. Configurarlo toma unos 5 minutos.',
-                      textAlign: TextAlign.center,
-                      style: texto.bodySmall,
                     ),
                   ],
                 ),
@@ -160,7 +150,14 @@ class _Vineta extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(texto, style: estiloTexto(16, 400).copyWith(height: 1.4)),
+          child: Text(
+            texto,
+            style: estiloTexto(
+              16,
+              400,
+              color: context.colores.tinta,
+            ).copyWith(height: 1.4),
+          ),
         ),
       ],
     ),

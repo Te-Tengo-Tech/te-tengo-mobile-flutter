@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import 'lista.dart';
 
 /// Colors of the top band of a card (`.band`).
@@ -24,9 +25,11 @@ class TarjetaBanda extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
-      color: Colores.tarjeta,
+      color: context.colores.tarjeta,
       borderRadius: BorderRadius.circular(22),
-      border: borde ? Border.all(color: Colores.linea, width: 1.5) : null,
+      border: borde
+          ? Border.all(color: context.colores.linea, width: 1.5)
+          : null,
       boxShadow: borde ? null : sombraTarjeta,
     ),
     clipBehavior: Clip.antiAlias,
@@ -36,7 +39,7 @@ class TarjetaBanda extends StatelessWidget {
         if (banda != null)
           SizedBox(
             height: 8,
-            child: CustomPaint(painter: _PintorBanda(banda!)),
+            child: CustomPaint(painter: _PintorBanda(banda!, context.colores)),
           ),
         Padding(padding: relleno, child: child),
       ],
@@ -45,9 +48,10 @@ class TarjetaBanda extends StatelessWidget {
 }
 
 class _PintorBanda extends CustomPainter {
-  const _PintorBanda(this.banda);
+  const _PintorBanda(this.banda, this.paleta);
 
   final Banda banda;
+  final Paleta paleta;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -55,7 +59,7 @@ class _PintorBanda extends CustomPainter {
     switch (banda) {
       case Banda.pausa:
         // Striped, as the paused camera (`repeating-linear-gradient(135deg, ...)`).
-        canvas.drawRect(rect, Paint()..color = Colores.pausa);
+        canvas.drawRect(rect, Paint()..color = paleta.pausa);
         final claro = Paint()..color = const Color(0xFF8C97AD);
         canvas.save();
         canvas.clipRect(rect);
@@ -71,7 +75,7 @@ class _PintorBanda extends CustomPainter {
         canvas.restore();
       case Banda.aviso:
         // Dashed, as a disconnected camera.
-        final p = Paint()..color = Colores.aviso;
+        final p = Paint()..color = paleta.aviso;
         for (var x = 0.0; x < size.width; x += 16) {
           canvas.drawRect(Rect.fromLTWH(x, 0, 10, size.height), p);
         }
@@ -90,7 +94,8 @@ class _PintorBanda extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_PintorBanda old) => old.banda != banda;
+  bool shouldRepaint(_PintorBanda old) =>
+      old.banda != banda || old.paleta != paleta;
 }
 
 /// Key-value row of a card (`.kv`).
@@ -113,7 +118,7 @@ class FilaDato extends StatelessWidget {
     final estiloValor = TextStyle(
       fontWeight: FontWeight.w700,
       fontSize: 16,
-      color: Colores.tinta,
+      color: context.colores.tinta,
       fontFamily: mono ? 'AtkinsonHyperlegibleMono' : null,
     );
     return Padding(
@@ -124,7 +129,7 @@ class FilaDato extends StatelessWidget {
           Flexible(
             child: Text(
               clave,
-              style: const TextStyle(fontSize: 16, color: Colores.tinta3),
+              style: TextStyle(fontSize: 16, color: context.colores.tinta3),
             ),
           ),
           const SizedBox(width: 12),

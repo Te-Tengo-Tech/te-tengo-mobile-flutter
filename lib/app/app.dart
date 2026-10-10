@@ -51,6 +51,9 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
       title: 'Te Tengo',
       debugShowCheckedModeBanner: false,
       theme: temaTeTengo(),
+      // Light or dark follows the phone (or the browser) on Android, iOS and the web.
+      darkTheme: temaTeTengo(oscuro: true),
+      themeMode: ThemeMode.system,
       routerConfig: ref.watch(routerProvider),
       builder: (context, hijo) =>
           AnfitrionAvisos(child: hijo ?? const SizedBox.shrink()),

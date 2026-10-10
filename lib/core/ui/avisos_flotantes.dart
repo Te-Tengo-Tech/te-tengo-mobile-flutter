@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'aviso.dart';
 import 'iconos.dart';
@@ -140,16 +141,19 @@ class _Toast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = context.colores;
+    // Dark mode inverts the toast: light background, dark ink and deeper icon colors.
     final colorIcono = switch (aviso.tono) {
-      TonoAviso.ok => const Color(0xFF7FD9A8),
-      TonoAviso.advertencia => const Color(0xFFFFC76B),
-      _ => Colors.white,
+      TonoAviso.ok => p.oscura ? Colores.calma : const Color(0xFF7FD9A8),
+      TonoAviso.advertencia =>
+        p.oscura ? Colores.aviso : const Color(0xFFFFC76B),
+      _ => p.sobreInversa,
     };
     return Semantics(
       liveRegion: true,
       container: true,
       child: Material(
-        color: Colores.tinta,
+        color: p.inversa,
         borderRadius: BorderRadius.circular(18),
         elevation: 6,
         child: Padding(
@@ -165,10 +169,13 @@ class _Toast extends StatelessWidget {
                   children: [
                     Text(
                       aviso.titulo,
-                      style: estiloTexto(16, 700, color: Colors.white),
+                      style: estiloTexto(16, 700, color: p.sobreInversa),
                     ),
                     if (aviso.texto case final t? when t.isNotEmpty)
-                      Text(t, style: estiloTexto(15, 400, color: Colors.white)),
+                      Text(
+                        t,
+                        style: estiloTexto(15, 400, color: p.sobreInversa),
+                      ),
                   ],
                 ),
               ),
@@ -192,7 +199,7 @@ class _EnApp extends StatelessWidget {
     container: true,
     button: aviso.alTocar != null,
     child: Material(
-      color: Colors.white,
+      color: context.colores.hoja,
       borderRadius: BorderRadius.circular(22),
       elevation: 8,
       shadowColor: const Color(0x29000000),
@@ -213,11 +220,18 @@ class _EnApp extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(aviso.titulo, style: estiloTexto(16, 700)),
+                    Text(
+                      aviso.titulo,
+                      style: estiloTexto(16, 700, color: context.colores.tinta),
+                    ),
                     if (aviso.texto case final t? when t.isNotEmpty)
                       Text(
                         t,
-                        style: estiloTexto(15, 400, color: Colores.tinta2),
+                        style: estiloTexto(
+                          15,
+                          400,
+                          color: context.colores.tinta2,
+                        ),
                       ),
                   ],
                 ),

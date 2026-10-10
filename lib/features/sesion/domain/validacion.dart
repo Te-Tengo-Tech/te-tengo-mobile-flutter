@@ -26,4 +26,4 @@ String? validarContrasenaNueva(
 }
 
 /// Hint under new-password fields.
-const ayudaContrasena = 'Mínimo 8 caracteres, con al menos un número.';
+const ayudaContrasena = '8 caracteres o más, con un número.';

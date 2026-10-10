@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
@@ -27,8 +27,13 @@ class EstadoTarjeta {
   final String texto;
 }
 
-/// Status of the home card from the household, its camera and the active alert.
-EstadoTarjeta estadoTarjeta(Hogar hogar, Camara? camara, {Alerta? alerta}) {
+/// Status of the home card from the household, its camera and the active alert, in [paleta].
+EstadoTarjeta estadoTarjeta(
+  Hogar hogar,
+  Camara? camara, {
+  Alerta? alerta,
+  Paleta paleta = Paleta.clara,
+}) {
   final nombre = hogar.adultoMayor.nombrePila;
   final habitacion = camara?.nombreHabitacion ?? '';
   if (alerta != null) {
@@ -36,7 +41,7 @@ EstadoTarjeta estadoTarjeta(Hogar hogar, Camara? camara, {Alerta? alerta}) {
     return EstadoTarjeta(
       banda: caida ? Banda.caida : Banda.inestable,
       icono: caida ? Ico.fall : Ico.unsteady,
-      color: caida ? Colores.caidaTinta : Colores.inestableTinta,
+      color: caida ? paleta.caidaTinta : paleta.inestableTinta,
       titulo: !caida
           ? 'Movimiento inestable activo'
           : alerta.sigueEnElSuelo
@@ -44,20 +49,18 @@ EstadoTarjeta estadoTarjeta(Hogar hogar, Camara? camara, {Alerta? alerta}) {
           : 'Alerta de caída activa',
       texto:
           '${alerta.tipo.nombre} ${enHabitacion(alerta.habitacion)} a las '
-          '${hora(alerta.ocurridaEn)}. Aún nadie la marcó como atendida.',
+          '${hora(alerta.ocurridaEn)}. Nadie la marcó aún.',
     );
   }
   if (!hogar.conConsentimiento) {
     return EstadoTarjeta(
       banda: Banda.pausa,
       icono: Ico.lock,
-      color: Colores.pausa,
+      color: paleta.pausa,
       titulo: 'Detección detenida',
       texto: hogar.consentimiento != null
-          ? 'Revocaste el consentimiento. La cámara no captura y no recibirás '
-                'alertas.'
-          : 'Falta el consentimiento informado de $nombre. La cámara está '
-                'instalada, pero no envía video.',
+          ? 'Revocaste el consentimiento. No hay captura ni alertas.'
+          : 'Falta el consentimiento de $nombre. La cámara no envía video.',
     );
   }
   final estado = camara?.estadoVisible(conConsentimiento: true);
@@ -65,26 +68,21 @@ EstadoTarjeta estadoTarjeta(Hogar hogar, Camara? camara, {Alerta? alerta}) {
     EstadoVisible.desconectada => EstadoTarjeta(
       banda: Banda.aviso,
       icono: Ico.wifiOff,
-      color: Colores.aviso,
+      color: paleta.aviso,
       titulo: 'La cámara está desconectada',
-      texto:
-          'Sin ella no podemos detectar caídas ${enHabitacion(habitacion)}. '
-          'Revisa el cable de la cámara, que la PC esté encendida y el internet '
-          'de la casa.',
+      texto: 'Sin ella no detectamos caídas ${enHabitacion(habitacion)}.',
     ),
     EstadoVisible.noConfiable => EstadoTarjeta(
       banda: Banda.aviso,
       icono: Ico.eyeOff,
-      color: Colores.aviso,
+      color: paleta.aviso,
       titulo: 'La detección no es confiable',
-      texto:
-          'Hace más de 5 minutos que la cámara no ve bien a $nombre '
-          '${enHabitacion(habitacion)}. Revisa la luz y el encuadre.',
+      texto: 'Hace más de 5 min que no ve bien a $nombre.',
     ),
     EstadoVisible.enPausa => EstadoTarjeta(
       banda: Banda.pausa,
       icono: Ico.pause,
-      color: Colores.pausa,
+      color: paleta.pausa,
       titulo: 'Todo tranquilo, con una pausa',
       texto:
           'La cámara ${deHabitacion(habitacion)} está en pausa hasta las '
@@ -93,17 +91,15 @@ EstadoTarjeta estadoTarjeta(Hogar hogar, Camara? camara, {Alerta? alerta}) {
     _ => EstadoTarjeta(
       banda: Banda.calma,
       icono: Ico.sun,
-      color: Colores.calmaTinta,
+      color: paleta.calmaTinta,
       titulo: 'Todo tranquilo',
-      texto: camara == null
-          ? 'Sin eventos hoy.'
-          : 'Sin eventos hoy. La cámara ${deHabitacion(habitacion)} está '
-                'funcionando.',
+      texto: 'Sin eventos hoy.',
     ),
   };
 }
 
-/// Older adult status card with the color band of the state (DESIGN.md, Components).
+/// Older adult status card with the color band of the state (DESIGN.md, Components): name, age,
+/// state and one line. The date and the address are not repeated here.
 class TarjetaAdultoMayor extends StatelessWidget {
   const TarjetaAdultoMayor({
     super.key,
@@ -121,7 +117,6 @@ class TarjetaAdultoMayor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
-    final direccion = adulto.direccion.replaceAll(', Lima', '');
     return TarjetaBanda(
       banda: estado.banda,
       child: Column(
@@ -132,18 +127,11 @@ class TarjetaAdultoMayor extends StatelessWidget {
               Avatar(Avatar.inicialesDe(adulto.nombre), tono: TonoAvatar.rosa),
               const SizedBox(width: 14),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      adulto.edad == null
-                          ? adulto.nombre
-                          : '${adulto.nombre}, ${adulto.edad} años',
-                      style: texto.titleMedium?.copyWith(fontSize: 17),
-                    ),
-                    if (direccion.isNotEmpty)
-                      Text(direccion, style: texto.bodySmall),
-                  ],
+                child: Text(
+                  adulto.edad == null
+                      ? adulto.nombre
+                      : '${adulto.nombre}, ${adulto.edad} años',
+                  style: texto.titleMedium?.copyWith(fontSize: 17),
                 ),
               ),
             ],

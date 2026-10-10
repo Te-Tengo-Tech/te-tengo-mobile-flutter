@@ -106,7 +106,7 @@ void main() {
       final repo = CuentasRepositorioFalso();
       await abrirRegistro(tester, repo);
       await llenar(tester, nombre: 'Carmen Huamán');
-      expect(find.text('Faltan datos obligatorios'), findsOneWidget);
+      expect(find.text('Completa los campos marcados'), findsOneWidget);
       expect(find.text('Escribe tu correo electrónico.'), findsOneWidget);
       expect(find.text('Crea una contraseña.'), findsOneWidget);
       expect(find.text('Escribe tu nombre y apellido.'), findsNothing);

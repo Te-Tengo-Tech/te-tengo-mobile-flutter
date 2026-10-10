@@ -16,6 +16,7 @@ enum Ico {
   check,
   x,
   chevR,
+  chevD,
   chevL,
   back,
   fall,
@@ -83,6 +84,7 @@ const _trazos = <Ico, String>{
   Ico.check: '<path d="M4.5 12.5l5 5L20 7"/>',
   Ico.x: '<path d="M6 6l12 12M18 6 6 18"/>',
   Ico.chevR: '<path d="M9 5l7 7-7 7"/>',
+  Ico.chevD: '<path d="M5 9l7 7 7-7"/>',
   Ico.chevL: '<path d="M15 5l-7 7 7 7"/>',
   Ico.back: '<path d="M20 12H5M11 5l-7 7 7 7"/>',
   Ico.fall:

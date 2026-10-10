@@ -31,6 +31,7 @@ class ClipFalso extends ChangeNotifier implements ControladorClip {
   bool dispuesto = false;
   Duration _posicion = Duration.zero;
   final buscadas = <Duration>[];
+  final velocidades = <double>[];
   int pantallasNativas = 0;
 
   @override
@@ -65,6 +66,12 @@ class ClipFalso extends ChangeNotifier implements ControladorClip {
         : duracionReal > Duration.zero && posicion > duracionReal
         ? duracionReal
         : posicion;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> velocidad(double factor) async {
+    velocidades.add(factor);
     notifyListeners();
   }
 

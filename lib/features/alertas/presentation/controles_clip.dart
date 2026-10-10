@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
 import 'reproduccion_clip.dart';
@@ -9,22 +10,30 @@ import 'reproduccion_clip.dart';
 String tiempoClip(Duration d) =>
     '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
 
+/// «1×», «0,5×»: the label of a playback speed.
+String etiquetaVelocidad(double v) =>
+    '${v == v.roundToDouble() ? v.toInt() : v.toString().replaceAll('.', ',')}×';
+
 /// Clip bar (`.clip-bar`): play, pause or watch again, -5 s and +5 s, a progress track that can be
-/// dragged or tapped (with the event mark in the middle), the time and full screen. Every target is
-/// at least 48 dp. The same bar is used inline and in full screen.
+/// dragged or tapped (with the event mark in the middle), the time and the speed (0,5×, 1×, 1,5×
+/// and 2×, in a cycle). In full screen it also has the button that leaves it; inline, full screen
+/// is the button over the image. Every target is at least 48 dp. The same bar is used inline and in
+/// full screen.
 class ControlesClip extends StatelessWidget {
   const ControlesClip({
     super.key,
     required this.reproduccion,
-    required this.alPantallaCompleta,
-    this.enPantallaCompleta = false,
+    this.alSalir,
+    this.aRas = false,
   });
 
   final ReproduccionClip reproduccion;
 
-  /// Enters full screen inline, leaves it in the full-screen view.
-  final VoidCallback alPantallaCompleta;
-  final bool enPantallaCompleta;
+  /// Leaves full screen; only the full-screen view sets it.
+  final VoidCallback? alSalir;
+
+  /// Square corners: the bar spans the card edge to edge.
+  final bool aRas;
 
   static const tamanoBoton = 48.0;
 
@@ -60,19 +69,30 @@ class ControlesClip extends StatelessWidget {
         alTocar: buscable ? r.adelantar : null,
         child: Text('+5 s', style: estiloMono(tamano: 14, color: Colors.white)),
       );
-      final etiquetaPantalla = enPantallaCompleta
-          ? 'Salir de pantalla completa'
-          : 'Ver en pantalla completa';
-      final pantalla = _Boton(
-        etiqueta: etiquetaPantalla,
-        alTocar: alPantallaCompleta,
-        child: Icono(
-          enPantallaCompleta ? Ico.contract : Ico.expand,
-          tamano: 22,
-          color: Colors.white,
-          etiqueta: etiquetaPantalla,
+      final etiquetaVel =
+          'Velocidad ${etiquetaVelocidad(r.velocidad)}. Cambiar la velocidad';
+      final velocidad = _Boton(
+        etiqueta: etiquetaVel,
+        alTocar: r.listo ? r.cambiarVelocidad : null,
+        child: Text(
+          etiquetaVelocidad(r.velocidad),
+          maxLines: 1,
+          style: estiloTexto(15, 800, color: Colors.white),
         ),
       );
+      final salir = alSalir;
+      final pantalla = salir == null
+          ? null
+          : _Boton(
+              etiqueta: 'Salir de pantalla completa',
+              alTocar: salir,
+              child: const Icono(
+                Ico.contract,
+                tamano: 22,
+                color: Colors.white,
+                etiqueta: 'Salir de pantalla completa',
+              ),
+            );
       final tiempo = Text(
         '${tiempoClip(r.posicion)} / ${tiempoClip(r.duracion)}',
         maxLines: 1,
@@ -82,10 +102,10 @@ class ControlesClip extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
         decoration: BoxDecoration(
-          color: Colores.tinta,
-          borderRadius: BorderRadius.circular(14),
+          color: context.colores.barraClip,
+          borderRadius: BorderRadius.circular(aRas ? 0 : 14),
         ),
-        // No LayoutBuilder: the alert screen measures its content (SliverFillRemaining).
+        // No LayoutBuilder: the bar lays out inside folds that measure their content.
         child: Builder(
           builder: (context) => MediaQuery.sizeOf(context).width >= 560
               // Landscape or a wide screen: one row, as the prototype.
@@ -98,7 +118,9 @@ class ControlesClip extends StatelessWidget {
                     Expanded(child: pista),
                     const SizedBox(width: 12),
                     tiempo,
-                    pantalla,
+                    const SizedBox(width: 4),
+                    velocidad,
+                    ?pantalla,
                   ],
                 )
               : Column(
@@ -124,7 +146,9 @@ class ControlesClip extends StatelessWidget {
                             ),
                           ),
                         ),
-                        pantalla,
+                        const SizedBox(width: 4),
+                        velocidad,
+                        ?pantalla,
                       ],
                     ),
                   ],

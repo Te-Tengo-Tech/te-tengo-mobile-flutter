@@ -10,6 +10,7 @@ import '../features/camaras/domain/camara.dart';
 import 'rutas.dart';
 import '../core/ui/iconos.dart';
 import 'tema/colores.dart';
+import 'tema/paleta.dart';
 import 'tema/tema.dart';
 
 /// «Tu celular no tiene internet» (screen 27), above every tab.
@@ -27,12 +28,18 @@ class BarraSinInternet extends ConsumerWidget {
         margin: const EdgeInsets.fromLTRB(12, 4, 12, 6),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: Colores.tinta,
+          color: context.colores.inversa,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
-            const Icono(Ico.wifiOff, tamano: 22, color: Color(0xFFFFC76B)),
+            Icono(
+              Ico.wifiOff,
+              tamano: 22,
+              color: context.colores.oscura
+                  ? Colores.aviso
+                  : const Color(0xFFFFC76B),
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -40,12 +47,20 @@ class BarraSinInternet extends ConsumerWidget {
                 children: [
                   Text(
                     'Tu celular no tiene internet',
-                    style: estiloTexto(16, 700, color: Colors.white),
+                    style: estiloTexto(
+                      16,
+                      700,
+                      color: context.colores.sobreInversa,
+                    ),
                   ),
                   Text(
                     'Las alertas llegarán cuando vuelvas a conectarte. Si no '
                     'atiendes una a tiempo, avisamos a tu contacto secundario.',
-                    style: estiloTexto(15, 400, color: Colors.white),
+                    style: estiloTexto(
+                      15,
+                      400,
+                      color: context.colores.sobreInversa,
+                    ),
                   ),
                 ],
               ),

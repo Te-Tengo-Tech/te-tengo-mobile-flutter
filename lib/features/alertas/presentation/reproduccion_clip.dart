@@ -60,6 +60,9 @@ class ReproduccionClip extends ChangeNotifier {
   /// Seek step of the -5 s and +5 s buttons.
   static const salto = Duration(seconds: 5);
 
+  /// Speeds of the speed button, in the order it cycles through them.
+  static const velocidades = [0.5, 1.0, 1.5, 2.0];
+
   EnlaceClip _enlace;
   ControladorClip? _clip;
   Timer? _temporizador;
@@ -74,6 +77,7 @@ class ReproduccionClip extends ChangeNotifier {
   bool _quiereReproducir = false;
   EstadoClip? _perdido;
   bool _enPantallaCompleta = false;
+  double _velocidad = 1;
 
   /// Set when the clip cannot be shown: [EstadoClip.noDisponible] or [EstadoClip.eliminado].
   EstadoClip? get perdido => _perdido;
@@ -109,6 +113,20 @@ class ReproduccionClip extends ChangeNotifier {
   }
 
   Widget vista() => _clip!.vista();
+
+  /// Current playback speed (1 is normal); kept when the player is replaced.
+  double get velocidad => _velocidad;
+
+  /// Moves to the next speed: 0,5× → 1× → 1,5× → 2× → 0,5×.
+  Future<void> cambiarVelocidad() async {
+    final i = velocidades.indexOf(_velocidad);
+    _velocidad = velocidades[(i + 1) % velocidades.length];
+    notifyListeners();
+    final clip = _clip;
+    if (clip != null && clip.listo && !clip.fallo) {
+      await clip.velocidad(_velocidad);
+    }
+  }
 
   bool get _porVencer {
     final expira = _enlace.expiraEn;
@@ -236,6 +254,7 @@ class ReproduccionClip extends ChangeNotifier {
             _posicion = viejo.posicion;
           }
           if (_posicion > Duration.zero) await nuevo.buscar(_posicion);
+          if (_velocidad != 1) await nuevo.velocidad(_velocidad);
           if (_cerrado) {
             nuevo.dispose();
             return;

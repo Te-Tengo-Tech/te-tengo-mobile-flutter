@@ -60,17 +60,14 @@ void main() {
       await tocar(tester, find.text('Invitar a un familiar'));
       expect(find.byType(PantallaInvitar), findsOneWidget);
       expect(
-        find.text(
-          'Le enviaremos un enlace para que cree su acceso a la familia de '
-          'Rosa.',
-        ),
+        find.text('Le enviaremos un enlace para crear su acceso.'),
         findsOneWidget,
       );
       expect(find.text('Qué podrá hacer'), findsOneWidget);
       expect(
         find.text(
-          'No podrá cambiar los datos de Rosa, el consentimiento, la cámara, '
-          'la familia ni el orden de aviso. Eso lo haces tú.',
+          'No podrá cambiar los datos de Rosa, el consentimiento, la cámara ni '
+          'la familia',
         ),
         findsOneWidget,
       );
@@ -159,10 +156,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text(
-          'Tu acceso quedó unido a la cuenta de Carmen. Te llegará cada alerta '
-          'aunque tengas la app cerrada.',
-        ),
+        find.text('Te llegarán aunque tengas la app cerrada.'),
         findsOneWidget,
       );
       expect(find.text('Solo Carmen puede'), findsOneWidget);
@@ -238,9 +232,10 @@ void main() {
     testWidgets('el titular no puede retirarse a sí mismo', (tester) async {
       await abrir(tester, Rutas.familia);
       await tocar(tester, find.text('Carmen Huamán (tú)'));
-      expect(find.textContaining('Eres titular de la cuenta'), findsOneWidget);
+      expect(find.textContaining('Eres titular:'), findsOneWidget);
       expect(find.text('Retirar acceso'), findsNothing);
-      expect(find.text('Hacer contacto secundario'), findsOneWidget);
+      // The family always keeps a principal: it changes by choosing another one.
+      expect(find.text('Hacer contacto secundario'), findsNothing);
     });
 
     testWidgets('un familiar invitado no ve las opciones', (tester) async {

@@ -11,12 +11,14 @@ Screens only know the repository interface, so tests replace it with a fake thro
 ```
 lib/
 ├── app/          app.dart, router.dart + rutas.dart (guards), navegacion.dart (tabs), push.dart (push routing),
-│                 barras_estado.dart (offline bar, active-alert strip), tema/ (Colores = DESIGN.md tokens)
+│                 barras_estado.dart (offline bar, active-alert strip), tema/ (Colores = DESIGN.md tokens; Paleta = the tokens that change
+│                 in dark mode, read with context.colores)
 ├── core/         configuracion.dart (TT_API_URL), red/ (Dio client, ProblemaApi, session interceptor),
 │                 sesion/ (secure token, SesionController), cache/ (drift SQLite + offline interceptor),
 │                 notificaciones/ (push, device registration, firebase_web.dart), dispositivo/ (permission,
 │                 connectivity, dialer), web/ (browser bridges and EntornoNavegador, conditional imports),
-│                 ui/ (shared widgets: buttons, lists, notices, icons, illustrations, logo)
+│                 ui/ (shared widgets: buttons, lists, notices, icons, illustrations, logo,
+│                 FilaPlegable and VerMas for folded secondary detail)
 └── features/     one folder per feature: data/, domain/, presentation/
     └── camaras/  REFERENCE FEATURE
 ```
@@ -38,11 +40,20 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `historial` | US-25, US-27 | Done: filtered history with paging, weekly summary with trend |
 | `ajustes` | US-08 (read-only), US-16 | Done: settings for owner and invited member, notification preferences |
 | `instalar` | — | Web only: «Agrega Te Tengo a tu pantalla de inicio» notice and guide on iPhone browser tabs |
+| `legal` | US-01, US-05, US-09 | Términos de uso, Política de privacidad and the full consent document; the consent text shared with the summary |
+
+## Design system
+- **Colors:** use `context.colores` (the `Paleta` of the current theme) for anything that changes
+  in dark mode; `Colores` keeps the fixed ones (severity floods, brand, the live view's night).
+  The app follows the phone's theme (`ThemeMode.system`); the alert flood keeps the light theme.
+- **Progressive disclosure:** a screen shows first what decides the action; secondary detail goes
+  in a `FilaPlegable` (a row in a list) or a `VerMas` (inside a card). Nothing is removed.
+- **Large text:** every screen must work with the system text at 200 % (`test/calidad/`).
 
 ## Quality
 - Widget tests per acceptance criterion with fake repositories; repository tests against a fake Dio adapter.
 - `test/calidad/`: an accessibility sweep of the main screens (44 px targets, labels, WCAG contrast,
-  text at 200 % without overflow), golden screenshots (`--update-goldens` to regenerate) and a check of
+  text at 200 % without overflow, dark mode with contrast), golden screenshots (`--update-goldens` to regenerate) and a check of
   every endpoint and push type of `docs/API_CONTRACT.md`.
 
 ## Communication

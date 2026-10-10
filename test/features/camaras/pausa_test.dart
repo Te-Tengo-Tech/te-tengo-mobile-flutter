@@ -72,18 +72,13 @@ void main() {
   testWidgets('CA-22.1: pausa la cámara eligiendo la duración', (tester) async {
     await abrir(tester, Rutas.camara('c1'));
     expect(
-      find.text(
-        'Útil si hay visitas o una reunión familiar en esta habitación.',
-      ),
+      find.text('Útil si hay visitas en esta habitación.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Pausar esta cámara'));
     expect(find.text('Pausar la cámara de la Sala'), findsOneWidget);
     expect(
-      find.text(
-        'Mientras esté en pausa no se detectarán caídas y nadie podrá verla en '
-        'vivo. Se reactivará sola.',
-      ),
+      find.text('Sin detección ni vista en vivo. Se reactiva sola.'),
       findsOneWidget,
     );
     for (final (t, s) in [
@@ -168,8 +163,7 @@ void main() {
     expect(find.text('En pausa hasta las 11:42'), findsOneWidget);
     expect(
       find.text(
-        'No se detectan caídas y no se puede ver en vivo. Se reactivará sola a '
-        'esa hora y te avisaremos.',
+        'Sin detección ni vista en vivo. Se reactiva sola y te avisaremos.',
       ),
       findsOneWidget,
     );

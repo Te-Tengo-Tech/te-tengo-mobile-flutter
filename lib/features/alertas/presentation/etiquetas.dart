@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
 import '../domain/alerta.dart';
@@ -48,21 +49,26 @@ class SelloEstado extends StatelessWidget {
     final (texto, color, fondo, icono) = switch (alerta.estado) {
       EstadoAlerta.atendida => (
         'Atendida',
-        Colores.calmaTinta,
+        context.colores.calmaTinta,
         null,
         Ico.check,
       ),
-      EstadoAlerta.falsaAlarma => ('Falsa alarma', Colores.tinta2, null, null),
+      EstadoAlerta.falsaAlarma => (
+        'Falsa alarma',
+        context.colores.tinta2,
+        null,
+        null,
+      ),
       EstadoAlerta.activa when alerta.esCaida => (
         'Activa',
-        Colores.caidaTinta,
-        Colores.caidaSuave,
+        context.colores.caidaTinta,
+        context.colores.caidaSuave,
         null,
       ),
       EstadoAlerta.activa => (
         'Activa',
-        Colores.inestableTinta,
-        Colores.inestableSuave,
+        context.colores.inestableTinta,
+        context.colores.inestableSuave,
         null,
       ),
     };
@@ -111,16 +117,17 @@ class MarcaAlerta extends StatelessWidget {
     child: SizedBox(
       width: 18,
       height: 18,
-      child: CustomPaint(painter: _Marca(tipo, falsa)),
+      child: CustomPaint(painter: _Marca(tipo, falsa, context.colores.tinta3)),
     ),
   );
 }
 
 class _Marca extends CustomPainter {
-  const _Marca(this.tipo, this.falsa);
+  const _Marca(this.tipo, this.falsa, this.trazo);
 
   final TipoAlerta tipo;
   final bool falsa;
+  final Color trazo;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -128,7 +135,7 @@ class _Marca extends CustomPainter {
     canvas.scale(s);
     if (falsa) {
       final p = Paint()
-        ..color = Colores.tinta3
+        ..color = trazo
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
       canvas.drawRRect(
@@ -166,5 +173,6 @@ class _Marca extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_Marca old) => old.tipo != tipo || old.falsa != falsa;
+  bool shouldRepaint(_Marca old) =>
+      old.tipo != tipo || old.falsa != falsa || old.trazo != trazo;
 }

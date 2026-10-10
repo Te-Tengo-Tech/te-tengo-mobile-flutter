@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
 
@@ -17,9 +18,11 @@ class ListaTarjeta extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colores.tarjeta,
+        color: context.colores.tarjeta,
         borderRadius: BorderRadius.circular(22),
-        border: borde ? Border.all(color: Colores.linea, width: 1.5) : null,
+        border: borde
+            ? Border.all(color: context.colores.linea, width: 1.5)
+            : null,
         boxShadow: borde ? null : sombraTarjeta,
       ),
       clipBehavior: Clip.antiAlias,
@@ -80,7 +83,7 @@ class FilaLista extends StatelessWidget {
     // With large text the trailing tag goes under the texts so nothing overflows.
     final finDebajo =
         fin != null && MediaQuery.textScalerOf(context).scale(16) > 24;
-    final subtituloEstilo = estiloTexto(15, 400, color: Colores.tinta3);
+    final subtituloEstilo = estiloTexto(15, 400, color: context.colores.tinta3);
     final contenido = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 64),
       child: Padding(
@@ -98,7 +101,9 @@ class FilaLista extends StatelessWidget {
                     style: estiloTexto(
                       17,
                       700,
-                      color: peligro ? Colores.caidaTinta : Colores.tinta,
+                      color: peligro
+                          ? context.colores.caidaTinta
+                          : context.colores.tinta,
                     ),
                   ),
                   if (subtituloRico != null)
@@ -113,7 +118,7 @@ class FilaLista extends StatelessWidget {
             if (fin != null && !finDebajo) ...[const SizedBox(width: 8), fin!],
             if (mostrarChevron) ...[
               const SizedBox(width: 8),
-              const Icono(Ico.chevR, tamano: 22, color: Colores.tinta3),
+              Icono(Ico.chevR, tamano: 22, color: context.colores.tinta3),
             ],
           ],
         ),
@@ -136,14 +141,14 @@ class IconoFila extends StatelessWidget {
     width: 44,
     height: 44,
     decoration: BoxDecoration(
-      color: peligro ? Colores.caidaSuave : Colores.moradoSuave,
+      color: peligro ? context.colores.caidaSuave : context.colores.moradoSuave,
       borderRadius: BorderRadius.circular(14),
     ),
     alignment: Alignment.center,
     child: Icono(
       icono,
       tamano: 24,
-      color: peligro ? Colores.caidaTinta : Colores.moradoTinta,
+      color: peligro ? context.colores.caidaTinta : context.colores.moradoTinta,
     ),
   );
 }
@@ -169,7 +174,10 @@ class EncabezadoSeccion extends StatelessWidget {
         Expanded(
           child: Semantics(
             header: true,
-            child: Text(titulo, style: estiloTexto(18, 800)),
+            child: Text(
+              titulo,
+              style: estiloTexto(18, 800, color: context.colores.tinta),
+            ),
           ),
         ),
         ?accion,
@@ -198,10 +206,11 @@ class Enlace extends StatelessWidget {
       minimumSize: const Size(48, 48),
       padding: const EdgeInsets.symmetric(horizontal: 4),
       tapTargetSize: MaterialTapTargetSize.padded,
-      textStyle: estiloTexto(tamano, 700).copyWith(
-        decoration: TextDecoration.underline,
-        decorationThickness: 1.5,
-      ),
+      textStyle: estiloTexto(tamano, 700, color: context.colores.tinta)
+          .copyWith(
+            decoration: TextDecoration.underline,
+            decorationThickness: 1.5,
+          ),
     ),
     child: Text(texto),
   );
@@ -234,7 +243,10 @@ class Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (fondo, tinta) = switch (tono) {
-      TonoAvatar.morado => (Colores.moradoSuave, Colores.moradoTinta),
+      TonoAvatar.morado => (
+        context.colores.moradoSuave,
+        context.colores.moradoTinta,
+      ),
       TonoAvatar.azul => (Colores.avatarAzulFondo, Colores.avatarAzulTinta),
       TonoAvatar.arena => (Colores.avatarArenaFondo, Colores.avatarArenaTinta),
       TonoAvatar.rosa => (Colores.avatarRosaFondo, Colores.avatarRosaTinta),
@@ -262,7 +274,10 @@ class EncabezadoDia extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
     child: Semantics(
       header: true,
-      child: Text(texto, style: estiloTexto(15, 800, color: Colores.tinta2)),
+      child: Text(
+        texto,
+        style: estiloTexto(15, 800, color: context.colores.tinta2),
+      ),
     ),
   );
 }

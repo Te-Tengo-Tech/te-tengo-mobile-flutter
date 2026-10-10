@@ -77,8 +77,10 @@ void main() {
       find.textContaining('a las 10:31', findRichText: true),
       findsOneWidget,
     );
-    expect(find.text('No recibimos señal desde las 10:31'), findsOneWidget);
+    // The header already says since when: no notice repeats it.
+    expect(find.text('No recibimos señal desde las 10:31'), findsNothing);
     await verHasta(tester, find.text('La conexión a internet'));
+    expect(find.text('Conectado al puerto USB de la PC'), findsOneWidget);
     expect(find.text('El cable de la cámara'), findsOneWidget);
     expect(find.text('La PC encendida'), findsOneWidget);
     expect(find.text('La conexión a internet'), findsOneWidget);

@@ -53,11 +53,11 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.configFamilia);
-    expect(find.text('Paso 4 de 4'), findsOneWidget);
+    expect(find.text('Paso 4 de 5'), findsOneWidget);
     expect(
       find.text(
-        'Recibirá las alertas de Rosa. Si tú no atiendes una alerta en 5 minutos, '
-        'le avisaremos a esta persona. Podrás cambiar ese tiempo después en Familia.',
+        'Recibirá las alertas de Rosa y, si no atiendes una en 5 min, le '
+        'avisaremos.',
       ),
       findsOneWidget,
     );
@@ -65,6 +65,10 @@ void main() {
     await tocar(tester, find.text('Enviar invitación'));
     expect(familia.invitaciones, ['luis.huaman.r@gmail.com']);
     expect(find.text('Invitación enviada'), findsOneWidget);
+    await tocar(tester, find.text('Continuar'));
+    // Step 5 explains the notifications before the phone asks.
+    expect(find.text('Paso 5 de 5'), findsOneWidget);
+    expect(find.text('Que no se te pase ninguna caída'), findsOneWidget);
     await tocar(tester, find.text('Continuar'));
     expect(find.text('Todo listo. Ya estás cerca de Rosa.'), findsOneWidget);
     expect(find.text('1 familiar invitado'), findsOneWidget);
@@ -107,6 +111,7 @@ void main() {
     hogar.hogar = hogarDeRosa(consentimiento: false);
     await abrir(tester, Rutas.configFamilia);
     await tocar(tester, find.text('Hacerlo después'));
+    await tocar(tester, find.text('Continuar'));
     expect(find.text('Sin contacto secundario'), findsOneWidget);
     expect(find.text('Falta el consentimiento'), findsOneWidget);
     await tocar(tester, find.text('Ir al inicio'));

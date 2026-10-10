@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
@@ -12,7 +12,6 @@ import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../alertas/presentation/etiquetas.dart';
-import '../../camaras/domain/camara.dart';
 import '../data/resumen_repositorio.dart';
 import '../domain/resumen_semanal.dart';
 
@@ -39,7 +38,7 @@ class VistaResumenSemanal extends ConsumerWidget {
           children: [
             IconButton(
               tooltip: 'Semana anterior',
-              icon: const Icono(Ico.chevL, color: Colores.tinta),
+              icon: Icono(Ico.chevL, color: context.colores.tinta),
               onPressed: () => control.mover(-1),
             ),
             Expanded(
@@ -52,11 +51,11 @@ class VistaResumenSemanal extends ConsumerWidget {
                       _ => 'Hace ${-desplazamiento} semanas',
                     },
                     textAlign: TextAlign.center,
-                    style: estiloTexto(18, 800),
+                    style: estiloTexto(18, 800, color: context.colores.tinta),
                   ),
                   Text(
-                    '${lunes.day} – ${domingo.day} ${nombreMes(domingo.month)} '
-                    '${domingo.year}',
+                    '${rangoDias(lunes, domingo)}'
+                    '${desplazamiento == 0 ? ' · hasta hoy' : ' ${domingo.year}'}',
                     textAlign: TextAlign.center,
                     style: texto.bodySmall,
                   ),
@@ -67,7 +66,9 @@ class VistaResumenSemanal extends ConsumerWidget {
               tooltip: 'Semana siguiente',
               icon: Icono(
                 Ico.chevR,
-                color: desplazamiento >= 0 ? Colores.linea2 : Colores.tinta,
+                color: desplazamiento >= 0
+                    ? context.colores.linea2
+                    : context.colores.tinta,
               ),
               onPressed: desplazamiento >= 0 ? null : () => control.mover(1),
             ),
@@ -76,12 +77,10 @@ class VistaResumenSemanal extends ConsumerWidget {
         ...switch (resumen) {
           AsyncData(value: final r) => [
             if (r.conteos.total == 0)
-              EstadoVacio(
+              const EstadoVacio(
                 ilustracion: IlustracionVacio.semana,
                 titulo: 'Semana sin eventos',
-                texto:
-                    'No hubo caídas ni movimientos inestables del ${lunes.day} '
-                    'al ${domingo.day} de ${nombreMes(domingo.month)}.',
+                texto: 'No hubo caídas ni movimientos inestables.',
               )
             else ...[
               const SizedBox(height: 12),
@@ -91,9 +90,8 @@ class VistaResumenSemanal extends ConsumerWidget {
               'Por tipo',
               arriba: 22,
               accion: Text(
-                'vs. ${lunesAnterior.day} – ${domingoAnterior.day} '
-                '${nombreMesCorto(domingoAnterior.month)}',
-                style: estiloTexto(15, 600, color: Colores.tinta3),
+                'vs. ${rangoDias(lunesAnterior, domingoAnterior, corto: true)}',
+                style: estiloTexto(15, 600, color: context.colores.tinta3),
               ),
             ),
             ListaTarjeta(
@@ -124,9 +122,7 @@ class VistaResumenSemanal extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '${desplazamiento == 0 ? 'Esta semana va hasta hoy. ' : ''}'
-              'Las falsas alarmas no se suman a las caídas ni a los '
-              'movimientos inestables.',
+              'Las falsas alarmas no suman a caídas ni a inestables.',
               style: texto.bodySmall,
             ),
           ],
@@ -169,7 +165,7 @@ class _Dias extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
-          color: Colores.tarjeta,
+          color: context.colores.tarjeta,
           borderRadius: BorderRadius.circular(24),
           boxShadow: sombraTarjeta,
         ),
@@ -217,14 +213,19 @@ class _Dia extends StatelessWidget {
     return ExcludeSemantics(
       child: Column(
         children: [
-          Text(inicial, style: estiloTexto(14, 700, color: Colores.tinta3)),
+          Text(
+            inicial,
+            style: estiloTexto(14, 700, color: context.colores.tinta3),
+          ),
           const SizedBox(height: 8),
           Container(
             height: 82,
             margin: const EdgeInsets.symmetric(horizontal: 3),
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: esHoy ? Colores.moradoSuave : Colores.fondo,
+              color: esHoy
+                  ? context.colores.moradoSuave
+                  : context.colores.fondo,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -270,22 +271,21 @@ class _FilaConteo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final diferencia = (actual - anterior).abs();
     final (icono, color, texto) = switch (tendencia) {
       Tendencia.igual => (
         Ico.equal,
-        Colores.tinta3,
-        'Igual que la semana anterior',
+        context.colores.tinta3,
+        'Igual ($anterior)',
       ),
       Tendencia.aumento => (
         Ico.up,
-        falsa ? Colores.tinta3 : Colores.aviso,
-        'Aumentó: $diferencia más que la semana anterior ($anterior)',
+        falsa ? context.colores.tinta3 : context.colores.aviso,
+        'Subió de $anterior a $actual',
       ),
       Tendencia.disminucion => (
         Ico.down,
-        Colores.calmaTinta,
-        'Disminuyó: $diferencia menos que la semana anterior ($anterior)',
+        context.colores.calmaTinta,
+        'Bajó de $anterior a $actual',
       ),
     };
     return Padding(
@@ -309,7 +309,16 @@ class _FilaConteo extends StatelessWidget {
                   children: [
                     MarcaAlerta(tipo: tipo, falsa: falsa),
                     const SizedBox(width: 8),
-                    Flexible(child: Text(titulo, style: estiloTexto(18, 700))),
+                    Flexible(
+                      child: Text(
+                        titulo,
+                        style: estiloTexto(
+                          18,
+                          700,
+                          color: context.colores.tinta,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -338,29 +347,47 @@ class _FilaConteo extends StatelessWidget {
   }
 }
 
-/// «Esta semana» on the home screen: the counts and the last event (screens 34, 35 and 73).
+/// «Esta semana» on the home screen (`.wk`): one card with three large figures in mono (falls,
+/// unstable movements and false alarms). The last event lives in the history.
 class SemanaEnInicio extends ConsumerWidget {
-  const SemanaEnInicio({super.key, required this.alVerResumen, this.alAbrir});
+  const SemanaEnInicio({super.key, required this.alVerResumen});
 
   final VoidCallback alVerResumen;
-  final void Function(Alerta)? alAbrir;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final resumen = ref.watch(resumenSemanalProvider(0)).value;
-    final ultimo = ref.watch(ultimoEventoProvider).value;
     if (resumen == null) return const SizedBox.shrink();
     final c = resumen.conteos;
-    Widget conteo(TipoAlerta tipo, int n, String texto, {bool falsa = false}) =>
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            MarcaAlerta(tipo: tipo, falsa: falsa),
-            const SizedBox(width: 6),
-            Text('$n', style: estiloMono(tamano: 17, peso: 700)),
-            const SizedBox(width: 4),
-            Text(texto, style: estiloTexto(16, 400, color: Colores.tinta2)),
-          ],
+    Widget cifra(int n, Widget marca, String singular, String plural) =>
+        Semantics(
+          container: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$n',
+                style: estiloMono(tamano: 28, peso: 600).copyWith(height: 1.1),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  marca,
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      n == 1 ? singular : plural,
+                      style: estiloTexto(
+                        15,
+                        400,
+                        color: context.colores.tinta2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -372,80 +399,42 @@ class SemanaEnInicio extends ConsumerWidget {
         ListaTarjeta(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-              child: Wrap(
-                spacing: 18,
-                runSpacing: 10,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  conteo(
-                    TipoAlerta.caida,
-                    c.caidas,
-                    c.caidas == 1 ? 'caída' : 'caídas',
+                  Expanded(
+                    child: cifra(
+                      c.caidas,
+                      const MarcaAlerta(tipo: TipoAlerta.caida),
+                      'caída',
+                      'caídas',
+                    ),
                   ),
-                  conteo(
-                    TipoAlerta.movimientoInestable,
-                    c.movimientosInestables,
-                    c.movimientosInestables == 1 ? 'inestable' : 'inestables',
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: cifra(
+                      c.movimientosInestables,
+                      const MarcaAlerta(tipo: TipoAlerta.movimientoInestable),
+                      'inestable',
+                      'inestables',
+                    ),
                   ),
-                  conteo(
-                    TipoAlerta.caida,
-                    c.falsasAlarmas,
-                    'falsas',
-                    falsa: true,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: cifra(
+                      c.falsasAlarmas,
+                      const MarcaAlerta(tipo: TipoAlerta.caida, falsa: true),
+                      'falsa',
+                      'falsas',
+                    ),
                   ),
                 ],
               ),
             ),
-            if (ultimo != null) _UltimoEvento(alerta: ultimo, alTocar: alAbrir),
           ],
         ),
       ],
-    );
-  }
-}
-
-class _UltimoEvento extends StatelessWidget {
-  const _UltimoEvento({required this.alerta, this.alTocar});
-
-  final Alerta alerta;
-  final void Function(Alerta)? alTocar;
-
-  @override
-  Widget build(BuildContext context) {
-    final a = alerta;
-    final sub = estiloTexto(15, 400, color: Colores.tinta3);
-    return InkWell(
-      onTap: alTocar == null ? null : () => alTocar!(a),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Último evento', style: sub),
-                  Text(
-                    '${a.tipo.nombre} ${enHabitacion(a.habitacion)}',
-                    style: estiloTexto(17, 700),
-                  ),
-                  Text.rich(
-                    conHora(
-                      '${fechaCorta(a.ocurridaEn)} · ',
-                      hora(a.ocurridaEn),
-                    ),
-                    style: sub,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            SelloEstado(a),
-            const SizedBox(width: 4),
-            const Icono(Ico.chevR, tamano: 22, color: Colores.tinta3),
-          ],
-        ),
-      ),
     );
   }
 }

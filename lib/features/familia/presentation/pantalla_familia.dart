@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
@@ -45,10 +45,7 @@ class PantallaFamilia extends ConsumerWidget {
             child: Text('Familia', style: texto.headlineMedium),
           ),
           const SizedBox(height: 6),
-          Text(
-            'Quienes reciben las alertas de $nombre y en qué orden responden.',
-            style: texto.bodyMedium,
-          ),
+          Text('Reciben las alertas de $nombre.', style: texto.bodyMedium),
           const SizedBox(height: 16),
           ...switch (miembros) {
             AsyncData(value: final lista) => _contenido(
@@ -109,7 +106,7 @@ class PantallaFamilia extends ConsumerWidget {
                       'min de espera',
             fin: titular
                 ? null
-                : const Icono(Ico.lock, tamano: 22, color: Colores.tinta3),
+                : Icono(Ico.lock, tamano: 22, color: context.colores.tinta3),
             alTocar: () => context.push(Rutas.ordenAviso),
           ),
         ],
@@ -120,9 +117,7 @@ class PantallaFamilia extends ConsumerWidget {
           tono: TonoAviso.advertencia,
           icono: Ico.warn,
           titulo: 'No hay contacto secundario',
-          texto:
-              'Si $pri no atiende una alerta a tiempo, nadie más será avisado.'
-              '${titular ? ' Elige a un familiar como secundario.' : ''}',
+          texto: 'Si $pri no atiende a tiempo, nadie más será avisado.',
         ),
       ],
       const SizedBox(height: 20),

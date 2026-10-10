@@ -5,6 +5,7 @@ import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/alertas/presentation/pantalla_alerta.dart';
 import 'package:te_tengo/features/alertas/presentation/pantalla_detalle_alerta.dart';
 
+import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/push_falso.dart';
 import 'alertas_falso.dart';
 import 'apoyo_alertas.dart';
@@ -38,11 +39,15 @@ void main() {
       find.text('10:45 · Se puso de pie en la Sala. Confirma cómo está.'),
       findsOneWidget,
     );
-    expect(find.text('Rosa se levantó a las 10:45'), findsOneWidget);
+    expect(
+      find.text('Se levantó a las 10:45', findRichText: true),
+      findsOneWidget,
+    );
+    await tocar(tester, find.text('Más detalles'));
     expect(
       find.text(
-        'Detectamos que se puso de pie en la Sala. Aun así, confirma cómo está '
-        'antes de cerrar la alerta.',
+        'Se puso de pie en la Sala. Confirma cómo está antes de marcar la '
+        'alerta.',
       ),
       findsOneWidget,
     );

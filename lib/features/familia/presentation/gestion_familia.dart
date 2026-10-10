@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -94,8 +95,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
           Text(
-            'Le enviaremos un enlace para que cree su acceso a la familia de '
-            '$nombre.',
+            'Le enviaremos un enlace para crear su acceso.',
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -114,9 +114,9 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colores.tarjeta,
+              color: context.colores.tarjeta,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colores.linea, width: 1.5),
+              border: Border.all(color: context.colores.linea, width: 1.5),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,21 +126,19 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
                 const _Punto(
                   Ico.check,
                   Colores.calma,
-                  'Ver las alertas, los clips, la vista en vivo en cualquier '
-                  'momento, el historial y el resumen. Sus accesos en vivo '
-                  'quedan registrados.',
+                  'Ver alertas, clips, historial y la cámara en vivo (con '
+                  'registro)',
                 ),
                 const _Punto(
                   Ico.check,
                   Colores.calma,
-                  'Marcar alertas como atendidas o falsa alarma y pausar la '
-                  'cámara.',
+                  'Marcar alertas y pausar la cámara',
                 ),
                 _Punto(
                   Ico.lock,
-                  Colores.tinta3,
+                  context.colores.tinta3,
                   'No podrá cambiar los datos de $nombre, el consentimiento, la '
-                  'cámara, la familia ni el orden de aviso. Eso lo haces tú.',
+                  'cámara ni la familia',
                 ),
               ],
             ),
@@ -176,7 +174,12 @@ class _Punto extends StatelessWidget {
           child: Icono(icono, tamano: 20, color: color),
         ),
         const SizedBox(width: 10),
-        Expanded(child: Text(texto, style: estiloTexto(16, 400))),
+        Expanded(
+          child: Text(
+            texto,
+            style: estiloTexto(16, 400, color: context.colores.tinta),
+          ),
+        ),
       ],
     ),
   );
@@ -217,7 +220,8 @@ class _HojaMiembro extends ConsumerWidget {
           chevron: false,
           alTocar: () => _cambiarPapel(context, ref, PapelAviso.principal),
         ),
-      if (miembro.papel != PapelAviso.secundario)
+      // The family always keeps a principal contact: it changes by choosing another one.
+      if (miembro.papel == PapelAviso.familiar)
         FilaLista(
           inicio: const IconoFila(Ico.users),
           titulo: 'Hacer contacto secundario',
@@ -225,7 +229,7 @@ class _HojaMiembro extends ConsumerWidget {
           chevron: false,
           alTocar: () => _cambiarPapel(context, ref, PapelAviso.secundario),
         ),
-      if (!yo)
+      if (!yo && miembro.papel != PapelAviso.principal)
         FilaLista(
           inicio: const IconoFila(Ico.trash, peligro: true),
           titulo: 'Retirar acceso',
@@ -260,14 +264,16 @@ class _HojaMiembro extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16),
-            if (yo) ...[
-              const Aviso(
+            if (yo || miembro.papel == PapelAviso.principal) ...[
+              Aviso(
                 tono: TonoAviso.neutral,
                 icono: Ico.info,
-                texto:
-                    'Eres titular de la cuenta: solo tú puedes invitar, retirar '
-                    'el acceso y cambiar el orden de aviso. Para dejar de ser '
-                    'principal, elige a otra persona como principal.',
+                texto: yo
+                    ? 'Eres titular: solo tú invitas, retiras accesos y cambias '
+                          'el orden de aviso. Para dejar de ser principal, elige '
+                          'a otra persona.'
+                    : 'Para retirar su acceso, primero elige a otro contacto '
+                          'principal.',
               ),
               const SizedBox(height: 12),
             ],

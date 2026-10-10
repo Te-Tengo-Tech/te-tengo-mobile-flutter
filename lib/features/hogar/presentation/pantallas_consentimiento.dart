@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
-import '../../../app/tema/tema.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
@@ -12,12 +11,14 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
-import '../../../core/ui/tarjeta.dart';
+import '../../../core/ui/plegable.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../data/hogar_repositorio.dart';
 import '../domain/hogar.dart';
+import '../../legal/presentation/textos_legales.dart';
 import 'constancia.dart';
 
 /// Who grants the consent.
@@ -28,7 +29,7 @@ enum _Otorgante { directo, representante }
 class PantallaConsentimiento extends ConsumerStatefulWidget {
   const PantallaConsentimiento({super.key, this.enConfiguracion = false});
 
-  /// Step 2 of 4 of the setup; otherwise opened from Inicio or Ajustes.
+  /// Step 2 of 5 of the setup; otherwise opened from Inicio or Ajustes.
   final bool enConfiguracion;
 
   @override
@@ -103,7 +104,11 @@ class _PantallaConsentimientoState
     final hogar = ref.watch(hogarProvider);
     return Scaffold(
       appBar: widget.enConfiguracion
-          ? const CabeceraConfiguracion(paso: 2, titulo: 'Consentimiento')
+          ? CabeceraConfiguracion(
+              paso: 2,
+              titulo: 'Consentimiento',
+              escala: MediaQuery.textScalerOf(context),
+            )
           : AppBar(title: const Text('Consentimiento')),
       body: hogar.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -128,9 +133,8 @@ class _PantallaConsentimientoState
         ),
         const SizedBox(height: 8),
         Text(
-          'Antes de activar la cámara de su casa, $nombre o su representante '
-          'debe aceptar cómo usaremos sus datos. Si no lo acepta, no lo '
-          'registres: la cámara no enviará video.',
+          '$nombre o su representante debe aceptarlo antes de activar la '
+          'cámara. Sin él, la cámara no envía video.',
           style: texto.bodyMedium,
         ),
         const SizedBox(height: 16),
@@ -158,9 +162,9 @@ class _PantallaConsentimientoState
               marcada: _acepta,
               error: _faltanCasillas && !_acepta,
               texto:
-                  '$nombre fue informada y acepta el uso de la cámara en su '
-                  'vivienda para detectar caídas, y que sus familiares '
-                  'vinculados la vean en vivo en cualquier momento.',
+                  '$nombre fue informada y acepta la cámara en su vivienda '
+                  'para detectar caídas, y que sus familiares vinculados la '
+                  'vean en vivo cuando quieran.',
               alCambiar: (v) => setState(() {
                 _acepta = v;
                 if (_acepta && _leyo) _faltanCasillas = false;
@@ -177,15 +181,13 @@ class _PantallaConsentimientoState
             ),
             if (_faltanCasillas)
               MensajeCampo(
-                'Marca las dos casillas para registrar el consentimiento. Solo '
-                'se registra si $nombre lo acepta.',
+                'Marca las dos casillas. Solo se registra si $nombre lo acepta.',
               ),
           ],
         ),
         Text(
-          'Guardaremos la fecha y la hora en que lo registres, como constancia '
-          'según la Ley N.° 29733. Si $nombre no acepta, elige «Ahora no»: la '
-          'cámara quedará instalada, pero detenida.',
+          'Guardamos la fecha y la hora como constancia (Ley N.° 29733). Si '
+          '$nombre no acepta, elige «Ahora no»: la cámara queda detenida.',
           style: texto.bodySmall,
         ),
         const SizedBox(height: 16),
@@ -205,93 +207,38 @@ class _PantallaConsentimientoState
   }
 }
 
-/// Summary of the consent (`consentBody`), with the live-view clause highlighted in soft purple.
+/// Summary of the consent (`consentBody`): one fold per section, the live-view clause first, open
+/// and with a filled icon, then «Leer el documento completo». Same text as the full document.
 class ResumenConsentimiento extends StatelessWidget {
   const ResumenConsentimiento({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final texto = Theme.of(context).textTheme;
-    Widget seccion(String titulo, String cuerpo) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      ListaTarjeta(
         children: [
-          Text(titulo, style: estiloTexto(16, 700)),
-          const SizedBox(height: 2),
-          Text(cuerpo, style: texto.bodyMedium),
+          for (final (i, s) in seccionesConsentimiento.indexed)
+            FilaPlegable(
+              icono: s.icono,
+              titulo: s.titulo,
+              resumen: s.resumen,
+              abierta: i == 0,
+              destacada: i == 0,
+              child: Text(s.texto),
+            ),
         ],
       ),
-    );
-    return TarjetaBanda(
-      banda: Banda.morado,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          seccion(
-            'Qué hacemos',
-            'La cámara instalada en su vivienda envía video a Te Tengo, donde '
-                'analizamos la postura del cuerpo para detectar caídas y '
-                'movimientos inestables.',
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-            decoration: BoxDecoration(
-              color: Colores.moradoSuave,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFDCD3EE)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icono(
-                      Ico.eye,
-                      tamano: 20,
-                      color: Colores.moradoTinta,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Vista en vivo en cualquier momento',
-                        style: estiloTexto(16, 700),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Los familiares vinculados a esta cuenta pueden ver la cámara '
-                  'en vivo cuando quieran, no solo durante una alerta. Cada '
-                  'acceso queda registrado: quién la vio, cuándo y cuánto tiempo.',
-                  style: texto.bodyMedium,
-                ),
-              ],
-            ),
-          ),
-          seccion(
-            'Qué no hacemos',
-            'No reconocemos rostros ni grabamos de forma continua. La vista en '
-                'vivo no se guarda.',
-          ),
-          const Divider(),
-          seccion(
-            'Qué guardamos y cuánto',
-            'Solo el clip de cada alerta, durante 30 días. Luego se elimina.',
-          ),
-          const Divider(),
-          seccion(
-            'Sus derechos',
-            'Según la Ley N.° 29733 de Protección de Datos Personales, puede '
-                'acceder a sus datos, corregirlos, pedir su eliminación u '
-                'oponerse a su uso, y revocar este consentimiento cuando quiera.',
-          ),
-        ],
+      const SizedBox(height: 4),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Enlace(
+          'Leer el documento completo',
+          alTocar: () => context.push(Rutas.documentoConsentimiento),
+        ),
       ),
-    );
-  }
+    ],
+  );
 }
 
 /// Screen 18: consent recorded, with its certificate (CA-05.1, CA-05.3).
@@ -318,12 +265,12 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
           data: (h) => ListView(
             padding: const EdgeInsets.fromLTRB(22, 34, 22, 24),
             children: [
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: IconoGrande(
                   icono: Ico.shield,
-                  fondo: Colores.calmaSuave,
-                  color: Colores.calmaTinta,
+                  fondo: context.colores.calmaSuave,
+                  color: context.colores.calmaTinta,
                 ),
               ),
               const SizedBox(height: 20),
@@ -336,17 +283,13 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'La cámara de la casa empezó a enviar video: desde ahora '
-                'detectamos caídas. Puedes revisarlo o revocarlo cuando '
-                'quieras en Ajustes.',
-                style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+                'La cámara ya envía video y detectamos caídas. Puedes '
+                'revocarlo en Ajustes.',
+                style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
               ),
               const SizedBox(height: 20),
               if (h.consentimiento case final c?)
-                TarjetaConstancia(
-                  consentimiento: c,
-                  nombreAdultoMayor: h.adultoMayor.nombrePila,
-                ),
+                TarjetaConstancia(consentimiento: c),
               const SizedBox(height: 20),
               if (enConfiguracion)
                 Boton(

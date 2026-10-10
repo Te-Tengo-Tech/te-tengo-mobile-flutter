@@ -51,7 +51,14 @@ void main() {
     'CA-05.4: el formulario indica la vista en vivo en cualquier momento',
     (tester) async {
       await abrir(tester, Rutas.configConsentimiento);
-      expect(find.text('Paso 2 de 4'), findsOneWidget);
+      expect(find.text('Paso 2 de 5'), findsOneWidget);
+      // The live-view clause goes first and open; the others are folded.
+      expect(
+        find.textContaining('Los familiares vinculados a esta cuenta pueden'),
+        findsOneWidget,
+      );
+      expect(find.text('Detectamos caídas por la postura'), findsOneWidget);
+      expect(find.text('La familia puede verla cuando quiera'), findsNothing);
       expect(find.text('Vista en vivo en cualquier momento'), findsOneWidget);
       await verHasta(
         tester,
@@ -59,7 +66,7 @@ void main() {
       );
       expect(
         find.textContaining(
-          'que sus familiares vinculados la vean en vivo en cualquier momento',
+          'que sus familiares vinculados la vean en vivo cuando quieran',
         ),
         findsOneWidget,
       );
@@ -72,9 +79,7 @@ void main() {
     await abrir(tester, Rutas.configConsentimiento);
     await tocar(tester, find.text('Registrar consentimiento'));
     expect(
-      find.text(
-        'Marca las dos casillas para registrar el consentimiento. Solo se registra si Rosa lo acepta.',
-      ),
+      find.text('Marca las dos casillas. Solo se registra si Rosa lo acepta.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Leí el resumen y el documento completo.'));
@@ -95,8 +100,8 @@ void main() {
       expect(find.text('23 sep 2026'), findsOneWidget);
       expect(find.text('09:14'), findsOneWidget);
       expect(
-        find.textContaining('Ley N.° 29733 de Protección de Datos Personales'),
-        findsWidgets,
+        find.text('Constancia exigida por la Ley N.° 29733.'),
+        findsOneWidget,
       );
       await tocar(tester, find.text('Continuar con la cámara'));
       expect(find.text('Tu cámara ya está lista'), findsOneWidget);
@@ -122,7 +127,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Detenida'), findsWidgets);
-      expect(find.text('Falta el consentimiento informado'), findsOneWidget);
+      expect(find.text('Falta el consentimiento de Rosa'), findsOneWidget);
       expect(find.text('Envío de video'), findsOneWidget);
       await tocar(tester, find.text('Completar el consentimiento'));
       expect(find.text('Consentimiento informado'), findsOneWidget);
@@ -135,9 +140,7 @@ void main() {
     await abrir(tester, Rutas.inicio);
     expect(find.text('Detección detenida'), findsOneWidget);
     expect(
-      find.text(
-        'Falta el consentimiento informado de Rosa. La cámara está instalada, pero no envía video.',
-      ),
+      find.text('Falta el consentimiento de Rosa. La cámara no envía video.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Registrar consentimiento'));
@@ -167,9 +170,7 @@ void main() {
     );
     await abrir(tester, Rutas.inicio);
     expect(
-      find.text(
-        'Revocaste el consentimiento. La cámara no captura y no recibirás alertas.',
-      ),
+      find.text('Revocaste el consentimiento. No hay captura ni alertas.'),
       findsOneWidget,
     );
   });

@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../core/formato.dart';
-import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../core/ui/plegable.dart';
 import '../../../core/ui/tarjeta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
@@ -66,49 +66,36 @@ class _Detalle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final a = alerta;
-    final yo = ref.watch(sesionControllerProvider)?.usuario;
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final miembros = ref.watch(miembrosProvider).value ?? const [];
-    final otro =
-        !a.activa &&
-        a.atendidaPor != null &&
-        a.atendidaEn != null &&
-        (a.atendidaPorId != null
-            ? a.atendidaPorId != yo?.id
-            : a.atendidaPor != yo?.nombre);
+    final linea = itemsDeAlerta(
+      a,
+      nombreAdultoMayor: nombre,
+      avisados: avisadosDe(miembros),
+      secundario: secundarioDe(miembros),
+      esperaMinutos: esperaDe(ref),
+    );
+    // Who marked it and when is in the card: no notice repeats it.
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
-        if (otro) ...[
-          Aviso(
-            tono: TonoAviso.ok,
-            icono: Ico.check,
-            titulo:
-                '${a.atendidaPor!.split(' ').first} '
-                '${a.estado == EstadoAlerta.falsaAlarma ? 'la marcó como falsa alarma' : 'ya atendió esta alerta'}',
-            contenido: conHora(
-              'A las ',
-              hora(a.atendidaEn!),
-              '. Toda la familia ve quién la atendió y a qué hora.',
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
         TarjetaDetalle(alerta: a),
         const EncabezadoSeccion('Grabación'),
         ClipEvento(alerta: a),
         if (a.clip == EstadoClip.disponible) _Descarga(alerta: a),
-        const EncabezadoSeccion('Registro'),
-        TarjetaBanda(
-          child: LineaDeTiempo(
-            itemsDeAlerta(
-              a,
-              nombreAdultoMayor: nombre,
-              avisados: avisadosDe(miembros),
-              secundario: secundarioDe(miembros),
-              esperaMinutos: esperaDe(ref),
+        const SizedBox(height: 20),
+        ListaTarjeta(
+          children: [
+            FilaPlegable(
+              icono: Ico.clock,
+              titulo: 'Registro del evento',
+              resumen: '${linea.length} momentos',
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: LineaDeTiempo(linea),
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );

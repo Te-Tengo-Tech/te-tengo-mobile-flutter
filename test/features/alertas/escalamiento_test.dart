@@ -26,14 +26,20 @@ void main() {
       ubicacion: Rutas.alerta('a-1'),
       alertas: AlertasRepositorioFalso([caidaSala()]),
     );
+    // Nothing to do yet: who is told next is in «Más detalles».
+    expect(
+      find.textContaining('antes de las 10:47', findRichText: true),
+      findsNothing,
+    );
+    await tocar(tester, find.text('Más detalles'));
     await verHasta(
       tester,
       find.textContaining('antes de las 10:47', findRichText: true),
     );
     expect(
       find.textContaining(
-        'Si nadie la marca como atendida antes de las 10:47, avisaremos a '
-        'Luis Huamán (contacto secundario).',
+        'Si nadie la marca antes de las 10:47, avisamos a Luis Huamán '
+        '(secundario).',
         findRichText: true,
       ),
       findsOneWidget,
@@ -52,12 +58,13 @@ void main() {
       await verHasta(tester, find.text('Avisamos a Luis Huamán'));
       expect(
         find.textContaining(
-          'Nadie marcó la alerta en 5 minutos, así que a las 10:47 se la '
-          'enviamos al contacto secundario. Tú todavía puedes atenderla.',
+          'A las 10:47, tras 5 min sin respuesta. Tú todavía puedes '
+          'atenderla.',
           findRichText: true,
         ),
         findsOneWidget,
       );
+      await tocar(tester, find.text('Más detalles'));
       await verHasta(
         tester,
         find.text(
@@ -80,7 +87,7 @@ void main() {
     await verHasta(tester, find.text('Te toca atenderla'));
     expect(
       find.textContaining(
-        'a las 10:47 te avisamos como contacto secundario.',
+        'Nadie la marcó en 5 min; a las 10:47 te avisamos como secundario.',
         findRichText: true,
       ),
       findsOneWidget,
@@ -103,6 +110,7 @@ void main() {
           ),
         ]),
       );
+      await tocar(tester, find.text('Registro del evento'));
       await verHasta(
         tester,
         find.text(
@@ -127,8 +135,7 @@ void main() {
       await verHasta(tester, find.text('No hay a quién escalar'));
       expect(
         find.text(
-          'Pasaron 5 minutos sin respuesta y no hay contacto secundario. Esta '
-          'alerta sigue siendo tuya.',
+          '5 min sin respuesta y sin contacto secundario. Sigue siendo tuya.',
         ),
         findsOneWidget,
       );
@@ -148,9 +155,7 @@ void main() {
     );
     await verHasta(tester, find.text('Sin contacto secundario'));
     expect(
-      find.text(
-        'Si nadie atiende esta alerta, no habrá nadie más a quién avisar.',
-      ),
+      find.text('Si nadie la atiende, no hay a quién más avisar.'),
       findsOneWidget,
     );
     expect(find.text('Agregar contacto'), findsOneWidget);

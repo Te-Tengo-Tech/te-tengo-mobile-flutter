@@ -7,6 +7,7 @@ import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/alertas/presentation/pantalla_alerta.dart';
 import 'rutas.dart';
 import 'tema/colores.dart';
+import 'tema/paleta.dart';
 import 'tema/tema.dart';
 
 /// Bottom bar with 4 tabs: Inicio, Historial, Familia and Ajustes (DESIGN.md, Components). It is
@@ -55,23 +56,23 @@ class ShellPestanas extends ConsumerWidget {
       ),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          backgroundColor: Colors.white.withValues(alpha: .96),
+          backgroundColor: context.colores.barra,
           surfaceTintColor: Colors.transparent,
-          indicatorColor: Colores.moradoSuave,
+          indicatorColor: context.colores.moradoSuave,
           height: 72,
           labelTextStyle: WidgetStateProperty.resolveWith(
             (estados) => estiloTexto(
               13,
               700,
               color: estados.contains(WidgetState.selected)
-                  ? Colores.moradoTinta
-                  : Colores.tinta3,
+                  ? context.colores.moradoTinta
+                  : context.colores.tinta3,
             ),
           ),
         ),
         child: DecoratedBox(
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: Colores.linea)),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: context.colores.linea)),
           ),
           child: NavigationBar(
             selectedIndex: navegacion.currentIndex,
@@ -84,8 +85,12 @@ class ShellPestanas extends ConsumerWidget {
                 NavigationDestination(
                   label: _pestanas[i].$1,
                   tooltip: '',
-                  icon: _icono(i, Colores.tinta3, alertasActivas),
-                  selectedIcon: _icono(i, Colores.moradoTinta, alertasActivas),
+                  icon: _icono(i, context.colores.tinta3, alertasActivas),
+                  selectedIcon: _icono(
+                    i,
+                    context.colores.moradoTinta,
+                    alertasActivas,
+                  ),
                 ),
             ],
           ),

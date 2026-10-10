@@ -64,27 +64,22 @@ void main() {
     tester,
   ) async {
     await abrir(tester);
-    expect(find.text('Miércoles 23 de septiembre'), findsOneWidget);
+    // Only what answers «how is Rosa?»: no date and no address.
+    expect(find.text('Miércoles 23 de septiembre'), findsNothing);
     expect(find.text('Hola, Carmen'), findsOneWidget);
     expect(find.text('Rosa Huamán, 78 años'), findsOneWidget);
-    expect(find.text('Jr. Los Pinos 482, San Miguel'), findsOneWidget);
+    expect(find.text('Jr. Los Pinos 482, San Miguel'), findsNothing);
     expect(find.text('Todo tranquilo'), findsOneWidget);
-    expect(
-      find.text('Sin eventos hoy. La cámara de la Sala está funcionando.'),
-      findsOneWidget,
-    );
+    expect(find.text('Sin eventos hoy.'), findsOneWidget);
     expect(find.text('Cámara'), findsOneWidget);
     expect(
       find.textContaining('última señal 10:42', findRichText: true),
       findsOneWidget,
     );
     expect(find.text('Ver en vivo'), findsOneWidget);
-    expect(
-      find.text('Cuando quieras. Cada acceso queda registrado.'),
-      findsOneWidget,
-    );
+    expect(find.text('Cada acceso queda registrado'), findsOneWidget);
     expect(find.text('Activa las notificaciones'), findsNothing);
-    await tocar(tester, find.text('Ver detalle'));
+    await tocar(tester, find.text('Sala'));
     expect(find.text('Cámara · Sala'), findsOneWidget);
   });
 
@@ -95,9 +90,7 @@ void main() {
     await abrir(tester, permiso: permiso);
     expect(find.text('Activa las notificaciones'), findsOneWidget);
     expect(
-      find.text(
-        'Están desactivadas en tu celular. Sin ellas no te enterarás de una caída cuando tengas la app cerrada.',
-      ),
+      find.text('Sin ellas no te enterarás de una caída con la app cerrada.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Activar notificaciones'));
@@ -154,6 +147,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Ver qué revisar'), findsOneWidget);
+    // The live view cannot open now.
+    expect(find.text('No disponible ahora'), findsOneWidget);
   });
 
   testWidgets('la cámara en pausa dice hasta qué hora', (tester) async {
@@ -179,8 +174,7 @@ void main() {
   });
 
   group('si las alertas no llegan a este celular o a nadie', () {
-    const texto =
-        'Sin ellas no te enterarás de una caída cuando tengas la app cerrada.';
+    const texto = 'Sin ellas no te enterarás de una caída con la app cerrada.';
 
     testWidgets('el registro fallido se avisa aunque el permiso esté dado', (
       tester,

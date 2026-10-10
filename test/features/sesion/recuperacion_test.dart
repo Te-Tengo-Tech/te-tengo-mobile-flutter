@@ -57,7 +57,7 @@ void main() {
     expect(repo.recuperaciones, ['carmen.huaman@gmail.com']);
     expect(find.text('Revisa tu correo'), findsOneWidget);
     expect(
-      find.textContaining('El enlace vence en 30 minutos.', findRichText: true),
+      find.textContaining('Vence en 30 minutos.', findRichText: true),
       findsOneWidget,
     );
     expect(
@@ -79,7 +79,7 @@ void main() {
       expect(find.text('Revisa tu correo'), findsOneWidget);
       expect(
         find.textContaining(
-          'Si nadie@correo.com tiene una cuenta en Te Tengo',
+          'Si nadie@correo.com tiene cuenta, te llegará un enlace.',
           findRichText: true,
         ),
         findsOneWidget,
@@ -134,7 +134,10 @@ void main() {
     await tocar(tester, find.text('Guardar contraseña'));
     expect(find.text('Este enlace ya venció'), findsOneWidget);
     await tocar(tester, find.text('Pedir un enlace nuevo'));
-    expect(find.text('¿Olvidaste tu contraseña?'), findsOneWidget);
+    expect(
+      find.text('Te enviaremos un enlace para crear una nueva.'),
+      findsOneWidget,
+    );
   });
 
   group('CuentasRepositorioApi', () {

@@ -11,6 +11,14 @@ abstract interface class PermisoNotificaciones {
   /// Asks for the permission; when the system no longer asks, opens the app settings. Returns
   /// whether notifications are enabled afterwards.
   Future<bool> activar();
+
+  /// Whether the phone has system settings where the alerts can be let through silent mode (the
+  /// «Alertas» channel on Android, the app's notifications on iOS). False in the browser.
+  bool get ajustesDeSonido;
+
+  /// Opens the app's notification settings in the system, where the person decides whether the
+  /// alerts sound in silent mode. The app cannot read that choice back.
+  Future<void> abrirAjustesDeSonido();
 }
 
 class PermisoNotificacionesSistema implements PermisoNotificaciones {
@@ -25,6 +33,12 @@ class PermisoNotificacionesSistema implements PermisoNotificaciones {
     if (estado.isPermanentlyDenied) await openAppSettings();
     return estado.isGranted;
   }
+
+  @override
+  bool get ajustesDeSonido => true;
+
+  @override
+  Future<void> abrirAjustesDeSonido() => openAppSettings();
 }
 
 /// The browser permission (the PWA). It is only asked from the tap on «Activar notificaciones»:
@@ -40,6 +54,12 @@ class PermisoNotificacionesNavegador implements PermisoNotificaciones {
   @override
   Future<bool> activar() async =>
       await pedirPermisoNotificacionesNavegador() == 'granted';
+
+  @override
+  bool get ajustesDeSonido => false;
+
+  @override
+  Future<void> abrirAjustesDeSonido() async {}
 }
 
 final permisoNotificacionesProvider = Provider<PermisoNotificaciones>(

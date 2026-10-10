@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
@@ -66,7 +66,7 @@ class _Privacidad extends ConsumerWidget {
         if (hogar.conConsentimiento && consentimiento != null)
           TarjetaConstancia(
             consentimiento: consentimiento,
-            nombreAdultoMayor: nombre,
+            enlace: 'Ver el documento aceptado',
           )
         else
           TarjetaBanda(
@@ -76,7 +76,7 @@ class _Privacidad extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icono(Ico.lock, tamano: 28, color: Colores.pausa),
+                    Icono(Ico.lock, tamano: 28, color: context.colores.pausa),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -114,9 +114,7 @@ class _Privacidad extends ConsumerWidget {
             ),
             const FilaLista(
               titulo: 'Video en vivo',
-              subtitulo:
-                  'Los familiares vinculados pueden verlo en cualquier momento. '
-                  'No se graba.',
+              subtitulo: 'La familia puede verlo cuando quiera. No se graba.',
             ),
             const FilaLista(
               titulo: 'Reconocimiento facial',
@@ -136,24 +134,37 @@ class _Privacidad extends ConsumerWidget {
             children: [
               TextSpan(
                 text:
-                    'Según la Ley N.° 29733, $nombre puede pedir acceder, '
-                    'corregir o eliminar sus datos escribiendo a ',
+                    '$nombre puede pedir ver, corregir o borrar sus datos en ',
               ),
               const TextSpan(
                 text: 'privacidad@tetengo.pe',
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
-              const TextSpan(text: '.'),
+              const TextSpan(text: ' (Ley N.° 29733).'),
             ],
           ),
           style: texto.bodyMedium,
+        ),
+        const SizedBox(height: 16),
+        ListaTarjeta(
+          children: [
+            FilaLista(
+              inicio: const IconoFila(Ico.doc),
+              titulo: 'Política de privacidad',
+              alTocar: () => context.push(Rutas.politica),
+            ),
+            FilaLista(
+              inicio: const IconoFila(Ico.doc),
+              titulo: 'Términos de uso',
+              alTocar: () => context.push(Rutas.terminos),
+            ),
+          ],
         ),
         if (hogar.conConsentimiento) ...[
           const EncabezadoSeccion('Revocar'),
           if (titular) ...[
             Text(
-              'Detiene la captura de la cámara, la vista en vivo y elimina las '
-              'grabaciones guardadas.',
+              'Detiene la cámara y borra las grabaciones.',
               style: texto.bodyMedium,
             ),
             const SizedBox(height: 12),
@@ -185,9 +196,8 @@ class _Privacidad extends ConsumerWidget {
       peligro: true,
       titulo: '¿Revocar el consentimiento?',
       texto:
-          '$habitacion dejará de capturar de inmediato, ya no se podrá ver en '
-          'vivo y se eliminarán las grabaciones guardadas. Nadie de la familia '
-          'recibirá más alertas de caída. Esta acción no se puede deshacer.',
+          '$habitacion dejará de capturar, nadie recibirá más alertas y se '
+          'borrarán las grabaciones. No se puede deshacer.',
       aceptar: 'Sí, revocar y eliminar',
       cancelar: 'Cancelar, mantenerlo',
     );
@@ -274,9 +284,11 @@ class PantallaRevocado extends ConsumerWidget {
                       child: IconoGrande(
                         icono: terminada ? Ico.check : Ico.lock,
                         fondo: terminada
-                            ? Colores.calmaSuave
-                            : Colores.pausaSuave,
-                        color: terminada ? Colores.calmaTinta : Colores.pausa,
+                            ? context.colores.calmaSuave
+                            : context.colores.pausaSuave,
+                        color: terminada
+                            ? context.colores.calmaTinta
+                            : context.colores.pausa,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -296,7 +308,9 @@ class PantallaRevocado extends ConsumerWidget {
                           ? 'La captura se detuvo y las grabaciones se '
                                 'eliminaron. Te enviamos la constancia a $correo.'
                           : 'No cierres la app. Esto toma unos segundos.',
-                      style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+                      style: texto.bodyLarge?.copyWith(
+                        color: context.colores.tinta2,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     TarjetaBanda(
@@ -385,12 +399,12 @@ class _Paso extends StatelessWidget {
           hecho: hecho,
           numero: numero,
           hijo: enCurso
-              ? const SizedBox(
+              ? SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    color: Colors.white,
+                    color: context.colores.sobreInversa,
                   ),
                 )
               : null,

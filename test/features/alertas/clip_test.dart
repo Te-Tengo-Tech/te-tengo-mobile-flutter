@@ -26,14 +26,18 @@ void main() {
       alertas: alertas,
       clips: clips,
     );
+    // A fall folds its clip behind «Clip del evento».
+    expect(find.text('12 s, antes y después'), findsOneWidget);
+    await tocar(tester, find.text('Clip del evento'));
     await verHasta(tester, find.text('0:00 / 0:12'));
-    expect(find.text('Clip del evento'), findsOneWidget);
     expect(find.text('Sala · 10:42'), findsOneWidget);
     expect(alertas.clips, ['a-1']);
     expect(
-      find.text(
-        'Ilustración de la habitación con la postura detectada. 6 s antes y 6 s después del evento.',
-      ),
+      find.text('Con la postura detectada · 6 s antes y 6 s después.'),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel('Ver el clip en pantalla completa'),
       findsOneWidget,
     );
     await tocar(tester, find.bySemanticsLabel('Reproducir clip'));
@@ -54,10 +58,12 @@ void main() {
         ]),
       );
       expect(find.text('Rosa pudo haberse caído'), findsOneWidget);
+      expect(find.text('No se pudo guardar'), findsOneWidget);
+      await tocar(tester, find.text('Clip del evento'));
       await verHasta(tester, find.text('Clip no disponible'));
       expect(
         find.text(
-          'Hubo un problema al guardar el video de este evento. La alerta es válida: el aviso y el registro no dependen del clip.',
+          'No se pudo guardar el video. La alerta sigue siendo válida.',
         ),
         findsOneWidget,
       );
@@ -78,6 +84,7 @@ void main() {
       ubicacion: Rutas.alerta('a-1'),
       alertas: alertas,
     );
+    await tocar(tester, find.text('Clip del evento'));
     await verHasta(tester, find.text('Clip no disponible'));
     expect(find.text('Clip no disponible'), findsOneWidget);
   });

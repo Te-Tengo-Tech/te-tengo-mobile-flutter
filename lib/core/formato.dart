@@ -65,6 +65,15 @@ String nombreMes(int mes) => _meses[mes - 1];
 /// Short month name (`sep`).
 String nombreMesCorto(int mes) => _mesesCortos[mes - 1];
 
+/// Days from [desde] to [hasta] (`rng` in the prototype): `21 – 27 septiembre` within a month
+/// (`21 – 27 sep` when [corto]), and `31 ago – 6 sep` when the range crosses a month.
+String rangoDias(DateTime desde, DateTime hasta, {bool corto = false}) =>
+    desde.month == hasta.month
+    ? '${desde.day} – ${hasta.day} '
+          '${corto ? nombreMesCorto(hasta.month) : nombreMes(hasta.month)}'
+    : '${desde.day} ${nombreMesCorto(desde.month)} – '
+          '${hasta.day} ${nombreMesCorto(hasta.month)}';
+
 /// Capitalizes the first letter (`Miércoles 23 de septiembre`).
 String mayusculaInicial(String texto) =>
     texto.isEmpty ? texto : texto[0].toUpperCase() + texto.substring(1);

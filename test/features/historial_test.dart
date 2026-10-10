@@ -4,11 +4,13 @@ import 'package:te_tengo/core/ui/chips.dart';
 import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/alertas/presentation/etiquetas.dart';
 import 'package:te_tengo/features/alertas/presentation/pantalla_detalle_alerta.dart';
+import 'package:te_tengo/features/camaras/domain/camara.dart';
 import 'package:te_tengo/features/historial/domain/filtro_historial.dart';
 
 import '../apoyo/app_de_prueba.dart';
 import 'alertas/alertas_falso.dart';
 import 'alertas/apoyo_alertas.dart';
+import 'camaras/repositorio_falso.dart';
 
 /// Past alerts of the prototype seed (dates of September 2026).
 List<Alerta> historialRosa() => [
@@ -62,12 +64,53 @@ void main() {
     expect(find.text('Resumen semanal'), findsOneWidget);
     expect(find.text('lunes 21 de septiembre'), findsOneWidget);
     expect(find.text('12:05'), findsOneWidget);
-    expect(find.text('Movimiento inestable'), findsWidgets);
-    expect(find.text('Sala · Carmen'), findsWidgets);
+    expect(find.text('Inestable'), findsWidgets);
+    // With one camera the room adds nothing: who marked it is enough.
+    expect(find.text('por Carmen'), findsWidgets);
+    expect(find.text('Sala · por Carmen'), findsNothing);
     expect(find.text('ATENDIDA'), findsWidgets);
     await verHasta(tester, find.text('lunes 14 de septiembre'));
     expect(find.text('FALSA ALARMA'), findsOneWidget);
     expect(alertas.filtros.firstWhere((f) => f.tamano == 50).estado, isNull);
+  });
+
+  testWidgets('CA-25.1: con más de una cámara, cada fila dice la habitación', (
+    tester,
+  ) async {
+    await abrirConAlertas(
+      tester,
+      ubicacion: Rutas.historial,
+      alertas: AlertasRepositorioFalso(historialRosa()),
+      camaras: CamarasRepositorioFalso()
+        ..camaras = const [
+          Camara(
+            id: 'c1',
+            nombreHabitacion: 'Sala',
+            estado: EstadoConexion.enLinea,
+          ),
+          Camara(
+            id: 'c2',
+            nombreHabitacion: 'Dormitorio',
+            estado: EstadoConexion.enLinea,
+          ),
+        ],
+      ahora: hoy,
+    );
+    expect(find.text('Sala · por Carmen'), findsWidgets);
+  });
+
+  testWidgets('una alerta activa dice que nadie la marcó', (tester) async {
+    await abrirConAlertas(
+      tester,
+      ubicacion: Rutas.historial,
+      alertas: AlertasRepositorioFalso([caidaSala(), ...historialRosa()]),
+      ahora: hoy,
+    );
+    // The active alert opens by itself: go back to the history.
+    await tester.tap(find.byTooltip('Cerrar la alerta y volver al inicio'));
+    await tester.pumpAndSettle();
+    await tocar(tester, find.text('Historial'));
+    expect(find.text('Sin marcar'), findsOneWidget);
   });
 
   testWidgets('CA-17.2: caídas e inestables se distinguen por marca y texto', (
@@ -160,9 +203,7 @@ void main() {
     );
     expect(find.text('Sin eventos registrados'), findsOneWidget);
     expect(
-      find.text(
-        'Aquí aparecerán las alertas de caída y de movimiento inestable, con su fecha, hora, habitación y estado.',
-      ),
+      find.text('Aquí verás cada caída y movimiento inestable.'),
       findsOneWidget,
     );
     expect(find.text('Filtrar'), findsNothing);
