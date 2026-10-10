@@ -9,27 +9,30 @@ The release pipeline [`release.yml`](../.github/workflows/release.yml) builds bo
 ## How the pipeline works
 | Trigger | What happens |
 |---|---|
-| Pull request touching `android/`, `pubspec.*`, `release.yml` or `build-apk.yml` | Builds the APK, and the AAB when `ENABLE_PLAY_STORE` is `true`, to keep the release path green; nothing is uploaded |
-| Push to `release/x.y.z` or `hotfix/x.y.z` | Builds the APK (`te-tengo.apk` and `te-tengo.apk.sha256`) and, with `ENABLE_PLAY_STORE` set to `true`, the AAB, and stores them as assets of the pre-release `vx.y.z-rc.N` (`te-tengo.aab` for the AAB). After an approval on `staging`, `Staging · APK` uploads the candidate's APK to R2 `staging/te-tengo.apk` (`ENABLE_STAGING` and `ENABLE_APK`) |
+| Pull request (not into `main`) touching `android/`, `pubspec.*`, `release.yml` or `build-apk.yml` | `APK build check`: builds the APK with **no secrets** (debug-signed, kept 3 days) to keep the release path green; no AAB, nothing is uploaded |
+| Push to `release/x.y.z` or `hotfix/x.y.z` | In the environment `firma`, builds the APK (`te-tengo.apk` and `te-tengo.apk.sha256`) and, with `ENABLE_PLAY_STORE` set to `true`, the AAB, and stores them as assets of the pre-release `vx.y.z-rc.N` (`te-tengo.aab` for the AAB). After an approval on `staging`, `Staging · APK` uploads the candidate's APK to R2 `staging/te-tengo.apk` (`ENABLE_STAGING` and `ENABLE_APK`) |
 | Push to `main` (the merged release pull request) | After an approval on `produccion`, `Produccion · APK` uploads **the same APK** to R2 `te-tengo.apk` (`ENABLE_APK`) and `Produccion · Google Play (internal)` uploads **the same AAB** to the **internal** track (`ENABLE_PLAY_STORE`); each checks the file's SHA-256 against the candidate first |
 
 - **Version.** The versionName is the `x.y.z` of `pubspec.yaml` (`version: <versionName>+<N>`). The **versionCode is computed for each candidate**, one higher than any earlier candidate's and never below `N`, and passed with `--build-number` ([RELEASES.md](RELEASES.md#build-number)). Google Play rejects a versionCode it has already seen, and Android refuses to install an APK over a newer one, so nobody bumps it by hand.
-- **The switch decides, not the secrets.** With `ENABLE_PLAY_STORE` off (`false` or unset) nothing is uploaded to Play. With it, or `ENABLE_APK`, set to `true`, a missing release key, `GOOGLE_SERVICES_JSON`, `PLAY_SERVICE_ACCOUNT_JSON` (Play) or `TT_API_URL` **fails the run** before the build, with an error that names it. Without the release key, a pull request build signs the APK and the AAB with the runner's throwaway debug key: fine for checking the build, rejected by Play, and an APK that no later build can update. The R2 upload jobs refuse a debug-signed APK.
+- **The switch decides, not the secrets.** With `ENABLE_PLAY_STORE` off (`false` or unset) nothing is uploaded to Play. With it, or `ENABLE_APK`, set to `true`, a missing release key, `GOOGLE_SERVICES_JSON` or `TT_API_URL` **fails the run** before the build, with an error that names it, and the `APK` and `AAB` jobs refuse to debug-sign. A missing `PLAY_SERVICE_ACCOUNT_JSON` fails `Produccion · Google Play (internal)` as its first step, before anything is uploaded.
+- **Pull requests never get the release key.** Their `APK build check` calls `build-apk.yml` without any secret, so it is signed with the runner's throwaway debug key: fine for checking the build, rejected by Play, and an APK that no later build can update. It is never stored in a candidate; with no release key on a push (both channels off), the debug-signed APK is left out of the candidate too.
 - **The run summary** of the APK job shows the signing mode, the SHA-256 of the APK and the SHA-256 of its signing certificate (from `apksigner verify --print-certs`). Every release must show the same certificate fingerprint.
 
 ### Secrets and variables (*Settings → Secrets and variables → Actions*)
+The signing secrets are secrets of the environment **`firma`** (*Settings → Environments → firma*: deployment branches `release/*` and `hotfix/*` only, no reviewers), so only the signing jobs of a release or hotfix push can read them, never a pull request. The Play upload secret belongs to the environment **`produccion`** ([RELEASES.md](RELEASES.md#secrets-and-variables)).
+
 | Name | Kind | Content |
 |---|---|---|
-| `GOOGLE_SERVICES_JSON` | secret | `base64 -i android/app/google-services.json` (Firebase, [FIREBASE.md](FIREBASE.md)) |
-| `ANDROID_KEYSTORE_BASE64` | secret | `base64 -i upload-keystore.jks` (the release key: Play upload key and APK signing key) |
-| `ANDROID_KEYSTORE_PASSWORD` / `ANDROID_KEY_PASSWORD` | secret | Passwords of the keystore and of the key |
-| `ANDROID_KEY_ALIAS` | secret | Key alias, e.g. `upload` |
-| `PLAY_SERVICE_ACCOUNT_JSON` | secret | JSON key of the service account with access to the app in Play Console (plain JSON, not base64) |
+| `GOOGLE_SERVICES_JSON` | secret of `firma` | `base64 -i android/app/google-services.json` (Firebase, [FIREBASE.md](FIREBASE.md)) |
+| `ANDROID_KEYSTORE_BASE64` | secret of `firma` | `base64 -i upload-keystore.jks` (the release key: Play upload key and APK signing key) |
+| `ANDROID_KEYSTORE_PASSWORD` / `ANDROID_KEY_PASSWORD` | secrets of `firma` | Passwords of the keystore and of the key |
+| `ANDROID_KEY_ALIAS` | secret of `firma` | Key alias, e.g. `upload` |
+| `PLAY_SERVICE_ACCOUNT_JSON` | secret of `produccion` | JSON key of the service account with access to the app in Play Console (plain JSON, not base64) |
 | `PLAY_RELEASE_STATUS` | optional **variable** | `draft` while the app is still a draft in Play Console; unset (`completed`) afterwards |
 | `TT_API_URL` | **variable** (a secret of the same name also works) | HTTPS URL of the production API, compiled into the app (`--dart-define`) |
 | `ENABLE_PLAY_STORE` | **organization variable** (*Te-Tengo-Tech → Settings → Secrets and variables → Actions → Variables*) | `true` turns the Google Play upload on; anything else, or no variable, keeps it off |
 
-With the GitHub CLI: `base64 -i upload-keystore.jks | gh secret set ANDROID_KEYSTORE_BASE64`, `gh secret set PLAY_SERVICE_ACCOUNT_JSON < play-service-account.json` and `gh variable set TT_API_URL --body https://api.example.com`.
+With the GitHub CLI: `base64 -i upload-keystore.jks | gh secret set ANDROID_KEYSTORE_BASE64 --env firma`, `gh secret set PLAY_SERVICE_ACCOUNT_JSON --env produccion < play-service-account.json` and `gh variable set TT_API_URL --body https://api.example.com`. Repository secrets of the same names still work until they are moved; once a secret is in its environment, delete the repository copy.
 
 ## Local release build
 1. **Create the upload key** once, and keep the `.jks` file and its passwords in the team's password manager. If it is lost, Play support can reset it, but that takes days:
@@ -59,9 +62,10 @@ For the pilot, the app is distributed as a single **universal APK** from the lan
 - **Why R2.** Run artifacts expire and are only downloadable by signed-in GitHub users; testers need a stable public URL.
 - **When.** Staging on a push to `release/x.y.z` or `hotfix/x.y.z`, production when that branch is merged into `main`, with the organization variable `ENABLE_APK` set to `true` (and `ENABLE_STAGING` for the staging copy). See [RELEASES.md](RELEASES.md).
 - **How the APK is built:** the reusable workflow [`build-apk.yml`](../.github/workflows/build-apk.yml) (`workflow_call`).
-  - **What it does.** It checks out this repository (or a given `ref`), builds `flutter build apk --release` and verifies the signature with `apksigner`. It keeps `te-tengo.apk` and `te-tengo.apk.sha256` as an artifact of the **calling** run, named `te-tengo-apk` by default.
+  - **What it does.** It checks out the calling commit of this repository, builds `flutter build apk --release` and verifies the signature with `apksigner`. It keeps `te-tengo.apk` and `te-tengo.apk.sha256` as an artifact of the **calling** run, named `te-tengo-apk` by default.
+  - **Inputs:** `build_name`, `build_number`, `artifact_name`, `retention_days`; `environment` (the job's GitHub environment, `firma` for a release build) and `require-release-key` (fail instead of debug-signing).
   - **Outputs:** `artifact_name`, `version_name`, `version_code`, `signed`, `certificate_sha256` and `apk_sha256`.
-  - **Secrets:** `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`; optionally `GOOGLE_SERVICES_JSON`, and `TT_API_URL` as a secret or variable. `release.yml` passes them with `secrets: inherit`.
+  - **Secrets:** `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`; optionally `GOOGLE_SERVICES_JSON`, and `TT_API_URL` as a secret or variable. Each is read only by the step that uses it. On a release or hotfix push `release.yml` passes them with `secrets: inherit` and `environment: firma`; on a pull request it passes none.
 
 ### Installing it (what testers do)
 1. **Open the landing page on the phone** and tap the Android download. Chrome may warn that the file can be harmful: choose «Descargar de todas formas».
@@ -89,7 +93,7 @@ To try a release before production, install `<DESCARGAS_BASE_URL>/staging/te-ten
 - **Corporate or child-managed phones** may block unknown sources altogether. Install those from Play, or on another phone.
 
 ## One-time setup (account owner)
-0. **Release key, needed for both channels.** Create it as in *Local release build*, step 1, and save it as the four `ANDROID_*` secrets in this repository, which builds and publishes the APK. Keep two backups of the `.jks` and its passwords outside GitHub. Steps 1 to 8 below are only needed for Google Play.
+0. **Release key, needed for both channels.** Create it as in *Local release build*, step 1, and save it as the four `ANDROID_*` secrets of the environment `firma` of this repository, which builds and publishes the APK. Keep two backups of the `.jks` and its passwords outside GitHub. Steps 1 to 8 below are only needed for Google Play.
 1. **Google Play Console developer account.**
    - **Cost and verification.** A one-time **US$25** fee, plus identity verification with an ID document, at <https://play.google.com/console/signup>.
    - **Personal or organization.** A *personal* account is enough for the thesis. An *organization* account needs a D-U-N-S number, but is exempt from the testing rule below.
@@ -108,7 +112,7 @@ To try a release before production, install `<DESCARGAS_BASE_URL>/staging/te-ten
    1. In Google Cloud (any project, e.g. the Firebase project `te-tengo-9ad70`), enable the **Google Play Android Developer API**.
    2. Create a service account and a JSON key for it.
    3. In Play Console, *Users and permissions → Invite new users*, invite the service account's e-mail with access to this app. Grant *Release to testing tracks* and *View app information*.
-   4. Save the JSON as `PLAY_SERVICE_ACCOUNT_JSON`.
+   4. Save the JSON as `PLAY_SERVICE_ACCOUNT_JSON`, a secret of the environment `produccion`.
 6. **Internal testing for the presentation.**
    - **Who.** Create a tester list (*Internal testing → Testers*): up to 100 Google accounts.
    - **Availability.** Internal releases are available within minutes and **skip the full review**. That makes them the right track for the thesis demo and the pilot families.
