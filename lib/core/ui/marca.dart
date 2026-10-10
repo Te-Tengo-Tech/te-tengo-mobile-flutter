@@ -56,19 +56,24 @@ class PalabraTeTengo extends StatelessWidget {
 
 /// Horizontal logo: symbol + «Te Tengo» (welcome, sign-in, invitation, «Todo listo»).
 class Logotipo extends StatelessWidget {
-  const Logotipo({super.key, this.oscuro = false});
+  const Logotipo({super.key, this.oscuro});
 
-  final bool oscuro;
+  /// White and peach, for a dark background; null follows the theme.
+  final bool? oscuro;
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      SimboloTeTengo(tamano: 40, oscuro: oscuro),
-      const SizedBox(width: 6),
-      PalabraTeTengo(tamano: 26, oscuro: oscuro),
-    ],
-  );
+  Widget build(BuildContext context) {
+    final oscuro =
+        this.oscuro ?? Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SimboloTeTengo(tamano: 40, oscuro: oscuro),
+        const SizedBox(width: 6),
+        PalabraTeTengo(tamano: 26, oscuro: oscuro),
+      ],
+    );
+  }
 }
 
 const _trazoTe =

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import 'botones.dart';
 import 'iconos.dart';
 
@@ -33,13 +33,17 @@ Future<bool> confirmar(
                   height: 52,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: peligro ? Colores.caidaSuave : Colores.moradoSuave,
+                    color: peligro
+                        ? context.colores.caidaSuave
+                        : context.colores.moradoSuave,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icono(
                     icono,
                     tamano: 28,
-                    color: peligro ? Colores.caidaTinta : Colores.moradoTinta,
+                    color: peligro
+                        ? context.colores.caidaTinta
+                        : context.colores.moradoTinta,
                   ),
                 ),
               ),

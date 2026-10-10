@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
@@ -107,8 +107,7 @@ class _Orden extends ConsumerWidget {
           const SizedBox(height: 16),
         ],
         Text(
-          'Todos los familiares reciben cada alerta. El contacto principal es '
-          'quien debe atenderla primero; si no la marca como atendida a tiempo, '
+          'Todos reciben cada alerta. Si el principal no la marca a tiempo, '
           'avisamos al secundario.',
           style: texto.bodyMedium,
         ),
@@ -130,8 +129,7 @@ class _Orden extends ConsumerWidget {
                   ? 'Sin contacto secundario'
                   : nombre(secundario),
               detalle: secundario == null
-                  ? 'No hay otro familiar vinculado. Si nadie atiende una alerta, '
-                        'no habrá a quién avisar.'
+                  ? 'Si nadie atiende, no habrá a quién más avisar.'
                   : 'Contacto secundario · a los ${aviso.esperaMinutos} min',
               alCambiar: puedeCambiar && secundario != null
                   ? () => _elegir(context, ref, PapelAviso.secundario)
@@ -149,11 +147,7 @@ class _Orden extends ConsumerWidget {
           ),
         ],
         const EncabezadoSeccion('Tiempo de espera'),
-        Text(
-          'Cuánto esperamos a que el contacto principal marque la alerta antes '
-          'de avisar al secundario.',
-          style: texto.bodyMedium,
-        ),
+        Text('Antes de avisar al secundario.', style: texto.bodyMedium),
         const SizedBox(height: 12),
         for (final m in ConfiguracionAviso.esperas)
           OpcionRadio<int>(
@@ -173,11 +167,6 @@ class _Orden extends ConsumerWidget {
                     icono: Ico.clock,
                   )
                 : null,
-          ),
-        if (aviso.esperaMinutos == ConfiguracionAviso.esperaPredeterminada)
-          Text(
-            'Mientras no elijas otro, usamos 5 minutos.',
-            style: texto.bodySmall,
           ),
         const SizedBox(height: 16),
         if (secundario != null)
@@ -249,16 +238,18 @@ class _Puesto extends StatelessWidget {
       height: 28,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: vacio ? Colores.fondo2 : Colores.tinta,
+        color: vacio ? context.colores.fondo2 : context.colores.inversa,
         shape: BoxShape.circle,
-        border: vacio ? Border.all(color: Colores.linea2, width: 1.5) : null,
+        border: vacio
+            ? Border.all(color: context.colores.linea2, width: 1.5)
+            : null,
       ),
       child: Text(
         '$numero',
         style: estiloTexto(
           15,
           800,
-          color: vacio ? Colores.tinta3 : Colors.white,
+          color: vacio ? context.colores.tinta3 : context.colores.sobreInversa,
         ),
       ),
     ),

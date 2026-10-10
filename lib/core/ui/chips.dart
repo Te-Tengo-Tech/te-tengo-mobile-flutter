@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
 
@@ -27,17 +27,19 @@ class ChipOpcion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = elegido ? Colors.white : Colores.tinta;
+    final color = elegido
+        ? context.colores.sobreInversa
+        : context.colores.tinta;
     return Semantics(
       button: true,
       selected: elegido,
       label: etiqueta,
       excludeSemantics: etiqueta != null,
       child: Material(
-        color: elegido ? Colores.tinta : Colores.tarjeta,
+        color: elegido ? context.colores.inversa : context.colores.tarjeta,
         shape: StadiumBorder(
           side: BorderSide(
-            color: elegido ? Colores.tinta : Colores.linea2,
+            color: elegido ? context.colores.inversa : context.colores.linea2,
             width: 1.5,
           ),
         ),
@@ -92,7 +94,7 @@ class Segmentado<T> extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(4),
     decoration: BoxDecoration(
-      color: Colores.fondo2,
+      color: context.colores.fondo2,
       borderRadius: BorderRadius.circular(14),
     ),
     child: Row(
@@ -104,7 +106,9 @@ class Segmentado<T> extends StatelessWidget {
               selected: v == valor,
               button: true,
               child: Material(
-                color: v == valor ? Colores.tarjeta : Colors.transparent,
+                color: v == valor
+                    ? context.colores.tarjeta
+                    : Colors.transparent,
                 elevation: v == valor ? 1 : 0,
                 borderRadius: BorderRadius.circular(11),
                 child: InkWell(
@@ -118,7 +122,9 @@ class Segmentado<T> extends StatelessWidget {
                         style: estiloTexto(
                           16,
                           700,
-                          color: v == valor ? Colores.tinta : Colores.tinta2,
+                          color: v == valor
+                              ? context.colores.tinta
+                              : context.colores.tinta2,
                         ),
                       ),
                     ),

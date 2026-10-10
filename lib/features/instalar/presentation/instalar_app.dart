@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
@@ -58,11 +59,11 @@ class PantallaInstalarApp extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
         children: [
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
             child: IconoGrande(
               icono: Ico.share,
-              fondo: Colores.moradoSuave,
+              fondo: context.colores.moradoSuave,
               color: Colores.morado,
               tamano: 64,
             ),
@@ -79,7 +80,7 @@ class PantallaInstalarApp extends StatelessWidget {
           Text(
             'Así te llegarán las alertas de caída aunque tengas la app '
             'cerrada. Necesitas iOS 16.4 o posterior.',
-            style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+            style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
           ),
           const SizedBox(height: 12),
           const PasosNumerados([

@@ -71,8 +71,8 @@ class PantallaAjustes extends ConsumerWidget {
             icono: Ico.users,
             titulo: 'Eres familiar invitado',
             texto:
-                'Ves las mismas alertas, clips e historial que $duena. Lo '
-                'marcado con candado solo lo puede cambiar $duena (titular).',
+                'Ves lo mismo que $duena. Lo que tiene candado solo lo cambia '
+                '$duena (titular).',
           ),
           const SizedBox(height: 16),
         ],
@@ -159,7 +159,7 @@ class PantallaAjustes extends ConsumerWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'Te Tengo 1.0 · prueba piloto',
+          'Te Tengo 1.0',
           textAlign: TextAlign.center,
           style: texto.bodySmall,
         ),

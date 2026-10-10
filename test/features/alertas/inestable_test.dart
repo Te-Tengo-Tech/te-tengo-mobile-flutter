@@ -27,23 +27,23 @@ void main() {
       alertas: AlertasRepositorioFalso([inestable()]),
       ahora: DateTime(2026, 9, 23, 10, 40, 10),
     );
-    expect(find.text('MOVIMIENTO INESTABLE · SEVERIDAD MEDIA'), findsOneWidget);
+    expect(find.text('INESTABLE · SEVERIDAD MEDIA'), findsOneWidget);
     expect(find.text('Rosa tuvo un movimiento inestable'), findsOneWidget);
     expect(find.text('Sala'), findsOneWidget);
     expect(find.text('10:39'), findsWidgets);
     expect(find.text('1 min'), findsOneWidget);
     expect(find.text('Comprobando si sigue en el suelo'), findsNothing);
-    await verHasta(tester, find.text('Revisa el clip'));
+    // No SAMU card for an unstable movement, and its clip is open from the start.
+    expect(find.text('Llamar al SAMU · 106'), findsNothing);
+    expect(find.text('12 s, antes y después'), findsNothing);
+    await tocar(tester, find.text('Más detalles'));
     expect(
       find.text(
-        'No se detectó una caída. Si la situación termina en una caída, te avisaremos de inmediato con una alerta urgente.',
+        'No es una caída. Si termina en una, te enviamos una alerta urgente.',
       ),
       findsOneWidget,
     );
-    expect(
-      find.text('Pregúntale cómo se siente y si necesita ayuda.'),
-      findsOneWidget,
-    );
+    expect(find.text('Bomberos'), findsNothing);
   });
 
   testWidgets('CA-17.2: no comparte color, ícono ni etiqueta con una caída', (
@@ -88,8 +88,9 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byType(PantallaAlerta), findsOneWidget);
-    expect(find.text('ALERTA DE CAÍDA · URGENTE'), findsOneWidget);
+    expect(find.text('CAÍDA · URGENTE'), findsOneWidget);
     expect(find.text('Rosa se cayó y sigue en el suelo'), findsOneWidget);
+    await tocar(tester, find.text('Más detalles'));
     await verHasta(tester, find.text('Empezó como movimiento inestable'));
     expect(
       find.textContaining(

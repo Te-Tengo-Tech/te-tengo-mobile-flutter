@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
@@ -16,6 +16,7 @@ import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../alertas/presentation/etiquetas.dart';
+import '../../camaras/data/camaras_repositorio.dart';
 import '../data/historial_provider.dart';
 import '../domain/filtro_historial.dart';
 import 'hoja_filtros.dart';
@@ -36,9 +37,7 @@ class ListaHistorial extends ConsumerWidget {
           EstadoVacio(
             ilustracion: IlustracionVacio.calendario,
             titulo: 'Sin eventos registrados',
-            texto:
-                'Aquí aparecerán las alertas de caída y de movimiento inestable, '
-                'con su fecha, hora, habitación y estado.',
+            texto: 'Aquí verás cada caída y movimiento inestable.',
           ),
         ],
       AsyncData(value: final p) => [
@@ -57,7 +56,12 @@ class ListaHistorial extends ConsumerWidget {
             ),
           )
         else
-          ..._porDia(p.alertas, hoy),
+          ..._porDia(
+            p.alertas,
+            hoy,
+            // The room only tells something apart when there is more than one camera.
+            conHabitacion: (ref.watch(camarasProvider).value?.length ?? 0) > 1,
+          ),
         if (p.cargandoMas)
           const Padding(
             padding: EdgeInsets.all(16),
@@ -74,7 +78,11 @@ class ListaHistorial extends ConsumerWidget {
   }
 
   /// Alerts grouped by local day (`.day-h` + `.list`).
-  List<Widget> _porDia(List<Alerta> alertas, DateTime hoy) {
+  List<Widget> _porDia(
+    List<Alerta> alertas,
+    DateTime hoy, {
+    required bool conHabitacion,
+  }) {
     final grupos = <(DateTime, List<Alerta>)>[];
     for (final a in alertas) {
       if (grupos.isEmpty || !mismoDia(grupos.last.$1, a.ocurridaEn)) {
@@ -86,7 +94,12 @@ class ListaHistorial extends ConsumerWidget {
     return [
       for (final (dia, lista) in grupos) ...[
         EncabezadoDia('${mismoDia(dia, hoy) ? 'Hoy, ' : ''}${fechaLarga(dia)}'),
-        ListaTarjeta(children: [for (final a in lista) FilaAlerta(alerta: a)]),
+        ListaTarjeta(
+          children: [
+            for (final a in lista)
+              FilaAlerta(alerta: a, conHabitacion: conHabitacion),
+          ],
+        ),
       ],
     ];
   }
@@ -131,16 +144,33 @@ class _Filtros extends ConsumerWidget {
   }
 }
 
-/// History row (`.alert-row`): time, mark, kind, room and who marked it, and the state stamp.
+/// History row (`.alert-row`): time, mark, «Caída» or «Inestable», who marked it («por Carmen»,
+/// or «Sin marcar») and the state stamp. The room shows only with [conHabitacion].
 class FilaAlerta extends StatelessWidget {
-  const FilaAlerta({super.key, required this.alerta});
+  const FilaAlerta({
+    super.key,
+    required this.alerta,
+    this.conHabitacion = false,
+  });
 
   final Alerta alerta;
+
+  /// More than one camera: the room tells the rows apart.
+  final bool conHabitacion;
 
   @override
   Widget build(BuildContext context) {
     final a = alerta;
     final quien = a.atendidaPor?.split(' ').first;
+    final marcada = a.activa
+        ? 'Sin marcar'
+        : quien == null
+        ? ''
+        : 'por $quien';
+    final detalle = [
+      if (conHabitacion) a.habitacion,
+      if (marcada.isNotEmpty) marcada,
+    ].join(' · ');
     // With large text the stamp goes under the room instead of at the end of the row.
     final grande = MediaQuery.textScalerOf(context).scale(16) > 24;
     return InkWell(
@@ -167,13 +197,19 @@ class FilaAlerta extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(a.tipo.nombre, style: estiloTexto(17, 700)),
                     Text(
-                      a.activa || quien == null
-                          ? a.habitacion
-                          : '${a.habitacion} · $quien',
-                      style: estiloTexto(14, 400, color: Colores.tinta3),
+                      a.esCaida ? 'Caída' : 'Inestable',
+                      style: estiloTexto(17, 700, color: context.colores.tinta),
                     ),
+                    if (detalle.isNotEmpty)
+                      Text(
+                        detalle,
+                        style: estiloTexto(
+                          14,
+                          400,
+                          color: context.colores.tinta3,
+                        ),
+                      ),
                     if (grande) ...[const SizedBox(height: 6), SelloEstado(a)],
                   ],
                 ),
@@ -197,7 +233,7 @@ class _Cargando extends StatelessWidget {
       width: ancho,
       height: alto,
       decoration: BoxDecoration(
-        color: Colores.fondo2,
+        color: context.colores.fondo2,
         borderRadius: BorderRadius.circular(radio),
       ),
     );

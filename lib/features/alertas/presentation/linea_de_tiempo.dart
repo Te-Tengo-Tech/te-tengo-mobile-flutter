@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../camaras/domain/camara.dart';
@@ -144,7 +145,7 @@ class LineaDeTiempo extends StatelessWidget {
                     style: estiloMono(
                       tamano: 14,
                       peso: 400,
-                      color: Colores.tinta2,
+                      color: context.colores.tinta2,
                     ),
                   ),
                 ),
@@ -156,11 +157,11 @@ class LineaDeTiempo extends StatelessWidget {
                     const SizedBox(height: 5),
                     _Punto(items[i].punto),
                     if (i < items.length - 1)
-                      const Expanded(
+                      Expanded(
                         child: VerticalDivider(
                           width: 2,
                           thickness: 2,
-                          color: Colores.linea,
+                          color: context.colores.linea,
                         ),
                       ),
                   ],
@@ -169,7 +170,10 @@ class LineaDeTiempo extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 14),
-                  child: Text(items[i].texto, style: estiloTexto(15.5, 400)),
+                  child: Text(
+                    items[i].texto,
+                    style: estiloTexto(15.5, 400, color: context.colores.tinta),
+                  ),
                 ),
               ),
             ],
@@ -191,7 +195,7 @@ class _Punto extends StatelessWidget {
       PuntoLinea.inestable => Colores.inestableProfundo,
       PuntoLinea.ok => Colores.calma,
       PuntoLinea.escalada => Colores.morado,
-      PuntoLinea.neutro => Colores.tinta3,
+      PuntoLinea.neutro => context.colores.tinta3,
     };
     final rombo = punto == PuntoLinea.inestable;
     final marca = Container(

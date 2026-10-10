@@ -42,12 +42,7 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.familia);
-    expect(
-      find.text(
-        'Quienes reciben las alertas de Rosa y en qué orden responden.',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Reciben las alertas de Rosa.'), findsOneWidget);
     expect(find.text('Carmen Huamán (tú)'), findsOneWidget);
     expect(find.text('titular de la cuenta'), findsOneWidget);
     expect(find.text('Principal'), findsOneWidget);
@@ -109,6 +104,10 @@ void main() {
   testWidgets('CA-10.2: elige esperar 3, 5 o 10 minutos', (tester) async {
     await abrir(tester, Rutas.ordenAviso);
     await verHasta(tester, find.text('Predeterminado'));
+    await verHasta(
+      tester,
+      find.textContaining('avisamos a Luis a las 10:47', findRichText: true),
+    );
     expect(find.text('3 minutos'), findsOneWidget);
     await tocar(tester, find.text('10 minutos'));
     expect(familia.avisosGuardados.single.esperaMinutos, 10);
@@ -124,9 +123,10 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.ordenAviso);
+    await verHasta(tester, find.text('Predeterminado'));
     await verHasta(
       tester,
-      find.text('Mientras no elijas otro, usamos 5 minutos.'),
+      find.textContaining('avisamos a Luis a las 10:47', findRichText: true),
     );
     expect(
       find.textContaining('avisamos a Luis a las 10:47', findRichText: true),
@@ -143,9 +143,7 @@ void main() {
     await abrir(tester, Rutas.ordenAviso);
     expect(find.text('Sin contacto secundario'), findsOneWidget);
     expect(
-      find.text(
-        'No hay otro familiar vinculado. Si nadie atiende una alerta, no habrá a quién avisar.',
-      ),
+      find.text('Si nadie atiende, no habrá a quién más avisar.'),
       findsOneWidget,
     );
     expect(find.text('Cambiar'), findsNothing);
@@ -163,9 +161,7 @@ void main() {
     expect(find.text('Carmen · sin contacto secundario'), findsOneWidget);
     expect(find.text('No hay contacto secundario'), findsOneWidget);
     expect(
-      find.text(
-        'Si Carmen no atiende una alerta a tiempo, nadie más será avisado. Elige a un familiar como secundario.',
-      ),
+      find.text('Si Carmen no atiende a tiempo, nadie más será avisado.'),
       findsOneWidget,
     );
   });

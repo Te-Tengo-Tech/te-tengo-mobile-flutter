@@ -110,7 +110,7 @@ void main() {
     await abrir(tester, Rutas.historial);
     await tocar(tester, find.text('Resumen semanal'));
     expect(find.text('Esta semana'), findsOneWidget);
-    expect(find.text('21 – 27 septiembre 2026'), findsOneWidget);
+    expect(find.text('21 – 27 septiembre · hasta hoy'), findsOneWidget);
     expect(resumen.pedidas, ['2026-W39']);
     await tocar(tester, find.byTooltip('Semana anterior'));
     expect(resumen.pedidas.last, '2026-W38');
@@ -120,9 +120,9 @@ void main() {
     expect(find.text('Caídas'), findsOneWidget);
     expect(find.text('Movimientos inestables'), findsOneWidget);
     expect(find.text('Falsas alarmas'), findsOneWidget);
-    const aumento = 'Aumentó: 1 más que la semana anterior (0)';
-    const igual = 'Igual que la semana anterior';
-    const disminucion = 'Disminuyó: 1 menos que la semana anterior (2)';
+    const aumento = 'Subió de 0 a 1';
+    const igual = 'Igual (2)';
+    const disminucion = 'Bajó de 2 a 1';
     expect(find.text(aumento), findsOneWidget);
     expect(find.text(igual), findsOneWidget);
     expect(find.text(disminucion), findsOneWidget);
@@ -132,10 +132,7 @@ void main() {
     expect(colorDe(tester, igual), Colores.tinta3);
     await verHasta(
       tester,
-      find.text(
-        'Las falsas alarmas no se suman a las caídas ni a los movimientos '
-        'inestables.',
-      ),
+      find.text('Las falsas alarmas no suman a caídas ni a inestables.'),
     );
   });
 
@@ -149,17 +146,16 @@ void main() {
     }
     expect(resumen.pedidas.last, '2026-W36');
     expect(find.text('Hace 3 semanas'), findsOneWidget);
-    expect(find.text('31 – 6 septiembre 2026'), findsOneWidget);
+    // A week that crosses two months names both.
+    expect(find.text('31 ago – 6 sep 2026'), findsOneWidget);
     expect(find.text('Semana sin eventos'), findsOneWidget);
     expect(
-      find.text(
-        'No hubo caídas ni movimientos inestables del 31 al 6 de septiembre.',
-      ),
+      find.text('No hubo caídas ni movimientos inestables.'),
       findsOneWidget,
     );
     await verHasta(tester, find.text('vs. 24 – 30 ago'));
     await verHasta(tester, find.text('Falsas alarmas'));
-    expect(find.text('Igual que la semana anterior'), findsWidgets);
+    expect(find.text('Igual (0)'), findsWidgets);
   });
 
   testWidgets('no se puede pasar de la semana actual', (tester) async {
@@ -171,18 +167,19 @@ void main() {
     expect(resumen.pedidas, ['2026-W39']);
   });
 
-  testWidgets('el inicio muestra la semana y el último evento', (tester) async {
+  testWidgets('el inicio muestra la semana en tres cifras', (tester) async {
     await abrir(tester, Rutas.inicio);
-    await verHasta(tester, find.text('Último evento'));
+    await verHasta(tester, find.text('Ver resumen'));
     expect(find.byType(SemanaEnInicio), findsOneWidget);
     expect(find.text('caídas'), findsOneWidget);
     expect(find.text('inestable'), findsOneWidget);
     expect(find.text('falsas'), findsOneWidget);
-    expect(find.text('Movimiento inestable en la Sala'), findsOneWidget);
+    // The last event lives in the history.
+    expect(find.text('Último evento'), findsNothing);
     await tocar(tester, find.text('Ver resumen'));
     expect(find.text('Resumen semanal'), findsOneWidget);
     expect(find.text('Esta semana'), findsOneWidget);
-    expect(find.text('21 – 27 septiembre 2026'), findsOneWidget);
+    expect(find.text('21 – 27 septiembre · hasta hoy'), findsOneWidget);
   });
 
   test('semana ISO como la escribe el contrato', () {

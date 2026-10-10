@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
 
@@ -58,7 +59,10 @@ class _CampoTextoState extends State<CampoTexto> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(widget.etiqueta, style: estiloTexto(15, 700)),
+              child: Text(
+                widget.etiqueta,
+                style: estiloTexto(15, 700, color: context.colores.tinta),
+              ),
             ),
             TextField(
               controller: widget.controlador,
@@ -84,15 +88,19 @@ class _CampoTextoState extends State<CampoTexto> {
               style: estiloTexto(
                 17,
                 400,
-                color: widget.habilitado ? Colores.tinta : Colores.tinta2,
+                color: widget.habilitado
+                    ? context.colores.tinta
+                    : context.colores.tinta2,
               ),
               decoration: InputDecoration(
                 hintText: widget.marcador,
                 semanticCounterText: '',
-                fillColor: widget.habilitado ? Colores.tarjeta : Colores.fondo,
+                fillColor: widget.habilitado
+                    ? context.colores.tarjeta
+                    : context.colores.fondo,
                 disabledBorder: widget.habilitado
                     ? null
-                    : const _BordePunteado(),
+                    : _BordePunteado(context.colores.linea2),
                 error: error == null ? null : _MensajeError(error),
                 helperText: error == null ? widget.ayuda : null,
                 suffixIcon: esClave
@@ -103,7 +111,7 @@ class _CampoTextoState extends State<CampoTexto> {
                         onPressed: () => setState(() => _oculta = !_oculta),
                         icon: Icono(
                           _oculta ? Ico.eye : Ico.eyeOff,
-                          color: Colores.tinta,
+                          color: context.colores.tinta,
                         ),
                       )
                     : null,
@@ -125,15 +133,15 @@ class _MensajeError extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const Padding(
-        padding: EdgeInsets.only(top: 1),
-        child: Icono(Ico.warn, tamano: 18, color: Colores.caidaTinta),
+      Padding(
+        padding: const EdgeInsets.only(top: 1),
+        child: Icono(Ico.warn, tamano: 18, color: context.colores.caidaTinta),
       ),
       const SizedBox(width: 6),
       Expanded(
         child: Text(
           texto,
-          style: estiloTexto(15, 700, color: Colores.caidaTinta),
+          style: estiloTexto(15, 700, color: context.colores.caidaTinta),
         ),
       ),
     ],
@@ -142,8 +150,10 @@ class _MensajeError extends StatelessWidget {
 
 /// Dashed border of read-only fields (`.input:disabled`).
 class _BordePunteado extends InputBorder {
-  const _BordePunteado()
-    : super(borderSide: const BorderSide(color: Colores.linea2, width: 1.5));
+  _BordePunteado(this.color)
+    : super(borderSide: BorderSide(color: color, width: 1.5));
+
+  final Color color;
 
   @override
   EdgeInsetsGeometry get dimensions => const EdgeInsets.all(1.5);
@@ -173,7 +183,7 @@ class _BordePunteado extends InputBorder {
   }) {
     final path = getOuterPath(rect.deflate(0.75));
     final pincel = Paint()
-      ..color = Colores.linea2
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
     for (final metrica in path.computeMetrics()) {
@@ -196,7 +206,10 @@ class EtiquetaCampo extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 8),
-    child: Text(texto, style: estiloTexto(15, 700)),
+    child: Text(
+      texto,
+      style: estiloTexto(15, 700, color: context.colores.tinta),
+    ),
   );
 }
 
@@ -227,7 +240,7 @@ class OpcionRadio<T> extends StatelessWidget {
         ? Colores.morado
         : error
         ? Colores.caida
-        : Colores.linea2;
+        : context.colores.linea2;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Semantics(
@@ -239,7 +252,9 @@ class OpcionRadio<T> extends StatelessWidget {
         label: subtitulo == null ? titulo : '$titulo. $subtitulo',
         onTap: habilitada ? () => alElegir!(valor) : null,
         child: Material(
-          color: elegida ? Colores.moradoSuave : Colores.tarjeta,
+          color: elegida
+              ? context.colores.moradoSuave
+              : context.colores.tarjeta,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(color: borde, width: 1.5),
@@ -269,8 +284,8 @@ class OpcionRadio<T> extends StatelessWidget {
                               17,
                               600,
                               color: habilitada
-                                  ? Colores.tinta
-                                  : Colores.tinta2,
+                                  ? context.colores.tinta
+                                  : context.colores.tinta2,
                             ),
                           ),
                           if (subtitulo != null)
@@ -279,7 +294,7 @@ class OpcionRadio<T> extends StatelessWidget {
                               style: estiloTexto(
                                 15,
                                 400,
-                                color: Colores.tinta3,
+                                color: context.colores.tinta3,
                               ),
                             ),
                         ],
@@ -309,7 +324,7 @@ class _Punto extends StatelessWidget {
     decoration: BoxDecoration(
       shape: BoxShape.circle,
       border: Border.all(
-        color: elegida ? Colores.morado : Colores.tinta3,
+        color: elegida ? Colores.morado : context.colores.tinta3,
         width: 2,
       ),
     ),
@@ -360,14 +375,14 @@ class Casilla extends StatelessWidget {
               height: 26,
               margin: const EdgeInsets.only(top: 1),
               decoration: BoxDecoration(
-                color: marcada ? Colores.morado : Colores.tarjeta,
+                color: marcada ? Colores.morado : context.colores.tarjeta,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: marcada
                       ? Colores.morado
                       : error
                       ? Colores.caida
-                      : Colores.tinta3,
+                      : context.colores.tinta3,
                   width: 2,
                 ),
               ),
@@ -377,7 +392,12 @@ class Casilla extends StatelessWidget {
                   : null,
             ),
             const SizedBox(width: 14),
-            Expanded(child: Text(texto, style: estiloTexto(16, 400))),
+            Expanded(
+              child: Text(
+                texto,
+                style: estiloTexto(16, 400, color: context.colores.tinta),
+              ),
+            ),
           ],
         ),
       ),

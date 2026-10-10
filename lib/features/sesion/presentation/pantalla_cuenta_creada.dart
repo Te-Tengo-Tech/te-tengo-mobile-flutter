@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
@@ -31,10 +31,10 @@ class PantallaCuentaCreada extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const IconoGrande(
+                        IconoGrande(
                           icono: Ico.check,
-                          fondo: Colores.calmaSuave,
-                          color: Colores.calmaTinta,
+                          fondo: context.colores.calmaSuave,
+                          color: context.colores.calmaTinta,
                         ),
                         const SizedBox(height: 20),
                         Semantics(
@@ -46,11 +46,9 @@ class PantallaCuentaCreada extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Ahora vamos a configurar todo en cuatro pasos: la '
-                          'persona que cuidas, su consentimiento, su cámara y '
-                          'otro familiar que te respalde.',
+                          'Faltan cinco pasos:',
                           style: texto.bodyLarge?.copyWith(
-                            color: Colores.tinta2,
+                            color: context.colores.tinta2,
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -59,6 +57,7 @@ class PantallaCuentaCreada extends ConsumerWidget {
                           ('Consentimiento informado', null),
                           ('Su cámara, ya instalada', null),
                           ('Invitar a un familiar', null),
+                          ('Activar los avisos', null),
                         ]),
                       ],
                     ),

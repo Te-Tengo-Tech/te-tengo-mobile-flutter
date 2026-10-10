@@ -59,8 +59,8 @@ void main() {
     expect(find.text('Eres familiar invitado'), findsOneWidget);
     expect(
       find.text(
-        'Ves las mismas alertas, clips e historial que Carmen. Lo marcado con '
-        'candado solo lo puede cambiar Carmen (titular).',
+        'Ves lo mismo que Carmen. Lo que tiene candado solo lo cambia Carmen '
+        '(titular).',
       ),
       findsOneWidget,
     );

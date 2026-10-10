@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/tema/colores.dart';
+import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import '../red/problema_api.dart';
 import 'iconos.dart';
@@ -33,26 +33,30 @@ class Aviso extends StatelessWidget {
   Widget build(BuildContext context) {
     final (fondo, color, cuerpo) = switch (tono) {
       TonoAviso.error => (
-        Colores.caidaSuave,
-        Colores.caidaTinta,
-        const Color(0xFF6E1A10),
+        context.colores.caidaSuave,
+        context.colores.caidaTinta,
+        context.colores.errorTexto,
       ),
       TonoAviso.advertencia => (
-        Colores.avisoSuave,
-        Colores.avisoTinta,
-        Colores.avisoTinta,
+        context.colores.avisoSuave,
+        context.colores.avisoTinta,
+        context.colores.avisoTinta,
       ),
       TonoAviso.ok => (
-        Colores.calmaSuave,
-        Colores.calmaTinta,
-        Colores.calmaTinta,
+        context.colores.calmaSuave,
+        context.colores.calmaTinta,
+        context.colores.calmaTinta,
       ),
       TonoAviso.info => (
-        Colores.moradoSuave,
-        Colores.moradoTinta,
-        Colores.moradoTinta,
+        context.colores.moradoSuave,
+        context.colores.moradoTinta,
+        context.colores.moradoTinta,
       ),
-      TonoAviso.neutral => (Colores.fondo2, Colores.tinta2, Colores.tinta2),
+      TonoAviso.neutral => (
+        context.colores.fondo2,
+        context.colores.tinta2,
+        context.colores.tinta2,
+      ),
     };
     final estiloCuerpo = estiloTexto(15.5, 400, color: cuerpo);
     final contenido = this.contenido;

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/dispositivo/llamada.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
-import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/chips.dart';
@@ -529,18 +529,16 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
                     child: Text.rich(
                       TextSpan(
                         children: [
-                          TextSpan(
-                            text:
-                                'Tu acceso queda en el registro que ve toda la '
-                                'familia: '
-                                '${ref.watch(sesionControllerProvider)?.usuario.nombre ?? ''}'
-                                ', desde las ',
+                          const TextSpan(
+                            text: 'No se graba. Tu acceso desde las ',
                           ),
                           TextSpan(
                             text: hora(_inicio!),
                             style: const TextStyle(fontFamily: fuenteMono),
                           ),
-                          const TextSpan(text: '.'),
+                          const TextSpan(
+                            text: ' queda en el registro de la familia.',
+                          ),
                         ],
                       ),
                       style: estiloTexto(16, 400, color: Colores.nocheTexto),
@@ -615,7 +613,8 @@ String queSeVe(
           ? 'Ves la postura detectada.'
           : 'Ves la postura de $nombre en este momento.',
   };
-  return '$que La transmisión no se graba.';
+  // «No se graba» is said once, next to the access record below the image.
+  return que;
 }
 
 /// The three modes of the stream as chips; the chosen one is filled and checked.
@@ -776,18 +775,14 @@ class _NoDisponibleVista extends StatelessWidget {
         TextSpan(
           children: [
             if (ultimaSenal case final s?) ...[
-              const TextSpan(text: 'Perdió la conexión a las '),
+              const TextSpan(text: 'Sin conexión desde las '),
               TextSpan(text: hora(s), style: mono),
-              const TextSpan(text: ', así que '),
-            ] else
-              const TextSpan(text: 'Perdió la conexión, así que '),
+              const TextSpan(text: '. '),
+            ],
             TextSpan(
               text: desdeAlerta
-                  ? 'no podemos mostrarte la habitación. Llama a $nombre o '
-                        'pide a alguien cercano que vaya a verla.'
-                  : 'no podemos mostrarte la habitación. Revisa el cable de la '
-                        'cámara, que la PC esté encendida y el internet de la '
-                        'casa.',
+                  ? 'Llama a $nombre o pide a alguien cercano que vaya a verla.'
+                  : 'Revisa el cable, la PC y el internet de la casa.',
             ),
           ],
         ),
@@ -798,18 +793,14 @@ class _NoDisponibleVista extends StatelessWidget {
         'La vista en vivo no está disponible',
         TextSpan(
           children: [
-            TextSpan(
-              text:
-                  'La cámara ${deHabitacion(habitacion)} está en pausa'
-                  '${pausadaHasta == null ? '' : ' hasta las '}',
-            ),
-            if (pausadaHasta case final p?)
+            if (pausadaHasta case final p?) ...[
+              const TextSpan(text: 'En pausa hasta las '),
               TextSpan(text: finDePausa(p, ahora), style: mono),
-            const TextSpan(
-              text:
-                  '. Podrás verla de nuevo a esa hora, o antes si reanudas la '
-                  'cámara.',
-            ),
+              const TextSpan(text: ', o hasta que la reanudes.'),
+            ] else
+              TextSpan(
+                text: 'La cámara ${deHabitacion(habitacion)} está en pausa.',
+              ),
           ],
         ),
       ),
@@ -817,17 +808,13 @@ class _NoDisponibleVista extends StatelessWidget {
         Ico.lock,
         Colores.nochePausa,
         'La cámara está detenida',
-        TextSpan(
-          text:
-              'Sin el consentimiento de $nombre la cámara no envía video, así '
-              'que no se puede ver en vivo.',
-        ),
+        TextSpan(text: 'Sin el consentimiento de $nombre no hay video.'),
       ),
     };
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colores.linea2, width: 1.5),
+        border: Border.all(color: context.colores.linea2, width: 1.5),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(17),

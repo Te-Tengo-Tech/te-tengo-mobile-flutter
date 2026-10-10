@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/dispositivo/llamada.dart';
 import '../../../core/formato.dart';
@@ -14,7 +15,9 @@ import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../core/ui/plegable.dart';
 import '../../../core/ui/tarjeta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -126,10 +129,19 @@ class _Alerta extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final caida = alerta.esCaida;
     final fondo = caida ? Colores.caida : Colores.inestable;
+    // The flood keeps its severity color in dark mode too, with the light ink on yellow.
     final tinta = caida ? Colors.white : Colores.tinta;
     final adulto = hogar.adultoMayor;
     final nombre = adulto.nombrePila;
     final miembros = ref.watch(miembrosProvider).value ?? const [];
+    final espera = esperaDe(ref);
+    final escalamiento = _Escalamiento.de(
+      alerta,
+      miembros: miembros,
+      espera: espera,
+      yo: ref.watch(sesionControllerProvider)?.usuario.id,
+    );
+    final texto = Theme.of(context).textTheme;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: caida ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -148,78 +160,113 @@ class _Alerta extends ConsumerWidget {
               ),
             ),
             SliverToBoxAdapter(
-              child: _Heroe(alerta: alerta, adulto: adulto, color: tinta),
+              // The flood keeps its severity color in dark mode: its buttons and notices stay light.
+              child: Theme(
+                data: temaClaroTeTengo,
+                child: _Heroe(alerta: alerta, adulto: adulto, color: tinta),
+              ),
             ),
-            SliverFillRemaining(
-              hasScrollBody: false,
+            // The sheet takes its own height (folds open and close inside it); the ground below
+            // fills the rest of the screen.
+            SliverToBoxAdapter(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Colores.fondo,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                decoration: BoxDecoration(
+                  color: context.colores.fondo,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
                 ),
                 padding: const EdgeInsets.fromLTRB(18, 20, 18, 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ..._avisos(
-                      context,
-                      nombre,
-                      miembros: miembros,
-                      espera: esperaDe(ref),
-                      yo: ref.watch(sesionControllerProvider)?.usuario.id,
-                      titular: ref.watch(esTitularProvider),
-                    ),
-                    const SizedBox(height: 4),
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        'Qué hacer ahora',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    PasosNumerados(_pasos(adulto)),
-                    const SizedBox(height: 20),
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        'Clip del evento',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ClipEvento(alerta: alerta),
-                    const SizedBox(height: 20),
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        'Registro',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TarjetaBanda(
-                      child: LineaDeTiempo(
-                        itemsDeAlerta(
-                          alerta,
-                          nombreAdultoMayor: nombre,
-                          avisados: avisadosDe(miembros),
-                          secundario: secundarioDe(miembros),
-                          esperaMinutos: esperaDe(ref),
+                    // Only what asks for an action stays in view (`help`, `escBlock`).
+                    if (caida) ...[
+                      TarjetaBanda(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              '¿$nombre no contesta?',
+                              style: texto.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Pide ayuda a un vecino o llama a emergencias.',
+                              style: texto.bodyMedium,
+                            ),
+                            const SizedBox(height: 12),
+                            Boton(
+                              'Llamar al SAMU · 106',
+                              icono: Ico.phone,
+                              estilo: EstiloBoton.secundario,
+                              alPresionar: () =>
+                                  ref.read(llamarProvider)('106'),
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (escalamiento.pideAccion) ...[
+                      escalamiento.aviso(
+                        context,
+                        titular: ref.watch(esTitularProvider),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    ListaTarjeta(
+                      children: [
+                        FilaPlegable(
+                          icono: Ico.video,
+                          titulo: 'Clip del evento',
+                          resumen: alerta.clip == EstadoClip.disponible
+                              ? '12 s, antes y después'
+                              : 'No se pudo guardar',
+                          // An unstable movement is understood by watching it.
+                          abierta: !caida,
+                          aRas: true,
+                          child: ClipEvento(alerta: alerta, aRas: true),
+                        ),
+                        FilaPlegable(
+                          icono: Ico.info,
+                          titulo: 'Más detalles',
+                          resumen: 'Dirección, teléfono, aviso y registro',
+                          child: _MasDetalles(
+                            alerta: alerta,
+                            adulto: adulto,
+                            escalamiento: escalamiento.pideAccion
+                                ? null
+                                : escalamiento.aviso(
+                                    context,
+                                    titular: ref.watch(esTitularProvider),
+                                  ),
+                            linea: itemsDeAlerta(
+                              alerta,
+                              nombreAdultoMayor: nombre,
+                              avisados: avisadosDe(miembros),
+                              secundario: secundarioDe(miembros),
+                              esperaMinutos: espera,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: ColoredBox(color: context.colores.fondo),
+            ),
           ],
         ),
         bottomNavigationBar: Container(
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-          decoration: const BoxDecoration(
-            color: Color(0xF7EEF0F4),
-            border: Border(top: BorderSide(color: Colores.linea)),
+          decoration: BoxDecoration(
+            color: context.colores.fondo.withValues(alpha: .97),
+            border: Border(top: BorderSide(color: context.colores.linea)),
           ),
           child: SafeArea(
             top: false,
@@ -233,90 +280,121 @@ class _Alerta extends ConsumerWidget {
       ),
     );
   }
+}
 
-  /// Notices above «Qué hacer ahora».
-  List<Widget> _avisos(
-    BuildContext context,
-    String nombre, {
-    required List<MiembroFamilia> miembros,
-    required int espera,
-    required String? yo,
-    required bool titular,
-  }) {
+/// «Más detalles» of the alert: address, phone, firefighters (falls), what the detection does next,
+/// who is told next and the record.
+class _MasDetalles extends StatelessWidget {
+  const _MasDetalles({
+    required this.alerta,
+    required this.adulto,
+    required this.escalamiento,
+    required this.linea,
+  });
+
+  final Alerta alerta;
+  final AdultoMayor adulto;
+
+  /// Who is told next, when it asks for nothing now.
+  final Widget? escalamiento;
+  final List<ItemLinea> linea;
+
+  @override
+  Widget build(BuildContext context) {
+    final texto = Theme.of(context).textTheme;
     final hab = enHabitacion(alerta.habitacion);
-    final recuperada = alerta.recuperadaEn;
-    final avisos = <Widget>[
-      if (recuperada != null)
-        Aviso(
-          tono: TonoAviso.ok,
-          icono: Ico.stand,
-          titulo: '$nombre se levantó a las ${hora(recuperada)}',
-          texto:
-              'Detectamos que se puso de pie $hab. Aun así, confirma cómo está '
-              'antes de cerrar la alerta.',
-        )
-      else if (alerta.esCaida && alerta.confirmada)
-        Aviso(
-          tono: TonoAviso.error,
-          icono: Ico.fall,
-          titulo: 'Sigue en el suelo: caída confirmada',
-          texto:
-              'Pasaron 30 segundos y $nombre no se ha levantado. La alerta sigue '
-              'activa hasta que alguien la marque. Si se pone de pie, te '
-              'avisaremos.',
-        )
-      else if (alerta.esCaida)
-        _Linea(
-          Ico.stand,
-          'Estamos comprobando si $nombre se levanta. Si sigue en el suelo 30 '
-          'segundos, confirmaremos la caída. Si se pone de pie, te avisaremos.',
-        ),
-      if (alerta.esCaida && alerta.origenInestable)
-        Aviso(
-          tono: TonoAviso.neutral,
-          icono: Ico.unsteady,
-          titulo: 'Empezó como movimiento inestable',
-          contenido: conHora(
-            'A las ',
-            hora(alerta.ocurridaEn),
-            ' $hab. La situación terminó en una caída.',
+    final telefono = adulto.telefono;
+    final porque = !alerta.esCaida
+        ? 'No es una caída. Si termina en una, te enviamos una alerta urgente.'
+        : alerta.recuperadaEn != null
+        ? 'Se puso de pie $hab. Confirma cómo está antes de marcar la alerta.'
+        : alerta.confirmada
+        ? 'Lleva más de 30 s en el suelo. Si se levanta, te avisamos.'
+        : 'Si sigue en el suelo 30 s, confirmamos la caída. Si se levanta, te '
+              'avisamos.';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DatosTarjeta([
+          FilaDato(clave: 'Dirección', valor: adulto.direccion),
+          if (telefono != null)
+            FilaDato(clave: 'Teléfono', valor: telefono, mono: true),
+          if (alerta.esCaida)
+            const FilaDato(clave: 'Bomberos', valor: '116', mono: true),
+        ]),
+        const SizedBox(height: 8),
+        Text(porque, style: texto.bodyMedium),
+        if (alerta.esCaida && alerta.origenInestable) ...[
+          const SizedBox(height: 12),
+          Aviso(
+            tono: TonoAviso.neutral,
+            icono: Ico.unsteady,
+            titulo: 'Empezó como movimiento inestable',
+            contenido: conHora(
+              'A las ',
+              hora(alerta.ocurridaEn),
+              ' $hab. La situación terminó en una caída.',
+            ),
           ),
-        ),
-      if (!alerta.esCaida)
-        const _Linea(
-          null,
-          'No se detectó una caída. Si la situación termina en una caída, te '
-          'avisaremos de inmediato con una alerta urgente.',
-        ),
-      ?_escalamiento(
-        context,
-        miembros: miembros,
-        espera: espera,
-        yo: yo,
-        titular: titular,
-      ),
-    ];
-    return [
-      for (final a in avisos) ...[a, const SizedBox(height: 16)],
-    ];
+        ],
+        if (escalamiento case final e?) ...[const SizedBox(height: 8), e],
+        const SizedBox(height: 12),
+        LineaDeTiempo(linea),
+      ],
+    );
   }
+}
 
-  /// Who is told next and when (US-20, `escBlock`).
-  Widget? _escalamiento(
-    BuildContext context, {
+/// Who is told next and when (US-20, `escBlock`). A notice that asks to act (the alert was escalated,
+/// or there is no secondary contact) stays in view; the plain «if nobody marks it…» line goes inside
+/// «Más detalles».
+class _Escalamiento {
+  const _Escalamiento._(
+    this.alerta, {
+    required this.espera,
+    required this.principal,
+    required this.secundario,
+    required this.soySecundario,
+    required this.soyPrincipal,
+    required this.hayMiembros,
+  });
+
+  factory _Escalamiento.de(
+    Alerta alerta, {
     required List<MiembroFamilia> miembros,
     required int espera,
     required String? yo,
-    required bool titular,
   }) {
-    if (miembros.isEmpty) return null;
     MiembroFamilia? con(PapelAviso p) =>
         miembros.where((m) => m.papel == p).firstOrNull;
     final principal = con(PapelAviso.principal)?.familiar;
     final secundario = con(PapelAviso.secundario)?.familiar;
-    final soySecundario = secundario != null && secundario.usuarioId == yo;
-    final soyPrincipal = principal != null && principal.usuarioId == yo;
+    return _Escalamiento._(
+      alerta,
+      espera: espera,
+      principal: principal,
+      secundario: secundario,
+      soySecundario: secundario != null && secundario.usuarioId == yo,
+      soyPrincipal: principal != null && principal.usuarioId == yo,
+      hayMiembros: miembros.isNotEmpty,
+    );
+  }
+
+  final Alerta alerta;
+  final int espera;
+  final Familiar? principal;
+  final Familiar? secundario;
+  final bool soySecundario;
+  final bool soyPrincipal;
+  final bool hayMiembros;
+
+  /// Escalated, or nobody else to tell: the family has to do something.
+  bool get pideAccion =>
+      hayMiembros && (alerta.escaladaEn != null || secundario == null);
+
+  Widget aviso(BuildContext context, {required bool titular}) {
     final escalada = alerta.escaladaEn;
+    final secundario = this.secundario;
     final agregar = titular
         ? (String texto) => Boton(
             texto,
@@ -332,9 +410,9 @@ class _Alerta extends ConsumerWidget {
               icono: Ico.users,
               titulo: 'Te toca atenderla',
               contenido: conHora(
-                'Nadie marcó la alerta en $espera minutos, así que a las ',
+                'Nadie la marcó en $espera min; a las ',
                 hora(escalada),
-                ' te avisamos como contacto secundario.',
+                ' te avisamos como secundario.',
               ),
             )
           : Aviso(
@@ -342,9 +420,9 @@ class _Alerta extends ConsumerWidget {
               icono: Ico.users,
               titulo: 'Avisamos a ${secundario.nombre}',
               contenido: conHora(
-                'Nadie marcó la alerta en $espera minutos, así que a las ',
+                'A las ',
                 hora(escalada),
-                ' se la enviamos al contacto secundario. Tú todavía puedes '
+                ', tras $espera min sin respuesta. Tú todavía puedes '
                     'atenderla.',
               ),
             );
@@ -355,75 +433,43 @@ class _Alerta extends ConsumerWidget {
         icono: Ico.warn,
         titulo: 'No hay a quién escalar',
         texto:
-            'Pasaron $espera minutos sin respuesta y no hay contacto '
-            'secundario. Esta alerta sigue siendo '
+            '$espera min sin respuesta y sin contacto secundario. Sigue siendo '
             '${soyPrincipal ? 'tuya' : 'de ${principal?.nombrePila ?? ''}'}.',
         accion: agregar?.call('Agregar contacto secundario'),
       );
     }
-    final limite = hora(alerta.ocurridaEn.add(Duration(minutes: espera)));
-    if (secundario != null) {
-      return _LineaRica(
-        Ico.clock,
-        TextSpan(
-          children: soySecundario
-              ? [
-                  TextSpan(
-                    text:
-                        '${principal?.nombrePila ?? ''} es el contacto '
-                        'principal. Si nadie la marca como atendida antes de las ',
-                  ),
-                  TextSpan(text: limite, style: _limite),
-                  const TextSpan(
-                    text: ', te avisaremos como contacto secundario.',
-                  ),
-                ]
-              : [
-                  const TextSpan(
-                    text: 'Si nadie la marca como atendida antes de las ',
-                  ),
-                  TextSpan(text: limite, style: _limite),
-                  TextSpan(
-                    text:
-                        ', avisaremos a ${secundario.nombre} (contacto '
-                        'secundario).',
-                  ),
-                ],
-        ),
+    if (secundario == null) {
+      return Aviso(
+        tono: TonoAviso.advertencia,
+        icono: Ico.warn,
+        titulo: 'Sin contacto secundario',
+        texto: 'Si nadie la atiende, no hay a quién más avisar.',
+        accion: agregar?.call('Agregar contacto'),
       );
     }
-    return Aviso(
-      tono: TonoAviso.advertencia,
-      icono: Ico.warn,
-      titulo: 'Sin contacto secundario',
-      texto: 'Si nadie atiende esta alerta, no habrá nadie más a quién avisar.',
-      accion: agregar?.call('Agregar contacto'),
-    );
-  }
-
-  List<(String, String?)> _pasos(AdultoMayor adulto) {
-    final nombre = adulto.nombrePila;
-    if (!alerta.esCaida) {
-      return [
-        ('Llama a $nombre', 'Pregúntale cómo se siente y si necesita ayuda.'),
-        ('Revisa el clip', 'Mira qué pasó antes y después del movimiento.'),
-        (
-          'Marca la alerta',
-          'Indica si la atendiste o si fue una falsa alarma.',
-        ),
-      ];
-    }
-    final partes = adulto.direccion.split(',');
-    final cerca = partes.length > 1 ? partes[1].trim() : 'la casa';
-    return [
-      ('Llama a $nombre', 'Si contesta, pregúntale si puede levantarse sola.'),
-      (
-        'Si no contesta, pide ayuda cerca',
-        'A un vecino o a quien esté más cerca de $cerca. Emergencias: SAMU 106 '
-            'o Bomberos 116.',
+    final limite = hora(alerta.ocurridaEn.add(Duration(minutes: espera)));
+    return _LineaRica(
+      Ico.clock,
+      TextSpan(
+        children: soySecundario
+            ? [
+                TextSpan(
+                  text:
+                      '${principal?.nombrePila ?? ''} es la principal. Si '
+                      'nadie la marca antes de las ',
+                ),
+                TextSpan(text: limite, style: _limite),
+                const TextSpan(text: ', te avisamos.'),
+              ]
+            : [
+                const TextSpan(text: 'Si nadie la marca antes de las '),
+                TextSpan(text: limite, style: _limite),
+                TextSpan(
+                  text: ', avisamos a ${secundario.nombre} (secundario).',
+                ),
+              ],
       ),
-      ('Marca la alerta', 'Cuando esté atendida, para que la familia lo sepa.'),
-    ];
+    );
   }
 }
 
@@ -441,35 +487,11 @@ class _LineaRica extends StatelessWidget {
     children: [
       Padding(
         padding: const EdgeInsets.only(top: 2),
-        child: Icono(icono, tamano: 20, color: Colores.tinta2),
+        child: Icono(icono, tamano: 20, color: context.colores.tinta2),
       ),
       const SizedBox(width: 10),
       Expanded(
         child: Text.rich(texto, style: Theme.of(context).textTheme.bodyMedium),
-      ),
-    ],
-  );
-}
-
-class _Linea extends StatelessWidget {
-  const _Linea(this.icono, this.texto);
-
-  final Ico? icono;
-  final String texto;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (icono != null) ...[
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Icono(icono!, tamano: 20, color: Colores.tinta2),
-        ),
-        const SizedBox(width: 10),
-      ],
-      Expanded(
-        child: Text(texto, style: Theme.of(context).textTheme.bodyMedium),
       ),
     ],
   );
@@ -493,9 +515,7 @@ class _Heroe extends ConsumerWidget {
     final nombre = adulto.nombrePila;
     final ahora = ref.watch(relojProvider)();
     final minutos = ahora.difference(alerta.ocurridaEn).inMinutes;
-    final etiqueta = caida
-        ? 'Alerta de caída · Urgente'
-        : 'Movimiento inestable · Severidad media';
+    final etiqueta = caida ? 'Caída · Urgente' : 'Inestable · Severidad media';
     final telefono = adulto.telefono;
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 4, 22, 22),
@@ -521,7 +541,7 @@ class _Heroe extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Esta alerta no te llegó como notificación',
+                          'No te llegó como notificación',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -530,8 +550,7 @@ class _Heroe extends ConsumerWidget {
                         ),
                         if (alerta.avisoReintentando)
                           const Text(
-                            'El servicio de avisos falló. Seguimos reintentando '
-                            'el envío; por eso la ves al abrir la app.',
+                            'Falló el envío; seguimos reintentando.',
                             style: TextStyle(
                               fontSize: 15.5,
                               color: Colores.tinta,
@@ -600,25 +619,18 @@ class _Heroe extends ConsumerWidget {
           _Datos(
             alerta: alerta,
             color: color,
-            hace: minutos < 1 ? 'instantes' : '$minutos min',
-          ),
-          const SizedBox(height: 12),
-          Text(
-            adulto.direccion,
-            style: estiloTexto(15, 400, color: color.withValues(alpha: .95)),
+            hace: minutos < 1 ? 'ahora' : '$minutos min',
           ),
           const SizedBox(height: 16),
           Boton(
-            telefono == null
-                ? 'Llamar a $nombre'
-                : 'Llamar a $nombre · $telefono',
+            'Llamar a $nombre',
             icono: Ico.phone,
             estilo: caida ? EstiloBoton.blanco : EstiloBoton.tinta,
             alPresionar: () => ref.read(llamarProvider)(telefono),
           ),
           const SizedBox(height: 12),
           Boton(
-            'Ver en vivo · ${alerta.habitacion}',
+            'Ver en vivo',
             icono: Ico.video,
             estilo: caida ? EstiloBoton.sobreRojo : EstiloBoton.secundario,
             alPresionar: () => context.push(

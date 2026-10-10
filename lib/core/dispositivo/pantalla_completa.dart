@@ -20,13 +20,13 @@ abstract interface class ModoPantallaCompleta {
   Stream<bool> get cambios;
 }
 
-/// Android and iOS: landscape allowed and immersive system bars while the clip is in full screen.
+/// Android and iOS: the phone turns to landscape, with immersive system bars, while the clip is in
+/// full screen (as any video player does).
 class PantallaCompletaSistema implements ModoPantallaCompleta {
   const PantallaCompletaSistema();
 
-  /// Upright and both landscapes: upside down is left out, as the iPhone does.
+  /// Both landscapes, so the phone can be held either way.
   static const orientaciones = [
-    DeviceOrientation.portraitUp,
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ];

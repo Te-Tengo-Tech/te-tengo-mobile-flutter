@@ -6,11 +6,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/push.dart';
 import '../../../app/rutas.dart';
+import '../../../app/tema/paleta.dart';
 import '../../historial/presentation/pantalla_historial.dart';
 import '../../historial/presentation/resumen_semanal.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
-import '../../../core/formato.dart';
-import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
@@ -24,6 +23,7 @@ import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../camaras/presentation/fila_camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
+import '../../hogar/domain/hogar.dart';
 import 'tarjeta_adulto_mayor.dart';
 
 /// Inicio tab (screens 25–27 and 102): greeting, notifications notice (CA-16.3), the older adult
@@ -49,7 +49,6 @@ class _ContenidoInicio extends ConsumerWidget {
     final camaras = ref.watch(camarasProvider);
     final camara = camaras.value?.firstOrNull;
     final texto = Theme.of(context).textTheme;
-    final hoy = ref.watch(relojProvider)();
     final notificaciones = ref.watch(notificacionesActivasProvider).value;
     final celularSinAlertas = ref.watch(celularSinAlertasProvider);
     final familiaSinAlertas = ref.watch(familiaSinAlertasProvider);
@@ -67,7 +66,6 @@ class _ContenidoInicio extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
         children: [
-          Text(mayusculaInicial(fechaLarga(hoy)), style: texto.bodySmall),
           Semantics(
             header: true,
             child: Text(
@@ -92,11 +90,8 @@ class _ContenidoInicio extends ConsumerWidget {
                   : notificaciones == false
                   ? 'Activa las notificaciones'
                   : 'Este celular no recibe las alertas',
-              texto: notificaciones == false
-                  ? 'Están desactivadas en tu celular. Sin ellas no te enterarás '
-                        'de una caída cuando tengas la app cerrada.'
-                  : 'Sin ellas no te enterarás de una caída cuando tengas la '
-                        'app cerrada.',
+              texto:
+                  'Sin ellas no te enterarás de una caída con la app cerrada.',
               accion: Boton(
                 'Activar notificaciones',
                 estilo: EstiloBoton.tinta,
@@ -109,7 +104,12 @@ class _ContenidoInicio extends ConsumerWidget {
           switch (hogar) {
             AsyncData(value: final h) => TarjetaAdultoMayor(
               adulto: h.adultoMayor,
-              estado: estadoTarjeta(h, camara, alerta: alerta),
+              estado: estadoTarjeta(
+                h,
+                camara,
+                alerta: alerta,
+                paleta: context.colores,
+              ),
               accion: alerta != null
                   ? Boton(
                       'Ver la alerta',
@@ -136,13 +136,7 @@ class _ContenidoInicio extends ConsumerWidget {
             MensajeProblema(error),
           ],
           if (camara != null && hogar.value != null) ...[
-            EncabezadoSeccion(
-              'Cámara',
-              accion: Enlace(
-                'Ver detalle',
-                alTocar: () => context.push(Rutas.camara(camara.id)),
-              ),
-            ),
+            const EncabezadoSeccion('Cámara'),
             ListaTarjeta(
               children: [
                 FilaCamara(
@@ -155,7 +149,9 @@ class _ContenidoInicio extends ConsumerWidget {
                 FilaLista(
                   inicio: const IconoFila(Ico.video),
                   titulo: 'Ver en vivo',
-                  subtitulo: 'Cuando quieras. Cada acceso queda registrado.',
+                  subtitulo: _vivoDisponible(camara, hogar.value!)
+                      ? 'Cada acceso queda registrado'
+                      : 'No disponible ahora',
                   alTocar: () => context.push(
                     Uri(
                       path: Rutas.vivo,
@@ -174,14 +170,18 @@ class _ContenidoInicio extends ConsumerWidget {
                     .elegir(SeccionHistorial.resumen);
                 context.go(Rutas.historial);
               },
-              alAbrir: (a) => context.push(
-                a.activa ? Rutas.alerta(a.id) : Rutas.detalleAlerta(a.id),
-              ),
             ),
         ],
       ),
     );
   }
+
+  /// The live view can open now: consent given and the camera neither disconnected nor paused.
+  bool _vivoDisponible(Camara camara, Hogar hogar) => switch (camara
+      .estadoVisible(conConsentimiento: hogar.conConsentimiento)) {
+    EstadoVisible.enLinea || EstadoVisible.noConfiable => true,
+    _ => false,
+  };
 
   Boton? _accionTarjeta(
     BuildContext context,

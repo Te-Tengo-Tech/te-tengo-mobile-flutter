@@ -10,6 +10,7 @@ import '../features/familia/presentation/pantallas_invitacion.dart';
 import '../features/vivo/presentation/pantalla_accesos.dart';
 import '../features/vivo/presentation/pantalla_vivo.dart';
 import '../features/ajustes/presentation/pantalla_ajustes.dart';
+import '../features/ajustes/presentation/pantalla_avisos_setup.dart';
 import '../features/alertas/presentation/pantalla_alerta.dart';
 import '../features/alertas/presentation/pantalla_detalle_alerta.dart';
 import '../features/arranque/pantalla_arranque.dart';
@@ -19,6 +20,7 @@ import '../features/familia/presentation/pantalla_familia.dart';
 import '../features/familia/presentation/pantalla_orden_aviso.dart';
 import '../features/familia/presentation/pantallas_configuracion_familia.dart';
 import '../features/historial/presentation/pantalla_historial.dart';
+import '../features/legal/presentation/pantallas_legales.dart';
 import '../features/instalar/presentation/instalar_app.dart';
 import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
 import '../features/hogar/presentation/pantalla_persona_setup.dart';
@@ -98,6 +100,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: Rutas.terminos,
+        builder: (context, state) => const PantallaTerminos(),
+      ),
+      GoRoute(
+        path: Rutas.politica,
+        builder: (context, state) => const PantallaPolitica(),
+      ),
+      GoRoute(
+        path: Rutas.documentoConsentimiento,
+        builder: (context, state) => const PantallaDocumentoConsentimiento(),
+      ),
+      GoRoute(
         path: Rutas.instalar,
         builder: (context, state) => const PantallaInstalarApp(),
       ),
@@ -138,6 +152,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Rutas.configFamilia,
         builder: (context, state) => const PantallaInvitarSetup(),
+      ),
+      GoRoute(
+        path: Rutas.configAvisos,
+        builder: (context, state) => PantallaAvisosSetup(
+          invitado: state.uri.queryParameters['invitado'],
+        ),
       ),
       GoRoute(
         path: Rutas.configListo,

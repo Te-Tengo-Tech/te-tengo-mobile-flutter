@@ -26,12 +26,40 @@ import '../features/vivo/vivo_falso.dart';
 
 /// A main screen of the app, opened with every fake in place.
 class Pantalla {
-  const Pantalla(this.nombre, this.ubicacion, {this.sesion = sesionTitular});
+  const Pantalla(
+    this.nombre,
+    this.ubicacion, {
+    this.sesion = sesionTitular,
+    this.inestable = false,
+  });
 
   final String nombre;
   final String ubicacion;
   final Sesion? sesion;
+
+  /// The active alert `a-1` is an unstable movement instead of a fall.
+  final bool inestable;
 }
+
+/// Screens checked in dark mode and with the system text at 200 %: the main ones plus every setup
+/// step, the unstable alert and the legal pages.
+final pantallasOscurasYGrandes = [
+  ...pantallasPrincipales,
+  Pantalla(
+    'alerta de movimiento inestable',
+    Rutas.alerta('a-1'),
+    inestable: true,
+  ),
+  const Pantalla('paso 1 persona', Rutas.configPersona),
+  const Pantalla('paso 2 consentimiento', Rutas.configConsentimiento),
+  const Pantalla('paso 3 cámara', Rutas.configCamara),
+  const Pantalla('paso 4 familia', Rutas.configFamilia),
+  const Pantalla('paso 5 avisos', Rutas.configAvisos),
+  const Pantalla('todo listo', Rutas.configListo),
+  const Pantalla('términos de uso', Rutas.terminos),
+  const Pantalla('política de privacidad', Rutas.politica),
+  const Pantalla('documento de consentimiento', Rutas.documentoConsentimiento),
+];
 
 final pantallasPrincipales = [
   const Pantalla('bienvenida', Rutas.bienvenida, sesion: null),
@@ -68,7 +96,10 @@ class _ResumenFalso implements ResumenRepositorio {
 Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
   usarTelefono(tester);
   final alertas = AlertasRepositorioFalso([
-    if (p.ubicacion == Rutas.alerta('a-1')) caidaSala(),
+    if (p.ubicacion == Rutas.alerta('a-1'))
+      caidaSala(
+        tipo: p.inestable ? TipoAlerta.movimientoInestable : TipoAlerta.caida,
+      ),
     caidaSala(
       id: 'h1',
       tipo: TipoAlerta.movimientoInestable,

@@ -22,12 +22,9 @@ void main() {
       expect(find.text('Sigue en el suelo · confirmada'), findsOneWidget);
       expect(find.text('Comprobando si sigue en el suelo'), findsNothing);
       expect(find.text('1 min'), findsOneWidget);
-      await verHasta(tester, find.text('Sigue en el suelo: caída confirmada'));
+      await tocar(tester, find.text('Más detalles'));
       expect(
-        find.text(
-          'Pasaron 30 segundos y Rosa no se ha levantado. La alerta sigue activa '
-          'hasta que alguien la marque. Si se pone de pie, te avisaremos.',
-        ),
+        find.text('Lleva más de 30 s en el suelo. Si se levanta, te avisamos.'),
         findsOneWidget,
       );
       await verHasta(

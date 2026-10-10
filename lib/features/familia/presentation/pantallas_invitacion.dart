@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/botones.dart';
@@ -127,7 +127,9 @@ class _PantallaAceptarInvitacionState
                 Text(
                   'Crea tu acceso para recibir las alertas de $adulto en este '
                   'celular.',
-                  style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+                  style: texto.bodyLarge?.copyWith(
+                    color: context.colores.tinta2,
+                  ),
                 ),
               ],
               const SizedBox(height: 16),
@@ -195,12 +197,12 @@ class PantallaAccesoCreado extends ConsumerWidget {
                 child: ListView(
                   children: [
                     const SizedBox(height: 34),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: IconoGrande(
                         icono: Ico.bell,
-                        fondo: Colores.calmaSuave,
-                        color: Colores.calmaTinta,
+                        fondo: context.colores.calmaSuave,
+                        color: context.colores.calmaTinta,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -213,9 +215,10 @@ class PantallaAccesoCreado extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Tu acceso quedó unido a la cuenta de $titular. Te '
-                      'llegará cada alerta aunque tengas la app cerrada.',
-                      style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+                      'Te llegarán aunque tengas la app cerrada.',
+                      style: texto.bodyLarge?.copyWith(
+                        color: context.colores.tinta2,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     ListaTarjeta(
@@ -224,16 +227,15 @@ class PantallaAccesoCreado extends ConsumerWidget {
                           inicio: IconoFila(Ico.check),
                           titulo: 'Puedes',
                           subtitulo:
-                              'Ver alertas, clips, historial y resumen, y la '
-                              'cámara en vivo cuando quieras. Marcar alertas y '
-                              'pausar la cámara.',
+                              'Ver alertas, clips, historial y la cámara en '
+                              'vivo. Marcar alertas y pausar la cámara.',
                         ),
                         FilaLista(
                           inicio: const IconoFila(Ico.lock),
                           titulo: 'Solo $titular puede',
                           subtitulo:
                               'Cambiar los datos de $adulto, el consentimiento, '
-                              'la cámara, la familia y el orden de aviso.',
+                              'la cámara y la familia.',
                         ),
                       ],
                     ),

@@ -16,6 +16,9 @@ abstract interface class ControladorClip implements Listenable {
   /// Moves to [posicion]; the player clamps it to the clip.
   Future<void> buscar(Duration posicion);
 
+  /// Playback speed: 1 is normal, 0.5 half and 2 double.
+  Future<void> velocidad(double factor);
+
   bool get listo;
   bool get reproduciendo;
 
@@ -71,6 +74,9 @@ class ControladorVideo extends ChangeNotifier implements ControladorClip {
 
   @override
   Future<void> buscar(Duration posicion) => _video.seekTo(posicion);
+
+  @override
+  Future<void> velocidad(double factor) => _video.setPlaybackSpeed(factor);
 
   @override
   bool get listo => _video.value.isInitialized;

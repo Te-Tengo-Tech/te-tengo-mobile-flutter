@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -24,7 +24,7 @@ import '../data/familia_repositorio.dart';
 /// Wait before the secondary contact is told, until the owner changes it (CA-10.3).
 const esperaPredeterminada = 5;
 
-/// US-08, screen 23 (setup step 4 of 4): invite another family member (CA-08.1).
+/// US-08, screen 26 (setup step 4 of 5): invite another family member (CA-08.1).
 class PantallaInvitarSetup extends ConsumerStatefulWidget {
   const PantallaInvitarSetup({super.key});
 
@@ -80,7 +80,7 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
 
   void _seguir() => context.go(
     Uri(
-      path: Rutas.configListo,
+      path: Rutas.configAvisos,
       queryParameters: {'invitado': ?_invitado},
     ).toString(),
   );
@@ -91,7 +91,11 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final invitado = _invitado;
     return Scaffold(
-      appBar: const CabeceraConfiguracion(paso: 4, titulo: 'Familia'),
+      appBar: CabeceraConfiguracion(
+        paso: 4,
+        titulo: 'Familia',
+        escala: MediaQuery.textScalerOf(context),
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
         children: [
@@ -101,9 +105,8 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Recibirá las alertas de $nombre. Si tú no atiendes una alerta en '
-            '$esperaPredeterminada minutos, le avisaremos a esta persona. '
-            'Podrás cambiar ese tiempo después en Familia.',
+            'Recibirá las alertas de $nombre y, si no atiendes una en '
+            '$esperaPredeterminada min, le avisaremos.',
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -190,9 +193,8 @@ class PantallaTodoListo extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Si detectamos una caída o un movimiento inestable, te llegará un '
-              'aviso aunque tengas la app cerrada.',
-              style: texto.bodyLarge?.copyWith(color: Colores.tinta2),
+              'Te avisaremos aunque tengas la app cerrada.',
+              style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
             ),
             const SizedBox(height: 20),
             ListaTarjeta(
@@ -208,8 +210,7 @@ class PantallaTodoListo extends ConsumerWidget {
                         titulo:
                             'Cámara ${deHabitacion(camara.nombreHabitacion)}',
                         subtitulo: estado == EstadoVisible.enLinea
-                            ? '${estado.texto} · instalada por el equipo del '
-                                  'proyecto'
+                            ? estado.texto
                             : '${estado.texto} · no envía video',
                       );
                     },
@@ -260,13 +261,13 @@ class _IconoResumen extends StatelessWidget {
     height: 36,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: activo ? Colores.calmaSuave : Colores.fondo2,
+      color: activo ? context.colores.calmaSuave : context.colores.fondo2,
       borderRadius: BorderRadius.circular(12),
     ),
     child: Icono(
       icono,
       tamano: 22,
-      color: activo ? Colores.calmaTinta : Colores.tinta3,
+      color: activo ? context.colores.calmaTinta : context.colores.tinta3,
     ),
   );
 }

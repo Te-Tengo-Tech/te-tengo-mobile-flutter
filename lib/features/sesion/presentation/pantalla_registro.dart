@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
-import '../../../app/tema/tema.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
@@ -101,19 +99,11 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          Text(
-            'Con tu cuenta recibirás las alertas y verás el historial de la '
-            'persona que cuidas.',
-            style: texto.bodyMedium,
-          ),
-          const SizedBox(height: 16),
           if (_correoEnUso) ...[
             Aviso(
               tono: TonoAviso.error,
               icono: Ico.warn,
               titulo: 'Ese correo ya tiene una cuenta',
-              texto:
-                  'Inicia sesión con él o recupera tu contraseña si no la recuerdas.',
               accion: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -136,8 +126,7 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
             const Aviso(
               tono: TonoAviso.error,
               icono: Ico.warn,
-              titulo: 'Faltan datos obligatorios',
-              texto: 'Completa los campos marcados para crear tu cuenta.',
+              titulo: 'Completa los campos marcados',
             ),
             const SizedBox(height: 16),
           ],
@@ -152,7 +141,7 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
                   etiqueta: 'Tu nombre y apellido',
                   controlador: _nombre,
                   error: _errores['nombre'],
-                  ayuda: 'Así sabrán los demás quién atendió cada alerta.',
+                  ayuda: 'Tu familia verá quién atendió cada alerta.',
                   autocompletar: const [AutofillHints.name],
                   accionTeclado: TextInputAction.next,
                 ),
@@ -179,18 +168,24 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
           const SizedBox(height: 8),
           Boton('Crear cuenta', cargando: _enviando, alPresionar: _crear),
           const SizedBox(height: 16),
-          Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(text: 'Al crear tu cuenta aceptas los '),
-                TextSpan(text: 'Términos de uso', style: _enlace),
-                const TextSpan(text: ' y la '),
-                TextSpan(text: 'Política de privacidad', style: _enlace),
-                const TextSpan(text: '.'),
-              ],
-            ),
-            textAlign: TextAlign.center,
-            style: texto.bodySmall,
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text('Aceptas los', style: texto.bodySmall),
+              Enlace(
+                'Términos',
+                tamano: 15,
+                alTocar: () => context.push(Rutas.terminos),
+              ),
+              Text('y la', style: texto.bodySmall),
+              Enlace(
+                'Privacidad',
+                tamano: 15,
+                alTocar: () => context.push(Rutas.politica),
+              ),
+              Text('.', style: texto.bodySmall),
+            ],
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -209,9 +204,3 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
     );
   }
 }
-
-final _enlace = estiloTexto(
-  15,
-  700,
-  color: Colores.moradoTinta,
-).copyWith(decoration: TextDecoration.underline);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/lista.dart';
@@ -49,7 +50,7 @@ class FilaCamara extends StatelessWidget {
         children: [
           TextSpan(
             text: estado.texto,
-            style: estiloTexto(15, 700, color: estado.color),
+            style: estiloTexto(15, 700, color: estado.colorEn(context.colores)),
           ),
           if (detalle.text != '' || detalle.children != null) ...[
             const TextSpan(text: ' · '),

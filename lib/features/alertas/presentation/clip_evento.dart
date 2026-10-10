@@ -3,13 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/dispositivo/pantalla_completa.dart';
+import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/ilustraciones.dart';
+import '../../camaras/domain/camara.dart';
 import '../../sesion/presentation/pantalla_bienvenida.dart' show EtiquetaClip;
 import '../data/alertas_repositorio.dart';
 import '../domain/alerta.dart';
@@ -21,28 +23,34 @@ import 'reproductor.dart';
 /// alert still shows and says the clip is not available (CA-18.2). The short-lived URL is renewed by
 /// [ReproduccionClip]; the controls are [ControlesClip], also in full screen.
 class ClipEvento extends ConsumerWidget {
-  const ClipEvento({super.key, required this.alerta});
+  const ClipEvento({super.key, required this.alerta, this.aRas = false});
 
   final Alerta alerta;
+
+  /// Spans its card edge to edge (inside the alert's «Clip del evento»), with square corners.
+  final bool aRas;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (alerta.clip != EstadoClip.disponible) {
-      return ClipNoDisponible(alerta: alerta, estado: alerta.clip);
+      return ClipNoDisponible(alerta: alerta, estado: alerta.clip, aRas: aRas);
     }
     final clip = ref.watch(clipProvider(alerta.id));
     return switch (clip) {
       AsyncData(value: final r) when r.enlace != null => _Reproductor(
         alerta: alerta,
         enlace: r.enlace!,
+        aRas: aRas,
       ),
       AsyncData(value: final r) => ClipNoDisponible(
         alerta: alerta,
         estado: r.estado,
+        aRas: aRas,
       ),
       AsyncError(:final error) => MensajeProblema(error),
       _ => _Marco(
         alerta: alerta,
+        aRas: aRas,
         child: _Poster(alerta: alerta),
       ),
     };
@@ -55,10 +63,12 @@ class ClipNoDisponible extends StatelessWidget {
     super.key,
     required this.alerta,
     required this.estado,
+    this.aRas = false,
   });
 
   final Alerta alerta;
   final EstadoClip estado;
+  final bool aRas;
 
   @override
   Widget build(BuildContext context) {
@@ -68,29 +78,29 @@ class ClipNoDisponible extends StatelessWidget {
         ? (
             Ico.trash,
             'La grabación ya no está disponible',
-            'Se eliminó el '
+            'Se borró el '
                 '${fechaConAnio(alerta.ocurridaEn.add(const Duration(days: 30)))} '
-                'por la política de retención de 30 días. El registro de la '
-                'alerta se conserva.',
+                '(se guardan 30 días). El registro se conserva.',
           )
         : (
             Ico.video,
             'Clip no disponible',
-            'Hubo un problema al guardar el video de este evento. La alerta es '
-                'válida: el aviso y el registro no dependen del clip.',
+            'No se pudo guardar el video. La alerta sigue siendo válida.',
           );
     return Container(
-      constraints: const BoxConstraints(minHeight: 170),
+      constraints: BoxConstraints(minHeight: aRas ? 0 : 170),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colores.fondo2,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colores.linea2, width: 1.5),
+        color: context.colores.fondo2,
+        borderRadius: BorderRadius.circular(aRas ? 0 : 18),
+        border: aRas
+            ? null
+            : Border.all(color: context.colores.linea2, width: 1.5),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icono(icono, tamano: 32, color: Colores.tinta3),
+          Icono(icono, tamano: 32, color: context.colores.tinta3),
           const SizedBox(height: 8),
           Text(titulo, textAlign: TextAlign.center, style: texto.titleMedium),
           const SizedBox(height: 8),
@@ -102,14 +112,23 @@ class ClipNoDisponible extends StatelessWidget {
 }
 
 class _Marco extends StatelessWidget {
-  const _Marco({required this.alerta, required this.child});
+  const _Marco({
+    required this.alerta,
+    required this.child,
+    this.aRas = false,
+    this.alPantallaCompleta,
+  });
 
   final Alerta alerta;
   final Widget child;
+  final bool aRas;
+
+  /// The full-screen button over the image (`.clip-fs`), once the clip can play.
+  final VoidCallback? alPantallaCompleta;
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(18),
+    borderRadius: BorderRadius.circular(aRas ? 0 : 18),
     child: AspectRatio(
       aspectRatio: 16 / 10,
       child: Stack(
@@ -123,7 +142,43 @@ class _Marco extends StatelessWidget {
               texto: '${alerta.habitacion} · ${hora(alerta.ocurridaEn)}',
             ),
           ),
+          if (alPantallaCompleta case final entrar?)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: _BotonPantallaCompleta(alTocar: entrar),
+            ),
         ],
+      ),
+    ),
+  );
+}
+
+/// `.clip-fs`: 48 px, dark and translucent over the top right corner of the image.
+class _BotonPantallaCompleta extends StatelessWidget {
+  const _BotonPantallaCompleta({required this.alTocar});
+
+  final VoidCallback alTocar;
+
+  static const _etiqueta = 'Ver el clip en pantalla completa';
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: _etiqueta,
+    excludeSemantics: true,
+    child: Material(
+      color: const Color(0xB817121F),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: alTocar,
+        child: const SizedBox.square(
+          dimension: 48,
+          child: Center(
+            child: Icono(Ico.expand, tamano: 22, color: Colors.white),
+          ),
+        ),
       ),
     ),
   );
@@ -144,10 +199,15 @@ class _Poster extends StatelessWidget {
 }
 
 class _Reproductor extends ConsumerStatefulWidget {
-  const _Reproductor({required this.alerta, required this.enlace});
+  const _Reproductor({
+    required this.alerta,
+    required this.enlace,
+    required this.aRas,
+  });
 
   final Alerta alerta;
   final EnlaceClip enlace;
+  final bool aRas;
 
   @override
   ConsumerState<_Reproductor> createState() => _ReproductorState();
@@ -201,25 +261,28 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
       if (_clip.perdido case final estado?) {
         return ClipNoDisponible(alerta: widget.alerta, estado: estado);
       }
+      final aRas = widget.aRas;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Marco(
             alerta: widget.alerta,
+            aRas: aRas,
+            alPantallaCompleta: _pantallaCompleta,
             child: _clip.listo && !_clip.enPantallaCompleta
                 ? FittedBox(fit: BoxFit.cover, child: _clip.vista())
                 : _Poster(alerta: widget.alerta),
           ),
-          const SizedBox(height: 8),
-          ControlesClip(
-            reproduccion: _clip,
-            alPantallaCompleta: _pantallaCompleta,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Ilustración de la habitación con la postura detectada. 6 s antes '
-            'y 6 s después del evento.',
-            style: Theme.of(context).textTheme.bodySmall,
+          if (!aRas) const SizedBox(height: 8),
+          ControlesClip(reproduccion: _clip, aRas: aRas),
+          Padding(
+            padding: aRas
+                ? const EdgeInsets.fromLTRB(16, 10, 16, 14)
+                : const EdgeInsets.only(top: 8),
+            child: Text(
+              'Con la postura detectada · 6 s antes y 6 s después.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),
         ],
       );
@@ -280,52 +343,89 @@ class _PantallaClipCompletaState extends ConsumerState<PantallaClipCompleta> {
   Widget build(BuildContext context) {
     final r = widget.reproduccion;
     final alerta = widget.alerta;
+    void salir() => Navigator.of(context).maybePop();
+    // Landscape and black, as any video: the clip keeps its proportions with black bars.
     return Scaffold(
-      backgroundColor: Colores.noche,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    ListenableBuilder(
-                      listenable: r,
-                      builder: (context, _) => r.listo
-                          ? FittedBox(child: r.vista())
-                          : Center(
-                              child: AspectRatio(
-                                aspectRatio: 16 / 10,
-                                child: ColoredBox(
-                                  color: const Color(0xFFDCD8E6),
-                                  child: _Poster(alerta: alerta),
-                                ),
-                              ),
-                            ),
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Center(
+            child: ListenableBuilder(
+              listenable: r,
+              builder: (context, _) => r.listo
+                  ? FittedBox(child: r.vista())
+                  : AspectRatio(
+                      aspectRatio: 16 / 10,
+                      child: _Poster(alerta: alerta),
                     ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: EtiquetaClip(
-                        texto:
-                            '${alerta.habitacion} · ${hora(alerta.ocurridaEn)}',
-                      ),
-                    ),
-                  ],
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xB3000000), Color(0x00000000)],
                 ),
               ),
-              const SizedBox(height: 8),
-              ControlesClip(
-                reproduccion: r,
-                enPantallaCompleta: true,
-                alPantallaCompleta: () => Navigator.of(context).maybePop(),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 16, 16),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        tooltip: 'Salir de pantalla completa',
+                        onPressed: salir,
+                        icon: const Icono(Ico.x, color: Colors.white),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Semantics(
+                          header: true,
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      '${alerta.tipo.nombre} '
+                                      '${enHabitacion(alerta.habitacion)} · ',
+                                ),
+                                TextSpan(
+                                  text: hora(alerta.ocurridaEn),
+                                  style: estiloMono(
+                                    tamano: 17,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            style: estiloTexto(17, 700, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              minimum: const EdgeInsets.fromLTRB(48, 0, 48, 12),
+              child: ControlesClip(reproduccion: r, alSalir: salir),
+            ),
+          ),
+        ],
       ),
     );
   }

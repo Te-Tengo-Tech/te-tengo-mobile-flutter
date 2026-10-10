@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/formato.dart';
+import '../../../core/ui/plegable.dart';
 import '../../../core/ui/tarjeta.dart';
 import '../domain/camara.dart';
 import 'estado_camara.dart';
@@ -45,6 +46,10 @@ class CabeceraCamara extends StatelessWidget {
             child: Divider(height: 1),
           ),
           DatosTarjeta(datosCamara(camara, estado, ahora)),
+          VerMas(
+            etiqueta: 'Datos de la instalación',
+            child: DatosTarjeta(datosInstalacion(camara)),
+          ),
         ],
       ),
     );
@@ -59,7 +64,7 @@ String haceTiempo(DateTime momento, DateTime ahora) {
   return 'hace ${d.inHours} h';
 }
 
-/// Rows of the camera data (`camKv`).
+/// Rows of the camera data (`camKv`): signal and detection. The installation data folds below.
 List<Widget> datosCamara(Camara c, EstadoVisible estado, DateTime ahora) {
   final senal = c.ultimaSenal;
   return [
@@ -83,10 +88,6 @@ List<Widget> datosCamara(Camara c, EstadoVisible estado, DateTime ahora) {
                 ],
               ),
       ),
-    const FilaDato(clave: 'Conectada a', valor: 'PC de la casa'),
-    if (c.instaladaEn case final f?)
-      FilaDato(clave: 'Instalada el', valor: fechaConAnio(f)),
-    const FilaDato(clave: 'Instalada por', valor: 'Equipo del proyecto'),
     FilaDato(
       clave: 'Detección de caídas',
       valor: switch (estado) {
@@ -97,5 +98,13 @@ List<Widget> datosCamara(Camara c, EstadoVisible estado, DateTime ahora) {
     ),
   ];
 }
+
+/// «Datos de la instalación» (`more('cam-inst')`): where it is connected, when and by whom.
+List<Widget> datosInstalacion(Camara c) => [
+  const FilaDato(clave: 'Conectada a', valor: 'PC de la casa'),
+  if (c.instaladaEn case final f?)
+    FilaDato(clave: 'Instalada el', valor: fechaConAnio(f)),
+  const FilaDato(clave: 'Instalada por', valor: 'Equipo de Te Tengo'),
+];
 
 const _mono = TextStyle(fontFamily: 'AtkinsonHyperlegibleMono');

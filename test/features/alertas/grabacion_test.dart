@@ -54,7 +54,7 @@ void main() {
   ) async {
     final clips = FabricaClipFalsa();
     final alertas = await abrir(tester, [pasada], clips: clips);
-    await tocar(tester, find.text('Movimiento inestable'));
+    await tocar(tester, find.text('Inestable'));
     expect(find.byType(PantallaDetalleAlerta), findsOneWidget);
     expect(find.text('Alerta del lun 21 sep'), findsOneWidget);
     await verHasta(tester, find.text('0:00 / 0:12'));
@@ -105,8 +105,8 @@ void main() {
     await verHasta(tester, find.text('La grabación ya no está disponible'));
     expect(
       find.text(
-        'Se eliminó el 10 sep 2026 por la política de retención de 30 días. '
-        'El registro de la alerta se conserva.',
+        'Se borró el 10 sep 2026 (se guardan 30 días). El registro se '
+        'conserva.',
       ),
       findsOneWidget,
     );

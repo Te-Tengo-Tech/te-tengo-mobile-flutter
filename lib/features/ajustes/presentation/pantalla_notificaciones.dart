@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/push.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/colores.dart';
+import '../../../app/tema/paleta.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
@@ -14,10 +15,10 @@ import '../../../core/ui/lista.dart';
 import '../../../core/web/entorno.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
-import '../../hogar/data/hogar_repositorio.dart';
 import '../../inicio/presentation/pantalla_inicio.dart';
 import '../../instalar/presentation/instalar_app.dart';
 import '../data/preferencias.dart';
+import 'pantalla_avisos_setup.dart';
 
 /// Screen 96: whether this phone may show notifications and what it is told about.
 class PantallaNotificaciones extends ConsumerWidget {
@@ -32,7 +33,6 @@ class PantallaNotificaciones extends ConsumerWidget {
     final preferencias =
         ref.watch(preferenciasProvider).value ??
         const PreferenciasNotificaciones();
-    final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final espera =
         ref.watch(avisoProvider).value?.esperaMinutos ??
         ConfiguracionAviso.esperaPredeterminada;
@@ -50,9 +50,7 @@ class PantallaNotificaciones extends ConsumerWidget {
               tono: TonoAviso.advertencia,
               icono: Ico.bellOff,
               titulo: 'Desactivadas en tu celular',
-              texto:
-                  'Sin permiso de notificaciones no te enterarás de una caída '
-                  'con la app cerrada.',
+              texto: 'Con la app cerrada no te enterarás de una caída.',
               accion: Boton(
                 'Activar notificaciones',
                 estilo: EstiloBoton.tinta,
@@ -70,8 +68,7 @@ class PantallaNotificaciones extends ConsumerWidget {
                   ? 'Nadie de la familia recibe las alertas'
                   : 'Este celular no recibe las alertas',
               texto:
-                  'Sin ellas no te enterarás de una caída cuando tengas la '
-                  'app cerrada.',
+                  'Sin ellas no te enterarás de una caída con la app cerrada.',
               accion: Boton(
                 'Activar notificaciones',
                 estilo: EstiloBoton.tinta,
@@ -94,6 +91,11 @@ class PantallaNotificaciones extends ConsumerWidget {
                 subtitulo: 'Siempre activas. No se pueden silenciar.',
                 valor: true,
               ),
+              if (ref.watch(permisoNotificacionesProvider).ajustesDeSonido)
+                const FilaSonarEnSilencio(
+                  subtitulo:
+                      'Las caídas suenan aunque el celular esté en silencio',
+                ),
               _FilaInterruptor(
                 titulo: 'Movimientos inestables',
                 subtitulo: 'Severidad media',
@@ -101,11 +103,11 @@ class PantallaNotificaciones extends ConsumerWidget {
                 alCambiar: (v) =>
                     control.cambiar(preferencias.con(inestables: v)),
               ),
-              _FilaInterruptor(
+              const _FilaInterruptor(
                 titulo: 'Estado de la cámara',
                 subtitulo:
-                    'Desconectada, reconectada o detección no confiable. '
-                    'Siempre activas, para que $nombre no quede sin monitoreo.',
+                    'Desconexión, reconexión o detección no confiable. Siempre '
+                    'activas.',
                 valor: true,
               ),
               _FilaInterruptor(
@@ -117,16 +119,20 @@ class PantallaNotificaciones extends ConsumerWidget {
               ),
             ],
           ),
-          const EncabezadoSeccion('Escalamiento'),
+          const EncabezadoSeccion('Si nadie atiende'),
           ListaTarjeta(
             children: [
               FilaLista(
                 inicio: const IconoFila(Ico.clock),
-                titulo: 'Esperar $espera minutos antes de escalar',
-                subtitulo: 'Se define en el orden de aviso de la familia',
+                titulo: 'Avisar al secundario a los $espera min',
+                subtitulo: 'Se cambia en Orden de aviso',
                 fin: titular
                     ? null
-                    : const Icono(Ico.lock, tamano: 22, color: Colores.tinta3),
+                    : Icono(
+                        Ico.lock,
+                        tamano: 22,
+                        color: context.colores.tinta3,
+                      ),
                 alTocar: () => context.push(Rutas.ordenAviso),
               ),
             ],
@@ -163,7 +169,7 @@ class _FilaInterruptor extends StatelessWidget {
         activeThumbColor: Colors.white,
         activeTrackColor: Colores.calma,
         inactiveThumbColor: Colors.white,
-        inactiveTrackColor: Colores.linea2,
+        inactiveTrackColor: context.colores.linea2,
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
     ),
