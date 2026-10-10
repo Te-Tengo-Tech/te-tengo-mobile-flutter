@@ -30,9 +30,10 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
         ref
           ..invalidate(notificacionesActivasProvider)
           ..invalidate(alertaActivaProvider);
-        // A token that was not ready (iOS waits for APNs) or a permission granted in the system
-        // settings: register the phone now.
-        unawaited(ref.read(gestorPushProvider).registrar());
+        // Every return registers the phone again: the backend records when it was last seen, a
+        // token that was not ready (iOS waits for APNs) or a permission granted in the system
+        // settings is registered now, and a token the push service dropped is replaced.
+        unawaited(ref.read(gestorPushProvider).registrar(forzar: true));
       },
     );
     unawaited(ref.read(gestorPushProvider).iniciar());

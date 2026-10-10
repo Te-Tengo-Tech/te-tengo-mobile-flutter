@@ -6,6 +6,7 @@ import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/camaras/domain/camara.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:te_tengo/features/hogar/domain/hogar.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -24,6 +25,7 @@ void main() {
     ConectividadFalsa? conectividad,
     NotificacionesPushFalsas? push,
     DispositivosFalsos? dispositivos,
+    Hogar? hogar,
   }) async {
     usarTelefono(tester);
     await tester.pumpWidget(
@@ -36,7 +38,9 @@ void main() {
         dispositivos: dispositivos,
         overrides: [
           camarasRepositorioProvider.overrideWithValue(camaras),
-          hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
+          hogarRepositorioProvider.overrideWithValue(
+            HogarRepositorioFalso(hogar),
+          ),
           familiaRepositorioProvider.overrideWithValue(
             FamiliaRepositorioFalso(),
           ),
@@ -165,5 +169,78 @@ void main() {
       findsWidgets,
     );
     expect(find.byType(NavigationBar), findsOneWidget);
+  });
+
+  group('si las alertas no llegan a este celular o a nadie', () {
+    const texto =
+        'Sin ellas no te enterarás de una caída cuando tengas la app cerrada.';
+
+    testWidgets('el registro fallido se avisa aunque el permiso esté dado', (
+      tester,
+    ) async {
+      final dispositivos = DispositivosFalsos()
+        ..errorRegistrar = Exception('sin red');
+      await abrir(tester, dispositivos: dispositivos);
+      expect(find.text('Este celular no recibe las alertas'), findsOneWidget);
+      expect(find.text(texto), findsOneWidget);
+
+      // Turning them on registers again; once the backend has the phone the notice goes away.
+      dispositivos.errorRegistrar = null;
+      await tocar(tester, find.text('Activar notificaciones'));
+      expect(find.text('Este celular no recibe las alertas'), findsNothing);
+      expect(find.text('Notificaciones activadas'), findsOneWidget);
+    });
+
+    testWidgets('nadie de la familia puede recibirlas', (tester) async {
+      await abrir(
+        tester,
+        hogar: Hogar(
+          hogarId: 'h-1',
+          adultoMayor: rosa,
+          rol: hogarDeRosa().rol,
+          consentimiento: consentimientoVigente,
+          dispositivosActivos: 0,
+        ),
+      );
+      expect(
+        find.text('Nadie de la familia recibe las alertas'),
+        findsOneWidget,
+      );
+      expect(find.text('Activar notificaciones'), findsOneWidget);
+    });
+
+    testWidgets('con el celular registrado no muestra ningún aviso', (
+      tester,
+    ) async {
+      await abrir(
+        tester,
+        hogar: Hogar(
+          hogarId: 'h-1',
+          adultoMayor: rosa,
+          rol: hogarDeRosa().rol,
+          consentimiento: consentimientoVigente,
+          dispositivosActivos: 2,
+        ),
+      );
+      expect(find.text('Este celular no recibe las alertas'), findsNothing);
+      expect(find.text('Nadie de la familia recibe las alertas'), findsNothing);
+      expect(find.text('Activa las notificaciones'), findsNothing);
+    });
+
+    testWidgets(
+      'activar sin que el backend tenga el celular no confirma nada',
+      (tester) async {
+        final dispositivos = DispositivosFalsos();
+        await abrir(
+          tester,
+          permiso: PermisoFalso(activas: false),
+          dispositivos: dispositivos,
+        );
+        dispositivos.errorRegistrar = Exception('sin red');
+        await tocar(tester, find.text('Activar notificaciones'));
+        expect(find.text('Notificaciones activadas'), findsNothing);
+        expect(find.text('Este celular no recibe las alertas'), findsOneWidget);
+      },
+    );
   });
 }

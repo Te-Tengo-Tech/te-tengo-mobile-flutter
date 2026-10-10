@@ -42,6 +42,8 @@ class PantallaInicio extends ConsumerWidget {
     final texto = Theme.of(context).textTheme;
     final hoy = ref.watch(relojProvider)();
     final notificaciones = ref.watch(notificacionesActivasProvider).value;
+    final celularSinAlertas = ref.watch(celularSinAlertasProvider);
+    final familiaSinAlertas = ref.watch(familiaSinAlertasProvider);
     final alerta = ref.watch(alertaActivaProvider).value;
     final debeInstalar = ref.watch(entornoNavegadorProvider).debeInstalar;
     return RefreshIndicator(
@@ -68,14 +70,24 @@ class PantallaInicio extends ConsumerWidget {
           // On an iPhone browser tab notifications cannot be turned on: install first.
           if (debeInstalar)
             const AvisoInstalarApp()
-          else if (notificaciones == false) ...[
+          else if (notificaciones == false ||
+              celularSinAlertas ||
+              familiaSinAlertas) ...[
+            // What the backend says, not only the permission: this phone or the whole family may
+            // be left without the alerts (contract §2 `dispositivosActivos`, §7).
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.bellOff,
-              titulo: 'Activa las notificaciones',
-              texto:
-                  'Están desactivadas en tu celular. Sin ellas no te enterarás '
-                  'de una caída cuando tengas la app cerrada.',
+              titulo: familiaSinAlertas
+                  ? 'Nadie de la familia recibe las alertas'
+                  : notificaciones == false
+                  ? 'Activa las notificaciones'
+                  : 'Este celular no recibe las alertas',
+              texto: notificaciones == false
+                  ? 'Están desactivadas en tu celular. Sin ellas no te enterarás '
+                        'de una caída cuando tengas la app cerrada.'
+                  : 'Sin ellas no te enterarás de una caída cuando tengas la '
+                        'app cerrada.',
               accion: Boton(
                 'Activar notificaciones',
                 estilo: EstiloBoton.tinta,
@@ -189,13 +201,16 @@ class PantallaInicio extends ConsumerWidget {
   }
 }
 
-/// Asks for the notification permission and confirms it (CA-16.3).
+/// Asks for the notification permission, registers this phone and confirms it only once the
+/// backend has it (CA-16.3); otherwise the notice in Inicio and Notificaciones stays.
 Future<void> activarNotificaciones(BuildContext context, WidgetRef ref) async {
   final activas = await ref.read(permisoNotificacionesProvider).activar();
   ref.invalidate(notificacionesActivasProvider);
+  if (!activas) return;
   // On iOS the push token only exists once notifications are allowed.
-  if (activas) unawaited(ref.read(gestorPushProvider).registrar());
-  if (activas && context.mounted) {
+  final recepcion = await ref.read(gestorPushProvider).registrar(forzar: true);
+  ref.invalidate(hogarProvider);
+  if (recepcion == RecepcionPush.activa && context.mounted) {
     mostrarToast(
       context,
       titulo: 'Notificaciones activadas',

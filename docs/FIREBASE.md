@@ -12,10 +12,22 @@ and VAPID key as `--dart-define`s.
 - **Permission:** the first time the session has a household, the app asks for the notification
   permission (`FirebaseMessaging.requestPermission`, which also covers Android 13+). If it is denied,
   Inicio shows «Activa las notificaciones» (CA-16.3).
-- **Token and registration:** the FCM token is sent with `POST /api/dispositivos {tokenPush,
-  plataforma}` (contract §7) once per household and token. It is sent again when FCM refreshes the
-  token, when the session changes household, when the app resumes and when notifications are turned on
-  from Inicio. Sign-out sends `DELETE /api/dispositivos/{tokenPush}`.
+- **Token and registration** (`GestorPush.registrar`, contract §7): the FCM token is sent with
+  `POST /api/dispositivos {tokenPush, plataforma}` on every start, every return to the foreground,
+  when FCM refreshes the token (never on the web, where `onTokenRefresh` does not fire), when the
+  session changes household and when notifications are turned on from Inicio, so the backend records
+  when the phone was last seen. Other session changes (a renewed access token) register at most once
+  every 30 s. Only one registration runs at a time (two at once used to get two FCM tokens); calls
+  made meanwhile wait for one more that runs right after it. The backend's device id is kept on the
+  phone, and before registering the app asks `GET /api/dispositivos/{id}` whether the backend still
+  sends to it: when it answers `activo: false` (the push service dropped the token), the app deletes
+  its FCM token (`deleteToken()`), gets a new one, registers that and deletes the old one from the
+  backend, as it does with any token the phone no longer uses. Sign-out sends
+  `DELETE /api/dispositivos/{tokenPush}`.
+- **What the app shows:** «Notificaciones activadas» only once the backend has this phone. If the
+  registration fails or the token cannot be replaced, Inicio and Notificaciones say «Este celular no
+  recibe las alertas»; if `GET /api/hogar` says no phone of the family is active
+  (`dispositivosActivos: 0`), «Nadie de la familia recibe las alertas».
 - **iOS timing:** FCM can only issue a token after APNs has given the app its own. The app waits for
   `getAPNSToken()` (up to about 10 s) before `getToken()`; if APNs is still not ready it tries again on
   the next resume.
