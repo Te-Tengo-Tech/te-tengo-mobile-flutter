@@ -29,6 +29,13 @@ and VAPID key as `--dart-define`s.
   recibe las alertas»; if `GET /api/hogar` says no phone of the family is active
   (`dispositivosActivos: 0`), «Nadie de la familia recibe las alertas». Inicio also asks for the
   active alert every 20 s while it is on screen, so an alert whose push was lost still opens.
+- **Android channel:** `MainActivity` creates the channel `alertas_caida` («Alertas», high importance)
+  at start; the backend sends alert pushes to it and `AndroidManifest.xml` makes it the default
+  channel (`com.google.firebase.messaging.default_notification_channel_id`).
+- **iOS with the app open:** `setForegroundNotificationPresentationOptions(alert, badge, sound)`, so a
+  fall also shows the system banner and plays its sound while the alert screen opens. Urgent pushes
+  are `time-sensitive`; iOS honours that only with the Time Sensitive Notifications capability, which
+  is not enabled yet (docs/BLOCKERS.md).
 - **iOS timing:** FCM can only issue a token after APNs has given the app its own. The app waits for
   `getAPNSToken()` (up to about 10 s) before `getToken()`; if APNs is still not ready it tries again on
   the next resume.

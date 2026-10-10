@@ -142,7 +142,17 @@ class NotificacionesFirebase implements NotificacionesPush {
         return FirebaseMessaging.instance;
       }
       if (Firebase.apps.isEmpty) await Firebase.initializeApp();
-      return FirebaseMessaging.instance;
+      final mensajeria = FirebaseMessaging.instance;
+      if (_esIos) {
+        // A fall that arrives with the app open also shows the system banner with its sound, as
+        // well as the alert screen.
+        await mensajeria.setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+      return mensajeria;
     } on Object catch (e) {
       debugPrint('Push no disponible: $e');
       return null;
