@@ -11,7 +11,8 @@
 #   candidata.sh numerar <version> <pubspec build>   → rc, build and tag of the next candidate
 #   candidata.sh crear <dir>                         → pre-release $TAG with every file of <dir>
 #   candidata.sh staging <tag> <passed|skipped>      → records the staging result in the notes
-#   candidata.sh buscar <version> <tree>             → the newest candidate of <version> built from <tree>
+#   candidata.sh buscar <version> <tree>             → the newest approved candidate of <version> built
+#                                                      from <tree> (exit 1 when none)
 #   candidata.sh descargar <tag> <dir> <asset>...    → downloads assets and checks them against SHA256SUMS
 #   candidata.sh final <candidate tag> <dir> <changelog>
 #                                                    → GitHub Release v<version> on $GITHUB_SHA with <dir>
@@ -167,27 +168,52 @@ staging() {
   echo "Recorded staging: $estado on $tag"
 }
 
+# The approved candidate of <version> for <tree>: the newest pre-release vX.Y.Z-rc.N whose hidden line
+# records that version and tree with staging `passed` or `skipped` (staging switched off when it was
+# built), and whose tag points at a commit with that same tree. An older approved rc with the same tree
+# wins over a newer one still pending (e.g. a re-push of the same tree waiting for staging). Used by
+# produccion.yml (the tree of main) and release-gate.yml (the tree of the pull request's test merge),
+# so both accept exactly the same candidates. Exit 1 with a ::error when there is none.
 buscar() {
-  local version=$1 tree=$2 todas match
+  local version=${1:-} tree=${2:-} todas candidatas c match="" tag staging commit_tree
+  [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || error "Unexpected version" "'$version' is not x.y.z."
+  [[ "$tree" =~ ^[0-9a-f]{40,64}$ ]] || error "Unexpected tree" "'$tree' is not a git tree SHA."
   todas=$(releases)
-  match=$(jq -c --arg v "$version" --arg t "$tree" '
+  # Every candidate of <version> built from <tree>, newest first.
+  candidatas=$(jq -c --arg v "$version" --arg t "$tree" '
     [.[] | select(.prerelease and .candidata != null and .candidata.version == $v and .candidata.tree == $t)]
-    | max_by(.candidata.rc) // empty' <<< "$todas")
+    | sort_by(.candidata.rc | tonumber) | reverse' <<< "$todas")
+  while IFS= read -r c; do
+    [ -n "$c" ] || continue
+    tag=$(jq -r .tag <<< "$c")
+    staging=$(jq -r '.candidata.staging // ""' <<< "$c")
+    if [ "$staging" != passed ] && [ "$staging" != skipped ]; then
+      continue # built from this tree but not through staging (pending, rejected or failed)
+    fi
+    # The record is in the notes; the tag itself must point at a commit with that same tree.
+    commit_tree=$(gh api "repos/$repo/commits/$tag" --jq .commit.tree.sha 2> /dev/null || true)
+    if [ "$commit_tree" != "$tree" ]; then
+      echo "::warning title=Candidate record mismatch::$tag records the tree ${tree:0:12}, but its tag points at a commit with another tree; ignored."
+      continue
+    fi
+    match=$c
+    break
+  done < <(jq -c '.[]' <<< "$candidatas")
+
   if [ -z "$match" ]; then
     {
-      echo "### No candidate of $version matches this commit"
-      echo "\`main\` has tree \`$tree\`. Candidates of $version:"
-      jq -r --arg v "$version" '.[] | select(.candidata.version == $v)
-        | "- `\(.tag)`: tree `\(.candidata.tree)`, commit `\(.candidata.commit[0:12])`, staging \(.candidata.staging)"' <<< "$todas"
+      echo "### No approved candidate of $version has the tree \`${tree:0:12}\`"
+      echo "Candidates of $version:"
+      jq -r --arg v "$version" --arg t "$tree" '[.[] | select(.prerelease and .candidata.version == $v)]
+        | if length == 0 then "- none yet" else .[]
+          | "- `\(.tag)`: tree `\(.candidata.tree[0:12])`\(if .candidata.tree == $t then " (this tree)" else "" end), commit `\(.candidata.commit[0:12])`, staging \(.candidata.staging)" end' <<< "$todas"
     } >> "$summary"
-    error "main differs from the tested candidate" "No pre-release v$version-rc.N was built from this tree ($tree): main differs from the tested candidate. Push the change to the release (or hotfix) branch to build a new rc, test it on staging and merge again. The run summary lists the candidates of $version."
+    if [ "$(jq 'length' <<< "$candidatas")" -gt 0 ]; then
+      error "No approved candidate for this tree" "Candidates of $version built from the tree ${tree:0:12}: $(jq -r 'map(.tag + " (staging " + (.candidata.staging // "?") + ")") | join(", ")' <<< "$candidatas"). None has passed staging yet: approve and pass its staging (or push a new rc) first. The run summary lists the candidates of $version."
+    fi
+    error "No candidate for this tree" "No pre-release v$version-rc.N was built from the tree ${tree:0:12}: this code differs from every tested candidate. Push the change to the release (or hotfix) branch to build a new rc, test it on staging and merge again. The run summary lists the candidates of $version."
   fi
-  local tag staging
-  tag=$(jq -r .tag <<< "$match")
-  staging=$(jq -r .candidata.staging <<< "$match")
-  if [ "$staging" != passed ] && [ "$staging" != skipped ]; then
-    error "$tag has not passed staging" "$tag matches this commit, but its staging is '$staging'. Approve and pass its staging (or push a new rc) before merging into main."
-  fi
+
   jq -r '.candidata as $c | [
       "tag=\(.tag)",
       "rc=\($c.rc)",
@@ -198,7 +224,8 @@ buscar() {
       "package=\($c.package // "")",
       "bundle_id=\($c.bundle_id // "")"
     ] | .[]' <<< "$match" >> "$out"
-  echo "Candidate $tag (build $(jq -r .candidata.build <<< "$match"), staging $staging) matches tree $tree"
+  echo "- Candidate \`$tag\` (build $(jq -r .candidata.build <<< "$match"), staging $staging, built from \`$(jq -r '.candidata.commit[0:12]' <<< "$match")\`) has the tree \`${tree:0:12}\`" >> "$summary"
+  echo "Candidate $tag (build $(jq -r .candidata.build <<< "$match"), staging $staging) has the tree $tree"
 }
 
 descargar() {
