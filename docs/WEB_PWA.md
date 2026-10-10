@@ -107,13 +107,27 @@ that `release.yml` deploys. With `ENABLE_PWA` on, a release fails at once if a r
   App Store build stays the reliable option for iPhones once there is a paid account.
 
 ## Other differences on the web
+**Clip full screen.** The full-screen button calls `requestFullscreen()` on the page inside the tap,
+because it needs transient user activation ([MDN, `Element.requestFullscreen()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen)),
+and shows the same full-screen view as the phones; Esc or the browser's own exit closes that view.
+An installed PWA locked to portrait by the manifest is released with `screen.orientation.lock('any')`
+while in full screen, where the browser allows it. Safari on iPhone has no Fullscreen API: MDN's
+compatibility data for `Document.fullscreenEnabled` and `Element.requestFullscreen()` says «Only
+available on iPad, not on iPhone». There the app calls WebKit's `HTMLVideoElement.webkitEnterFullscreen()`
+on the clip's `<video>` (found by its URL; valid once the metadata has loaded,
+`webkitSupportsFullscreen`, and only from a user action), which shows iOS's own player with its own
+controls ([Apple, Safari HTML5 Audio and Video Guide: Controlling Media with JavaScript](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/ControllingMediaWithJavaScript/ControllingMediaWithJavaScript.html);
+WebKit's [`HTMLVideoElement.idl`](https://github.com/WebKit/WebKit/blob/main/Source/WebCore/html/HTMLVideoElement.idl)).
+Closing it returns to the inline player at the same position.
+
 | Area | Android / iOS | Web |
 |---|---|---|
 | Session token | Keychain / Keystore | `flutter_secure_storage` web: AES-GCM (WebCrypto) in `localStorage`, key stored next to it. Needs HTTPS or `localhost`. Weaker than the OS store: any script of the origin could read it |
 | Offline cache | drift SQLite file | `localStorage` (`tt_cache|…` keys; a full storage only loses the cache) |
 | Live view (WebRTC) | `flutter_webrtc` (libwebrtc) | the browser's `RTCPeerConnection` through `flutter_webrtc`'s web implementation (`dart_webrtc`, `package:web`), shown in a `<video>` platform view. Same code on every platform: one WHEP `POST` with all candidates, receive-only video |
 | Live view (LL-HLS fallback) | `video_player` (AVPlayer, ExoPlayer) | Safari plays the HLS natively; Chrome, Edge, Firefox and Android through `video_player_web_hls` and hls.js 1.7.3 (pinned on jsDelivr with SRI, loaded deferred; without it clips and native HLS still play). Chromium 142+ also reports native HLS, but its new built-in player fails on MediaMTX's LL-HLS (`MediaError` 4, `DEMUXER_ERROR_COULD_NOT_PARSE`) and the plugin's hls.js fallback then stays paused on the first frame, so `web/index.html` reports no native HLS in Chromium browsers once hls.js is loaded. The page and the stream must both be HTTPS (no mixed content) |
-| Clips | `video_player` | `<video>` with the pre-signed URL (no CORS needed) |
+| Clips | `video_player` | `<video>` with the pre-signed URL (no CORS needed), muted so it can resume after a URL refresh without a tap |
+| Clip full screen | a full-screen route, landscape allowed, immersive system bars | the Fullscreen API on the page, with the same controls; Safari on iPhone: the `<video>`'s own full screen (below) |
 | Recording download | file in Documents / Downloads | the browser's download (`Content-Disposition: attachment` from `descarga=true`) |
 | «Llamar» | dialer | `tel:` link in the same window (the iPhone dialer opens) |
 | Notification permission | `permission_handler` | the browser's `Notification.permission` |

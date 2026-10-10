@@ -55,7 +55,9 @@ enum Ico {
   down,
   equal,
   sun,
-  share;
+  share,
+  expand,
+  contract;
 
   String get _trazo => _trazos[this]!;
 }
@@ -148,6 +150,9 @@ const _trazos = <Ico, String>{
   Ico.share:
       '<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M8.5 10.5h-2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-2"/>',
   Ico.down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+  // Not in the prototype: full screen of the event clip (enter and leave).
+  Ico.expand: '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>',
+  Ico.contract: '<path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/>',
   Ico.equal: '<path d="M5 9.5h14M5 14.5h14"/>',
   Ico.sun:
       '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>',

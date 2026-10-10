@@ -92,10 +92,14 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
   Future<EnlaceClip> clip(String id, {bool descarga = false}) async {
     (descarga ? descargas : clips).add(id);
     if (errorClip != null) throw errorClip!;
+    if (!descarga && enlaces.isNotEmpty) return enlaces.removeAt(0);
     return EnlaceClip(
       url: 'https://clips.tetengo.pe/$id.mp4${descarga ? '?descarga' : ''}',
     );
   }
+
+  /// Answers of the next clip requests, in order (pre-signed URLs with `expiraEn`).
+  final enlaces = <EnlaceClip>[];
 
   final marcadas = <String, EstadoAlerta>{};
   ProblemaApi? errorMarcar;
