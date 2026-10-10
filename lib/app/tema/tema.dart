@@ -41,7 +41,8 @@ TextStyle estiloMono({double tamano = 16, double peso = 600, Color? color}) =>
     );
 
 /// App theme: calm neutral base; semantic color appears only when something needs attention.
-/// [oscuro] gives the dark theme of the prototype (`.screen.dark`); the app follows the phone's.
+/// [oscuro] gives the dark theme of the prototype (`.screen.dark`); the app follows the phone's
+/// unless this device chose «Claro» or «Oscuro» in Ajustes (`aparienciaProvider`).
 ///
 /// Text scale (prototype classes): `headlineMedium` = `.t-title`, `titleLarge` = `.t-h2`,
 /// `titleMedium` = `.t-h3`, `bodyLarge` = `.t-body`, `bodyMedium` = `.t-small`,

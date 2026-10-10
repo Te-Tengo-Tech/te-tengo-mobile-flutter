@@ -5,6 +5,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- **«Apariencia» in Ajustes:** each phone (each browser in the PWA) chooses «Automático» (the default, follows the phone's theme), «Claro» or «Oscuro». The choice is kept on the device under a `dispositivo|` key of the local database (drift's SQLite on Android and iOS, `localStorage` on the web), not on the account, so it survives restarts and signing out; it is read before the first frame, so the app never paints the other theme first. New copy pending review in [docs/BLOCKERS.md](docs/BLOCKERS.md).
 - **Dark mode** that follows the phone or the browser (`ThemeMode.system`): `Paleta`, a `ThemeExtension` read with `context.colores`, holds the tokens that change (the prototype's `.screen.dark`). Alert floods keep their severity color and the sheet below turns dark; ink buttons, chips, toasts and the offline bar invert. Every dark text pair meets 4.5:1.
 - **Legal pages:** «Términos de uso», «Política de privacidad» and the full consent document, opened from sign-up, the consent summary, the certificate and Ajustes › Privacidad. One consent text feeds the summary and the document.
 - **Setup step 5 «Avisos»** before the notification prompt: «Notificaciones» asks for the permission (Android 13+, iOS, the browser), an iPhone browser tab first shows how to install the app, and «Sonar en silencio» opens the system notification settings on Android and iOS (it never claims to be on; not offered in the browser). «Paso N de 5» sits above the progress bar.

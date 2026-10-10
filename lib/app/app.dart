@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/dispositivo/permiso_notificaciones.dart';
 import '../core/ui/avisos_flotantes.dart';
+import '../features/ajustes/data/apariencia.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
 import 'push.dart';
 import 'router.dart';
@@ -51,9 +52,10 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
       title: 'Te Tengo',
       debugShowCheckedModeBanner: false,
       theme: temaTeTengo(),
-      // Light or dark follows the phone (or the browser) on Android, iOS and the web.
       darkTheme: temaTeTengo(oscuro: true),
-      themeMode: ThemeMode.system,
+      // «Apariencia» in Ajustes: follows the phone (or the browser) by default, or stays light or
+      // dark on this device.
+      themeMode: ref.watch(aparienciaProvider).modo,
       routerConfig: ref.watch(routerProvider),
       builder: (context, hijo) =>
           AnfitrionAvisos(child: hijo ?? const SizedBox.shrink()),
