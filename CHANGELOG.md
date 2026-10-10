@@ -21,6 +21,8 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - The family always keeps a principal contact: the principal's sheet no longer offers «Hacer contacto secundario» or «Retirar acceso».
 - `docs/references/` updated to the synthesized prototype (115 screens, DESIGN.md, prototype HTML).
 
+## [0.3.3] - 2026-10-10
+
 ### Fixed
 - The back-merge job of `produccion.yml` runs when the tag job succeeded even if a switched-off channel (Google Play, TestFlight) was skipped: GitHub's implicit `success()` saw the skipped jobs and skipped the back-merge, so release 0.3.2 was back-merged by hand.
 
