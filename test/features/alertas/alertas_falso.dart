@@ -8,6 +8,7 @@ Alerta caidaSala({
   bool confirmada = false,
   DateTime? notificadaEn,
   bool sinNotificar = false,
+  EstadoAviso? estadoAviso,
   DateTime? recuperadaEn,
   EstadoAlerta estado = EstadoAlerta.activa,
   TipoAlerta tipo = TipoAlerta.caida,
@@ -31,6 +32,9 @@ Alerta caidaSala({
     notificadaEn: sinNotificar
         ? null
         : notificadaEn ?? ocurrida.add(const Duration(seconds: 6)),
+    estadoAviso:
+        estadoAviso ??
+        (sinNotificar ? EstadoAviso.reintentando : EstadoAviso.entregado),
     recuperadaEn: recuperadaEn,
     origenInestable: origenInestable,
     atendidaPor: atendidaPor,
@@ -129,6 +133,7 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
       habitacion: a.habitacion,
       ocurridaEn: a.ocurridaEn,
       notificadaEn: a.notificadaEn,
+      estadoAviso: a.estadoAviso,
       recuperadaEn: a.recuperadaEn,
       atendidaPor: marcaNombre,
       atendidaPorId: marcaId,

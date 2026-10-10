@@ -89,6 +89,57 @@ void main() {
     },
   );
 
+  testWidgets(
+    'si el backend dejó de reintentar no dice «Seguimos reintentando»',
+    (tester) async {
+      await abrirConAlertas(
+        tester,
+        ubicacion: Rutas.alerta('a-1'),
+        alertas: AlertasRepositorioFalso([
+          caidaSala(sinNotificar: true, estadoAviso: EstadoAviso.noEntregado),
+        ]),
+      );
+      expect(
+        find.text('Esta alerta no te llegó como notificación'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Seguimos reintentando'), findsNothing);
+      await verHasta(tester, find.text('La notificación no se pudo entregar'));
+      expect(
+        find.text('La notificación no se pudo entregar; reintentando el envío'),
+        findsNothing,
+      );
+    },
+  );
+
+  testWidgets('mientras se envía, o sin estado del backend, no avisa nada', (
+    tester,
+  ) async {
+    for (final estado in [EstadoAviso.enviando, null]) {
+      await abrirConAlertas(
+        tester,
+        ubicacion: Rutas.alerta('a-1'),
+        alertas: AlertasRepositorioFalso([
+          Alerta(
+            id: 'a-1',
+            tipo: TipoAlerta.caida,
+            estado: EstadoAlerta.activa,
+            camaraId: 'c1',
+            habitacion: 'Sala',
+            ocurridaEn: DateTime(2026, 9, 23, 10, 42),
+            estadoAviso: estado,
+          ),
+        ]),
+      );
+      expect(
+        find.text('Esta alerta no te llegó como notificación'),
+        findsNothing,
+        reason: '$estado',
+      );
+      expect(find.textContaining('reintentando'), findsNothing);
+    }
+  });
+
   testWidgets('al cerrarla, el inicio sigue mostrando la alerta activa', (
     tester,
   ) async {
@@ -180,6 +231,7 @@ void main() {
       'habitacion': 'Sala',
       'ocurridaEn': '2026-09-23T15:42:00Z',
       'notificadaEn': null,
+      'estadoAviso': 'REINTENTANDO',
       'recuperadaEn': null,
       'atendidaPor': null,
       'atendidaEn': null,
@@ -197,6 +249,8 @@ void main() {
       expect(a.tipo, TipoAlerta.caida);
       expect(a.sigueEnElSuelo, isTrue);
       expect(a.notificadaEn, isNull);
+      expect(a.estadoAviso, EstadoAviso.reintentando);
+      expect(a.avisoReintentando, isTrue);
       expect(a.clip, EstadoClip.noDisponible);
     });
 

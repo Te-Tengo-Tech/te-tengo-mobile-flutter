@@ -502,23 +502,25 @@ class _Heroe extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (alerta.notificadaEn == null) ...[
+          // Only what the backend says (`estadoAviso`): «Seguimos reintentando» only while it does.
+          if (alerta.notificadaEn == null &&
+              (alerta.avisoReintentando || alerta.avisoNoEntregado)) ...[
             Container(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: .94),
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: const Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icono(Ico.bellOff, tamano: 22, color: Colores.tinta),
-                  SizedBox(width: 12),
+                  const Icono(Ico.bellOff, tamano: 22, color: Colores.tinta),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Esta alerta no te llegó como notificación',
                           style: TextStyle(
                             fontSize: 16,
@@ -526,14 +528,15 @@ class _Heroe extends ConsumerWidget {
                             color: Colores.tinta,
                           ),
                         ),
-                        Text(
-                          'El servicio de avisos falló. Seguimos reintentando '
-                          'el envío; por eso la ves al abrir la app.',
-                          style: TextStyle(
-                            fontSize: 15.5,
-                            color: Colores.tinta,
+                        if (alerta.avisoReintentando)
+                          const Text(
+                            'El servicio de avisos falló. Seguimos reintentando '
+                            'el envío; por eso la ves al abrir la app.',
+                            style: TextStyle(
+                              fontSize: 15.5,
+                              color: Colores.tinta,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
