@@ -3,6 +3,31 @@
 Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+### Changed
+- **Each commit is tested once** ([docs/RELEASES.md](docs/RELEASES.md)). `ci.yml` runs on pull requests and pushes to `develop`, and `release.yml` calls it (`workflow_call`, with `build-pwa: false`) on each release candidate's commit: the pre-release `vx.y.z-rc.N` is created only after CI passed. It no longer runs on pushes to `main`, `release/**` and `hotfix/**`, and on pull requests into `main` its test jobs are skipped, since their head is the already tested candidate.
+- **The pull request to `main` and the back-merge pull requests are opened by the GitHub App te-tengo-release-bot** (`RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY`), so their checks run; nothing falls back to `GITHUB_TOKEN`. The release pull request's description names the pipeline run with its attempt, so each new candidate edits it and runs `release-gate` again.
+- **Tag only what is live.** `produccion.yml` tags `vx.y.z` (`Tag vX.Y.Z and GitHub Release`) only when no produccion job failed or was rejected and at least one was published; with every channel switched off there is no tag and no back-merge, and the summary says so. The back-merge is its own job, `Back-merge into develop`, with auto-merge (merge commit) when the repository allows it, and after a hotfix it also opens `main` → newer open `release/*` branches.
+- `candidata.sh buscar` returns the newest **approved** candidate built from the tree (staging `passed` or `skipped`, tag on a commit with that tree), so an older approved rc wins over a newer pending one with the same tree; produccion and `release-gate` share it.
+- **Deploy secrets are checked where they are used.** `Version and configuration` checks only the signing secrets and the build variables; the staging, produccion and rollback jobs check their own Cloudflare, Google Play and App Store Connect secrets as their first step, with an error naming the missing one.
+- Every secret is read by the step that uses it, never by a whole job. Workflows grant nothing by default, each job declares its permissions, and no checkout keeps the token.
+- Rollback runs only from `main`.
+
+### Added
+- **`ci-ok`**, the single required CI check: it fails unless every CI job passed (on pull requests into `main`, unless the head is `release/x.y.z` or `hotfix/x.y.z`).
+- **`release-gate`** (`release-gate.yml`, required on `main`): a release or hotfix pull request may be merged only when merging puts into `main` exactly the tree of a candidate that passed staging, the candidate produccion then publishes.
+- **`pr-title`** (`pr-title.yml`): pull request titles must be Conventional Commits.
+- **SBOM and attestations of each release candidate.** `te-tengo-sbom.spdx.json` (Dart and Swift packages) is an asset of the candidate and of the final release, and every file gets a build provenance attestation, plus an SBOM attestation for the APK, PWA, AAB and IPA (`gh attestation verify <file> --repo Te-Tengo-Tech/te-tengo-mobile-flutter`).
+- Dependabot also updates the Android Gradle build (`/android`).
+- A rollback rehearsal procedure in [docs/RELEASES.md](docs/RELEASES.md#rollback-rehearsal).
+
+### Removed
+- The cross-repository mode of `build-apk.yml` (`ref` input and `MOBILE_REPO_TOKEN`): the landing no longer builds the app.
+- The AAB build on pull requests, and the `Release` run on pull requests into `main`.
+
+### Security
+- **Signing secrets never reach pull request code.** Pull requests no longer call `build-apk.yml` with `secrets: inherit`: the `APK build check` passes no secrets and signs with the debug key. The signing jobs (`Version and configuration`, `APK`, `AAB`, `IPA`) run in the environment `firma` on pushes to `release/*` and `hotfix/*` only, and `APK`/`AAB` fail instead of debug-signing when a publishing channel is on and the release key is missing.
+- Deploy tokens move to the environments `staging` and `produccion`.
+- Every action is pinned by full commit SHA.
 
 ## [0.3.1] - 2026-10-09
 ### Fixed

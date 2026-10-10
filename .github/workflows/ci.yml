@@ -1,27 +1,44 @@
 name: CI
 
-# Release and hotfix branches run it too, so their head commit carries the checks that the
-# rulesets require on the pull request release/* → main opened by release.yml.
+# Format, analyze, test and build the PWA. Each commit is tested once (docs/RELEASES.md):
+#   - pull requests into develop (and into a release branch): the full CI;
+#   - push to develop: the full CI on the merged commit (it also refreshes the caches pull requests read);
+#   - release/x.y.z and hotfix/x.y.z: release.yml calls this workflow (workflow_call) on the candidate's
+#     commit, with build-pwa false: the release builds its own versioned PWA for the candidate;
+#   - pull requests into main (release and hotfix): nothing runs again. Their head is that tested
+#     candidate commit and release-gate.yml proves it; only `ci-ok` runs.
+# `ci-ok` is the single required check of the rulesets: it fails unless every job it needs passed.
 on:
-  push:
-    branches: [main, develop, "release/**", "hotfix/**"]
   pull_request:
+  push:
+    branches: [develop]
+  workflow_call:
+    inputs:
+      build-pwa:
+        description: Build the PWA as a check (release.yml passes false; it builds the candidate's PWA itself)
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
-# A new push to the same branch or pull request cancels the run it supersedes.
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   analyze:
     name: Format and analyze
+    if: github.event_name != 'pull_request' || github.base_ref != 'main'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v7
-      - uses: subosito/flutter-action@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: 3.44.8
           channel: stable
@@ -35,10 +52,16 @@ jobs:
 
   test:
     name: Tests and coverage
+    if: github.event_name != 'pull_request' || github.base_ref != 'main'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v7
-      - uses: subosito/flutter-action@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: 3.44.8
           channel: stable
@@ -52,7 +75,7 @@ jobs:
         run: python3 .github/scripts/lcov_summary.py coverage/lcov.info >> "$GITHUB_STEP_SUMMARY"
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-lcov
           path: coverage/lcov.info
@@ -60,7 +83,7 @@ jobs:
           retention-days: 14
       - name: Upload golden failures
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: golden-failures
           path: test/**/failures/
@@ -68,10 +91,14 @@ jobs:
           retention-days: 7
 
   web:
-    # The same reusable build that release.yml deploys (Cloudflare Pages project te-tengo-app, served
-    # at the root of https://app.tetengo.reqsai.tech/). Override the base href with the repository
-    # variable TT_WEB_BASE_HREF (docs/WEB_PWA.md).
+    # The same reusable build that release.yml stores in the candidate (Cloudflare Pages project
+    # te-tengo-app, served at the root of https://app.tetengo.reqsai.tech/). Override the base href
+    # with the repository variable TT_WEB_BASE_HREF (docs/WEB_PWA.md). Skipped when release.yml calls
+    # CI with build-pwa false. format(): outside workflow_call the input is null, and null == false.
     name: Web (PWA)
+    if: >-
+      (github.event_name != 'pull_request' || github.base_ref != 'main')
+      && format('{0}', inputs.build-pwa) != 'false'
     uses: ./.github/workflows/build-web.yml
     permissions:
       contents: read
@@ -79,3 +106,41 @@ jobs:
       base_href: ${{ vars.TT_WEB_BASE_HREF || '/' }}
       artifact_name: te-tengo-web
       retention_days: 14
+
+  # The single required check (rulesets of develop and main). It always runs, so a skipped or cancelled
+  # job can never pass for a green one.
+  ci-ok:
+    name: ci-ok
+    if: always()
+    needs: [analyze, test, web]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Every CI job passed
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+          RELEASE_PR: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' }}
+          HEAD_REF: ${{ github.head_ref }}
+          # Only release.yml turns the PWA build off; then `web` is skipped on purpose.
+          PWA_OFF: ${{ format('{0}', inputs.build-pwa) == 'false' }}
+        run: |
+          jq -r 'to_entries[] | "\(.key): \(.value.result)"' <<< "$NEEDS"
+          if [ "$RELEASE_PR" = true ]; then
+            # Pull requests into main carry an already tested candidate; release-gate.yml checks it.
+            if [[ ! "$HEAD_REF" =~ ^(release|hotfix)/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error title=Not a release branch::Only release/x.y.z and hotfix/x.y.z are merged into main; open the pull request from $HEAD_REF against develop."
+              exit 1
+            fi
+            echo "Release pull request from $HEAD_REF: its candidate's commit was tested by release.yml; release-gate decides."
+            exit 0
+          fi
+          failed=$(jq -r --arg pwa_off "$PWA_OFF" '[to_entries[]
+            | select(.value.result != "success")
+            | select((.key == "web" and .value.result == "skipped" and $pwa_off == "true") | not)
+            | "\(.key) (\(.value.result))"] | join(", ")' <<< "$NEEDS")
+          if [ -n "$failed" ]; then
+            echo "::error title=CI failed::Not passed: $failed."
+            exit 1
+          fi
+          echo "Every CI job passed."

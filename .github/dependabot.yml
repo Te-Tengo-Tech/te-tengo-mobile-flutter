@@ -17,6 +17,21 @@ updates:
           - "minor"
           - "patch"
 
+  # The Android Gradle build (Android Gradle Plugin, Kotlin, Gradle wrapper).
+  - package-ecosystem: "gradle"
+    directory: "/android"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

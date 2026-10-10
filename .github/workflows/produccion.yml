@@ -3,24 +3,33 @@ run-name: Produccion ${{ github.sha }}
 
 # Produccion of the mobile app (docs/RELEASES.md). Runs when a release or hotfix reaches main (the
 # merged pull request release/x.y.z → main that release.yml opened) and publishes the files of the
-# tested release candidate, without rebuilding:
-#   1. `Find the tested candidate` (no environment): reads x.y.z from pubspec.yaml and finds the newest
-#      pre-release vx.y.z-rc.N whose recorded git tree equals the tree of this commit and whose staging
-#      passed (or was switched off). None → the run fails: main differs from the tested candidate, so
-#      the change must go through the release branch as a new rc. It also checks that every channel
-#      that is on was on when the candidate was built, and has its secrets, before any approval.
-#   2. produccion (environment `produccion`, approval; one review approves every job), each after
-#      checking the SHA-256 of the candidate's asset against its SHA256SUMS:
+# tested release candidate, without rebuilding. Nothing is tested here: CI tested the candidate's commit
+# when release.yml built it, and release-gate.yml proved before the merge that main gets its tree.
+#   1. `Find the tested candidate` (no environment): reads x.y.z from pubspec.yaml and finds, with
+#      `candidata.sh buscar` (the same command as release-gate.yml), the newest pre-release
+#      vx.y.z-rc.N whose recorded git tree equals the tree of this commit and whose staging passed (or
+#      was switched off). None → the run fails: main differs from the tested candidate, so the change
+#      must go through the release branch as a new rc. It also checks that every channel that is on was
+#      on when the candidate was built, before any approval.
+#   2. produccion (environment `produccion`, approval; one review approves every job). Each job first
+#      checks its deploy secrets (secrets of the environment `produccion`), then the SHA-256 of the
+#      candidate's asset against its SHA256SUMS:
 #        - PWA → te-tengo-app production (https://app.tetengo.reqsai.tech)   ENABLE_PWA
 #        - APK → R2 `te-tengo.apk` (the landing's download)                  ENABLE_APK
 #        - AAB → Google Play internal track (the same AAB staging built)     ENABLE_PLAY_STORE
 #        - IPA → TestFlight (the same IPA)                                   ENABLE_IOS
 #      each with a smoke check.
-#   3. `Tag and back-merge`, only when every produccion job that is on succeeded: the GitHub Release
-#      vx.y.z on this commit with the same assets, notes = the CHANGELOG section + the candidate, then
-#      the back-merge pull request main → develop. A failed or rejected job leaves no tag; "Re-run
-#      failed jobs" publishes the same candidate again and then tags.
+#   3. `Tag vX.Y.Z and GitHub Release`, only when no produccion job failed or was rejected and at least
+#      one was published: the GitHub Release vx.y.z on this commit with the same assets (SBOM included;
+#      their attestations stay valid), notes = the CHANGELOG section + the candidate. With every channel
+#      switched off nothing is deployed, so there is no tag. A failed or rejected job leaves no tag;
+#      "Re-run failed jobs" publishes the same candidate again and then tags.
+#   4. `Back-merge into develop`, after the tag: the pull request main → develop as te-tengo-release-bot,
+#      with auto-merge (merge commit); after a hotfix also main → any newer open release/* branch.
 # When vx.y.z already exists with this tree (a re-run on an already released commit) nothing runs.
+# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, PLAY_SERVICE_ACCOUNT_JSON, APP_STORE_CONNECT_KEY_ID,
+# APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_PRIVATE_KEY of the environment `produccion`;
+# RELEASE_APP_PRIVATE_KEY + variable RELEASE_APP_ID (organization) for the back-merge.
 on:
   push:
     branches: [main]
@@ -54,10 +63,8 @@ jobs:
       tag: ${{ steps.buscar.outputs.tag }}
       build: ${{ steps.buscar.outputs.build }}
       package: ${{ steps.buscar.outputs.package }}
-    env:
-      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: |
@@ -81,6 +88,7 @@ jobs:
       - name: Is this version already released?
         id: existe
         env:
+          GH_TOKEN: ${{ github.token }}
           NAME: ${{ steps.version.outputs.name }}
           TREE: ${{ steps.version.outputs.tree }}
         run: |
@@ -98,17 +106,19 @@ jobs:
           echo "::error title=v$NAME is already released::main says version $NAME, which was released as v$NAME with another tree. Only a release or hotfix pull request with a new version may reach main."
           exit 1
 
+      # The same command as release-gate.yml: what passed the gate is what is deployed.
       - name: Find the candidate
         id: buscar
         if: steps.existe.outputs.skip != 'true'
         env:
+          GH_TOKEN: ${{ github.token }}
           NAME: ${{ steps.version.outputs.name }}
           TREE: ${{ steps.version.outputs.tree }}
         run: .github/scripts/candidata.sh buscar "$NAME" "$TREE"
 
+      # The deploy secrets belong to the environment `produccion`; each produccion job checks its own.
       - name: Check the channels that are on
         if: steps.existe.outputs.skip != 'true'
-        # Only whether each secret is set reaches this step, never its value.
         env:
           TAG: ${{ steps.buscar.outputs.tag }}
           CANALES: ${{ steps.buscar.outputs.canales }}
@@ -116,9 +126,6 @@ jobs:
           ENABLE_APK: ${{ vars.ENABLE_APK }}
           ENABLE_PLAY_STORE: ${{ vars.ENABLE_PLAY_STORE }}
           ENABLE_IOS: ${{ vars.ENABLE_IOS }}
-          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
-          HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
-          HAS_ASC: ${{ secrets.APP_STORE_CONNECT_KEY_ID != '' && secrets.APP_STORE_CONNECT_ISSUER_ID != '' && secrets.APP_STORE_CONNECT_PRIVATE_KEY != '' }}
           DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
         run: |
           errors=()
@@ -131,20 +138,12 @@ jobs:
             fi
             return 0
           }
-          cloudflare="the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets"
-          if canal ENABLE_PWA pwa; then
-            [ "$HAS_CLOUDFLARE" = true ] || errors+=("ENABLE_PWA needs $cloudflare")
-          fi
+          canal ENABLE_PWA pwa || true
           if canal ENABLE_APK apk; then
-            [ "$HAS_CLOUDFLARE" = true ] || errors+=("ENABLE_APK needs $cloudflare")
             [ -n "$DESCARGAS_BASE_URL" ] || errors+=("ENABLE_APK needs the DESCARGAS_BASE_URL variable")
           fi
-          if canal ENABLE_PLAY_STORE play; then
-            [ "$HAS_PLAY" = true ] || errors+=("ENABLE_PLAY_STORE needs the PLAY_SERVICE_ACCOUNT_JSON secret")
-          fi
-          if canal ENABLE_IOS ios; then
-            [ "$HAS_ASC" = true ] || errors+=("ENABLE_IOS needs the APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID and APP_STORE_CONNECT_PRIVATE_KEY secrets")
-          fi
+          canal ENABLE_PLAY_STORE play || true
+          canal ENABLE_IOS ios || true
           if [ ${#errors[@]} -gt 0 ]; then
             echo "### Produccion cannot publish $TAG" >> "$GITHUB_STEP_SUMMARY"
             for e in "${errors[@]}"; do
@@ -169,6 +168,10 @@ jobs:
           DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
         run: |
           estado() { if [ "${!1}" = true ]; then echo "after approval on \`produccion\`"; else echo "skipped (\`$1\` is not \`true\`)"; fi; }
+          on=0
+          for switch in ENABLE_PWA ENABLE_APK ENABLE_PLAY_STORE ENABLE_IOS; do
+            [ "${!switch}" != true ] || on=$((on + 1))
+          done
           base=${DESCARGAS_BASE_URL:-<DESCARGAS_BASE_URL>}
           {
             echo "## Produccion $NAME: candidate \`$TAG\` (build $BUILD, staging $STAGING)"
@@ -181,8 +184,15 @@ jobs:
             echo "| Google Play | internal testing track | \`te-tengo.aab\` | $(estado ENABLE_PLAY_STORE) |"
             echo "| TestFlight | App Store Connect | \`te-tengo.ipa\` | $(estado ENABLE_IOS) |"
             echo
-            echo "Then, only if every channel that is on succeeds: GitHub Release \`v$NAME\` and the back-merge pull request into \`develop\`."
+            if [ "$on" -gt 0 ]; then
+              echo "Then, only if at least one channel is published and none fails: GitHub Release \`v$NAME\` and the back-merge pull request into \`develop\`."
+            else
+              echo "**Every channel is switched off: nothing is deployed, so \`v$NAME\` is not tagged and no back-merge pull request is opened.** Turn a channel on and re-run all jobs of this run."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$on" -eq 0 ]; then
+            echo "::notice title=Every channel is switched off::ENABLE_PWA, ENABLE_APK, ENABLE_PLAY_STORE and ENABLE_IOS are not 'true': nothing is deployed, v$NAME is not tagged and develop gets no back-merge."
+          fi
 
   # ── Produccion: every job waits for the same approval ───────────────────────────────────────────
   produccion-pwa:
@@ -197,24 +207,35 @@ jobs:
     permissions:
       contents: read
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      GH_TOKEN: ${{ github.token }}
       TAG: ${{ needs.localizar.outputs.tag }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Check the Cloudflare secrets
+        env:
+          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+          NAME: ${{ needs.localizar.outputs.name }}
+        run: |
+          if [ "$HAS_CLOUDFLARE" != true ]; then
+            echo "::error title=Cloudflare secrets missing::ENABLE_PWA is 'true', but the secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID of the environment produccion are not set (docs/RELEASES.md). Nothing was deployed and v$NAME is not tagged; add them and re-run the failed jobs."
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/scripts
       - name: Download the candidate's PWA and check its SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/candidata" te-tengo-pwa.tar.gz
           mkdir -p "$RUNNER_TEMP/pwa"
           tar -xzf "$RUNNER_TEMP/candidata/te-tengo-pwa.tar.gz" -C "$RUNNER_TEMP/pwa"
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Deploy to production and smoke check
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: .github/scripts/deploy_pwa.sh "$RUNNER_TEMP/pwa" main https://app.tetengo.reqsai.tech
 
   produccion-apk:
@@ -229,23 +250,34 @@ jobs:
     permissions:
       contents: read
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       R2_BUCKET: ${{ vars.DESCARGAS_R2_BUCKET || 'te-tengo-descargas' }}
       DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
-      GH_TOKEN: ${{ github.token }}
       TAG: ${{ needs.localizar.outputs.tag }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Check the Cloudflare secrets
+        env:
+          HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+          NAME: ${{ needs.localizar.outputs.name }}
+        run: |
+          if [ "$HAS_CLOUDFLARE" != true ]; then
+            echo "::error title=Cloudflare secrets missing::ENABLE_APK is 'true', but the secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID of the environment produccion are not set (docs/RELEASES.md). Nothing was uploaded and v$NAME is not tagged; add them and re-run the failed jobs."
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/scripts
       - name: Download the candidate's APK and check its SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/apk" te-tengo.apk te-tengo.apk.sha256
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Upload to R2 and smoke check
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: .github/scripts/upload_apk.sh "$RUNNER_TEMP/apk" ""
 
   produccion-play:
@@ -258,14 +290,24 @@ jobs:
     permissions:
       contents: read
     env:
-      GH_TOKEN: ${{ github.token }}
       TAG: ${{ needs.localizar.outputs.tag }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Check the Google Play secret
+        env:
+          HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+          NAME: ${{ needs.localizar.outputs.name }}
+        run: |
+          if [ "$HAS_PLAY" != true ]; then
+            echo "::error title=Google Play secret missing::ENABLE_PLAY_STORE is 'true', but the secret PLAY_SERVICE_ACCOUNT_JSON of the environment produccion is not set (Play Console service account; docs/RELEASE_ANDROID.md). Nothing was uploaded and v$NAME is not tagged; add it and re-run the failed jobs."
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/scripts
       - name: Download the candidate's AAB and check its SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/aab" te-tengo.aab
       # The upload fails unless Google Play accepts the bundle (signature, package, versionCode), so a
       # successful step is the smoke check.
@@ -296,14 +338,24 @@ jobs:
     permissions:
       contents: read
     env:
-      GH_TOKEN: ${{ github.token }}
       TAG: ${{ needs.localizar.outputs.tag }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Check the App Store Connect secrets
+        env:
+          HAS_ASC: ${{ secrets.APP_STORE_CONNECT_KEY_ID != '' && secrets.APP_STORE_CONNECT_ISSUER_ID != '' && secrets.APP_STORE_CONNECT_PRIVATE_KEY != '' }}
+          NAME: ${{ needs.localizar.outputs.name }}
+        run: |
+          if [ "$HAS_ASC" != true ]; then
+            echo "::error title=App Store Connect secrets missing::ENABLE_IOS is 'true', but the secrets APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID and APP_STORE_CONNECT_PRIVATE_KEY of the environment produccion are not all set (docs/RELEASES.md). Nothing was uploaded and v$NAME is not tagged; add them and re-run the failed jobs."
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/scripts
       - name: Download the candidate's IPA and check its SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/ipa" te-tengo.ipa
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@65a84cdb671ee2ccfa93710cd58e8f7b5d251967 # v5.5.1
@@ -326,22 +378,24 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   # ── Tag at the end ──────────────────────────────────────────────────────────────────────────────
+  # Only a version that is live gets vX.Y.Z: no produccion job failed or was rejected, and at least one
+  # was published (a job skipped by its switch does not block, but it does not count either).
   publicar:
-    name: Tag and back-merge
+    name: Tag vX.Y.Z and GitHub Release
     needs: [localizar, produccion-pwa, produccion-apk, produccion-play, produccion-testflight]
-    # Only when no produccion job failed or was rejected; a job skipped by its switch does not block.
-    if: "!cancelled() && !failure() && needs.localizar.outputs.skip != 'true'"
+    if: >-
+      !cancelled() && !failure() && needs.localizar.outputs.skip != 'true'
+      && (needs.produccion-pwa.result == 'success' || needs.produccion-apk.result == 'success'
+      || needs.produccion-play.result == 'success' || needs.produccion-testflight.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # creates the tag vX.Y.Z and its GitHub Release
     env:
-      GH_TOKEN: ${{ github.token }}
       NAME: ${{ needs.localizar.outputs.name }}
       TAG: ${{ needs.localizar.outputs.tag }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: |
@@ -350,6 +404,8 @@ jobs:
           sparse-checkout-cone-mode: false
 
       - name: GitHub Release with the candidate's files
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           dir="$RUNNER_TEMP/final"
@@ -358,20 +414,41 @@ jobs:
           .github/scripts/candidata.sh descargar "$TAG" "$dir" "${assets[@]}"
           .github/scripts/candidata.sh final "$TAG" "$dir" CHANGELOG.md
 
-      - name: Open the back-merge pull request into develop
+  # The pull request main → develop (and main → newer open release/* after a hotfix), opened by the
+  # GitHub App te-tengo-release-bot so that its checks run, with auto-merge when the repository allows it.
+  back-merge:
+    name: Back-merge into develop
+    needs: [localizar, publicar]
+    if: needs.publicar.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Check the release bot configuration
+        env:
+          APP_ID: ${{ vars.RELEASE_APP_ID }}
+          HAS_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY != '' }}
         run: |
-          set -euo pipefail
-          ahead=$(gh api "repos/$GITHUB_REPOSITORY/compare/develop...$GITHUB_SHA" --jq .ahead_by)
-          if [ "$ahead" = 0 ]; then
-            echo "### develop already has every commit of main; no back-merge needed" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
+          if [ -z "$APP_ID" ] || [ "$HAS_KEY" != true ]; then
+            echo "::error title=Release bot not configured::The organization variable RELEASE_APP_ID and the organization secret RELEASE_APP_PRIVATE_KEY (GitHub App te-tengo-release-bot) are required to open the back-merge pull request. Nothing falls back to GITHUB_TOKEN: its pull requests start no workflows."
+            exit 1
           fi
-          url=$(gh pr list --repo "$GITHUB_REPOSITORY" --base develop --head main --state open --json url --jq '.[0].url // ""')
-          if [ -n "$url" ]; then
-            echo "### Back-merge pull request already open: $url" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base develop --head main \
-            --title "chore: merge release $NAME back into develop" \
-            --body "Brings release $NAME (tag \`v$NAME\`, candidate \`$TAG\`) from \`main\` back into \`develop\`. Merge it with a merge commit, not a squash, so both branches share the release history.")
-          echo "### Opened $url" >> "$GITHUB_STEP_SUMMARY"
+      - name: Mint the release bot token
+        id: bot
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          # The App ID; GitHub accepts it as the JWT issuer like the client ID.
+          client-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write # auto-merge
+          permission-pull-requests: write
+      - name: Open the back-merge pull requests
+        env:
+          GH_TOKEN: ${{ steps.bot.outputs.token }}
+          NAME: ${{ needs.localizar.outputs.name }}
+        run: .github/scripts/back-merge.sh "$NAME"
