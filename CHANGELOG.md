@@ -4,6 +4,8 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-10
+
 ### Added
 - **Dark mode** that follows the phone or the browser (`ThemeMode.system`): `Paleta`, a `ThemeExtension` read with `context.colores`, holds the tokens that change (the prototype's `.screen.dark`). Alert floods keep their severity color and the sheet below turns dark; ink buttons, chips, toasts and the offline bar invert. Every dark text pair meets 4.5:1.
 - **Legal pages:** «Términos de uso», «Política de privacidad» and the full consent document, opened from sign-up, the consent summary, the certificate and Ajustes › Privacidad. One consent text feeds the summary and the document.
