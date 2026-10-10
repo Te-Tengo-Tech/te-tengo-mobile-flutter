@@ -34,7 +34,7 @@ The files under `docs/references/` are Spanish source documents from the thesis.
 ## Rules
 - **UI language:** all user-facing text is **Spanish (Peru)**, copied from the prototype or DESIGN.md. Never show story IDs or prototype labels. Code identifiers follow the domain language (Spanish, matching the API); comments, docs and commits are **English**.
 - **Design:**
-  - Colors come from `context.colores` (`Paleta`, light and dark) or `Colores` (fixed: severity floods, brand), never hard-coded. The app follows the phone's light or dark theme.
+  - Colors come from `context.colores` (`Paleta`, light and dark) or `Colores` (fixed: severity floods, brand), never hard-coded. The app follows the phone's light or dark theme unless this device chose «Claro» or «Oscuro» in Ajustes › «Apariencia».
   - Red (`caida`) and amber (`inestable`, `aviso`) are reserved for real events.
   - **Status is never shown by color alone:** always icon + text (`EstadoCamara`).
 - **Accessibility:**
