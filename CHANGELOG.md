@@ -3,6 +3,9 @@
 Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+
+## [0.3.2] - 2026-10-10
+
 ### Changed
 - **Each commit is tested once** ([docs/RELEASES.md](docs/RELEASES.md)). `ci.yml` runs on pull requests and pushes to `develop`, and `release.yml` calls it (`workflow_call`, with `build-pwa: false`) on each release candidate's commit: the pre-release `vx.y.z-rc.N` is created only after CI passed. It no longer runs on pushes to `main`, `release/**` and `hotfix/**`, and on pull requests into `main` its test jobs are skipped, since their head is the already tested candidate.
 - **The pull request to `main` and the back-merge pull requests are opened by the GitHub App te-tengo-release-bot** (`RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY`), so their checks run; nothing falls back to `GITHUB_TOKEN`. The release pull request's description names the pipeline run with its attempt, so each new candidate edits it and runs `release-gate` again.
