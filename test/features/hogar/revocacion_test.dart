@@ -102,9 +102,8 @@ void main() {
       expect(find.text('¿Revocar el consentimiento?'), findsOneWidget);
       expect(
         find.text(
-          'La cámara de la Sala dejará de capturar de inmediato, ya no se podrá ver en vivo y se '
-          'eliminarán las grabaciones guardadas. Nadie de la familia recibirá más alertas de '
-          'caída. Esta acción no se puede deshacer.',
+          'La cámara de la Sala dejará de capturar, nadie recibirá más alertas y '
+          'se borrarán las grabaciones. No se puede deshacer.',
         ),
         findsOneWidget,
       );

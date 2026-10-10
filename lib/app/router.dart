@@ -19,6 +19,7 @@ import '../features/familia/presentation/pantalla_familia.dart';
 import '../features/familia/presentation/pantalla_orden_aviso.dart';
 import '../features/familia/presentation/pantallas_configuracion_familia.dart';
 import '../features/historial/presentation/pantalla_historial.dart';
+import '../features/legal/presentation/pantallas_legales.dart';
 import '../features/instalar/presentation/instalar_app.dart';
 import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
 import '../features/hogar/presentation/pantalla_persona_setup.dart';
@@ -96,6 +97,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           adultoMayor: state.uri.queryParameters['adultoMayor'],
           correo: state.uri.queryParameters['correo'],
         ),
+      ),
+      GoRoute(
+        path: Rutas.terminos,
+        builder: (context, state) => const PantallaTerminos(),
+      ),
+      GoRoute(
+        path: Rutas.politica,
+        builder: (context, state) => const PantallaPolitica(),
+      ),
+      GoRoute(
+        path: Rutas.documentoConsentimiento,
+        builder: (context, state) => const PantallaDocumentoConsentimiento(),
       ),
       GoRoute(
         path: Rutas.instalar,

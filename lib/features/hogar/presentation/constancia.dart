@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../app/rutas.dart';
 
 import '../../../app/tema/colores.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../core/ui/lista.dart';
 import '../../../core/ui/tarjeta.dart';
 import '../domain/hogar.dart';
 
-/// Consent certificate (DESIGN.md): green band, who granted it, who recorded it, date and time, and
-/// the mention of Law No. 29733 (CA-05.3).
+/// Consent certificate (DESIGN.md): green band, who granted it, who recorded it, date and time, the
+/// mention of Law No. 29733 (CA-05.3) and a link to the full consent document.
 class TarjetaConstancia extends StatelessWidget {
   const TarjetaConstancia({
     super.key,
     required this.consentimiento,
-    required this.nombreAdultoMayor,
+    this.enlace = 'Ver la constancia completa',
   });
 
   final Consentimiento consentimiento;
 
-  /// First name of the older adult.
-  final String nombreAdultoMayor;
+  /// Text of the link to the full document.
+  final String enlace;
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +54,16 @@ class TarjetaConstancia extends StatelessWidget {
           ]),
           const SizedBox(height: 8),
           Text(
-            'Guardamos la fecha y la hora como constancia de que '
-            '$nombreAdultoMayor autorizó el monitoreo, como lo exige la Ley N.° '
-            '29733 de Protección de Datos Personales.',
+            'Constancia exigida por la Ley N.° 29733.',
             style: texto.bodySmall,
+          ),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Enlace(
+              enlace,
+              alTocar: () => context.push(Rutas.documentoConsentimiento),
+            ),
           ),
         ],
       ),

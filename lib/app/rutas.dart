@@ -16,6 +16,11 @@ abstract final class Rutas {
   /// Invitation deep link: `/invitacion/{token}`.
   static const invitacion = '/invitacion';
 
+  /// Legal documents: the terms and the privacy policy are reachable with or without a session.
+  static const terminos = '/legal/terminos';
+  static const politica = '/legal/privacidad';
+  static const documentoConsentimiento = '/legal/consentimiento';
+
   /// Web app on an iPhone browser tab: how to add it to the home screen (docs/WEB_PWA.md).
   static const instalar = '/instalar';
 
@@ -27,6 +32,7 @@ abstract final class Rutas {
   static const configCamara = '/configuracion/camara';
   static const configNombreCamara = '/configuracion/camara/nombre';
   static const configFamilia = '/configuracion/familia';
+  static const configAvisos = '/configuracion/avisos';
   static const configListo = '/configuracion/listo';
 
   // Tabs.
@@ -77,7 +83,12 @@ abstract final class Rutas {
   /// - session without household → onboarding (after registering, «Tu cuenta está lista»);
   /// - signed-in user on an auth screen → home.
   static String? redirigir(Sesion? sesion, String ubicacion) {
-    if (_bajo(ubicacion, arranque) || _bajo(ubicacion, instalar)) return null;
+    if (_bajo(ubicacion, arranque) ||
+        _bajo(ubicacion, instalar) ||
+        _bajo(ubicacion, terminos) ||
+        _bajo(ubicacion, politica)) {
+      return null;
+    }
     if (sesion == null) {
       return _publicas.any((r) => _bajo(ubicacion, r)) ? null : bienvenida;
     }

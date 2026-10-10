@@ -66,7 +66,7 @@ class _Privacidad extends ConsumerWidget {
         if (hogar.conConsentimiento && consentimiento != null)
           TarjetaConstancia(
             consentimiento: consentimiento,
-            nombreAdultoMayor: nombre,
+            enlace: 'Ver el documento aceptado',
           )
         else
           TarjetaBanda(
@@ -114,9 +114,7 @@ class _Privacidad extends ConsumerWidget {
             ),
             const FilaLista(
               titulo: 'Video en vivo',
-              subtitulo:
-                  'Los familiares vinculados pueden verlo en cualquier momento. '
-                  'No se graba.',
+              subtitulo: 'La familia puede verlo cuando quiera. No se graba.',
             ),
             const FilaLista(
               titulo: 'Reconocimiento facial',
@@ -136,24 +134,37 @@ class _Privacidad extends ConsumerWidget {
             children: [
               TextSpan(
                 text:
-                    'Según la Ley N.° 29733, $nombre puede pedir acceder, '
-                    'corregir o eliminar sus datos escribiendo a ',
+                    '$nombre puede pedir ver, corregir o borrar sus datos en ',
               ),
               const TextSpan(
                 text: 'privacidad@tetengo.pe',
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
-              const TextSpan(text: '.'),
+              const TextSpan(text: ' (Ley N.° 29733).'),
             ],
           ),
           style: texto.bodyMedium,
+        ),
+        const SizedBox(height: 16),
+        ListaTarjeta(
+          children: [
+            FilaLista(
+              inicio: const IconoFila(Ico.doc),
+              titulo: 'Política de privacidad',
+              alTocar: () => context.push(Rutas.politica),
+            ),
+            FilaLista(
+              inicio: const IconoFila(Ico.doc),
+              titulo: 'Términos de uso',
+              alTocar: () => context.push(Rutas.terminos),
+            ),
+          ],
         ),
         if (hogar.conConsentimiento) ...[
           const EncabezadoSeccion('Revocar'),
           if (titular) ...[
             Text(
-              'Detiene la captura de la cámara, la vista en vivo y elimina las '
-              'grabaciones guardadas.',
+              'Detiene la cámara y borra las grabaciones.',
               style: texto.bodyMedium,
             ),
             const SizedBox(height: 12),
@@ -185,9 +196,8 @@ class _Privacidad extends ConsumerWidget {
       peligro: true,
       titulo: '¿Revocar el consentimiento?',
       texto:
-          '$habitacion dejará de capturar de inmediato, ya no se podrá ver en '
-          'vivo y se eliminarán las grabaciones guardadas. Nadie de la familia '
-          'recibirá más alertas de caída. Esta acción no se puede deshacer.',
+          '$habitacion dejará de capturar, nadie recibirá más alertas y se '
+          'borrarán las grabaciones. No se puede deshacer.',
       aceptar: 'Sí, revocar y eliminar',
       cancelar: 'Cancelar, mantenerlo',
     );
