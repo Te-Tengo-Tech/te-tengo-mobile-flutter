@@ -222,13 +222,17 @@ class NotificacionesFirebase implements NotificacionesPush {
     _iniciar(),
   ).asyncExpand((m) => m == null ? const Stream.empty() : m.onTokenRefresh);
 
+  /// On the web, Firebase hands a push to the page only while a window is visible; the service
+  /// worker also posts every push to the open windows (web/firebase-messaging-sw.js), so a hidden
+  /// PWA learns it too. A visible window gets both copies: [GestorPush] drops the repeated one.
   @override
   Stream<MensajePush> get recibidas =>
-      Stream.fromFuture(_iniciar()).asyncExpand(
-        (m) => m == null
-            ? const Stream<MensajePush>.empty()
-            : _mensajes(FirebaseMessaging.onMessage),
-      );
+      Stream.fromFuture(_iniciar()).asyncExpand((m) {
+        if (m == null) return const Stream<MensajePush>.empty();
+        final firebase = _mensajes(FirebaseMessaging.onMessage);
+        if (!esWeb) return firebase;
+        return recibidasEnLaWeb(firebase, pushRecibidasNavegador());
+      });
 
   /// On the web, firebase_messaging has no tapped-notification events: the service worker posts
   /// them to the open window instead (web/firebase-messaging-sw.js).
@@ -260,3 +264,54 @@ class NotificacionesFirebase implements NotificacionesPush {
 final notificacionesPushProvider = Provider<NotificacionesPush>(
   (ref) => NotificacionesFirebase(),
 );
+
+/// Pushes received by the PWA: Firebase's ([firebase], only while a window is visible) and the data
+/// of the service worker's `tt-push-recibida` messages ([trabajador], every open window).
+Stream<MensajePush> recibidasEnLaWeb(
+  Stream<MensajePush> firebase,
+  Stream<Map<String, Object?>> trabajador,
+) => unirFlujos([
+  firebase,
+  trabajador
+      .map(MensajePush.desdeDatos)
+      .where((m) => m != null)
+      .cast<MensajePush>(),
+]);
+
+/// Every event of [flujos] in one stream, which ends when all of them have ended.
+Stream<T> unirFlujos<T>(List<Stream<T>> flujos) {
+  final suscripciones = <StreamSubscription<T>>[];
+  late final StreamController<T> salida;
+  salida = StreamController<T>(
+    onListen: () {
+      var abiertos = flujos.length;
+      if (abiertos == 0) unawaited(salida.close());
+      for (final f in flujos) {
+        suscripciones.add(
+          f.listen(
+            salida.add,
+            onError: salida.addError,
+            onDone: () {
+              if (--abiertos == 0) unawaited(salida.close());
+            },
+          ),
+        );
+      }
+    },
+    onPause: () {
+      for (final s in suscripciones) {
+        s.pause();
+      }
+    },
+    onResume: () {
+      for (final s in suscripciones) {
+        s.resume();
+      }
+    },
+    onCancel: () async {
+      await Future.wait(suscripciones.map((s) => s.cancel()));
+      suscripciones.clear();
+    },
+  );
+  return salida.stream;
+}

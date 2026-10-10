@@ -59,6 +59,15 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
   Future<PaginaAlertas> listar(FiltroAlertas filtro) async {
     filtros.add(filtro);
     if (errorListar != null) throw errorListar!;
+    // As the backend: `@Max(100)` on `tamano`.
+    if (filtro.tamano > FiltroAlertas.tamanoMaximo) {
+      throw const ProblemaApi(
+        codigo: 'VALIDACION',
+        detalle: 'Revisa los datos.',
+        estado: 400,
+        campos: {'tamano': 'Pide como máximo 100 elementos.'},
+      );
+    }
     final lista =
         alertas
             .where((a) => filtro.estado == null || a.estado == filtro.estado)
@@ -74,7 +83,10 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
             .toList()
           ..sort((a, b) => b.ocurridaEn.compareTo(a.ocurridaEn));
     return PaginaAlertas(
-      elementos: lista.take(filtro.tamano).toList(),
+      elementos: lista
+          .skip(filtro.pagina * filtro.tamano)
+          .take(filtro.tamano)
+          .toList(),
       total: lista.length,
     );
   }

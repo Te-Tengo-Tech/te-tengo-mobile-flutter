@@ -12,6 +12,10 @@ import 'entorno.dart';
 /// tapped: `{tipo: 'tt-push-abierta', datos: {tipo, alertaId?, …}}`.
 const _pushAbierta = 'tt-push-abierta';
 
+/// Message that the worker posts to every window of the app when a push arrives, also a hidden
+/// one, to which Firebase hands nothing: `{tipo: 'tt-push-recibida', datos: {tipo, …}}`.
+const _pushRecibida = 'tt-push-recibida';
+
 /// Query parameter with the push data when the tap had to open a new window.
 const _parametroPush = 'tt_push';
 
@@ -77,18 +81,27 @@ Map<String, Object?>? _comoMapa(Object? valor) => valor is Map
     ? valor.map((k, v) => MapEntry('$k', v is String ? v : v?.toString()))
     : null;
 
-/// Notifications tapped while a window of the app is open.
-Stream<Map<String, Object?>> pushAbiertasNavegador() {
+/// Data of the worker's messages of type [tipo].
+Stream<Map<String, Object?>> _delTrabajador(String tipo) {
   final navegador = web.window.navigator;
   if (!_tiene(navegador, 'serviceWorker')) return const Stream.empty();
   return web.EventStreamProviders.messageEvent
       .forTarget(navegador.serviceWorker)
       .map((e) => e.data.dartify())
-      .where((d) => d is Map && d['tipo'] == _pushAbierta)
+      .where((d) => d is Map && d['tipo'] == tipo)
       .map((d) => _comoMapa((d as Map)['datos']))
       .where((d) => d != null)
       .cast<Map<String, Object?>>();
 }
+
+/// Notifications tapped while a window of the app is open.
+Stream<Map<String, Object?>> pushAbiertasNavegador() =>
+    _delTrabajador(_pushAbierta);
+
+/// Every push the worker received while this window was open, visible or not. A visible window
+/// also gets it from Firebase (`onMessage`): the app drops the copy.
+Stream<Map<String, Object?>> pushRecibidasNavegador() =>
+    _delTrabajador(_pushRecibida);
 
 /// The push whose tap opened this window (`?tt_push=`). It is removed from the address, so a reload
 /// does not open it again.

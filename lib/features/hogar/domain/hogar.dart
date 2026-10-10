@@ -91,6 +91,42 @@ class Consentimiento {
   );
 }
 
+/// Deletion of the recordings after the latest consent revocation (contract §2 `Eliminacion`,
+/// CA-09.1, CA-09.3).
+class Eliminacion {
+  const Eliminacion({
+    required this.terminada,
+    required this.clips,
+    required this.programadaEn,
+    this.terminadaEn,
+  });
+
+  /// `estado == TERMINADA`: every recording was deleted.
+  final bool terminada;
+
+  /// Recordings still to delete, or deleted once [terminada].
+  final int clips;
+
+  /// When the consent was revoked (capture stopped).
+  final DateTime programadaEn;
+
+  /// When the recordings were deleted.
+  final DateTime? terminadaEn;
+
+  /// Null when the payload is not one: the app then waits for the push only.
+  static Eliminacion? desdeJson(Object? json) {
+    if (json is! Map<String, dynamic>) return null;
+    final programadaEn = fechaDesdeJson(json['programadaEn']);
+    if (programadaEn == null) return null;
+    return Eliminacion(
+      terminada: json['estado'] == 'TERMINADA',
+      clips: (json['clips'] as num?)?.toInt() ?? 0,
+      programadaEn: programadaEn,
+      terminadaEn: fechaDesdeJson(json['terminadaEn']),
+    );
+  }
+}
+
 /// `GET /api/hogar`.
 class Hogar {
   const Hogar({
@@ -99,6 +135,8 @@ class Hogar {
     required this.rol,
     this.consentimiento,
     this.dispositivosActivos,
+    this.eliminacion,
+    this.informaEliminacion = false,
   });
 
   final String hogarId;
@@ -109,6 +147,13 @@ class Hogar {
   /// Active push devices of the family (contract §2); 0 means nobody can receive the alerts on a
   /// phone. Null with a backend older than 0.3.1.
   final int? dispositivosActivos;
+
+  /// The deletion of the recordings after the latest revocation; null if the consent was never
+  /// revoked, or with a backend older than 0.3.4 ([informaEliminacion] false).
+  final Eliminacion? eliminacion;
+
+  /// The backend sends `eliminacion` (0.3.4 and later), so the revocation screen can poll it.
+  final bool informaEliminacion;
 
   /// Without a valid consent the camera does not send video (CA-05.2).
   bool get conConsentimiento => consentimiento?.vigente ?? false;
@@ -125,5 +170,7 @@ class Hogar {
             json['consentimiento'] as Map<String, dynamic>,
           ),
     dispositivosActivos: (json['dispositivosActivos'] as num?)?.toInt(),
+    eliminacion: Eliminacion.desdeJson(json['eliminacion']),
+    informaEliminacion: json.containsKey('eliminacion'),
   );
 }
