@@ -185,7 +185,7 @@ void main() {
       Rutas.alerta('a-1'),
       alertas: AlertasRepositorioFalso([caidaSala()]),
     );
-    await tocar(tester, find.text('Ver en vivo · Sala'));
+    await tocar(tester, find.text('Ver en vivo'));
     expect(vivo.abiertas, [('c1', 'a-1')]);
     expect(
       find.text(
@@ -238,7 +238,7 @@ void main() {
       Rutas.alerta('a-1'),
       alertas: AlertasRepositorioFalso([caidaSala()]),
     );
-    await tocar(tester, find.text('Ver en vivo · Sala'));
+    await tocar(tester, find.text('Ver en vivo'));
     expect(
       find.text('La cámara de la Sala no está disponible'),
       findsOneWidget,
@@ -607,7 +607,7 @@ void main() {
       Rutas.alerta('a-1'),
       alertas: AlertasRepositorioFalso([caidaSala()]),
     );
-    await tocar(tester, find.text('Ver en vivo · Sala'));
+    await tocar(tester, find.text('Ver en vivo'));
     expect(
       find.text('Ves la habitación. La transmisión no se graba.'),
       findsOneWidget,

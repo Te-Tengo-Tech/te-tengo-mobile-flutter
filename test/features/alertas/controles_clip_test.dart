@@ -62,9 +62,11 @@ void main() {
       reloj: () => ahora,
       overrides: [pantallaCompletaProvider.overrideWithValue(pantalla)],
     );
+    // A fall folds its clip: open «Clip del evento».
+    await tocar(tester, find.text('Clip del evento'));
     await verHasta(tester, find.bySemanticsLabel('Avance del clip'));
     await tester.ensureVisible(
-      find.bySemanticsLabel('Ver en pantalla completa'),
+      find.bySemanticsLabel('Ver el clip en pantalla completa'),
     );
     await tester.pumpAndSettle();
   }
@@ -191,13 +193,30 @@ void main() {
       expect(find.text('0:03 / 0:12'), findsOneWidget);
     });
 
+    testWidgets('la velocidad cambia en ciclo y se mantiene al renovar', (
+      tester,
+    ) async {
+      await abrir(tester);
+      expect(find.text('1×'), findsOneWidget);
+      await tocarEtiqueta(tester, 'Velocidad 1×. Cambiar la velocidad');
+      expect(find.text('1,5×'), findsOneWidget);
+      expect(clips.ultimo.velocidades, [1.5]);
+      await tocarEtiqueta(tester, 'Velocidad 1,5×. Cambiar la velocidad');
+      await tocarEtiqueta(tester, 'Velocidad 2×. Cambiar la velocidad');
+      expect(find.text('0,5×'), findsOneWidget);
+      await tocarEtiqueta(tester, 'Velocidad 0,5×. Cambiar la velocidad');
+      expect(find.text('1×'), findsOneWidget);
+      expect(clips.ultimo.velocidades, [1.5, 2, 0.5, 1]);
+    });
+
     testWidgets('cada control mide al menos 48 dp', (tester) async {
       await abrir(tester);
       for (final etiqueta in [
         'Reproducir clip',
         'Retroceder 5 segundos',
         'Adelantar 5 segundos',
-        'Ver en pantalla completa',
+        'Ver el clip en pantalla completa',
+        'Velocidad 1×. Cambiar la velocidad',
         'Avance del clip',
       ]) {
         final tamano = tester.getSize(find.bySemanticsLabel(etiqueta));
@@ -331,6 +350,7 @@ void main() {
         clips: clips,
         overrides: [pantallaCompletaProvider.overrideWithValue(pantalla)],
       );
+      await tocar(tester, find.text('Clip del evento'));
       await tester.pump(const Duration(seconds: 10));
       await esperarReintentos(tester);
       await verHasta(tester, find.text('0:00 / 0:12'));
@@ -362,6 +382,7 @@ void main() {
         clips: clips,
         overrides: [pantallaCompletaProvider.overrideWithValue(pantalla)],
       );
+      await tocar(tester, find.text('Clip del evento'));
       await esperarReintentos(tester);
       await verHasta(tester, find.text('Clip no disponible'));
       expect(clips.creados, hasLength(3));
@@ -372,10 +393,13 @@ void main() {
   group('pantalla completa', () {
     testWidgets('entra y sale con los mismos controles', (tester) async {
       await abrir(tester);
-      await tocarEtiqueta(tester, 'Ver en pantalla completa');
+      await tocarEtiqueta(tester, 'Ver el clip en pantalla completa');
       expect(pantalla.entradas, 1);
       expect(find.byType(PantallaClipCompleta), findsOneWidget);
-      expect(find.text('Sala · 10:42'), findsWidgets);
+      expect(
+        find.text('Caída en la Sala · 10:42', findRichText: true),
+        findsOneWidget,
+      );
 
       await tocarEtiqueta(tester, 'Reproducir clip');
       expect(clips.creados, hasLength(1));
@@ -393,7 +417,7 @@ void main() {
 
     testWidgets('volver atrás también sale y restaura', (tester) async {
       await abrir(tester);
-      await tocarEtiqueta(tester, 'Ver en pantalla completa');
+      await tocarEtiqueta(tester, 'Ver el clip en pantalla completa');
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.byType(PantallaClipCompleta), findsNothing);
@@ -403,7 +427,7 @@ void main() {
     testWidgets('si el navegador sale de pantalla completa, la vista se '
         'cierra', (tester) async {
       await abrir(tester);
-      await tocarEtiqueta(tester, 'Ver en pantalla completa');
+      await tocarEtiqueta(tester, 'Ver el clip en pantalla completa');
       pantalla.salirDesdeElNavegador();
       await tester.pumpAndSettle();
       expect(find.byType(PantallaClipCompleta), findsNothing);
@@ -415,7 +439,7 @@ void main() {
       pantalla.disponible = false;
       clips.nativa = true;
       await abrir(tester);
-      await tocarEtiqueta(tester, 'Ver en pantalla completa');
+      await tocarEtiqueta(tester, 'Ver el clip en pantalla completa');
       expect(clips.ultimo.pantallasNativas, 1);
       expect(pantalla.entradas, 0);
       expect(find.byType(PantallaClipCompleta), findsNothing);
@@ -426,13 +450,13 @@ void main() {
     ) async {
       pantalla.disponible = false;
       await abrir(tester);
-      await tocarEtiqueta(tester, 'Ver en pantalla completa');
+      await tocarEtiqueta(tester, 'Ver el clip en pantalla completa');
       expect(clips.ultimo.pantallasNativas, 1);
       expect(pantalla.entradas, 0);
       expect(find.byType(PantallaClipCompleta), findsOneWidget);
     });
 
-    testWidgets('Android e iOS: horizontal permitido y barras ocultas, y al '
+    testWidgets('Android e iOS: en horizontal y con barras ocultas, y al '
         'salir se restauran', (tester) async {
       final llamadas = <MethodCall>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
@@ -456,7 +480,6 @@ void main() {
         isMethodCall(
           'SystemChrome.setPreferredOrientations',
           arguments: [
-            'DeviceOrientation.portraitUp',
             'DeviceOrientation.landscapeLeft',
             'DeviceOrientation.landscapeRight',
           ],

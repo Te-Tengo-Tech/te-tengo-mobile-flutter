@@ -90,11 +90,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         tester.getSemantics(nodo),
-        isSemantics(
-          isButton: true,
-          hasExpandedState: true,
-          isExpanded: true,
-        ),
+        isSemantics(isButton: true, hasExpandedState: true, isExpanded: true),
       );
       // The whole row is the target.
       expect(

@@ -105,8 +105,8 @@ void main() {
     await verHasta(tester, find.text('La grabación ya no está disponible'));
     expect(
       find.text(
-        'Se eliminó el 10 sep 2026 por la política de retención de 30 días. '
-        'El registro de la alerta se conserva.',
+        'Se borró el 10 sep 2026 (se guardan 30 días). El registro se '
+        'conserva.',
       ),
       findsOneWidget,
     );

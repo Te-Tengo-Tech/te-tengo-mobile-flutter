@@ -25,23 +25,39 @@ void main() {
       ubicacion: Rutas.alerta('a-1'),
       alertas: AlertasRepositorioFalso([caidaSala()]),
     );
-    expect(find.text('ALERTA DE CAÍDA · URGENTE'), findsOneWidget);
+    expect(find.text('CAÍDA · URGENTE'), findsOneWidget);
     expect(find.text('Rosa pudo haberse caído'), findsOneWidget);
     expect(find.text('Comprobando si sigue en el suelo'), findsOneWidget);
     expect(find.text('Habitación'), findsOneWidget);
     expect(find.text('Sala'), findsOneWidget);
     expect(find.text('10:42'), findsWidgets);
-    expect(find.text('instantes'), findsOneWidget);
-    expect(find.text('Jr. Los Pinos 482, San Miguel, Lima'), findsOneWidget);
-    expect(find.text('Ver en vivo · Sala'), findsOneWidget);
+    expect(find.text('ahora'), findsOneWidget);
+    // Only what decides the action is in view: no address and no phone in the button.
+    expect(find.text('Jr. Los Pinos 482, San Miguel, Lima'), findsNothing);
+    expect(find.text('Ver en vivo'), findsOneWidget);
     await tocar(tester, find.text('Llamar a Rosa'));
     expect(llamadas, [null]);
-    await verHasta(tester, find.text('Si no contesta, pide ayuda cerca'));
-    expect(find.text('Qué hacer ahora'), findsOneWidget);
-    expect(find.text('Llama a Rosa'), findsOneWidget);
+    expect(find.text('¿Rosa no contesta?'), findsOneWidget);
+    expect(
+      find.text('Pide ayuda a un vecino o llama a emergencias.'),
+      findsOneWidget,
+    );
+    await tocar(tester, find.text('Llamar al SAMU · 106'));
+    expect(llamadas, [null, '106']);
+    expect(find.text('Qué hacer ahora'), findsNothing);
+    expect(find.text('Marca la alerta'), findsNothing);
+    // The clip is folded for a fall; the address and the record are in «Más detalles».
+    expect(find.text('12 s, antes y después'), findsOneWidget);
+    expect(find.text('Dirección, teléfono, aviso y registro'), findsOneWidget);
+    await tocar(tester, find.text('Más detalles'));
+    expect(find.text('Dirección, teléfono, aviso y registro'), findsNothing);
+    expect(find.text('Jr. Los Pinos 482, San Miguel, Lima'), findsOneWidget);
+    expect(find.text('Bomberos'), findsOneWidget);
+    expect(find.text('116'), findsOneWidget);
     expect(
       find.text(
-        'A un vecino o a quien esté más cerca de San Miguel. Emergencias: SAMU 106 o Bomberos 116.',
+        'Si sigue en el suelo 30 s, confirmamos la caída. Si se levanta, te '
+        'avisamos.',
       ),
       findsOneWidget,
     );
@@ -74,10 +90,12 @@ void main() {
         alertas: AlertasRepositorioFalso([caidaSala(sinNotificar: true)]),
       );
       expect(find.byType(PantallaAlerta), findsOneWidget);
+      expect(find.text('No te llegó como notificación'), findsOneWidget);
       expect(
-        find.text('Esta alerta no te llegó como notificación'),
+        find.text('Falló el envío; seguimos reintentando.'),
         findsOneWidget,
       );
+      await tocar(tester, find.text('Más detalles'));
       await verHasta(
         tester,
         find.text('La notificación no se pudo entregar; reintentando el envío'),
@@ -99,11 +117,9 @@ void main() {
           caidaSala(sinNotificar: true, estadoAviso: EstadoAviso.noEntregado),
         ]),
       );
-      expect(
-        find.text('Esta alerta no te llegó como notificación'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('Seguimos reintentando'), findsNothing);
+      expect(find.text('No te llegó como notificación'), findsOneWidget);
+      expect(find.textContaining('seguimos reintentando'), findsNothing);
+      await tocar(tester, find.text('Más detalles'));
       await verHasta(tester, find.text('La notificación no se pudo entregar'));
       expect(
         find.text('La notificación no se pudo entregar; reintentando el envío'),
@@ -132,7 +148,7 @@ void main() {
         ]),
       );
       expect(
-        find.text('Esta alerta no te llegó como notificación'),
+        find.text('No te llegó como notificación'),
         findsNothing,
         reason: '$estado',
       );

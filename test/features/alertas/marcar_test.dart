@@ -72,6 +72,8 @@ void main() {
       find.textContaining('por Carmen Huamán a las 10:46', findRichText: true),
       findsOneWidget,
     );
+    await verHasta(tester, find.textContaining(' momentos'));
+    await tocar(tester, find.text('Registro del evento'));
     await verHasta(
       tester,
       find.text('Marcada como atendida por Carmen Huamán'),
@@ -145,12 +147,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(PantallaDetalleAlerta), findsOneWidget);
-      expect(find.text('Luis ya atendió esta alerta'), findsOneWidget);
+      // The card says who marked it and when; no notice repeats it.
+      expect(find.text('Marcada como atendida'), findsOneWidget);
       expect(
-        find.textContaining(
-          'A las 10:44. Toda la familia ve quién la atendió y a qué hora.',
-          findRichText: true,
-        ),
+        find.textContaining('por Luis Huamán a las 10:44', findRichText: true),
         findsOneWidget,
       );
     },
