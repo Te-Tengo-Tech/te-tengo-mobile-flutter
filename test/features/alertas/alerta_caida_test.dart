@@ -174,9 +174,7 @@ void main() {
     );
     expect(find.text('Alerta de caída activa'), findsOneWidget);
     expect(
-      find.text(
-        'Caída en la Sala a las 10:42. Aún nadie la marcó como atendida.',
-      ),
+      find.text('Caída en la Sala a las 10:42. Nadie la marcó aún.'),
       findsOneWidget,
     );
     expect(find.byType(Badge), findsOneWidget);

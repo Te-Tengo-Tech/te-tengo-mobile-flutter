@@ -87,10 +87,7 @@ void main() {
       // The home card and the camera row show it too.
       expect(find.text('La detección no es confiable'), findsOneWidget);
       expect(
-        find.text(
-          'Hace más de 5 minutos que la cámara no ve bien a Rosa en la Sala. '
-          'Revisa la luz y el encuadre.',
-        ),
+        find.text('Hace más de 5 min que no ve bien a Rosa.'),
         findsOneWidget,
       );
       expect(

@@ -30,6 +30,7 @@ Future<List<String?>> abrirConAlertas(
   FamiliaRepositorioFalso? familia,
   PermisoNotificaciones? permiso,
   FabricaClipFalsa? clips,
+  CamarasRepositorioFalso? camaras,
   Reloj? reloj,
   List<Override> overrides = const [],
 }) async {
@@ -43,7 +44,9 @@ Future<List<String?>> abrirConAlertas(
       permiso: permiso,
       overrides: [
         alertasRepositorioProvider.overrideWithValue(alertas),
-        camarasRepositorioProvider.overrideWithValue(CamarasRepositorioFalso()),
+        camarasRepositorioProvider.overrideWithValue(
+          camaras ?? CamarasRepositorioFalso(),
+        ),
         hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
         familiaRepositorioProvider.overrideWithValue(
           familia ?? FamiliaRepositorioFalso(),

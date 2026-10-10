@@ -117,72 +117,71 @@ void main() {
     },
   );
 
-  testWidgets('CA-09.1 y CA-09.3: revoca, elimina las grabaciones y lo confirma', (
-    tester,
-  ) async {
-    await abrir(tester);
-    await tocar(tester, find.text('Revocar consentimiento'));
-    await tester.tap(find.text('Sí, revocar y eliminar'));
-    // The deletion spinner keeps animating: pump frames instead of settling.
-    for (var i = 0; i < 10; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(hogar.revocaciones, 1);
-    expect(find.text('Revocando el consentimiento'), findsOneWidget);
-    expect(
-      find.text('No cierres la app. Esto toma unos segundos.'),
-      findsOneWidget,
-    );
-    expect(find.text('Captura detenida'), findsOneWidget);
-    expect(
-      find.textContaining(
-        'La cámara de la Sala dejó de capturar a las 10:50',
-        findRichText: true,
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Eliminando las grabaciones…'), findsOneWidget);
-    expect(find.text('2 clips guardados'), findsOneWidget);
-    expect(find.text('Pendiente'), findsOneWidget);
-    expect(
-      tester
-          .widget<Boton>(find.widgetWithText(Boton, 'Volver al inicio'))
-          .alPresionar,
-      isNull,
-    );
+  testWidgets(
+    'CA-09.1 y CA-09.3: revoca, elimina las grabaciones y lo confirma',
+    (tester) async {
+      await abrir(tester);
+      await tocar(tester, find.text('Revocar consentimiento'));
+      await tester.tap(find.text('Sí, revocar y eliminar'));
+      // The deletion spinner keeps animating: pump frames instead of settling.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(hogar.revocaciones, 1);
+      expect(find.text('Revocando el consentimiento'), findsOneWidget);
+      expect(
+        find.text('No cierres la app. Esto toma unos segundos.'),
+        findsOneWidget,
+      );
+      expect(find.text('Captura detenida'), findsOneWidget);
+      expect(
+        find.textContaining(
+          'La cámara de la Sala dejó de capturar a las 10:50',
+          findRichText: true,
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Eliminando las grabaciones…'), findsOneWidget);
+      expect(find.text('2 clips guardados'), findsOneWidget);
+      expect(find.text('Pendiente'), findsOneWidget);
+      expect(
+        tester
+            .widget<Boton>(find.widgetWithText(Boton, 'Volver al inicio'))
+            .alPresionar,
+        isNull,
+      );
 
-    push.recibir(
-      MensajePush(
-        tipo: TipoPush.datosEliminados,
-        ocurridaEn: DateTime(2026, 9, 23, 10, 51),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('Consentimiento revocado'), findsOneWidget);
-    expect(
-      find.text(
-        'La captura se detuvo y las grabaciones se eliminaron. Te enviamos la constancia a carmen.huaman@gmail.com.',
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Grabaciones eliminadas'), findsOneWidget);
-    expect(
-      find.textContaining(
-        '2 clips borrados de forma permanente a las 10:51',
-        findRichText: true,
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Enviada'), findsOneWidget);
-    await tocar(tester, find.text('Volver al inicio'));
-    expect(find.text('Detección detenida'), findsOneWidget);
-    expect(
-      find.text(
-        'Revocaste el consentimiento. La cámara no captura y no recibirás alertas.',
-      ),
-      findsOneWidget,
-    );
-  });
+      push.recibir(
+        MensajePush(
+          tipo: TipoPush.datosEliminados,
+          ocurridaEn: DateTime(2026, 9, 23, 10, 51),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Consentimiento revocado'), findsOneWidget);
+      expect(
+        find.text(
+          'La captura se detuvo y las grabaciones se eliminaron. Te enviamos la constancia a carmen.huaman@gmail.com.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Grabaciones eliminadas'), findsOneWidget);
+      expect(
+        find.textContaining(
+          '2 clips borrados de forma permanente a las 10:51',
+          findRichText: true,
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Enviada'), findsOneWidget);
+      await tocar(tester, find.text('Volver al inicio'));
+      expect(find.text('Detección detenida'), findsOneWidget);
+      expect(
+        find.text('Revocaste el consentimiento. No hay captura ni alertas.'),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets(
     '404 SIN_CONSENTIMIENTO: si ya estaba revocado, muestra que no hay consentimiento',

@@ -135,9 +135,7 @@ void main() {
     await abrir(tester, Rutas.inicio);
     expect(find.text('Detección detenida'), findsOneWidget);
     expect(
-      find.text(
-        'Falta el consentimiento informado de Rosa. La cámara está instalada, pero no envía video.',
-      ),
+      find.text('Falta el consentimiento de Rosa. La cámara no envía video.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Registrar consentimiento'));
@@ -167,9 +165,7 @@ void main() {
     );
     await abrir(tester, Rutas.inicio);
     expect(
-      find.text(
-        'Revocaste el consentimiento. La cámara no captura y no recibirás alertas.',
-      ),
+      find.text('Revocaste el consentimiento. No hay captura ni alertas.'),
       findsOneWidget,
     );
   });
