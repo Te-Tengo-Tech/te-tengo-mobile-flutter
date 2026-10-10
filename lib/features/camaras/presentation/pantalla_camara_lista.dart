@@ -15,7 +15,7 @@ import '../data/camaras_repositorio.dart';
 import '../domain/camara.dart';
 import 'cabecera_camara.dart';
 
-/// Setup step 3 of 4 (screens 19 and 22): the camera installed by the project team. Without consent
+/// Setup step 3 of 5 (screens 22 and 25): the camera installed by the Te Tengo team. Without consent
 /// it is installed but sends no video, and the app asks to complete the consent (CA-05.2, CA-06.1).
 class PantallaCamaraLista extends ConsumerWidget {
   const PantallaCamaraLista({super.key});
@@ -31,7 +31,11 @@ class PantallaCamaraLista extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: const CabeceraConfiguracion(paso: 3, titulo: 'Cámara'),
+      appBar: CabeceraConfiguracion(
+        paso: 3,
+        titulo: 'Cámara',
+        escala: MediaQuery.textScalerOf(context),
+      ),
       body: switch ((camaras, hogar)) {
         (AsyncError(:final error), _) || (_, AsyncError(:final error)) =>
           ErrorDePantalla(error: error, alReintentar: recargar),
@@ -93,9 +97,8 @@ class _Contenido extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'El equipo del proyecto la instaló y la configuró en la PC de la '
-            'casa de $nombre. No tienes que conectar nada: ya estamos '
-            'detectando caídas ${enHabitacion(habitacion)}.',
+            'La instaló el equipo de Te Tengo. No tienes que conectar nada: ya '
+            'detectamos caídas ${enHabitacion(habitacion)}.',
             style: texto.bodyMedium,
           ),
         ] else ...[
@@ -106,21 +109,13 @@ class _Contenido extends StatelessWidget {
               style: texto.titleLarge,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Sin el consentimiento de $nombre, la cámara '
-            '${deHabitacion(habitacion)} no captura nada y no podemos detectar '
-            'caídas.',
-            style: texto.bodyMedium,
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Aviso(
             tono: TonoAviso.error,
             icono: Ico.lock,
-            titulo: 'Falta el consentimiento informado',
+            titulo: 'Falta el consentimiento de $nombre',
             texto:
-                'Se registra solo si $nombre lo acepta. Cuando lo registres, la '
-                'cámara empezará a enviar video.',
+                'Sin él no detectamos caídas. Se registra solo si lo acepta.',
             accion: Boton(
               'Completar el consentimiento',
               pequeno: true,
@@ -136,8 +131,7 @@ class _Contenido extends StatelessWidget {
         ),
         const EncabezadoSeccion('Nombre de la habitación'),
         Text(
-          'Lo definió el equipo al instalarla y aparece en cada alerta. Si en '
-          'casa la llaman de otra forma, cámbialo.',
+          'Aparece en cada alerta. Cámbialo si en casa la llaman distinto.',
           style: texto.bodyMedium,
         ),
         const SizedBox(height: 12),

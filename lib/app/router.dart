@@ -10,6 +10,7 @@ import '../features/familia/presentation/pantallas_invitacion.dart';
 import '../features/vivo/presentation/pantalla_accesos.dart';
 import '../features/vivo/presentation/pantalla_vivo.dart';
 import '../features/ajustes/presentation/pantalla_ajustes.dart';
+import '../features/ajustes/presentation/pantalla_avisos_setup.dart';
 import '../features/alertas/presentation/pantalla_alerta.dart';
 import '../features/alertas/presentation/pantalla_detalle_alerta.dart';
 import '../features/arranque/pantalla_arranque.dart';
@@ -151,6 +152,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Rutas.configFamilia,
         builder: (context, state) => const PantallaInvitarSetup(),
+      ),
+      GoRoute(
+        path: Rutas.configAvisos,
+        builder: (context, state) => PantallaAvisosSetup(
+          invitado: state.uri.queryParameters['invitado'],
+        ),
       ),
       GoRoute(
         path: Rutas.configListo,

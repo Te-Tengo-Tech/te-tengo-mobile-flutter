@@ -51,7 +51,7 @@ void main() {
     'CA-05.4: el formulario indica la vista en vivo en cualquier momento',
     (tester) async {
       await abrir(tester, Rutas.configConsentimiento);
-      expect(find.text('Paso 2 de 4'), findsOneWidget);
+      expect(find.text('Paso 2 de 5'), findsOneWidget);
       // The live-view clause goes first and open; the others are folded.
       expect(
         find.textContaining('Los familiares vinculados a esta cuenta pueden'),
@@ -127,7 +127,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Detenida'), findsWidgets);
-      expect(find.text('Falta el consentimiento informado'), findsOneWidget);
+      expect(find.text('Falta el consentimiento de Rosa'), findsOneWidget);
       expect(find.text('Envío de video'), findsOneWidget);
       await tocar(tester, find.text('Completar el consentimiento'));
       expect(find.text('Consentimiento informado'), findsOneWidget);

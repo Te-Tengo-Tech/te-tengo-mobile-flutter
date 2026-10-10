@@ -13,7 +13,7 @@ import '../data/hogar_repositorio.dart';
 import 'formulario_adulto_mayor.dart';
 import 'pantalla_persona_cuidada.dart' show AvisoUnaSolaPersona;
 
-/// US-04, screens 14 and 15 (setup step 1 of 4): register the older adult. The household is created
+/// US-04, screens 14 and 15 (setup step 1 of 5): register the older adult. The household is created
 /// with `POST /api/hogar` and its session is stored (CA-04.1); empty fields are highlighted (CA-04.3).
 class PantallaPersonaSetup extends ConsumerStatefulWidget {
   const PantallaPersonaSetup({super.key});
@@ -73,7 +73,11 @@ class _PantallaPersonaSetupState extends ConsumerState<PantallaPersonaSetup> {
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: const CabeceraConfiguracion(paso: 1, titulo: 'Persona cuidada'),
+      appBar: CabeceraConfiguracion(
+        paso: 1,
+        titulo: 'Persona cuidada',
+        escala: MediaQuery.textScalerOf(context),
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
         children: [
@@ -82,11 +86,7 @@ class _PantallaPersonaSetupState extends ConsumerState<PantallaPersonaSetup> {
             child: Text('¿A quién vas a cuidar?', style: texto.titleLarge),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Su nombre y dirección aparecerán en cada alerta para que sepas de '
-            'inmediato quién es y dónde fue.',
-            style: texto.bodyMedium,
-          ),
+          Text('Aparecerán en cada alerta.', style: texto.bodyMedium),
           const SizedBox(height: 16),
           if (_faltanDatos) ...[
             const Aviso(

@@ -4,11 +4,22 @@ import 'package:te_tengo/core/dispositivo/conectividad.dart';
 import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
 
 class PermisoFalso implements PermisoNotificaciones {
-  PermisoFalso({this.activas = true, this.alActivar = true});
+  PermisoFalso({
+    this.activas = true,
+    this.alActivar = true,
+    this.ajustesDeSonido = true,
+  });
 
   bool activas;
   bool alActivar;
   int pedidos = 0;
+  int ajustesAbiertos = 0;
+
+  @override
+  final bool ajustesDeSonido;
+
+  @override
+  Future<void> abrirAjustesDeSonido() async => ajustesAbiertos++;
 
   @override
   Future<bool> activadas() async => activas;

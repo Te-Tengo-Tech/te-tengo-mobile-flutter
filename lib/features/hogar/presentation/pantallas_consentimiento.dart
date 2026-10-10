@@ -104,7 +104,11 @@ class _PantallaConsentimientoState
     final hogar = ref.watch(hogarProvider);
     return Scaffold(
       appBar: widget.enConfiguracion
-          ? const CabeceraConfiguracion(paso: 2, titulo: 'Consentimiento')
+          ? CabeceraConfiguracion(
+              paso: 2,
+              titulo: 'Consentimiento',
+              escala: MediaQuery.textScalerOf(context),
+            )
           : AppBar(title: const Text('Consentimiento')),
       body: hogar.when(
         loading: () => const Center(child: CircularProgressIndicator()),

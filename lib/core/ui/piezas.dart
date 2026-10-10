@@ -193,56 +193,66 @@ void mostrarToast(
   AvisoFlotante(titulo: titulo, texto: texto, icono: icono, tono: tono),
 );
 
-/// Setup header (`setupHead`): back button, title, «Paso N de 4» and the progress bar.
+/// Setup header (`setupHead`): back button and title, then «Paso N de 5» above the progress bar.
+///
+/// Pass the screen's [escala] (`MediaQuery.textScalerOf`) so the header grows with large text
+/// instead of clipping the step line.
 class CabeceraConfiguracion extends StatelessWidget
     implements PreferredSizeWidget {
   const CabeceraConfiguracion({
     super.key,
     required this.paso,
     required this.titulo,
+    this.escala = TextScaler.noScaling,
   });
+
+  /// Steps of the setup: person, consent, camera, family and notifications.
+  static const pasos = 5;
 
   final int paso;
   final String titulo;
+  final TextScaler escala;
+
+  double get _altoPaso => escala.scale(15) * 1.35;
 
   @override
-  Size get preferredSize => const Size.fromHeight(84);
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + 4 + _altoPaso + 6 + 6 + 14);
 
   @override
   Widget build(BuildContext context) => AppBar(
     title: Text(titulo),
-    actions: [
-      Padding(
-        padding: const EdgeInsets.only(right: 12),
-        child: Center(
-          child: Text(
-            'Paso $paso de 4',
-            style: estiloTexto(15, 400, color: Colores.tinta3),
-          ),
-        ),
-      ),
-    ],
     bottom: PreferredSize(
-      preferredSize: const Size.fromHeight(28),
+      preferredSize: Size.fromHeight(4 + _altoPaso + 6 + 6 + 14),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 18),
-        child: ExcludeSemantics(
-          child: Row(
-            children: [
-              for (var i = 1; i <= 4; i++) ...[
-                if (i > 1) const SizedBox(width: 6),
-                Expanded(
-                  child: Container(
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: i <= paso ? Colores.morado : Colores.linea,
-                      borderRadius: BorderRadius.circular(3),
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Paso $paso de $pasos',
+              style: estiloTexto(15, 400, color: Colores.tinta3),
+            ),
+            const SizedBox(height: 6),
+            ExcludeSemantics(
+              child: Row(
+                children: [
+                  for (var i = 1; i <= pasos; i++) ...[
+                    if (i > 1) const SizedBox(width: 6),
+                    Expanded(
+                      child: Container(
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: i <= paso ? Colores.morado : Colores.linea,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            ],
-          ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     ),

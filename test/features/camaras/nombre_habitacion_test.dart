@@ -127,7 +127,7 @@ void main() {
   ) async {
     await abrir(tester, Rutas.configCamara);
     await tocar(tester, find.text('Cambiar el nombre'));
-    expect(find.text('Paso 3 de 4'), findsOneWidget);
+    expect(find.text('Paso 3 de 5'), findsOneWidget);
     await tester.enterText(campoNombre, 'cocina');
     await tocar(tester, find.text('Guardar nombre'));
     expect(camaras.renombradas, {'c1': 'Cocina'});

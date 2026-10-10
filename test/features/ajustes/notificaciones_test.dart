@@ -80,8 +80,7 @@ void main() {
     expect(find.text('Severidad media'), findsOneWidget);
     expect(
       find.text(
-        'Desconectada, reconectada o detección no confiable. Siempre activas, '
-        'para que Rosa no quede sin monitoreo.',
+        'Desconexión, reconexión o detección no confiable. Siempre activas.',
       ),
       findsOneWidget,
     );
@@ -94,11 +93,8 @@ void main() {
       false,
       true,
     ]);
-    await verHasta(tester, find.text('Esperar 5 minutos antes de escalar'));
-    expect(
-      find.text('Se define en el orden de aviso de la familia'),
-      findsOneWidget,
-    );
+    await verHasta(tester, find.text('Avisar al secundario a los 5 min'));
+    expect(find.text('Se cambia en Orden de aviso'), findsOneWidget);
   });
 
   testWidgets('silenciar los movimientos inestables se guarda y no abre la '
@@ -153,7 +149,7 @@ void main() {
 
   testWidgets('el invitado ve el escalamiento con candado', (tester) async {
     await abrir(tester, Rutas.notificaciones, sesion: sesionInvitado);
-    await verHasta(tester, find.text('Esperar 5 minutos antes de escalar'));
+    await verHasta(tester, find.text('Avisar al secundario a los 5 min'));
     expect(find.byType(Switch), findsNWidgets(4));
   });
 }
