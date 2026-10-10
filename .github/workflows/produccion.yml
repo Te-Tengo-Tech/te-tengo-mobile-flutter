@@ -419,7 +419,7 @@ jobs:
   back-merge:
     name: Back-merge into develop
     needs: [localizar, publicar]
-    if: needs.publicar.result == 'success'
+    if: ${{ !cancelled() && needs.publicar.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
