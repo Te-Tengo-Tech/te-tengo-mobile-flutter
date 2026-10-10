@@ -27,7 +27,8 @@ and VAPID key as `--dart-define`s.
 - **What the app shows:** «Notificaciones activadas» only once the backend has this phone. If the
   registration fails or the token cannot be replaced, Inicio and Notificaciones say «Este celular no
   recibe las alertas»; if `GET /api/hogar` says no phone of the family is active
-  (`dispositivosActivos: 0`), «Nadie de la familia recibe las alertas».
+  (`dispositivosActivos: 0`), «Nadie de la familia recibe las alertas». Inicio also asks for the
+  active alert every 20 s while it is on screen, so an alert whose push was lost still opens.
 - **iOS timing:** FCM can only issue a token after APNs has given the app its own. The app waits for
   `getAPNSToken()` (up to about 10 s) before `getToken()`; if APNs is still not ready it tries again on
   the next resume.

@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/reloj.dart';
+import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
+import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/camaras/domain/camara.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/hogar/domain/hogar.dart';
+import 'package:te_tengo/features/inicio/presentation/pantalla_inicio.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
 import '../../apoyo/dispositivo_falso.dart';
 import '../../apoyo/push_falso.dart';
+import '../alertas/alertas_falso.dart';
 import '../camaras/repositorio_falso.dart';
 import '../familia/familia_falso.dart';
 import '../hogar/hogar_falso.dart';
@@ -26,6 +30,7 @@ void main() {
     NotificacionesPushFalsas? push,
     DispositivosFalsos? dispositivos,
     Hogar? hogar,
+    AlertasRepositorioFalso? alertas,
   }) async {
     usarTelefono(tester);
     await tester.pumpWidget(
@@ -41,6 +46,8 @@ void main() {
           hogarRepositorioProvider.overrideWithValue(
             HogarRepositorioFalso(hogar),
           ),
+          if (alertas != null)
+            alertasRepositorioProvider.overrideWithValue(alertas),
           familiaRepositorioProvider.overrideWithValue(
             FamiliaRepositorioFalso(),
           ),
@@ -242,5 +249,35 @@ void main() {
         expect(find.text('Este celular no recibe las alertas'), findsOneWidget);
       },
     );
+  });
+
+  testWidgets('mientras se ve el inicio pide la alerta activa cada 20 s', (
+    tester,
+  ) async {
+    final alertas = AlertasRepositorioFalso();
+    await abrir(tester, alertas: alertas);
+    final antes = alertas.filtros.length;
+    await tester.pump(BuscarAlertaActiva.cada);
+    await tester.pumpAndSettle();
+    expect(alertas.filtros.length, antes + 1);
+    await tester.pump(BuscarAlertaActiva.cada);
+    await tester.pumpAndSettle();
+    expect(alertas.filtros.length, antes + 2);
+    // A fall whose push never arrived is found this way; the tab shell then opens it by itself
+    // (CA-16.4, «la alerta activa se ve al abrir aunque el envío haya fallado»).
+  });
+
+  testWidgets('en otra pestaña deja de pedir la alerta activa', (tester) async {
+    final alertas = AlertasRepositorioFalso();
+    await abrir(tester, alertas: alertas);
+    await tester.tap(find.text('Historial'));
+    await tester.pumpAndSettle();
+    int activas() => alertas.filtros
+        .where((f) => f.estado == EstadoAlerta.activa && f.tamano == 1)
+        .length;
+    final antes = activas();
+    await tester.pump(BuscarAlertaActiva.cada);
+    await tester.pumpAndSettle();
+    expect(activas(), antes);
   });
 }

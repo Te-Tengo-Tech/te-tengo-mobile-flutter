@@ -27,9 +27,18 @@ import '../../hogar/data/hogar_repositorio.dart';
 import 'tarjeta_adulto_mayor.dart';
 
 /// Inicio tab (screens 25–27 and 102): greeting, notifications notice (CA-16.3), the older adult
-/// status card, the camera and the live view.
+/// status card, the camera and the live view. While it is on screen it also asks for the active
+/// alert every [BuscarAlertaActiva.cada], so an alert whose push never arrived still opens.
 class PantallaInicio extends ConsumerWidget {
   const PantallaInicio({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      const BuscarAlertaActiva(child: _ContenidoInicio());
+}
+
+class _ContenidoInicio extends ConsumerWidget {
+  const _ContenidoInicio();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -218,4 +227,49 @@ Future<void> activarNotificaciones(BuildContext context, WidgetRef ref) async {
       icono: Ico.bell,
     );
   }
+}
+
+/// While its screen is on top, its tab visible and the app in the foreground, asks for the active
+/// alert every [cada]: a push may not arrive (CA-16.4), and the tab shell opens a new active alert
+/// by itself.
+class BuscarAlertaActiva extends ConsumerStatefulWidget {
+  const BuscarAlertaActiva({super.key, required this.child});
+
+  /// [implementation choice]: often enough for an alert that lost its push, cheap for the backend.
+  static const cada = Duration(seconds: 20);
+
+  final Widget child;
+
+  @override
+  ConsumerState<BuscarAlertaActiva> createState() => _BuscarAlertaActivaState();
+}
+
+class _BuscarAlertaActivaState extends ConsumerState<BuscarAlertaActiva> {
+  Timer? _temporizador;
+
+  @override
+  void initState() {
+    super.initState();
+    _temporizador = Timer.periodic(BuscarAlertaActiva.cada, (_) => _buscar());
+  }
+
+  void _buscar() {
+    if (!mounted) return;
+    final ciclo = WidgetsBinding.instance.lifecycleState;
+    final enPrimerPlano = ciclo == null || ciclo == AppLifecycleState.resumed;
+    // Tabs that are not shown keep their screens in the tree with tickers off.
+    final visible =
+        TickerMode.valuesOf(context).enabled &&
+        (ModalRoute.of(context)?.isCurrent ?? true);
+    if (enPrimerPlano && visible) ref.invalidate(alertaActivaProvider);
+  }
+
+  @override
+  void dispose() {
+    _temporizador?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
