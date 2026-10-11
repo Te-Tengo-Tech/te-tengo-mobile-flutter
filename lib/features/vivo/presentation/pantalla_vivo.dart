@@ -18,11 +18,13 @@ import '../../alertas/data/alertas_repositorio.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
-import '../data/cliente_whep.dart';
 import '../data/vista_en_vivo_repositorio.dart';
 import '../domain/vista_en_vivo.dart';
+import 'conexion_vivo.dart';
 import 'reproductor_vivo.dart';
 import 'reproductor_webrtc.dart';
+
+export 'conexion_vivo.dart';
 
 /// Why the live view cannot open (`liveState`): CA-23.3, CA-23.4 and, without consent, CA-05.2.
 enum _NoDisponible { desconectada, enPausa, detenida }
@@ -38,41 +40,6 @@ class PantallaVivo extends ConsumerStatefulWidget {
   @override
   ConsumerState<PantallaVivo> createState() => _PantallaVivoState();
 }
-
-/// Waiting longer than this for the first frame counts as a lost stream [implementation choice].
-const esperaPrimerFotograma = Duration(seconds: 20);
-
-/// A stream whose position stops advancing this long is lost [implementation choice].
-const esperaSinImagen = Duration(seconds: 10);
-
-/// Pause between attempts to open the playlist while the camera starts publishing.
-const pausaEntreIntentos = Duration(seconds: 2);
-
-/// Longest one attempt to start the player may take before it is dropped and another one starts
-/// [implementation choice].
-const esperaInicio = Duration(seconds: 6);
-
-/// Longest WebRTC may take to answer the offer, and then to show its first frame, before the view
-/// plays LL-HLS instead [implementation choice].
-const esperaWebrtc = Duration(seconds: 4);
-
-/// Pause between WHEP offers while the camera starts publishing (MediaMTX answers `404`).
-const pausaEntreOfertas = Duration(milliseconds: 500);
-
-/// Longest the WHEP offer is sent again while MediaMTX answers `404`, counted from the session's
-/// start; then LL-HLS gets the rest of [esperaPrimerFotograma], so a WebRTC route that always
-/// answers `404` (e.g. a proxy without it) costs a few seconds, not the live view
-/// [implementation choice].
-const esperaPublicacionWebrtc = Duration(seconds: 8);
-
-/// After WebRTC broke off mid-stream, how long LL-HLS has to show a frame before the stream counts
-/// as lost: enough for LL-HLS to start on a stream that is still published, without keeping a
-/// viewer waiting the whole [esperaPrimerFotograma] when the camera stopped (paused, consent
-/// revoked, PC off) [implementation choice].
-const esperaRescateHls = Duration(seconds: 10);
-
-/// A WebRTC stream without new frames this long is replaced by LL-HLS [implementation choice].
-const esperaSinImagenWebrtc = Duration(seconds: 3);
 
 class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   Camara? _camara;
@@ -90,28 +57,12 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   ModoVista? _modoElegido;
   bool _cambiandoModo = false;
 
-  /// Seconds of the current session, and of the sessions already closed on this screen.
-  int _segundos = 0;
+  /// Seconds of the sessions already closed on this screen.
   int _segundosVistos = 0;
   bool _huboSesion = false;
 
-  ReproductorVivo? _reproductor;
-
-  /// The current player is WebRTC (WHEP); otherwise LL-HLS.
-  bool _porWebrtc = false;
-
-  /// WebRTC failed in this session: it plays LL-HLS until it ends.
-  bool _soloHls = false;
-
-  /// Runs out when WebRTC answered but no frame came within [esperaWebrtc].
-  Timer? _plazoWebrtc;
-
-  /// The first frame of the current session arrived.
-  bool _enVivo = false;
-  int _esperando = 0;
-  int _sinAvance = 0;
-  Timer? _reloj;
-  Timer? _reintento;
+  /// Plays the session: WebRTC first, LL-HLS as the fallback.
+  late final ConexionVivo _conexion;
 
   /// Bumped to drop an opening in flight (the screen closed or went to the background).
   int _intento = 0;
@@ -131,6 +82,11 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     // The DELETE may finish after the widget is gone: refresh the log through the container.
     _contenedor = ProviderScope.containerOf(context, listen: false);
     _ciclo = AppLifecycleListener(onHide: _alOcultar, onShow: _alMostrar);
+    _conexion = ConexionVivo(
+      fabricaHls: ref.read(fabricaReproductorVivoProvider),
+      fabricaWebrtc: ref.read(fabricaReproductorWebrtcProvider),
+      alPerder: _perder,
+    )..addListener(_alCambiarConexion);
     unawaited(_abrir());
   }
 
@@ -181,17 +137,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
         _huboSesion = true;
         _modo = sesion.modo;
         _inicio = ref.read(relojProvider)();
-        _segundos = 0;
-        _enVivo = false;
-        _esperando = 0;
-        _sinAvance = 0;
-        _soloHls = false;
       });
-      _reloj = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) => _cadaSegundo(),
-      );
-      unawaited(_conectar(sesion));
+      _conexion.conectar(sesion);
     } on ProblemaApi catch (e) {
       if (!vigente()) return;
       setState(() {
@@ -216,112 +163,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     }
   }
 
-  /// Plays the session's stream: over WebRTC when the session offers it, else LL-HLS. Until the
-  /// camera publishes, the stream does not exist yet, so a start that fails, or hangs for
-  /// [esperaInicio], is retried with a new player until [esperaPrimerFotograma] runs out.
-  Future<void> _conectar(SesionVivo sesion) async {
-    final whep = sesion.urlWebrtc;
-    if (whep != null && !_soloHls) return _conectarWebrtc(sesion, whep);
-    final reproductor = ref.read(fabricaReproductorVivoProvider)(
-      sesion.urlTransmision,
-    );
-    _reproductor = reproductor;
-    reproductor.addListener(_alCambiarReproductor);
-    try {
-      await reproductor.iniciar().timeout(esperaInicio);
-    } on TimeoutException {
-      // Slow to finish, but already showing the stream: keep it.
-      if (!reproductor.listo) _reintentar(reproductor);
-    } on Object {
-      _reintentar(reproductor);
-    }
-  }
-
-  /// WebRTC first: MediaMTX answers `404` until the camera publishes, so the offer is sent again
-  /// every [pausaEntreOfertas], for up to [esperaPublicacionWebrtc]. Any other failure, an answer slower than [esperaWebrtc] or no first
-  /// frame within [esperaWebrtc] of the answer switches the session to LL-HLS.
-  Future<void> _conectarWebrtc(SesionVivo sesion, Uri whep) async {
-    final reproductor = ref.read(fabricaReproductorWebrtcProvider)(
-      whep,
-      sesion.tokenEspectador,
-    );
-    _reproductor = reproductor;
-    _porWebrtc = true;
-    reproductor.addListener(_alCambiarReproductor);
-    try {
-      await reproductor.iniciar().timeout(esperaWebrtc);
-    } on OfertaRechazada catch (e) {
-      return e.sinTransmision && _esperando < esperaPublicacionWebrtc.inSeconds
-          ? _reintentar(reproductor, pausa: pausaEntreOfertas)
-          : _pasarAHls(reproductor);
-    } on Object {
-      // A timeout, no connection, a CORS or SDP error: LL-HLS may still work.
-      if (!reproductor.listo) _pasarAHls(reproductor);
-      return;
-    }
-    if (!mounted || _reproductor != reproductor || reproductor.listo) return;
-    _plazoWebrtc = Timer(esperaWebrtc, () {
-      if (_reproductor == reproductor && !reproductor.listo) {
-        _pasarAHls(reproductor);
-      }
-    });
-  }
-
-  /// WebRTC did not start or broke off: the same session goes on over LL-HLS.
-  void _pasarAHls(ReproductorVivo reproductor) {
-    final sesion = _sesion;
-    if (!mounted || _reproductor != reproductor || sesion == null) return;
-    // Lost mid-stream: LL-HLS gets esperaRescateHls for its own first frame.
-    if (_enVivo) {
-      _esperando = esperaPrimerFotograma.inSeconds - esperaRescateHls.inSeconds;
-    }
-    _soloHls = true;
-    _sinAvance = 0;
-    _soltarReproductor();
-    setState(() {});
-    unawaited(_conectar(sesion));
-  }
-
-  void _reintentar(
-    ReproductorVivo reproductor, {
-    Duration pausa = pausaEntreIntentos,
-  }) {
-    final sesion = _sesion;
-    if (!mounted || _reproductor != reproductor || sesion == null) return;
-    _soltarReproductor();
-    _reintento = Timer(pausa, () {
-      if (mounted && _sesion == sesion) unawaited(_conectar(sesion));
-    });
-  }
-
-  void _alCambiarReproductor() {
-    final r = _reproductor;
-    if (r == null || !mounted) return;
-    if (r.cortado) {
-      if (_porWebrtc) return _pasarAHls(r);
-      return _enVivo ? _perder() : _reintentar(r);
-    }
-    setState(() => _enVivo = _enVivo || r.listo);
-  }
-
-  /// The «EN VIVO» clock, and the watchdog for a stream that never starts or stalls.
-  void _cadaSegundo() {
-    if (_sesion == null) return;
-    setState(() => _segundos++);
-    final r = _reproductor;
-    if (!_enVivo || r == null) {
-      if (++_esperando >= esperaPrimerFotograma.inSeconds) _perder();
-      return;
-    }
-    if (r.detenido) {
-      if (_porWebrtc) {
-        if (++_sinAvance >= esperaSinImagenWebrtc.inSeconds) _pasarAHls(r);
-      } else if (++_sinAvance >= esperaSinImagen.inSeconds) {
-        _perder();
-      }
-    } else {
-      _sinAvance = 0;
-    }
+  void _alCambiarConexion() {
+    if (mounted) setState(() {});
   }
 
   /// The stream failed, stalled or never started: the session ends and the view offers a new one.
@@ -334,31 +177,14 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     });
   }
 
-  void _soltarReproductor() {
-    final r = _reproductor;
-    _reproductor = null;
-    _enVivo = false;
-    _porWebrtc = false;
-    _plazoWebrtc?.cancel();
-    _plazoWebrtc = null;
-    if (r == null) return;
-    r.removeListener(_alCambiarReproductor);
-    // It may be the one notifying right now: dispose it once the notification is over.
-    scheduleMicrotask(r.dispose);
-  }
-
   /// Stops playback and ends the session, which records the access (CA-24.1).
   void _detener() {
-    _reloj?.cancel();
-    _reloj = null;
-    _reintento?.cancel();
-    _reintento = null;
-    _soltarReproductor();
+    final segundos = _conexion.segundos;
+    _conexion.detener();
     final sesion = _sesion;
     _sesion = null;
     if (sesion == null) return;
-    _segundosVistos += _segundos;
-    _segundos = 0;
+    _segundosVistos += segundos;
     _cerrarSesion(sesion);
   }
 
@@ -445,6 +271,9 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     // Left without popping (e.g. replaced): still end the session.
     _intento++;
     _detener();
+    _conexion
+      ..removeListener(_alCambiarConexion)
+      ..dispose();
     super.dispose();
   }
 
@@ -489,8 +318,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
               )
             else
               _Imagen(
-                reproductor: _enVivo ? _reproductor : null,
-                segundos: viendo ? _segundos : null,
+                reproductor: _conexion.reproductorEnVivo,
+                segundos: viendo ? _conexion.segundos : null,
                 habitacion: habitacion,
               ),
             if (_problema != null) ...[
