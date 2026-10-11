@@ -124,24 +124,23 @@ void main() {
   Finder momento(String t) => find.text(t);
 
   group('Al abrir', () {
-    testWidgets('muestra el último evento sin registrar un acceso', (
-      tester,
-    ) async {
-      await abrir(tester, Rutas.camara('c1'));
-      expect(momento('Hoy 10:41:52'), findsOneWidget);
-      expect(find.text('Posible caída'), findsOneWidget);
-      expect(find.text('Nunca video · con registro'), findsOneWidget);
-      expect(find.text('Eventos · Hoy'), findsOneWidget);
-      await verHasta(tester, find.text('Inestable'));
-      expect(find.text('Se levantó'), findsOneWidget);
-      expect(find.text('Caída'), findsOneWidget);
-      expect(find.text('Inestable'), findsOneWidget);
-      // CA-39.3: opening and showing the last event is not logged (registrarAlAbrir).
-      expect(registrarAlAbrir, isFalse);
-      expect(repeticiones.creadas, isEmpty);
-      expect(find.text('10:36'), findsOneWidget);
-      expect(find.text('10:46'), findsOneWidget);
-    });
+    testWidgets(
+      'CA-39.3: abrir la cámara y ver el último evento no se registra',
+      (tester) async {
+        await abrir(tester, Rutas.camara('c1'));
+        expect(momento('Hoy 10:41:52'), findsOneWidget);
+        expect(find.text('Posible caída'), findsOneWidget);
+        expect(find.text('Nunca video · con registro'), findsOneWidget);
+        expect(find.text('Eventos · Hoy'), findsOneWidget);
+        await verHasta(tester, find.text('Inestable'));
+        expect(find.text('Se levantó'), findsOneWidget);
+        expect(find.text('Caída'), findsOneWidget);
+        expect(find.text('Inestable'), findsOneWidget);
+        expect(repeticiones.creadas, isEmpty);
+        expect(find.text('10:36'), findsOneWidget);
+        expect(find.text('10:46'), findsOneWidget);
+      },
+    );
 
     testWidgets('sin eventos abre en los últimos minutos', (tester) async {
       alertas.alertas = [];
@@ -156,7 +155,7 @@ void main() {
   });
 
   group('Reproducir registra la repetición', () {
-    testWidgets('CA-39.1 y CA-39.3: al reproducir se crea una vez y al salir '
+    testWidgets('CA-39.1 y CA-39.3: reproducir la registra una vez y al salir '
         'se cierra con el acceso registrado', (tester) async {
       await abrir(tester, Rutas.camara('c1'));
       await tester.tap(find.bySemanticsLabel('Reproducir'));
@@ -180,9 +179,8 @@ void main() {
       expect(find.textContaining('Repetición de la Sala · '), findsOneWidget);
     });
 
-    testWidgets('elegir un evento de la lista lo registra y va a ese momento', (
-      tester,
-    ) async {
+    testWidgets('CA-39.3: recorrer la línea con un evento de la lista la '
+        'registra y va a ese momento', (tester) async {
       await abrir(tester, Rutas.camara('c1'));
       await tocar(tester, find.text('Inestable'));
       expect(repeticiones.creadas, hasLength(1));
@@ -192,7 +190,18 @@ void main() {
       expect(repeticiones.creadas.single.$2, DateTime(2026, 9, 23, 10, 25));
     });
 
-    testWidgets('sin tocar nada, salir no registra ni cierra nada', (
+    testWidgets('CA-39.3: arrastrar la línea de tiempo la registra', (
+      tester,
+    ) async {
+      await abrir(tester, Rutas.camara('c1'));
+      final linea = find.bySemanticsLabel('Momento de la repetición');
+      await tester.drag(linea, const Offset(-60, 0));
+      await tester.pumpAndSettle();
+      expect(repeticiones.creadas, hasLength(1));
+      expect(momento('Hoy 10:41:52'), findsNothing);
+    });
+
+    testWidgets('CA-39.3: sin reproducir ni recorrer, salir no registra nada', (
       tester,
     ) async {
       await abrir(tester, Rutas.camara('c1'));

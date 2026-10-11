@@ -11,12 +11,6 @@ import '../../movimientos/domain/fotogramas.dart';
 import '../data/repeticiones_repositorio.dart';
 import '../domain/repeticion.dart';
 
-/// **When a replay is logged** (US-24, CA-39.3), in one place. Opening a camera shows the last
-/// event without creating a replay; the replay (`POST /api/camaras/{id}/repeticiones`, which writes
-/// the access log entry) starts when the member plays, skips, drags the timeline or picks an
-/// event. The team has not decided yet (docs/BLOCKERS.md); `true` logs on opening.
-const registrarAlAbrir = false;
-
 /// Why the player cannot move now.
 enum EstadoReproductor { listo, cargando, sinInternet, revocado }
 
@@ -204,7 +198,6 @@ class ReproductorCamara extends ChangeNotifier {
     await _cargarDia();
     iniciado = true;
     _notificar();
-    if (registrarAlAbrir) await _registrar();
   }
 
   Future<void> _cargarDia() async {
@@ -259,7 +252,11 @@ class ReproductorCamara extends ChangeNotifier {
       estado != EstadoReproductor.revocado &&
       estado != EstadoReproductor.cargando;
 
-  /// The single place that creates the replay: its first use logs the access.
+  /// **When a replay is logged** (US-24, CA-39.3, decided): only when the member plays or moves
+  /// along the timeline (drag or tap, ±10 s, an event of the list or of the timeline). This is
+  /// the single place that creates the replay (`POST /api/camaras/{id}/repeticiones`, which writes
+  /// the access log entry); closing it or leaving the camera records its duration. Opening the
+  /// camera and seeing the still frame of the last event is not logged.
   Future<void> _registrar() async {
     if (sesion != null || _registrando || _cerrado) return;
     _registrando = true;
