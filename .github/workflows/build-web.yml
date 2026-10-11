@@ -125,5 +125,7 @@ jobs:
         with:
           name: ${{ inputs.artifact_name }}
           path: build/web
+          # .well-known/assetlinks.json is a hidden folder; upload-artifact skips those by default.
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: ${{ inputs.retention_days }}
