@@ -4,6 +4,11 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-10-11
+
+### Fixed
+- The PWA host serves `/.well-known/assetlinks.json` (package `tech.tetengo.te_tengo`, release certificate SHA-256), so Android can verify App Links for `app.tetengo.reqsai.tech` once an APK with the link intent filter is installed.
+
 ## [0.5.1] - 2026-10-10
 
 ### Fixed
@@ -16,8 +21,6 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - `docs/API_CONTRACT.md` (from te-tengo-general-api 0.3.4): `GET /api/hogar` `eliminacion`, `clips` in the revocation's `202`, and `tamano` at most 100 in `GET /api/alertas`. `docs/WEB_PWA.md`: the worker's `tt-push-recibida` message.
 
 ## [0.5.0] - 2026-10-10
-
-
 
 ## [0.4.0] - 2026-10-10
 
