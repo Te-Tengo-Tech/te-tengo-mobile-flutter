@@ -154,19 +154,17 @@ void main() {
       await abrir(tester);
       expect(find.text('Constancia de consentimiento'), findsOneWidget);
       expect(find.text('3 ago 2026'), findsOneWidget);
-      await verHasta(tester, find.text('Reconocimiento facial'));
-      expect(
-        find.text('Se guardan 30 días y luego se eliminan'),
-        findsOneWidget,
-      );
-      expect(find.text('No se usa'), findsOneWidget);
-      expect(
-        find.text('Registro de accesos a la vista en vivo'),
-        findsOneWidget,
-      );
+      await verHasta(tester, find.text('Rostros'));
+      expect(find.text('Sus datos'), findsOneWidget);
+      expect(find.text('Clips'), findsOneWidget);
+      expect(find.text('No se reconocen'), findsOneWidget);
+      expect(find.text('Quién miró, cuándo y cuánto'), findsOneWidget);
       await verHasta(tester, find.text('Revocar consentimiento'));
       expect(
-        find.textContaining('privacidad@tetengo.pe', findRichText: true),
+        find.text(
+          'Derechos (Ley N.° 29733): privacidad@tetengo.pe',
+          findRichText: true,
+        ),
         findsOneWidget,
       );
     },
@@ -180,8 +178,8 @@ void main() {
       expect(find.text('¿Revocar el consentimiento?'), findsOneWidget);
       expect(
         find.text(
-          'La cámara de la Sala dejará de capturar, nadie recibirá más alertas y '
-          'se borrarán las grabaciones. No se puede deshacer.',
+          'Se detiene la captura, no habrá más alertas y se borran las '
+          'grabaciones. No se puede deshacer.',
         ),
         findsOneWidget,
       );
@@ -206,20 +204,14 @@ void main() {
       }
       expect(hogar.revocaciones, 1);
       expect(find.text('Revocando el consentimiento'), findsOneWidget);
-      expect(
-        find.text('No cierres la app. Esto toma unos segundos.'),
-        findsOneWidget,
-      );
+      expect(find.text('No cierres la app.'), findsOneWidget);
       expect(find.text('Captura detenida'), findsOneWidget);
       expect(
-        find.textContaining(
-          'La cámara de la Sala dejó de capturar a las 10:50',
-          findRichText: true,
-        ),
+        find.textContaining('A las 10:50', findRichText: true),
         findsOneWidget,
       );
       expect(find.text('Eliminando las grabaciones…'), findsOneWidget);
-      expect(find.text('2 clips guardados'), findsOneWidget);
+      expect(find.text('2 clips'), findsOneWidget);
       expect(find.text('Pendiente'), findsOneWidget);
       expect(
         tester
@@ -237,26 +229,18 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Consentimiento revocado'), findsOneWidget);
       expect(
-        find.text(
-          'La captura se detuvo y las grabaciones se eliminaron. Te enviamos la constancia a carmen.huaman@gmail.com.',
-        ),
+        find.text('Te enviamos la constancia a carmen.huaman@gmail.com.'),
         findsOneWidget,
       );
       expect(find.text('Grabaciones eliminadas'), findsOneWidget);
       expect(
-        find.textContaining(
-          '2 clips borrados de forma permanente a las 10:51',
-          findRichText: true,
-        ),
+        find.textContaining('2 clips · 10:51', findRichText: true),
         findsOneWidget,
       );
       expect(find.text('Enviada'), findsOneWidget);
       await tocar(tester, find.text('Volver al inicio'));
       expect(find.text('Detección detenida'), findsOneWidget);
-      expect(
-        find.text('Revocaste el consentimiento. No hay captura ni alertas.'),
-        findsOneWidget,
-      );
+      expect(find.text('Revocaste el consentimiento.'), findsOneWidget);
     },
   );
 
@@ -297,12 +281,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('No hay un consentimiento vigente.'), findsNothing);
       expect(find.text('Sin consentimiento'), findsOneWidget);
-      expect(
-        find.text(
-          'Revocado. La cámara no captura y las grabaciones fueron eliminadas.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Revocado. Grabaciones eliminadas.'), findsOneWidget);
       expect(find.text('Constancia de consentimiento'), findsNothing);
       expect(find.text('Revocar consentimiento'), findsNothing);
     },
@@ -312,9 +291,7 @@ void main() {
     await abrir(tester, sesion: sesionInvitado);
     await verHasta(
       tester,
-      find.text(
-        'Solo Carmen (titular) puede revocar el consentimiento. Si Rosa quiere retirarlo, avísale.',
-      ),
+      find.text('Solo Carmen (titular) puede revocar el consentimiento.'),
     );
     expect(find.text('Revocar consentimiento'), findsNothing);
     expect(find.byType(ListView), findsOneWidget);
@@ -326,17 +303,17 @@ void main() {
     backendConEliminacion();
     await abrir(tester);
     await revocar(tester);
-    esperaEliminando('2 clips guardados');
+    esperaEliminando('2 clips');
     final antes = hogar.consultas;
     await pasar(tester, const Duration(seconds: 7));
     // Every 3 s while visible.
     expect(hogar.consultas - antes, greaterThanOrEqualTo(2));
-    esperaEliminando('2 clips guardados');
+    esperaEliminando('2 clips');
 
     // The push DATOS_ELIMINADOS never reached the app (PWA hidden, app in the background).
     eliminacionTerminada();
     await pasar(tester, const Duration(seconds: 3));
-    esperaTerminada(tester, '2 clips borrados de forma permanente a las 10:51');
+    esperaTerminada(tester, '2 clips · 10:51');
 
     // Done: no more questions, and a late push changes nothing.
     final alTerminar = hogar.consultas;
@@ -348,7 +325,7 @@ void main() {
     );
     await pasar(tester, const Duration(seconds: 7));
     expect(hogar.consultas - alTerminar, lessThanOrEqualTo(1));
-    esperaTerminada(tester, '2 clips borrados de forma permanente a las 10:51');
+    esperaTerminada(tester, '2 clips · 10:51');
   });
 
   testWidgets(
@@ -358,16 +335,13 @@ void main() {
       push = web;
       await abrir(tester);
       await revocar(tester);
-      esperaEliminando('2 clips guardados');
+      esperaEliminando('2 clips');
       web.trabajador.add({
         'tipo': 'DATOS_ELIMINADOS',
         'ocurridaEn': DateTime(2026, 9, 23, 10, 51).toUtc().toIso8601String(),
       });
       await pasar(tester, const Duration(milliseconds: 300));
-      esperaTerminada(
-        tester,
-        '2 clips borrados de forma permanente a las 10:51',
-      );
+      esperaTerminada(tester, '2 clips · 10:51');
       // Firebase's copy, once the window is visible again, is the same push: handled once.
       web.firebase.add(
         MensajePush(
@@ -376,10 +350,7 @@ void main() {
         ),
       );
       await pasar(tester, const Duration(milliseconds: 300));
-      esperaTerminada(
-        tester,
-        '2 clips borrados de forma permanente a las 10:51',
-      );
+      esperaTerminada(tester, '2 clips · 10:51');
     },
   );
 
@@ -389,7 +360,7 @@ void main() {
     backendConEliminacion();
     await abrir(tester);
     await revocar(tester);
-    esperaEliminando('2 clips guardados');
+    esperaEliminando('2 clips');
     push.recibir(
       MensajePush(
         tipo: TipoPush.datosEliminados,
@@ -397,11 +368,11 @@ void main() {
       ),
     );
     await pasar(tester, const Duration(milliseconds: 300));
-    esperaTerminada(tester, '2 clips borrados de forma permanente a las 10:51');
+    esperaTerminada(tester, '2 clips · 10:51');
     // The backend says the same afterwards: nothing changes.
     eliminacionTerminada();
     await pasar(tester, const Duration(seconds: 4));
-    esperaTerminada(tester, '2 clips borrados de forma permanente a las 10:51');
+    esperaTerminada(tester, '2 clips · 10:51');
   });
 
   testWidgets('al volver a la app consulta la eliminación de inmediato', (
@@ -419,7 +390,7 @@ void main() {
     mostrar(tester);
     await pasar(tester, const Duration(milliseconds: 300));
     expect(hogar.consultas, greaterThan(oculta));
-    esperaTerminada(tester, '2 clips borrados de forma permanente a las 10:51');
+    esperaTerminada(tester, '2 clips · 10:51');
   });
 
   testWidgets(
@@ -428,20 +399,14 @@ void main() {
       backendConEliminacion(clips: 8);
       hogar.hogar = hogarDeRosa(consentimiento: false);
       await abrir(tester, ubicacion: Rutas.revocado, asentar: false);
-      esperaEliminando('8 clips guardados');
+      esperaEliminando('8 clips');
       expect(
-        find.textContaining(
-          'La cámara de la Sala dejó de capturar a las 10:50',
-          findRichText: true,
-        ),
+        find.textContaining('A las 10:50', findRichText: true),
         findsOneWidget,
       );
       eliminacionTerminada(clips: 8);
       await pasar(tester, const Duration(seconds: 3));
-      esperaTerminada(
-        tester,
-        '8 clips borrados de forma permanente a las 10:51',
-      );
+      esperaTerminada(tester, '8 clips · 10:51');
     },
   );
 
@@ -452,7 +417,7 @@ void main() {
     eliminacionTerminada();
     hogar.hogar = hogarDeRosa(consentimiento: false);
     await abrir(tester, ubicacion: Rutas.revocado);
-    esperaTerminada(tester, '2 clips borrados de forma permanente a las 10:51');
+    esperaTerminada(tester, '2 clips · 10:51');
     await tocar(tester, find.text('Volver al inicio'));
     expect(find.text('Detección detenida'), findsOneWidget);
   });
@@ -465,7 +430,7 @@ void main() {
       final antes = hogar.consultas;
       await pasar(tester, const Duration(seconds: 10));
       expect(hogar.consultas - antes, lessThanOrEqualTo(1));
-      esperaEliminando('2 clips guardados');
+      esperaEliminando('2 clips');
       push.recibir(
         MensajePush(
           tipo: TipoPush.datosEliminados,
@@ -473,10 +438,7 @@ void main() {
         ),
       );
       await pasar(tester, const Duration(milliseconds: 300));
-      esperaTerminada(
-        tester,
-        '2 clips borrados de forma permanente a las 10:51',
-      );
+      esperaTerminada(tester, '2 clips · 10:51');
     },
   );
 
@@ -492,10 +454,10 @@ void main() {
     );
     eliminacionTerminada();
     await pasar(tester, const Duration(seconds: 4));
-    esperaEliminando('2 clips guardados');
+    esperaEliminando('2 clips');
     hogar.errorObtener = null;
     await pasar(tester, const Duration(seconds: 3));
-    esperaTerminada(tester, '2 clips borrados de forma permanente a las 10:51');
+    esperaTerminada(tester, '2 clips · 10:51');
   });
 
   testWidgets('muestra los clips que el backend dice que elimina', (
@@ -506,7 +468,7 @@ void main() {
     hogar.clipsAlRevocar = 5;
     await abrir(tester);
     await revocar(tester);
-    esperaEliminando('5 clips guardados');
+    esperaEliminando('5 clips');
   });
 
   testWidgets(
@@ -528,7 +490,7 @@ void main() {
       ];
       await abrir(tester);
       await revocar(tester);
-      esperaEliminando('150 clips guardados');
+      esperaEliminando('150 clips');
       expect(
         alertas.filtros.every((f) => f.tamano <= FiltroAlertas.tamanoMaximo),
         isTrue,

@@ -190,11 +190,6 @@ class _Alerta extends ConsumerWidget {
                               '¿$nombre no contesta?',
                               style: texto.titleMedium,
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Pide ayuda a un vecino o llama a emergencias.',
-                              style: texto.bodyMedium,
-                            ),
                             const SizedBox(height: 12),
                             Boton(
                               'Llamar al SAMU · 106',
@@ -305,9 +300,9 @@ class _MasDetalles extends StatelessWidget {
     final hab = enHabitacion(alerta.habitacion);
     final telefono = adulto.telefono;
     final porque = !alerta.esCaida
-        ? 'No es una caída. Si termina en una, te enviamos una alerta urgente.'
+        ? 'No es una caída. Si termina en una, te avisamos.'
         : alerta.recuperadaEn != null
-        ? 'Se puso de pie $hab. Confirma cómo está antes de marcar la alerta.'
+        ? 'Se puso de pie. Confirma cómo está antes de marcarla.'
         : alerta.confirmada
         ? 'Lleva más de 30 s en el suelo. Si se levanta, te avisamos.'
         : 'Si sigue en el suelo 30 s, confirmamos la caída. Si se levanta, te '
@@ -333,7 +328,7 @@ class _MasDetalles extends StatelessWidget {
             contenido: conHora(
               'A las ',
               hora(alerta.ocurridaEn),
-              ' $hab. La situación terminó en una caída.',
+              ' $hab. Terminó en caída.',
             ),
           ),
         ],
@@ -410,9 +405,9 @@ class _Escalamiento {
               icono: Ico.users,
               titulo: 'Te toca atenderla',
               contenido: conHora(
-                'Nadie la marcó en $espera min; a las ',
+                'Nadie la marcó en $espera min (',
                 hora(escalada),
-                ' te avisamos como secundario.',
+                ').',
               ),
             )
           : Aviso(
@@ -422,8 +417,7 @@ class _Escalamiento {
               contenido: conHora(
                 'A las ',
                 hora(escalada),
-                ', tras $espera min sin respuesta. Tú todavía puedes '
-                    'atenderla.',
+                '. Tú aún puedes atenderla.',
               ),
             );
     }
@@ -433,7 +427,7 @@ class _Escalamiento {
         icono: Ico.warn,
         titulo: 'No hay a quién escalar',
         texto:
-            '$espera min sin respuesta y sin contacto secundario. Sigue siendo '
+            '$espera min sin respuesta. Sigue siendo '
             '${soyPrincipal ? 'tuya' : 'de ${principal?.nombrePila ?? ''}'}.',
         accion: agregar?.call('Agregar contacto secundario'),
       );

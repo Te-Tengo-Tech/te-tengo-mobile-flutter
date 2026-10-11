@@ -89,7 +89,7 @@ void main() {
     await abrir(tester, permiso: permiso);
     expect(find.text('Activa las notificaciones'), findsOneWidget);
     expect(
-      find.text('Sin ellas no te enterarás de una caída con la app cerrada.'),
+      find.text('Sin ellas no sabrás de una caída con la app cerrada.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Activar notificaciones'));
@@ -158,10 +158,7 @@ void main() {
     ];
     await abrir(tester);
     expect(find.text('Todo tranquilo, con una pausa'), findsOneWidget);
-    expect(
-      find.text('La cámara de la Sala está en pausa hasta las 11:42.'),
-      findsOneWidget,
-    );
+    expect(find.text('Sala en pausa hasta las 11:42.'), findsOneWidget);
     expect(
       find.textContaining('hasta las 11:42', findRichText: true),
       findsWidgets,
@@ -170,7 +167,7 @@ void main() {
   });
 
   group('si las alertas no llegan a este celular o a nadie', () {
-    const texto = 'Sin ellas no te enterarás de una caída con la app cerrada.';
+    const texto = 'Sin ellas no sabrás de una caída con la app cerrada.';
 
     testWidgets('el registro fallido se avisa aunque el permiso esté dado', (
       tester,

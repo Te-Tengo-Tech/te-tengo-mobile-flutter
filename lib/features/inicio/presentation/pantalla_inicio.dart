@@ -96,8 +96,7 @@ class _ContenidoInicio extends ConsumerWidget {
                   : notificaciones == false
                   ? 'Activa las notificaciones'
                   : 'Este celular no recibe las alertas',
-              texto:
-                  'Sin ellas no te enterarás de una caída con la app cerrada.',
+              texto: 'Sin ellas no sabrás de una caída con la app cerrada.',
               accion: Boton(
                 'Activar notificaciones',
                 estilo: EstiloBoton.tinta,

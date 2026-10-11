@@ -281,10 +281,7 @@ void main() {
       await abrir(tester, Rutas.reportar());
       await verHasta(
         tester,
-        find.text(
-          'No tenemos movimientos guardados de ese momento; revisaremos lo '
-          'que nos cuentes.',
-        ),
+        find.text('Sin movimientos de ese momento; revisaremos tu relato.'),
       );
     });
 

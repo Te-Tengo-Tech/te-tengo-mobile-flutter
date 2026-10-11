@@ -16,7 +16,6 @@ import '../../../core/ui/piezas.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../camaras/domain/camara.dart';
-import '../../hogar/data/hogar_repositorio.dart';
 import '../../vivo/data/registro_accesos.dart';
 import '../data/familia_repositorio.dart';
 import '../domain/familiar.dart';
@@ -249,9 +248,7 @@ class _Detalle extends ConsumerWidget {
               tono: TonoAviso.neutral,
               icono: Ico.info,
               texto: yo
-                  ? 'Eres titular: solo tú invitas, retiras accesos y cambias '
-                        'el orden de aviso. Para dejar de ser principal, elige '
-                        'a otra persona.'
+                  ? 'Para dejar de ser principal, elige a otro contacto.'
                   : 'Para retirar su acceso, primero elige a otro contacto '
                         'principal.',
             ),
@@ -308,14 +305,13 @@ class _Detalle extends ConsumerWidget {
   Future<void> _retirar(BuildContext context, WidgetRef ref) async {
     final f = miembro.familiar;
     final secundario = miembro.papel == PapelAviso.secundario;
-    final nombre = ref.read(nombreAdultoMayorProvider) ?? '';
     final si = await confirmar(
       context,
       icono: Ico.trash,
       titulo: '¿Retirar el acceso de ${f.nombre}?',
       texto:
-          'Dejará de recibir las alertas de $nombre y no podrá ver el historial '
-          'ni los clips.${secundario ? ' Te quedarás sin contacto secundario.' : ''}',
+          'Dejará de recibir alertas y de ver el historial.'
+          '${secundario ? ' Te quedarás sin contacto secundario.' : ''}',
       aceptar: 'Retirar acceso',
       cancelar: 'Cancelar',
       peligro: true,

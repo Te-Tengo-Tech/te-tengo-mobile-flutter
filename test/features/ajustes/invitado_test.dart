@@ -58,16 +58,13 @@ void main() {
     await abrir(tester, Rutas.ajustes);
     expect(find.text('Eres familiar invitado'), findsOneWidget);
     expect(
-      find.text(
-        'Ves lo mismo que Carmen. Lo que tiene candado solo lo cambia Carmen '
-        '(titular).',
-      ),
+      find.text('Lo que tiene candado solo lo cambia Carmen.'),
       findsOneWidget,
     );
     expect(find.text('Cámaras y PCs'), findsOneWidget);
     expect(find.text('1 cámara'), findsOneWidget);
     expect(find.text('Carmen → Luis · 5 min'), findsOneWidget);
-    expect(find.text('Vigente desde el 3 ago 2026'), findsOneWidget);
+    expect(find.text('Vigente · 3 ago 2026'), findsOneWidget);
     // Profile, alert order and privacy: «Solo ver».
     expect(find.byType(EtiquetaSoloVer), findsNWidgets(3));
     await verHasta(tester, find.text('Tu cuenta · Familiar invitado'));

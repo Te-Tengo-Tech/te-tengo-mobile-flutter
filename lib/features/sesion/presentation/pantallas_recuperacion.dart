@@ -71,10 +71,7 @@ class _PantallaRecuperarState extends ConsumerState<PantallaRecuperar> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          Text(
-            'Te enviaremos un enlace para crear una nueva.',
-            style: texto.bodyMedium,
-          ),
+          Text('Te enviaremos un enlace.', style: texto.bodyMedium),
           const SizedBox(height: 16),
           if (_problema != null) ...[
             MensajeProblema(_problema!),
@@ -191,7 +188,7 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
             style: cuerpo,
           ),
           const SizedBox(height: 12),
-          Text('¿No llega? Revisa la carpeta de spam.', style: texto.bodySmall),
+          Text('Revisa también el spam.', style: texto.bodySmall),
           const SizedBox(height: 24),
           Boton(
             'Volver a iniciar sesión',
@@ -387,7 +384,7 @@ class PantallaEnlaceVencido extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Duran 30 minutos y sirven una sola vez. Pide uno nuevo.',
+            'Dura 30 minutos y sirve una sola vez.',
             style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
           ),
           const SizedBox(height: 24),

@@ -40,10 +40,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Rosa recibió ayuda o está bien'), findsOneWidget);
-    expect(
-      find.text('No hubo caída. No contará en el resumen.'),
-      findsOneWidget,
-    );
+    expect(find.text('No hubo caída.'), findsOneWidget);
     expect(
       find.textContaining(
         'Quedará registrado: Carmen Huamán · 10:46',
@@ -74,14 +71,8 @@ void main() {
     );
     await verHasta(tester, find.textContaining(' momentos'));
     await tocar(tester, find.text('Registro del evento'));
-    await verHasta(
-      tester,
-      find.text('Marcada como atendida por Carmen Huamán'),
-    );
-    expect(
-      find.text('Marcada como atendida por Carmen Huamán'),
-      findsOneWidget,
-    );
+    await verHasta(tester, find.text('Atendida por Carmen'));
+    expect(find.text('Atendida por Carmen'), findsOneWidget);
   });
 
   testWidgets('CA-19.2: la falsa alarma no cuenta en el resumen de caídas', (
@@ -101,7 +92,7 @@ void main() {
     expect(alertas.marcadas, {'a-1': EstadoAlerta.falsaAlarma});
     expect(find.text('Marcada como falsa alarma'), findsWidgets);
     expect(find.text('FALSA ALARMA'), findsOneWidget);
-    expect(find.text('No cuenta en el resumen de caídas.'), findsOneWidget);
+    expect(find.text('No cuenta en el resumen de caídas.'), findsNothing);
   });
 
   testWidgets('un familiar invitado también puede marcarla', (tester) async {

@@ -36,42 +36,38 @@ List<(Ico, String, String, String)> seccionesMovimientos(String nombre) => [
     Ico.eye,
     'Para qué',
     'Ver qué pasó y mejorar la detección',
-    'Para que la familia pueda ver qué pasó antes y después de un aviso, y para '
-        'mejorar la detección.',
+    'Ver qué pasó antes y después de un aviso, y mejorar la detección.',
   ),
   (
     Ico.body,
     'Qué guardamos',
-    'Solo puntos del cuerpo, sin imagen',
-    'Solo los puntos del cuerpo que el programa calcula (hombros, caderas, '
-        'rodillas…), sin imagen ni video.',
+    'Puntos del cuerpo, sin imagen',
+    'Solo puntos del cuerpo (hombros, caderas, rodillas…), sin imagen ni video.',
   ),
   (
     Ico.cloud,
     'Dónde',
-    'En la PC y, si lo eliges, en la nube',
-    'En la PC de la casa y, si lo eliges, en la nube de Te Tengo. La nube usa '
-        'servidores fuera del Perú.',
+    'PC y, si quieres, nube',
+    'En la PC de la casa y, si lo eliges, en la nube (servidores fuera del '
+        'Perú).',
   ),
   (
     Ico.clock,
     'Cuánto tiempo',
     'Tú eliges el plazo',
-    'Tú eliges el plazo: en la nube, de 7 días a 1 año; en la PC, también puedes '
-        'no borrarlos.',
+    'Nube: de 7 días a 1 año. PC: también sin borrar.',
   ),
   (
     Ico.users,
     'Quién puede verlos',
-    'Solo la familia, con registro',
-    'Solo los familiares vinculados. Cada vez que alguien repite un momento, queda '
-        'en el registro de accesos.',
+    'La familia, con registro',
+    'Solo la familia vinculada; cada repetición queda registrada.',
   ),
   (
     Ico.shield,
     'Sus derechos',
     'Ley N.° 29733',
-    '$nombre puede pedir ver, corregir, borrar sus datos u oponerse a su uso en '
+    '$nombre puede ver, corregir o borrar sus datos, u oponerse a su uso: '
         'privacidad@tetengo.pe (Ley N.° 29733).',
   ),
 ];
@@ -164,8 +160,8 @@ class _PantallaGuardarMovimientosState
       icono: Ico.body,
       titulo: '¿Dejar de guardar los movimientos de $nombre?',
       texto:
-          'Borraremos los movimientos guardados en la nube. En la PC de la casa te '
-          'preguntaremos si también quieres borrarlos. Las alertas siguen igual.',
+          'Borraremos los de la nube; la PC preguntará si también los borra. Las '
+          'alertas siguen igual.',
       aceptar: 'Dejar de guardar',
       cancelar: 'Cancelar',
       peligro: true,
@@ -249,8 +245,7 @@ class _PantallaGuardarMovimientosState
         ),
         const SizedBox(height: 8),
         Text(
-          'Guardar los movimientos de $nombre es opcional. Las alertas funcionan '
-          'igual si no lo aceptas.',
+          'Es opcional: las alertas funcionan igual.',
           style: texto.bodyMedium,
         ),
         const SizedBox(height: 12),
@@ -309,7 +304,7 @@ class _PantallaGuardarMovimientosState
               tono: TonoAviso.advertencia,
               icono: Ico.wifiOff,
               titulo: 'No pudimos registrar el permiso',
-              texto: 'Nada se guardó todavía.',
+              texto: 'Nada se guardó.',
             ),
           ],
           if (_problema != null) ...[
@@ -351,10 +346,8 @@ class _PantallaGuardarMovimientosState
           Aviso(
             tono: TonoAviso.error,
             icono: Ico.lock,
-            titulo: 'Primero registra el consentimiento',
-            texto:
-                'Las cámaras no detectan caídas hasta que la persona cuidada lo '
-                'acepte.',
+            titulo: 'Falta el consentimiento',
+            texto: 'Sin él no detectamos caídas.',
             accion: titular
                 ? Boton(
                     'Registrar consentimiento',
@@ -390,7 +383,6 @@ class _Vigente extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final texto = Theme.of(context).textTheme;
     final titular = ref.watch(esTitularProvider);
     final nube = ref.watch(movimientosEnLaNubeProvider).value;
     return ListView(
@@ -407,11 +399,6 @@ class _Vigente extends ConsumerWidget {
               alTocar: () => context.push(Rutas.nube),
             ),
           ],
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Las alertas funcionan igual sin este permiso.',
-          style: texto.bodyMedium,
         ),
         const SizedBox(height: 16),
         if (titular)
@@ -518,17 +505,15 @@ class PantallaDocumentoMovimientos extends ConsumerWidget {
         (
           'Cómo se registra',
           [
-            'Guardamos quién lo otorgó, quién lo registró, la fecha, la hora y la '
-                'versión del texto aceptado, como constancia exigida por la Ley N.° '
-                '29733.',
+            'Guardamos quién lo otorgó, quién lo registró, fecha, hora y versión '
+                'del texto (Ley N.° 29733).',
           ],
         ),
         (
           'Cómo retirarlo',
           [
-            'El titular puede dejar de guardar movimientos en Ajustes › Privacidad. '
-                'Borramos los de la nube y la PC de la casa pregunta si también los '
-                'borra.',
+            'El titular lo retira en Ajustes › Privacidad. Borramos los de la nube; '
+                'la PC pregunta si también los borra.',
           ],
         ),
       ],
@@ -643,9 +628,8 @@ class _PantallaBorrandoMovimientosState
                     const SizedBox(height: 8),
                     Text(
                       terminado
-                          ? 'Las alertas y el consentimiento de monitoreo siguen '
-                                'igual.'
-                          : 'No cierres la app. Esto toma unos segundos.',
+                          ? 'Las alertas siguen igual.'
+                          : 'No cierres la app.',
                       style: texto.bodyLarge?.copyWith(
                         color: context.colores.tinta2,
                       ),
@@ -672,9 +656,7 @@ class _PantallaBorrandoMovimientosState
                             numero: 3,
                             titulo: 'En la PC de la casa',
                             detalle: TextSpan(
-                              text:
-                                  'Te Tengo Captura preguntará si también se '
-                                  'borran ahí.',
+                              text: 'Preguntará si también se borran ahí.',
                             ),
                           ),
                         ],
@@ -865,18 +847,13 @@ class _PantallaMovimientosNubeState
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
-        Text(
-          'Elige cuánto tiempo guardamos los movimientos de $nombre en la nube. '
-          'Se borran solos al cumplirse el plazo.',
-          style: texto.bodyMedium,
-        ),
+        Text('Se borran solos al cumplirse el plazo.', style: texto.bodyMedium),
         const SizedBox(height: 16),
         if (!permiso) ...[
           Aviso(
             tono: TonoAviso.info,
             icono: Ico.body,
-            texto:
-                'Primero registra el permiso de $nombre para guardar movimientos',
+            titulo: 'Falta el permiso de $nombre para guardar movimientos',
             accion: titular
                 ? Boton(
                     'Ver el permiso',
@@ -898,7 +875,6 @@ class _PantallaMovimientosNubeState
             tono: TonoAviso.advertencia,
             icono: Ico.wifiOff,
             titulo: 'No pudimos guardar el cambio',
-            texto: 'Revisa tu conexión.',
           ),
           const SizedBox(height: 16),
         ],
@@ -951,8 +927,8 @@ class _PantallaMovimientosNubeState
             tono: TonoAviso.neutral,
             icono: Ico.clock,
             texto:
-                'La PC ${sinConexion.nombre} tiene movimientos pendientes de subir; '
-                'se subirán cuando vuelva la conexión.',
+                'La PC ${sinConexion.nombre} subirá sus movimientos al '
+                'reconectarse.',
           ),
         ],
         const SizedBox(height: 12),

@@ -3,19 +3,14 @@ import '../../../core/sesion/sesion.dart';
 
 /// Living arrangement of the older adult (contract §2, from the prototype's profile screen).
 enum Convivencia {
-  solo('SOLO', 'Vive solo(a)', 'Pasa el día sin compañía'),
-  conFamiliar('CON_FAMILIAR', 'Vive conmigo', 'Comparte la vivienda contigo'),
-  conCuidador(
-    'CON_CUIDADOR',
-    'Vive con otro cuidador',
-    'Un pariente o cuidador(a) está en casa',
-  );
+  solo('SOLO', 'Vive solo(a)'),
+  conFamiliar('CON_FAMILIAR', 'Vive conmigo'),
+  conCuidador('CON_CUIDADOR', 'Vive con otro cuidador');
 
-  const Convivencia(this.codigo, this.titulo, this.detalle);
+  const Convivencia(this.codigo, this.titulo);
 
   final String codigo;
   final String titulo;
-  final String detalle;
 
   static Convivencia? desde(Object? valor) =>
       Convivencia.values.where((c) => c.codigo == valor).firstOrNull;

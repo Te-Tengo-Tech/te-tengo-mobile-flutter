@@ -157,12 +157,12 @@ class QueRevisarPc extends StatelessWidget {
       FilaLista(
         inicio: IconoFila(Ico.wifi),
         titulo: 'Que tenga internet',
-        subtitulo: 'Que el módem o router tenga luz',
+        subtitulo: 'Con la luz del módem encendida',
       ),
       FilaLista(
         inicio: IconoFila(Ico.cam),
         titulo: 'Que Te Tengo Captura esté abierto',
-        subtitulo: 'Su ícono está junto al reloj de Windows',
+        subtitulo: 'Junto al reloj de Windows',
       ),
     ],
   );
@@ -196,8 +196,8 @@ class HeroePc extends StatelessWidget {
   );
 }
 
-/// A room chip; one that already has a camera is dashed, readable and disabled, with «Ya tiene
-/// cámara» inside (CA-29.3).
+/// A room chip; one that already has a camera is readable and disabled, and the screen explains it
+/// under the chips (CA-29.3).
 class ChipHabitacion extends StatelessWidget {
   const ChipHabitacion({
     required this.texto,
@@ -255,23 +255,13 @@ class ChipHabitacion extends StatelessWidget {
       excludeSemantics: true,
       child: Container(
         constraints: const BoxConstraints(minHeight: 44),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: c.fondo2,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: c.linea2, width: 1.5),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(texto, style: estiloTexto(16, 600, color: c.tinta2)),
-            Text(
-              'Ya tiene cámara',
-              style: estiloTexto(13, 700, color: c.tinta3),
-            ),
-          ],
-        ),
+        child: Text(texto, style: estiloTexto(16, 600, color: c.tinta2)),
       ),
     );
   }

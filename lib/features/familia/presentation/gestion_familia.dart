@@ -84,17 +84,11 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
-    final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     return Scaffold(
       appBar: AppBar(title: const Text('Invitar a un familiar')),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          Text(
-            'Le enviaremos un enlace para crear su acceso.',
-            style: texto.bodyMedium,
-          ),
-          const SizedBox(height: 16),
           if (_problema != null) ...[
             MensajeProblema(_problema!),
             const SizedBox(height: 16),
@@ -122,8 +116,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
                 const _Punto(
                   Ico.check,
                   Colores.calma,
-                  'Ver alertas, clips, historial y la cámara en vivo (con '
-                  'registro)',
+                  'Ver alertas, historial y la cámara en vivo',
                 ),
                 const _Punto(
                   Ico.check,
@@ -133,8 +126,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
                 _Punto(
                   Ico.lock,
                   context.colores.tinta3,
-                  'No podrá cambiar los datos de $nombre, el consentimiento, la '
-                  'cámara ni la familia',
+                  'No cambia datos, consentimiento, cámaras ni familia',
                 ),
               ],
             ),

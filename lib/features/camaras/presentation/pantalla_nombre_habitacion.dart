@@ -164,16 +164,6 @@ class _PantallaNombreHabitacionState
           28,
         ),
         children: [
-          Semantics(
-            header: true,
-            child: Text(
-              '¿Cómo se llama esta habitación?',
-              style: texto.titleLarge,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text('Aparece en cada alerta.', style: texto.bodyMedium),
-          const SizedBox(height: 16),
           if (_problema != null) ...[
             MensajeProblema(_problema!),
             const SizedBox(height: 16),
@@ -183,7 +173,6 @@ class _PantallaNombreHabitacionState
             controlador: _control,
             error: _error,
             marcador: 'Ej.: Sala comedor',
-            ayuda: 'Elige una sugerencia o escribe otro nombre.',
             longitudMaxima: PantallaNombreHabitacion.largoMaximo,
             alCambiar: (_) => setState(() => _error = null),
             alEnviar: (_) => _guardar(),
@@ -213,7 +202,7 @@ class _PantallaNombreHabitacionState
           if (ocupadas.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
-              'Las habitaciones que ya tienen cámara no se pueden elegir.',
+              'Las que ya tienen cámara no se pueden elegir.',
               style: texto.bodySmall,
             ),
           ],
@@ -245,7 +234,7 @@ class _PantallaNombreHabitacionState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Las alertas anteriores conservan el nombre que tenían.',
+                  'Las alertas anteriores no cambian.',
                   style: texto.bodySmall,
                 ),
               ],

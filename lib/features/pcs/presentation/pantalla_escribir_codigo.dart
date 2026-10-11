@@ -160,7 +160,7 @@ class _PantallaEscribirCodigoState
           ],
           const SizedBox(height: 10),
           Text(
-            'Son 8 letras. Lo ves debajo del código QR en Te Tengo Captura.',
+            'Está debajo del QR, en Te Tengo Captura.',
             style: texto.bodySmall,
           ),
           const SizedBox(height: 20),

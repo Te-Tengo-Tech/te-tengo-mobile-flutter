@@ -141,7 +141,6 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
                   etiqueta: 'Tu nombre y apellido',
                   controlador: _nombre,
                   error: _errores['nombre'],
-                  ayuda: 'Tu familia verá quién atendió cada alerta.',
                   autocompletar: const [AutofillHints.name],
                   accionTeclado: TextInputAction.next,
                 ),

@@ -122,9 +122,6 @@ class _Detalle extends ConsumerWidget {
             tono: TonoAviso.info,
             icono: Ico.cam,
             titulo: 'Falta elegir las cámaras',
-            texto:
-                'Elige qué cámaras de la PC usar y en qué habitación está cada '
-                'una.',
             accion: titular && !pc.sinConexion
                 ? Boton(
                     'Elegir las cámaras',
@@ -159,11 +156,7 @@ class _Detalle extends ConsumerWidget {
           ),
         if (titular) ...[
           const EncabezadoSeccion('Quitar'),
-          Text(
-            'Deja de detectar caídas con esta PC. Podrás vincularla de nuevo con '
-            'su código.',
-            style: texto.bodyMedium,
-          ),
+          Text('Deja de detectar caídas con esta PC.', style: texto.bodyMedium),
           const SizedBox(height: 12),
           Boton(
             'Quitar esta PC',
@@ -193,7 +186,7 @@ Future<void> quitarPc(BuildContext context, WidgetRef ref, Pc pc) async {
     titulo: '¿Quitar la PC ${pc.nombre}?',
     texto:
         '${habitaciones.isEmpty ? '' : 'Dejaremos de detectar caídas en ${enumerar(habitaciones)}. '}'
-        'La PC borrará su acceso y volverá a mostrar el código QR.',
+        'La PC volverá a mostrar su QR.',
     aceptar: 'Quitar la PC',
     cancelar: 'Cancelar',
     peligro: true,

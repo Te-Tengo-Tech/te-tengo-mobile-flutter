@@ -85,15 +85,12 @@ class _PantallaPersonaSetupState extends ConsumerState<PantallaPersonaSetup> {
             header: true,
             child: Text('¿A quién vas a cuidar?', style: texto.titleLarge),
           ),
-          const SizedBox(height: 8),
-          Text('Aparecerán en cada alerta.', style: texto.bodyMedium),
           const SizedBox(height: 16),
           if (_faltanDatos) ...[
             const Aviso(
               tono: TonoAviso.error,
               icono: Ico.warn,
-              titulo: 'Faltan datos obligatorios',
-              texto: 'Completa los campos marcados.',
+              titulo: 'Completa los campos marcados',
             ),
             const SizedBox(height: 16),
           ],

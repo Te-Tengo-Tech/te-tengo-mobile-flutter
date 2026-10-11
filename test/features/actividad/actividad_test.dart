@@ -90,7 +90,7 @@ void main() {
       await abrir(tester, Rutas.actividad);
       expect(
         find.text('Quién cambió qué y cuándo, en la app o en la PC.'),
-        findsOneWidget,
+        findsNothing,
       );
       expect(find.text('Hoy'), findsOneWidget);
       expect(
@@ -183,10 +183,7 @@ void main() {
       await abrir(tester, Rutas.actividad);
       expect(find.text('Aún no hay actividad registrada'), findsOneWidget);
       expect(
-        find.text(
-          'Aquí verás quién vincula o quita una PC, cambia una cámara, pausa '
-          'la detección o cambia cómo se guardan los datos.',
-        ),
+        find.text('Aquí verás cada cambio en PCs, cámaras y datos.'),
         findsOneWidget,
       );
       expect(find.byType(ChipOpcion), findsNothing);

@@ -134,10 +134,7 @@ void main() {
     await tocar(tester, find.text('Guardar contraseña'));
     expect(find.text('Este enlace ya venció'), findsOneWidget);
     await tocar(tester, find.text('Pedir un enlace nuevo'));
-    expect(
-      find.text('Te enviaremos un enlace para crear una nueva.'),
-      findsOneWidget,
-    );
+    expect(find.text('Te enviaremos un enlace.'), findsOneWidget);
   });
 
   group('CuentasRepositorioApi', () {

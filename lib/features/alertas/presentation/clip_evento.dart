@@ -84,13 +84,9 @@ class ClipNoDisponible extends StatelessWidget {
             'La grabación ya no está disponible',
             'Se borró el '
                 '${fechaConAnio(alerta.ocurridaEn.add(const Duration(days: 30)))} '
-                '(se guardan 30 días). El registro se conserva.',
+                '(se guardan 30 días).',
           )
-        : (
-            Ico.video,
-            'Clip no disponible',
-            'No se pudo guardar el video. La alerta sigue siendo válida.',
-          );
+        : (Ico.video, 'Clip no disponible', 'La alerta sigue siendo válida.');
     return Container(
       constraints: BoxConstraints(minHeight: aRas ? 0 : 170),
       padding: const EdgeInsets.all(18),

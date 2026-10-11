@@ -44,7 +44,6 @@ class PantallaVivo extends ConsumerStatefulWidget {
 class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   Camara? _camara;
   SesionVivo? _sesion;
-  DateTime? _inicio;
   _NoDisponible? _noDisponible;
   DateTime? _pausadaHasta;
   ProblemaApi? _problema;
@@ -136,7 +135,6 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
         _sesion = sesion;
         _huboSesion = true;
         _modo = sesion.modo;
-        _inicio = ref.read(relojProvider)();
       });
       _conexion.conectar(sesion);
     } on ProblemaApi catch (e) {
@@ -355,21 +353,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          const TextSpan(
-                            text: 'No se graba. Tu acceso desde las ',
-                          ),
-                          TextSpan(
-                            text: hora(_inicio!),
-                            style: const TextStyle(fontFamily: fuenteMono),
-                          ),
-                          const TextSpan(
-                            text: ' queda en el registro de la familia.',
-                          ),
-                        ],
-                      ),
+                    child: Text(
+                      'No se graba · tu acceso queda registrado.',
                       style: estiloTexto(16, 400, color: Colores.nocheTexto),
                     ),
                   ),
@@ -619,13 +604,13 @@ class _NoDisponibleVista extends StatelessWidget {
       _NoDisponible.enPausa => (
         Ico.pause,
         Colores.nochePausa,
-        'La vista en vivo no está disponible',
+        'Vista en vivo no disponible',
         TextSpan(
           children: [
             if (pausadaHasta case final p?) ...[
               const TextSpan(text: 'En pausa hasta las '),
               TextSpan(text: finDePausa(p, ahora), style: mono),
-              const TextSpan(text: ', o hasta que la reanudes.'),
+              const TextSpan(text: '.'),
             ] else
               TextSpan(
                 text: 'La cámara ${deHabitacion(habitacion)} está en pausa.',

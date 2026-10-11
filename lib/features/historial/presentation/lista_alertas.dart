@@ -37,7 +37,6 @@ class ListaHistorial extends ConsumerWidget {
           EstadoVacio(
             ilustracion: IlustracionVacio.calendario,
             titulo: 'Sin eventos registrados',
-            texto: 'Aquí verás cada caída y movimiento inestable.',
           ),
         ],
       AsyncData(value: final p) => [
@@ -46,7 +45,6 @@ class ListaHistorial extends ConsumerWidget {
           EstadoVacio(
             ilustracion: IlustracionVacio.filtro,
             titulo: 'Ninguna alerta coincide',
-            texto: 'Prueba con otro rango de fechas, tipo o estado.',
             accion: Boton(
               'Quitar filtros',
               estilo: EstiloBoton.secundario,
@@ -93,7 +91,13 @@ class ListaHistorial extends ConsumerWidget {
     }
     return [
       for (final (dia, lista) in grupos) ...[
-        EncabezadoDia('${mismoDia(dia, hoy) ? 'Hoy, ' : ''}${fechaLarga(dia)}'),
+        EncabezadoDia(
+          mismoDia(dia, hoy)
+              ? 'Hoy'
+              : mismoDia(dia, hoy.subtract(const Duration(days: 1)))
+              ? 'Ayer'
+              : fechaCorta(dia),
+        ),
         ListaTarjeta(
           children: [
             for (final a in lista)

@@ -27,10 +27,7 @@ void main() {
         find.text('Lleva más de 30 s en el suelo. Si se levanta, te avisamos.'),
         findsOneWidget,
       );
-      await verHasta(
-        tester,
-        find.text('Sigue en el suelo tras 30 s: caída confirmada'),
-      );
+      await verHasta(tester, find.text('Sigue en el suelo: confirmada'));
       expect(find.text('Marcar alerta'), findsOneWidget);
     },
   );

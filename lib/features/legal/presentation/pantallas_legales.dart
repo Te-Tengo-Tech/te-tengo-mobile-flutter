@@ -11,19 +11,19 @@ import '../../../core/ui/tarjeta.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import 'textos_legales.dart';
 
-/// A legal document (`docPage`): a one-line intro and short sections (an 18 px title and 16 px
-/// paragraphs), readable at any text size.
+/// A legal document (`docPage`): an optional one-line intro and short sections (an 18 px title and
+/// 16 px paragraphs), readable at any text size.
 class PantallaDocumento extends StatelessWidget {
   const PantallaDocumento({
     super.key,
     required this.titulo,
-    required this.introduccion,
+    this.introduccion,
     required this.secciones,
     this.pie,
   });
 
   final String titulo;
-  final String introduccion;
+  final String? introduccion;
   final List<SeccionDocumento> secciones;
 
   /// Shown after the sections (a link, the certificate).
@@ -41,9 +41,10 @@ class PantallaDocumento extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          Text(introduccion, style: Theme.of(context).textTheme.bodyMedium),
-          for (final (titulo, parrafos) in secciones) ...[
-            const SizedBox(height: 24),
+          if (introduccion case final i?)
+            Text(i, style: Theme.of(context).textTheme.bodyMedium),
+          for (final (n, (titulo, parrafos)) in secciones.indexed) ...[
+            SizedBox(height: n == 0 && introduccion == null ? 8 : 24),
             Semantics(
               header: true,
               child: Text(
@@ -71,7 +72,6 @@ class PantallaTerminos extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PantallaDocumento(
     titulo: 'Términos de uso',
-    introduccion: 'Las reglas para usar Te Tengo.',
     secciones: seccionesTerminos,
     pie: Align(
       alignment: Alignment.centerLeft,
@@ -90,8 +90,6 @@ class PantallaPolitica extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const PantallaDocumento(
     titulo: 'Política de privacidad',
-    introduccion:
-        'Qué datos usamos, quién los ve y cuánto tiempo los guardamos.',
     secciones: seccionesPolitica,
   );
 }

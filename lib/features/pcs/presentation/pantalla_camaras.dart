@@ -86,10 +86,8 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
                     Aviso(
                       tono: TonoAviso.error,
                       icono: Ico.lock,
-                      titulo: 'Primero registra el consentimiento',
-                      texto:
-                          'Las cámaras no detectan caídas hasta que la persona '
-                          'cuidada lo acepte.',
+                      titulo: 'Falta el consentimiento',
+                      texto: 'Sin él no detectamos caídas.',
                       accion: titular
                           ? Boton(
                               'Registrar consentimiento',
@@ -103,7 +101,6 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
                   ],
                   if (lista.isEmpty)
                     _SinPcs(
-                      nombre: h.adultoMayor.nombrePila,
                       titular: titular,
                       nombreTitular: ref.watch(nombreTitularProvider) ?? '',
                     )
@@ -199,7 +196,7 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Por ahora, cada habitación usa una sola cámara.',
+          'Una cámara por habitación.',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall,
         ),
@@ -612,13 +609,8 @@ class FilaPc extends StatelessWidget {
 
 /// «Aún no hay una PC vinculada» (screen 148).
 class _SinPcs extends StatelessWidget {
-  const _SinPcs({
-    required this.nombre,
-    required this.titular,
-    required this.nombreTitular,
-  });
+  const _SinPcs({required this.titular, required this.nombreTitular});
 
-  final String nombre;
   final bool titular;
   final String nombreTitular;
 
@@ -639,12 +631,6 @@ class _SinPcs extends StatelessWidget {
             'Aún no hay una PC vinculada',
             textAlign: TextAlign.center,
             style: texto.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Vincula la PC de la casa para empezar a cuidar a $nombre.',
-            textAlign: TextAlign.center,
-            style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
           if (titular)

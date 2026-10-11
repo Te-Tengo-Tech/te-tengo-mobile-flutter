@@ -34,7 +34,7 @@ class MotivoSinVistaPrevia {
 
   final Ico icono;
   final String titulo;
-  final InlineSpan texto;
+  final InlineSpan? texto;
 }
 
 /// The same rules as the live view: the PC online, the webcam plugged in and not paused, and the
@@ -50,19 +50,18 @@ MotivoSinVistaPrevia? motivoSinVistaPrevia({
     return MotivoSinVistaPrevia(
       Ico.wifiOff,
       'La PC ${pc.nombre} no responde',
-      TextSpan(
-        children: [
-          if (senal != null) ...[
-            const TextSpan(text: 'Sin conexión desde las '),
-            TextSpan(
-              text: hora(senal),
-              style: estiloMono(tamano: 16, peso: 400),
+      senal == null
+          ? null
+          : TextSpan(
+              children: [
+                const TextSpan(text: 'Sin conexión desde las '),
+                TextSpan(
+                  text: hora(senal),
+                  style: estiloMono(tamano: 16, peso: 400),
+                ),
+                const TextSpan(text: '.'),
+              ],
             ),
-            const TextSpan(text: '. '),
-          ],
-          const TextSpan(text: 'Revisa que esté encendida y con internet.'),
-        ],
-      ),
     );
   }
   if (!camara.conectada) return _desconectada;
@@ -74,32 +73,30 @@ MotivoSinVistaPrevia? motivoSinVistaPrevia({
 const _desconectada = MotivoSinVistaPrevia(
   Ico.wifiOff,
   'La cámara está desconectada',
-  TextSpan(text: 'Pide a alguien en la casa que revise el cable USB.'),
+  TextSpan(text: 'Que revisen el cable USB.'),
 );
 
 MotivoSinVistaPrevia _sinConsentimiento(String nombre) => MotivoSinVistaPrevia(
   Ico.lock,
   'Falta el consentimiento de $nombre',
-  TextSpan(
-    text:
-        'Sin el consentimiento de $nombre no hay video, tampoco para la vista '
-        'previa.',
-  ),
+  const TextSpan(text: 'Sin él no hay video.'),
 );
 
 MotivoSinVistaPrevia _enPausa(DateTime? hasta) => MotivoSinVistaPrevia(
   Ico.pause,
   'La cámara está en pausa',
-  TextSpan(
-    children: [
-      if (hasta != null) ...[
-        const TextSpan(text: 'Hasta las '),
-        TextSpan(text: hora(hasta), style: estiloMono(tamano: 16, peso: 400)),
-        const TextSpan(text: '. '),
-      ],
-      const TextSpan(text: 'Reanúdala para ver la vista previa.'),
-    ],
-  ),
+  hasta == null
+      ? null
+      : TextSpan(
+          children: [
+            const TextSpan(text: 'Hasta las '),
+            TextSpan(
+              text: hora(hasta),
+              style: estiloMono(tamano: 16, peso: 400),
+            ),
+            const TextSpan(text: '.'),
+          ],
+        ),
 );
 
 /// «Ver vista previa» (screens 252, 253, 257, 259 and 269): a few seconds of what a webcam sees, to
@@ -269,7 +266,6 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
     final motivo = _motivo;
-    final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     // Closing (the button, the countdown, a tap outside or back) ends the session at once.
     return PopScope(
       onPopInvokedWithResult: (_, _) => _terminar(),
@@ -286,13 +282,6 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
                   'Vista previa · ${widget.camara.nombreDispositivo}',
                   style: texto.titleLarge,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                motivo == null
-                    ? 'Así sabes qué habitación ve esta cámara.'
-                    : 'No podemos mostrar lo que ve esta cámara ahora.',
-                style: texto.bodyMedium,
               ),
               const SizedBox(height: 16),
               if (motivo != null)
@@ -322,8 +311,7 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'No se graba. Tu acceso queda en el registro de la '
-                        'familia.',
+                        'No se graba · queda en el registro de accesos',
                         style: texto.bodyMedium,
                       ),
                     ),
@@ -331,9 +319,7 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Es como la vista en vivo: $nombre la autorizó en su '
-                  'consentimiento. Se cierra sola a los '
-                  '${duracionVistaPrevia.inSeconds} s.',
+                  'Se cierra sola a los ${duracionVistaPrevia.inSeconds} s.',
                   style: texto.bodySmall,
                 ),
               ],
@@ -468,12 +454,14 @@ class _NoDisponible extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        const SizedBox(height: 8),
-        Text.rich(
-          motivo.texto,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        if (motivo.texto case final t?) ...[
+          const SizedBox(height: 8),
+          Text.rich(
+            t,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
       ],
     ),
   );

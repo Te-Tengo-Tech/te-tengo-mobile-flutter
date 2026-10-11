@@ -101,10 +101,7 @@ void main() {
       await abrir(tester, Rutas.movimientos);
       expect(find.text('¿Guardamos los movimientos de Rosa?'), findsOneWidget);
       expect(
-        find.text(
-          'Guardar los movimientos de Rosa es opcional. Las alertas funcionan '
-          'igual si no lo aceptas.',
-        ),
+        find.text('Es opcional: las alertas funcionan igual.'),
         findsOneWidget,
       );
       for (final t in ['Para qué', 'Qué guardamos', 'Dónde', 'Cuánto tiempo']) {
@@ -113,8 +110,8 @@ void main() {
       await tocar(tester, find.text('Dónde'));
       expect(
         find.text(
-          'En la PC de la casa y, si lo eliges, en la nube de Te Tengo. La nube '
-          'usa servidores fuera del Perú.',
+          'En la PC de la casa y, si lo eliges, en la nube (servidores fuera del '
+          'Perú).',
         ),
         findsOneWidget,
       );
@@ -168,14 +165,14 @@ void main() {
       await marcarPermiso(tester);
       await tocar(tester, find.text('Registrar el permiso'));
       expect(find.text('No pudimos registrar el permiso'), findsOneWidget);
-      expect(find.text('Nada se guardó todavía.'), findsOneWidget);
+      expect(find.text('Nada se guardó.'), findsOneWidget);
     });
 
     testWidgets('CA-35.1: sin el consentimiento de monitoreo, primero ese', (
       tester,
     ) async {
       await abrir(tester, Rutas.movimientos, consentimiento: false);
-      expect(find.text('Primero registra el consentimiento'), findsOneWidget);
+      expect(find.text('Falta el consentimiento'), findsOneWidget);
       await verHasta(tester, find.text('Registrar el permiso'));
       await tester.tap(find.text('Registrar el permiso'), warnIfMissed: false);
       await tester.pump();
@@ -228,10 +225,7 @@ void main() {
       }
       expect(movimientos.revocaciones, 1);
       expect(find.text('Borrando los movimientos de la nube…'), findsWidgets);
-      expect(
-        find.text('Te Tengo Captura preguntará si también se borran ahí.'),
-        findsOneWidget,
-      );
+      expect(find.text('Preguntará si también se borran ahí.'), findsOneWidget);
       // The API finished meanwhile: the screen asks for it.
       movimientos.eliminacion = EliminacionMovimientos(
         terminada: true,
@@ -345,9 +339,7 @@ void main() {
     ) async {
       await abrir(tester, Rutas.nube);
       expect(
-        find.text(
-          'Primero registra el permiso de Rosa para guardar movimientos',
-        ),
+        find.text('Falta el permiso de Rosa para guardar movimientos'),
         findsOneWidget,
       );
       await tocar(tester, find.text('30 días'));
@@ -389,10 +381,7 @@ void main() {
       await abrir(tester, Rutas.nube);
       await verHasta(
         tester,
-        find.text(
-          'La PC Sala-Rosa tiene movimientos pendientes de subir; se subirán '
-          'cuando vuelva la conexión.',
-        ),
+        find.text('La PC Sala-Rosa subirá sus movimientos al reconectarse.'),
       );
     });
   });

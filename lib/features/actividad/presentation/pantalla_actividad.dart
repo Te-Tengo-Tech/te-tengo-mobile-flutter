@@ -69,11 +69,6 @@ class _PantallaActividadState extends ConsumerState<PantallaActividad> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
             children: [
-              Text(
-                'Quién cambió qué y cuándo, en la app o en la PC.',
-                style: texto.bodyMedium,
-              ),
-              const SizedBox(height: 12),
               if (pcs.isNotEmpty &&
                   (_pcId != null ||
                       (actividad.value?.elementos.isNotEmpty ?? false)))
@@ -101,10 +96,7 @@ class _PantallaActividadState extends ConsumerState<PantallaActividad> {
                   EstadoVacio(
                     ilustracion: IlustracionVacio.filtro,
                     titulo: 'Aún no hay actividad registrada',
-                    texto:
-                        'Aquí verás quién vincula o quita una PC, cambia una '
-                        'cámara, pausa la detección o cambia cómo se guardan '
-                        'los datos.',
+                    texto: 'Aquí verás cada cambio en PCs, cámaras y datos.',
                   ),
                 ],
                 AsyncData(value: final p) => [

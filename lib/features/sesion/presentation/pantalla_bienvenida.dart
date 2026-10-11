@@ -45,19 +45,15 @@ class PantallaBienvenida extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Una cámara en su casa detecta caídas y te avisa al '
-                      'instante.',
+                      'Detecta caídas y te avisa al instante.',
                       style: texto.bodyLarge?.copyWith(
                         color: context.colores.tinta2,
                       ),
                     ),
                     const SizedBox(height: 16),
                     const _Vineta(Ico.user, 'Sin pulseras ni botones'),
-                    const _Vineta(
-                      Ico.video,
-                      'En vivo con su permiso, con registro',
-                    ),
-                    const _Vineta(Ico.shield, 'Datos protegidos por ley'),
+                    const _Vineta(Ico.video, 'En vivo, con su permiso'),
+                    const _Vineta(Ico.shield, 'Solo postura, nunca rostros'),
                     const Spacer(),
                     const SizedBox(height: 18),
                     Boton(

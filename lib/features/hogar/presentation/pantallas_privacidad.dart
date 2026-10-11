@@ -20,7 +20,6 @@ import '../../../core/ui/tarjeta.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../camaras/data/camaras_repositorio.dart';
-import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../movimientos/data/movimientos_repositorio.dart';
 import '../../movimientos/domain/movimientos.dart';
@@ -60,10 +59,7 @@ class _Privacidad extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final texto = Theme.of(context).textTheme;
     final titular = ref.watch(esTitularProvider);
-    final nombre = hogar.adultoMayor.nombrePila;
     final consentimiento = hogar.consentimiento;
-    // The revocation dialog names the room of the camera.
-    ref.watch(camarasProvider);
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
@@ -93,10 +89,8 @@ class _Privacidad extends ConsumerWidget {
                 const SizedBox(height: 8),
                 Text(
                   consentimiento != null
-                      ? 'Revocado. La cámara no captura y las grabaciones fueron '
-                            'eliminadas.'
-                      : 'Aún no se registra. La cámara está instalada, pero no '
-                            'envía video.',
+                      ? 'Revocado. Grabaciones eliminadas.'
+                      : 'Aún no se registra. La cámara no envía video.',
                   style: texto.bodyMedium,
                 ),
                 if (titular) ...[
@@ -139,42 +133,29 @@ class _Privacidad extends ConsumerWidget {
             ),
           ],
         ),
-        const EncabezadoSeccion('Cómo cuidamos sus datos'),
+        const EncabezadoSeccion('Sus datos'),
         ListaTarjeta(
           children: [
-            const FilaLista(
-              titulo: 'Clips de las alertas',
-              subtitulo: 'Se guardan 30 días y luego se eliminan',
-            ),
-            const FilaLista(
-              titulo: 'Video en vivo',
-              subtitulo: 'La familia puede verlo cuando quiera. No se graba.',
-            ),
-            const FilaLista(
-              titulo: 'Reconocimiento facial',
-              subtitulo: 'No se usa',
-            ),
+            const FilaLista(titulo: 'Clips', subtitulo: '30 días'),
+            const FilaLista(titulo: 'En vivo', subtitulo: 'No se graba'),
+            const FilaLista(titulo: 'Rostros', subtitulo: 'No se reconocen'),
             FilaLista(
               inicio: const IconoFila(Ico.eye),
-              titulo: 'Registro de accesos a la vista en vivo',
-              subtitulo: 'Quién la vio, cuándo y cuánto tiempo',
+              titulo: 'Registro de accesos',
+              subtitulo: 'Quién miró, cuándo y cuánto',
               alTocar: () => context.push(Rutas.accesos),
             ),
           ],
         ),
         const SizedBox(height: 16),
         Text.rich(
-          TextSpan(
+          const TextSpan(
             children: [
+              TextSpan(text: 'Derechos (Ley N.° 29733): '),
               TextSpan(
-                text:
-                    '$nombre puede pedir ver, corregir o borrar sus datos en ',
-              ),
-              const TextSpan(
                 text: 'privacidad@tetengo.pe',
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
-              const TextSpan(text: ' (Ley N.° 29733).'),
             ],
           ),
           style: texto.bodyMedium,
@@ -210,9 +191,7 @@ class _Privacidad extends ConsumerWidget {
           ] else
             AvisoSoloLectura(
               titular: ref.watch(nombreTitularProvider) ?? '',
-              accion:
-                  'revocar el consentimiento. Si $nombre quiere retirarlo, '
-                  'avísale',
+              accion: 'revocar el consentimiento',
             ),
         ],
       ],
@@ -220,18 +199,14 @@ class _Privacidad extends ConsumerWidget {
   }
 
   Future<void> _revocar(BuildContext context, WidgetRef ref) async {
-    final camara = ref.read(camarasProvider).value?.firstOrNull;
-    final habitacion = camara == null
-        ? 'La cámara'
-        : 'La cámara ${deHabitacion(camara.nombreHabitacion)}';
     final si = await confirmar(
       context,
       icono: Ico.warn,
       peligro: true,
       titulo: '¿Revocar el consentimiento?',
       texto:
-          '$habitacion dejará de capturar, nadie recibirá más alertas y se '
-          'borrarán las grabaciones. No se puede deshacer.',
+          'Se detiene la captura, no habrá más alertas y se borran las '
+          'grabaciones. No se puede deshacer.',
       aceptar: 'Sí, revocar y eliminar',
       cancelar: 'Cancelar, mantenerlo',
     );
@@ -409,12 +384,8 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
     final r = ref.watch(revocacionProvider);
     final texto = Theme.of(context).textTheme;
     final correo = ref.watch(sesionControllerProvider)?.usuario.correo ?? '';
-    final camara = ref.watch(camarasProvider).value?.firstOrNull;
     final terminada = r?.terminada ?? false;
     final detenida = r?.capturaDetenida ?? ref.watch(relojProvider)();
-    final camaraTexto = camara == null
-        ? 'La cámara'
-        : 'La cámara ${deHabitacion(camara.nombreHabitacion)}';
     final clips = r?.clips;
     return Scaffold(
       body: SafeArea(
@@ -452,9 +423,8 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
                     const SizedBox(height: 8),
                     Text(
                       terminada
-                          ? 'La captura se detuvo y las grabaciones se '
-                                'eliminaron. Te enviamos la constancia a $correo.'
-                          : 'No cierres la app. Esto toma unos segundos.',
+                          ? 'Te enviamos la constancia a $correo.'
+                          : 'No cierres la app.',
                       style: texto.bodyLarge?.copyWith(
                         color: context.colores.tinta2,
                       ),
@@ -466,10 +436,7 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
                           _Paso(
                             hecho: true,
                             titulo: 'Captura detenida',
-                            detalle: conHora(
-                              '$camaraTexto dejó de capturar a las ',
-                              hora(detenida),
-                            ),
+                            detalle: conHora('A las ', hora(detenida)),
                           ),
                           _Paso(
                             hecho: terminada,
@@ -482,15 +449,11 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
                                 ? null
                                 : terminada
                                 ? conHora(
-                                    '$clips clip${clips == 1 ? '' : 's'} '
-                                    'borrado${clips == 1 ? '' : 's'} de '
-                                    'forma permanente a las ',
+                                    '$clips clip${clips == 1 ? '' : 's'} · ',
                                     hora(r!.eliminadasEn!),
                                   )
                                 : TextSpan(
-                                    text:
-                                        '$clips clip${clips == 1 ? '' : 's'} '
-                                        'guardado${clips == 1 ? '' : 's'}',
+                                    text: '$clips clip${clips == 1 ? '' : 's'}',
                                   ),
                           ),
                           _Paso(

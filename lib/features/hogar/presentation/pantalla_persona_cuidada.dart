@@ -121,9 +121,6 @@ class AvisoUnaSolaPersona extends StatelessWidget {
     tono: TonoAviso.info,
     icono: Ico.info,
     titulo: 'Cada cuenta cuida a una sola persona',
-    texto:
-        'Te Tengo no usa reconocimiento facial, así que no puede distinguir '
-        'entre dos personas en la misma casa. Para cuidar a alguien más, crea '
-        'otra cuenta con un correo distinto.',
+    texto: 'Para cuidar a alguien más, crea otra cuenta.',
   );
 }

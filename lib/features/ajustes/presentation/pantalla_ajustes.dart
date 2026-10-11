@@ -77,9 +77,7 @@ class PantallaAjustes extends ConsumerWidget {
             tono: TonoAviso.info,
             icono: Ico.users,
             titulo: 'Eres familiar invitado',
-            texto:
-                'Ves lo mismo que $duena. Lo que tiene candado solo lo cambia '
-                '$duena (titular).',
+            texto: 'Lo que tiene candado solo lo cambia $duena.',
           ),
           const SizedBox(height: 16),
         ],
@@ -128,8 +126,8 @@ class PantallaAjustes extends ConsumerWidget {
               inicio: const IconoFila(Ico.bell),
               titulo: 'Notificaciones',
               subtitulo: switch (ref.watch(notificacionesActivasProvider)) {
-                AsyncData(value: true) => 'Activadas en este celular',
-                AsyncData(value: false) => 'Desactivadas en el celular',
+                AsyncData(value: true) => 'Activadas',
+                AsyncData(value: false) => 'Desactivadas',
                 _ => null,
               },
               alTocar: () => context.push(Rutas.notificaciones),
@@ -145,7 +143,7 @@ class PantallaAjustes extends ConsumerWidget {
               inicio: const IconoFila(Ico.shield),
               titulo: 'Privacidad y consentimiento',
               subtitulo: consentimiento != null && consentimiento.vigente
-                  ? 'Vigente desde el ${fechaConAnio(consentimiento.otorgadoEn)}'
+                  ? 'Vigente · ${fechaConAnio(consentimiento.otorgadoEn)}'
                   : 'Sin consentimiento',
               fin: soloVer,
               chevron: titular,

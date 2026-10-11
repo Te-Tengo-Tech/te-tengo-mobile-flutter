@@ -135,11 +135,7 @@ void main() {
     );
     expect(find.text('Ves la Sala en este momento.'), findsOneWidget);
     expect(
-      find.textContaining(
-        'No se graba. Tu acceso desde las 10:42 queda en el registro de la '
-        'familia.',
-        findRichText: true,
-      ),
+      find.text('No se graba · tu acceso queda registrado.'),
       findsOneWidget,
     );
     await tester.tap(find.text('Llamar a Rosa'));
@@ -277,12 +273,9 @@ void main() {
     await abrir(tester, Rutas.camara('c1'));
     await tocar(tester, find.text('En vivo'));
     expect(vivo.abiertas, isEmpty);
-    expect(find.text('La vista en vivo no está disponible'), findsOneWidget);
+    expect(find.text('Vista en vivo no disponible'), findsOneWidget);
     expect(
-      find.textContaining(
-        'En pausa hasta las 11:42, o hasta que la reanudes.',
-        findRichText: true,
-      ),
+      find.textContaining('En pausa hasta las 11:42.', findRichText: true),
       findsOneWidget,
     );
     await tocar(tester, find.text('Reanudar la cámara ahora'));
@@ -320,10 +313,7 @@ void main() {
     await abrir(tester, Rutas.inicio, sesion: sesionInvitado);
     await tocar(tester, find.text('Ver en vivo'));
     expect(
-      find.textContaining(
-        'Tu acceso desde las 10:42 queda en el registro',
-        findRichText: true,
-      ),
+      find.text('No se graba · tu acceso queda registrado.'),
       findsOneWidget,
     );
   });

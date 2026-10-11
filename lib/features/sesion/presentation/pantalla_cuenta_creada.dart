@@ -46,7 +46,7 @@ class PantallaCuentaCreada extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Faltan cinco pasos:',
+                          '5 pasos más:',
                           style: texto.bodyLarge?.copyWith(
                             color: context.colores.tinta2,
                           ),
