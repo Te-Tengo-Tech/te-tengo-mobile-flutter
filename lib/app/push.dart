@@ -28,6 +28,7 @@ import '../features/historial/data/historial_provider.dart';
 import '../features/historial/data/resumen_repositorio.dart';
 import '../features/hogar/data/hogar_repositorio.dart';
 import '../features/hogar/presentation/revocacion.dart';
+import '../features/movimientos/data/movimientos_repositorio.dart';
 import '../features/pcs/data/pcs_repositorio.dart';
 import '../features/pcs/domain/pc.dart';
 import 'router.dart';
@@ -41,7 +42,8 @@ String rutaDePush(MensajePush m) {
     TipoPush.alertaAtendida when alerta != null => Rutas.detalleAlerta(alerta),
     final t when t.deAlerta && alerta != null => Rutas.alerta(alerta),
     final t when t.deCamara && camara != null => Rutas.camara(camara),
-    TipoPush.datosEliminados => Rutas.privacidad,
+    TipoPush.datosEliminados ||
+    TipoPush.movimientosEliminados => Rutas.privacidad,
     TipoPush.pcDesvinculada => Rutas.pcs,
     _ => Rutas.inicio,
   };
@@ -395,6 +397,23 @@ class GestorPush {
         _ref
             .read(revocacionProvider.notifier)
             .terminar(m.ocurridaEn ?? _ref.read(relojProvider)());
+      case TipoPush.movimientosEliminados:
+        // CA-35.4: the deletion screen completes; elsewhere an in-app notice tells it.
+        final borrando = _ref.read(borradoMovimientosProvider);
+        _ref.read(borradoMovimientosProvider.notifier).terminar();
+        if (_enPantalla(router, Rutas.movimientosBorrados)) break;
+        if (borrando == null || borrando.terminado) break;
+        final nombre = _ref.read(nombreAdultoMayorProvider) ?? '';
+        _ref
+            .read(avisoFlotanteProvider.notifier)
+            .mostrar(
+              AvisoFlotante(
+                tipo: TipoFlotante.enApp,
+                titulo: 'Listo. Ya no guardamos los movimientos de $nombre.',
+                texto: 'Los borramos de la nube.',
+                alTocar: () => router.push(Rutas.privacidad),
+              ),
+            );
       case TipoPush.pcDesvinculada:
         unawaited(_avisarPcDesvinculada(router, pcsAntes));
       case TipoPush.camaraDesconectada:
@@ -554,6 +573,12 @@ class GestorPush {
         ..invalidate(pcsProvider)
         ..invalidate(camarasProvider)
         ..invalidate(ambientesProvider);
+    }
+    if (m.tipo == TipoPush.movimientosEliminados ||
+        m.tipo == TipoPush.datosEliminados) {
+      _ref
+        ..invalidate(consentimientoMovimientosProvider)
+        ..invalidate(movimientosEnLaNubeProvider);
     }
     if (m.tipo == TipoPush.datosEliminados) {
       _ref

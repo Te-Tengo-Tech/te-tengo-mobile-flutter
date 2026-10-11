@@ -22,6 +22,8 @@ import '../../alertas/domain/alerta.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
+import '../../movimientos/data/movimientos_repositorio.dart';
+import '../../movimientos/domain/movimientos.dart';
 import '../data/hogar_repositorio.dart';
 import '../domain/hogar.dart';
 import 'constancia.dart';
@@ -107,6 +109,36 @@ class _Privacidad extends ConsumerWidget {
               ],
             ),
           ),
+        // US-35, US-37: the separate consent to store movements and their cloud retention.
+        const EncabezadoSeccion('Movimientos'),
+        ListaTarjeta(
+          children: [
+            FilaLista(
+              inicio: const IconoFila(Ico.body),
+              titulo: 'Guardar movimientos',
+              subtitulo: switch (ref.watch(consentimientoMovimientosProvider)) {
+                AsyncData(value: final m) =>
+                  m.vigente && m.constancia != null
+                      ? 'Vigente desde el ${fechaConAnio(m.constancia!.otorgadoEn)}'
+                      : 'No autorizado',
+                _ => null,
+              },
+              alTocar: () => context.push(Rutas.movimientos),
+            ),
+            FilaLista(
+              inicio: const IconoFila(Ico.cloud),
+              titulo: 'Movimientos en la nube',
+              subtitulo: switch (ref.watch(movimientosEnLaNubeProvider)) {
+                AsyncData(value: final n) =>
+                  n.consentimientoVigente
+                      ? resumenNube(n.retencionDias)
+                      : 'Desactivado · falta el permiso',
+                _ => null,
+              },
+              alTocar: () => context.push(Rutas.nube),
+            ),
+          ],
+        ),
         const EncabezadoSeccion('Cómo cuidamos sus datos'),
         ListaTarjeta(
           children: [

@@ -9,6 +9,7 @@ import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/historial/data/resumen_repositorio.dart';
+import 'package:te_tengo/features/movimientos/data/movimientos_repositorio.dart';
 import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
 import 'package:te_tengo/features/pcs/presentation/escaner_qr.dart';
 import 'package:te_tengo/features/historial/domain/resumen_semanal.dart';
@@ -24,6 +25,7 @@ import '../features/alertas/alertas_falso.dart';
 import '../features/camaras/repositorio_falso.dart';
 import '../features/familia/familia_falso.dart';
 import '../features/hogar/hogar_falso.dart';
+import '../features/movimientos/movimientos_falso.dart';
 import '../features/pcs/escaner_falso.dart';
 import '../features/pcs/pcs_falso.dart';
 import '../features/vivo/vivo_falso.dart';
@@ -90,6 +92,14 @@ final pantallasNuevas = [
   const Pantalla('cámaras', Rutas.pcs),
   const Pantalla('cámaras (invitado)', Rutas.pcs, sesion: sesionInvitado),
   Pantalla('detalle de la PC', Rutas.pc('pc-sala')),
+  const Pantalla('guardar movimientos', Rutas.movimientos),
+  const Pantalla(
+    'guardar movimientos (invitado)',
+    Rutas.movimientos,
+    sesion: sesionInvitado,
+  ),
+  const Pantalla('documento de movimientos', Rutas.documentoMovimientos),
+  const Pantalla('movimientos en la nube', Rutas.nube),
 ];
 
 final pantallasPrincipales = [
@@ -175,6 +185,9 @@ Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
           ),
         ),
         fabricaEscanerQrProvider.overrideWithValue(EscanerFalso.new),
+        movimientosRepositorioProvider.overrideWithValue(
+          MovimientosRepositorioFalso(vigente: true, retencion: 30),
+        ),
         camarasRepositorioProvider.overrideWithValue(CamarasRepositorioFalso()),
         familiaRepositorioProvider.overrideWithValue(FamiliaRepositorioFalso()),
         alertasRepositorioProvider.overrideWithValue(alertas),
