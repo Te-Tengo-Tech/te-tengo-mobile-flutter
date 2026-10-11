@@ -11,6 +11,7 @@ Actividad actividad(
   String? usuarioId = 'u-carmen',
   String? pcId,
   String? pc,
+  String? camaraId,
   String? objeto,
   String? antes,
   String? despues,
@@ -23,6 +24,7 @@ Actividad actividad(
   usuarioId: actor == TipoActor.familiar ? usuarioId : null,
   pcId: pcId,
   pc: pc,
+  camaraId: camaraId,
   objeto: objeto,
   valorAnterior: antes,
   valorNuevo: despues,
@@ -97,14 +99,17 @@ class ActividadRepositorioFalso implements ActividadRepositorio {
   @override
   Future<PaginaActividad> listar({
     String? pcId,
+    String? tipo,
     int pagina = 0,
     int tamano = 50,
   }) async {
-    consultas.add((pcId, pagina, tamano));
+    if (tipo == null) consultas.add((pcId, pagina, tamano));
     if (error != null) throw error!;
     final filtrada = [
       for (final a in lista)
-        if (pcId == null || a.pcId == pcId) a,
+        if ((pcId == null || a.pcId == pcId) &&
+            (tipo == null || a.tipo == tipo))
+          a,
     ];
     return PaginaActividad(
       elementos: filtrada.skip(pagina * tamano).take(tamano).toList(),

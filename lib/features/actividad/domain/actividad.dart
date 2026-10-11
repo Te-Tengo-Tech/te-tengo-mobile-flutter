@@ -75,6 +75,31 @@ class Actividad {
 
   String get _quien => (usuario ?? '').trim().split(RegExp(r'\s+')).first;
 
+  /// `REPETICION_VISTA`: the moment replayed on the PC, sent as an ISO-8601 interval
+  /// `desde/hasta` in `valorAnterior` (contract §10).
+  (DateTime, DateTime)? get momentoRepetido {
+    final partes = (valorAnterior ?? '').split('/');
+    if (partes.length != 2) return null;
+    final desde = DateTime.tryParse(partes[0])?.toLocal();
+    final hasta = DateTime.tryParse(partes[1])?.toLocal();
+    return desde == null || hasta == null ? null : (desde, hasta);
+  }
+
+  /// `REPETICION_VISTA`: how long it was watched, in seconds (`valorNuevo`).
+  int? get segundosVistos => int.tryParse(valorNuevo ?? '');
+
+  /// «23/09 10:36–10:46», the replayed moment.
+  String? get _momento => switch (momentoRepetido) {
+    (final d, final h) => '${_diaMes(d)} ${hora(d)}–${hora(h)}',
+    null => null,
+  };
+
+  /// «3 min», how long it was watched.
+  String? get _visto => switch (segundosVistos) {
+    final s? => duracion(Duration(seconds: s)),
+    null => null,
+  };
+
   String get _desdeLaPc => 'Desde la PC ${pc ?? objeto ?? ''}';
 
   /// The row's sentence, with the prototype's pattern: «Carmen vinculó la PC Cocina-Rosa»,
@@ -161,6 +186,12 @@ class Actividad {
         );
       case 'DATOS_LOCALES_ELIMINADOS':
         return segun('se borraron los datos guardados en la PC');
+      case 'REPETICION_VISTA':
+        final detalle = [?_momento, ?_visto].join(', ');
+        return segun(
+          'se vio qué pasó${o.isEmpty ? '' : ' ${enHabitacion(o)}'}'
+          '${detalle.isEmpty ? '' : ' ($detalle)'}',
+        );
       default:
         return switch (actor) {
           TipoActor.familiar => familiar('hizo un cambio en la configuración'),
@@ -197,6 +228,11 @@ class Actividad {
     };
   }
 
+  /// The detail rows of a replay watched on the PC, instead of «Antes» and «Después»: «Momento»
+  /// and «Duración»; null for the other types.
+  (String, String)? get momentoYDuracion =>
+      tipo == 'REPETICION_VISTA' ? (_momento ?? '—', _visto ?? '—') : null;
+
   /// «Quién»: the member, «Alguien en la PC» or «Te Tengo».
   String get quien => switch (actor) {
     TipoActor.familiar => usuario ?? '—',
@@ -227,6 +263,9 @@ class Actividad {
   }
   return (de, a);
 }
+
+String _diaMes(DateTime t) =>
+    '${t.day.toString().padLeft(2, '0')}/${t.month.toString().padLeft(2, '0')}';
 
 String _minuscula(String t) =>
     t.isEmpty ? t : '${t[0].toLowerCase()}${t.substring(1)}';
