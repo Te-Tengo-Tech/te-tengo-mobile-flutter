@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/red/cliente_api.dart';
 import '../../../core/red/problema_api.dart';
+import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
+import '../../hogar/data/hogar_repositorio.dart';
 import '../../vivo/domain/vista_en_vivo.dart';
 import '../domain/camara_detectada.dart';
+import '../domain/camaras_en_casa.dart';
 import '../domain/pc.dart';
 
 /// The household's PCs, their link and their webcams (contract §9, US-28 to US-31).
@@ -21,6 +24,10 @@ abstract interface class PcsRepositorio {
 
   /// «No reconozco esta PC»: the PC is not linked (CA-28.4).
   Future<void> rechazar(String codigo);
+
+  /// «Quitar esta PC» (CA-31.1, CA-31.2): the app stops showing it and its cameras at once; the PC
+  /// stops capturing and shows its QR again as soon as it connects. No push is sent for it.
+  Future<void> quitar(String pcId);
 
   /// Every webcam the PC reported, in use or «sin usar» (CA-29.1).
   Future<List<CamaraDetectada>> camaras(String pcId);
@@ -84,6 +91,10 @@ class PcsRepositorioApi implements PcsRepositorio {
     () =>
         _dio.post<void>('/api/vinculaciones/rechazo', data: {'codigo': codigo}),
   );
+
+  @override
+  Future<void> quitar(String pcId) =>
+      llamarApi(() => _dio.delete<void>('/api/pcs/$pcId'));
 
   @override
   Future<List<CamaraDetectada>> camaras(String pcId) => llamarApi(() async {
@@ -154,3 +165,21 @@ final camarasDetectadasProvider =
 final ambientesProvider = FutureProvider<List<Ambiente>>(
   (ref) => ref.watch(pcsRepositorioProvider).ambientes(),
 );
+
+/// The household's cameras with their PC and the state the family sees: Inicio, «Cámaras» and the
+/// live view's room picker. An older backend without `/api/pcs` gives cameras without a PC.
+final camarasEnCasaProvider = FutureProvider<List<CamaraEnCasa>>((ref) async {
+  final camaras = await ref.watch(camarasProvider.future);
+  final hogar = await ref.watch(hogarProvider.future);
+  List<Pc> pcs;
+  try {
+    pcs = await ref.watch(pcsProvider.future);
+  } on Object {
+    pcs = const [];
+  }
+  return camarasEnCasa(
+    camaras,
+    pcs,
+    conConsentimiento: hogar.conConsentimiento,
+  );
+});

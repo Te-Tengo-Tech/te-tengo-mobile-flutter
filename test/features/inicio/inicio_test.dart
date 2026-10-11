@@ -71,16 +71,15 @@ void main() {
     expect(find.text('Jr. Los Pinos 482, San Miguel'), findsNothing);
     expect(find.text('Todo tranquilo'), findsOneWidget);
     expect(find.text('Sin eventos hoy.'), findsOneWidget);
-    expect(find.text('Cámara'), findsOneWidget);
-    expect(
-      find.textContaining('última señal 10:42', findRichText: true),
-      findsOneWidget,
-    );
+    // One camera: the «Cámaras» tile says it works; no list of cameras (screen 284).
+    expect(find.text('Cámaras'), findsOneWidget);
+    expect(find.text('Funciona · Sala'), findsOneWidget);
     expect(find.text('Ver en vivo'), findsOneWidget);
     expect(find.text('Cada acceso queda registrado'), findsOneWidget);
     expect(find.text('Activa las notificaciones'), findsNothing);
-    await tocar(tester, find.text('Sala'));
-    expect(find.text('Cámara · Sala'), findsOneWidget);
+    // With one camera «Ver en vivo» opens it directly.
+    await tocar(tester, find.text('Ver en vivo'));
+    expect(find.text('En vivo · Sala'), findsOneWidget);
   });
 
   testWidgets('CA-16.3: con las notificaciones desactivadas pide activarlas', (
@@ -122,7 +121,7 @@ void main() {
     final red = ConectividadFalsa(hay: false);
     await abrir(tester, conectividad: red);
     expect(find.text('Tu celular no tiene internet'), findsOneWidget);
-    await tocar(tester, find.text('Familia'));
+    await tocar(tester, find.text('Familia').first);
     expect(find.text('Tu celular no tiene internet'), findsOneWidget);
     red.cambiar(true);
     await tester.pumpAndSettle();
@@ -142,10 +141,7 @@ void main() {
     ];
     await abrir(tester);
     expect(find.text('La cámara está desconectada'), findsOneWidget);
-    expect(
-      find.textContaining('desde las 10:31', findRichText: true),
-      findsOneWidget,
-    );
+    expect(find.text('Desconectada'), findsOneWidget);
     expect(find.text('Ver qué revisar'), findsOneWidget);
     // The live view cannot open now.
     expect(find.text('No disponible ahora'), findsOneWidget);

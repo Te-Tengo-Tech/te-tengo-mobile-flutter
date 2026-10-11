@@ -101,3 +101,6 @@ String enumerar(List<String> partes) => switch (partes.length) {
   1 => partes.first,
   _ => '${partes.sublist(0, partes.length - 1).join(', ')} y ${partes.last}',
 };
+
+/// `03/08/2026` (`dNum`).
+String fechaNumerica(DateTime t) => '${_dos(t.day)}/${_dos(t.month)}/${t.year}';

@@ -144,6 +144,16 @@ class PcsRepositorioFalso implements PcsRepositorio {
   @override
   Future<void> rechazar(String codigo) async => rechazos.add(codigo);
 
+  final quitadas = <String>[];
+  ProblemaApi? errorQuitar;
+
+  @override
+  Future<void> quitar(String pcId) async {
+    quitadas.add(pcId);
+    if (errorQuitar != null) throw errorQuitar!;
+    pcs = pcs.where((p) => p.id != pcId).toList();
+  }
+
   @override
   Future<List<CamaraDetectada>> camaras(String pcId) async =>
       webcams.where((w) => w.pcId == pcId).toList();

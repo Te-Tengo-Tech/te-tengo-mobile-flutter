@@ -87,6 +87,9 @@ final pantallasNuevas = [
     sesion: sesionInvitado,
   ),
   Pantalla('nombre de la habitación', Rutas.nombreCamara('c1')),
+  const Pantalla('cámaras', Rutas.pcs),
+  const Pantalla('cámaras (invitado)', Rutas.pcs, sesion: sesionInvitado),
+  Pantalla('detalle de la PC', Rutas.pc('pc-sala')),
 ];
 
 final pantallasPrincipales = [

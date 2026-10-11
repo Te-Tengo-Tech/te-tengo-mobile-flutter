@@ -78,7 +78,9 @@ List<Widget> datosCamara(Camara c, EstadoVisible estado, DateTime ahora) {
       FilaDato(
         clave: 'Última señal',
         valor: '',
-        valorRico: estado == EstadoVisible.desconectada
+        valorRico:
+            estado == EstadoVisible.desconectada ||
+                estado == EstadoVisible.sinConexion
             ? TextSpan(
                 children: [
                   const TextSpan(text: 'a las '),

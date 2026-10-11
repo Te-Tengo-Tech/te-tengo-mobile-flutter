@@ -99,7 +99,7 @@ The app is built task by task from this checklist, in backlog-sprint order. An a
 Screens of the mobile prototype in the docs repository (`05-prototipos/app-movil`, `pantallas.html` 22, 25, 29, 76, 77 and 120 to 302); stories US-28 to US-40 of the backlog; contract §9 to §11.
 - [x] **T34 US-28 Link a PC:** screens 22, 120 to 141. Scanner with the camera permission states, 8-box code, approval with the PC's data, «No reconozco esta PC», invited member, the `/vincular?codigo=` link (PWA and Android App Link).
 - [x] **T35 US-29 Choose the cameras:** screens 25, 142, 143, 168, 170 and 250 to 283. Webcams of the PC, rooms (one per room, no bathrooms), preview, «Dejar de usar», «Buscar de nuevo», offline PC, invited member.
-- [ ] **T36 US-30, US-31 Cámaras y PCs:** screens 144 to 167 and 284 to 302 (cameras by room, PC detail, remove a PC, `PC_DESVINCULADA`, the live view's room picker).
+- [x] **T36 US-30, US-31 Cámaras y PCs:** screens 144 to 167 and 284 to 302 (cameras by room, PC detail, remove a PC, `PC_DESVINCULADA`, the live view's room picker).
 - [ ] **T37 US-35, US-37 Movement data consent and cloud retention:** screens 171 to 192 (`MOVIMIENTOS_ELIMINADOS`).
 - [ ] **T38 US-40 «¿Hubo una caída y no avisó?»:** screens 221 to 230.
 - [ ] **T39 US-33 Activity and family member detail:** screens 76, 77, 215 to 220 and 231 to 236.

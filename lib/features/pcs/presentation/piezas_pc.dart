@@ -19,7 +19,7 @@ enum EstadoPc {
   faltanCamaras;
 
   /// A PC that never sent a heartbeat was just linked: it is getting its tokens, not offline.
-  static EstadoPc de(Pc pc) => !pc.enLinea && pc.ultimaSenal != null
+  static EstadoPc de(Pc pc) => pc.sinConexion
       ? sinConexion
       : pc.camaras.isEmpty
       ? faltanCamaras

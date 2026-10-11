@@ -84,19 +84,13 @@ void main() {
         ),
         findsOneWidget,
       );
-      // The home card and the camera row show it too.
+      // The home card and the «Cámaras» tile show it too.
       expect(find.text('La detección no es confiable'), findsOneWidget);
       expect(
         find.text('Hace más de 5 min que no ve bien a Rosa.'),
         findsOneWidget,
       );
-      expect(
-        find.textContaining(
-          'Detección no confiable · revisa la luz y el encuadre',
-          findRichText: true,
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Detección no confiable'), findsOneWidget);
       await tester.tap(find.text('La detección no es confiable en la Sala'));
       await tester.pumpAndSettle();
       expect(find.byType(PantallaCamara), findsOneWidget);

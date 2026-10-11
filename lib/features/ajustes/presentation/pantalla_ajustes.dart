@@ -12,6 +12,10 @@ import '../../../core/ui/piezas.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/aviso.dart';
 import '../../camaras/data/camaras_repositorio.dart';
+import '../../camaras/domain/camara.dart';
+import '../../pcs/data/pcs_repositorio.dart';
+import '../../pcs/domain/camaras_en_casa.dart';
+import '../../pcs/domain/pc.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
 import '../../hogar/domain/hogar.dart';
@@ -44,7 +48,6 @@ class PantallaAjustes extends ConsumerWidget {
     final soloVer = titular ? null : const EtiquetaSoloVer();
     final texto = Theme.of(context).textTheme;
     final duena = ref.watch(nombreTitularProvider) ?? '';
-    final camara = ref.watch(camarasProvider).value?.firstOrNull;
     final miembros = ref.watch(miembrosProvider).value ?? const [];
     final aviso = ref.watch(avisoProvider).value;
     String? nombreCon(PapelAviso papel) => miembros
@@ -98,15 +101,15 @@ class PantallaAjustes extends ConsumerWidget {
         ],
         ListaTarjeta(
           children: [
-            if (camara != null && hogar != null)
-              FilaLista(
-                inicio: const IconoFila(Ico.cam),
-                titulo: 'Cámara · ${camara.nombreHabitacion}',
-                subtitulo: camara
-                    .estadoVisible(conConsentimiento: hogar.conConsentimiento)
-                    .texto,
-                alTocar: () => context.push(Rutas.camara(camara.id)),
+            FilaLista(
+              inicio: const IconoFila(Ico.cam),
+              titulo: 'Cámaras y PCs',
+              subtitulo: _resumenCamaras(
+                ref.watch(pcsProvider).value,
+                ref.watch(camarasProvider).value,
               ),
+              alTocar: () => context.push(Rutas.pcs),
+            ),
             if (principal != null)
               FilaLista(
                 inicio: const IconoFila(Ico.swap),
@@ -175,4 +178,16 @@ class PantallaAjustes extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// «4 cámaras · 2 PCs», «Cocina-Rosa sin conexión» or «Aún no hay una PC vinculada» (screen 167).
+String? _resumenCamaras(List<Pc>? pcs, List<Camara>? camaras) {
+  if (pcs == null) {
+    return camaras == null ? null : contar(camaras.length, 'cámara', 'cámaras');
+  }
+  if (pcs.isEmpty) return 'Aún no hay una PC vinculada';
+  final sinConexion = pcs.where((p) => p.sinConexion).firstOrNull;
+  if (sinConexion != null) return '${sinConexion.nombre} sin conexión';
+  final n = camaras?.length ?? pcs.fold<int>(0, (t, p) => t + p.camaras.length);
+  return '${contar(n, 'cámara', 'cámaras')} · ${contar(pcs.length, 'PC', 'PCs')}';
 }

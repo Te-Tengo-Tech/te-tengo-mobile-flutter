@@ -9,6 +9,7 @@ import '../../../core/ui/tarjeta.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../hogar/domain/hogar.dart';
+import '../../pcs/domain/camaras_en_casa.dart';
 
 /// What the older adult status card says (`seniorCard`).
 class EstadoTarjeta {
@@ -27,15 +28,18 @@ class EstadoTarjeta {
   final String texto;
 }
 
-/// Status of the home card from the household, its camera and the active alert, in [paleta].
+/// Status of the home card (`seniorCard`) from the household, its cameras and the active alert, in
+/// [paleta]. With several cameras the card tells the problems (management by exception): which
+/// rooms do not answer, while the others keep watching. [hayPc]: a PC is linked, so without cameras
+/// it is their choice that is missing.
 EstadoTarjeta estadoTarjeta(
   Hogar hogar,
-  Camara? camara, {
+  List<CamaraEnCasa> camaras, {
   Alerta? alerta,
+  bool hayPc = false,
   Paleta paleta = Paleta.clara,
 }) {
   final nombre = hogar.adultoMayor.nombrePila;
-  final habitacion = camara?.nombreHabitacion ?? '';
   if (alerta != null) {
     final caida = alerta.esCaida;
     return EstadoTarjeta(
@@ -63,9 +67,37 @@ EstadoTarjeta estadoTarjeta(
           : 'Falta el consentimiento de $nombre. La cámara no envía video.',
     );
   }
-  final estado = camara?.estadoVisible(conConsentimiento: true);
-  return switch (estado) {
-    EstadoVisible.desconectada => EstadoTarjeta(
+  final n = camaras.length;
+  if (n == 0) {
+    return EstadoTarjeta(
+      banda: Banda.pausa,
+      icono: Ico.lock,
+      color: paleta.pausa,
+      titulo: 'Sin cámaras',
+      texto: hayPc
+          ? 'Falta elegir las cámaras de la PC de la casa.'
+          : 'Aún no hay una PC vinculada. Sin ella no detectamos caídas.',
+    );
+  }
+  final caidas = camaras.where((c) => c.noResponde).toList();
+  if (caidas.isNotEmpty && n > 1) {
+    final rooms = [for (final c in caidas) enHabitacion(c.habitacion)];
+    return EstadoTarjeta(
+      banda: Banda.aviso,
+      icono: Ico.wifiOff,
+      color: paleta.aviso,
+      titulo: caidas.length == 1
+          ? '1 cámara no responde · ${caidas.single.habitacion}'
+          : '${caidas.length} cámaras no responden',
+      texto:
+          'Sin ella${caidas.length > 1 ? 's' : ''} no detectamos caídas '
+          '${enumerar(rooms)}. Las demás siguen cuidando.',
+    );
+  }
+  final c = camarasQueImportan(camaras).first;
+  final habitacion = c.habitacion;
+  return switch (c.estado) {
+    EstadoVisible.desconectada || EstadoVisible.sinConexion => EstadoTarjeta(
       banda: Banda.aviso,
       icono: Ico.wifiOff,
       color: paleta.aviso,
@@ -86,16 +118,30 @@ EstadoTarjeta estadoTarjeta(
       titulo: 'Todo tranquilo, con una pausa',
       texto:
           'La cámara ${deHabitacion(habitacion)} está en pausa hasta las '
-          '${hora(camara!.pausadaHasta!)}.',
+          '${hora(c.camara.pausadaHasta!)}.',
     ),
     _ => EstadoTarjeta(
       banda: Banda.calma,
       icono: Ico.sun,
       color: paleta.calmaTinta,
       titulo: 'Todo tranquilo',
-      texto: 'Sin eventos hoy.',
+      texto: '${n > 1 ? '$n cámaras cuidando. ' : ''}Sin eventos hoy.',
     ),
   };
+}
+
+/// The cameras in the order the card looks at them: one that does not answer, then unreliable,
+/// then paused, then the rest.
+List<CamaraEnCasa> camarasQueImportan(List<CamaraEnCasa> camaras) {
+  int peso(CamaraEnCasa c) => switch (c.estado) {
+    EstadoVisible.desconectada || EstadoVisible.sinConexion => 0,
+    EstadoVisible.noConfiable => 1,
+    EstadoVisible.enPausa => 2,
+    _ => 3,
+  };
+  return [
+    for (final p in [0, 1, 2, 3]) ...camaras.where((c) => peso(c) == p),
+  ];
 }
 
 /// Older adult status card with the color band of the state (DESIGN.md, Components): name, age,

@@ -29,6 +29,8 @@ import '../features/hogar/presentation/pantallas_consentimiento.dart';
 import '../features/hogar/presentation/pantallas_privacidad.dart';
 import '../features/pcs/domain/pc.dart';
 import '../features/pcs/presentation/pantalla_aprobar_pc.dart';
+import '../features/pcs/presentation/pantalla_camaras.dart';
+import '../features/pcs/presentation/pantalla_pc.dart';
 import '../features/pcs/presentation/pantalla_elegir_camaras.dart';
 import '../features/pcs/presentation/pantalla_escanear.dart';
 import '../features/pcs/presentation/pantalla_escribir_codigo.dart';
@@ -195,6 +197,15 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ),
         ],
+      ),
+      GoRoute(
+        path: Rutas.pcs,
+        builder: (context, state) => const PantallaCamaras(),
+      ),
+      GoRoute(
+        path: '/pcs/:id',
+        builder: (context, state) =>
+            PantallaPc(pcId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/pcs/:id/vinculada',
