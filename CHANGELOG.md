@@ -36,6 +36,16 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - `docs/API_CONTRACT.md` synced with te-tengo-general-api: PCs, rooms, the activity log and movement data (§9 to §11).
 - **Shorter copy on every screen («Texto reducido», docs `9497de2`):** about a third less prose, with the alert's who, where and when, «Llamar a Rosa», the SAMU · 106 and the escalation untouched. Repeated titles and introductions are gone (Consentimiento, Nombre de la habitación, Términos, Política, Actividad, Invitar, Movimientos en la nube, Vincular la PC, the webcam preview); paragraphs fit in one line («Detecta caídas y te avisa al instante.», «Lo acepta Rosa o su representante. Sin él, no detectamos caídas.», «3 cámaras en la PC Sala-Rosa. Una por habitación.»); empty states keep only their title (Historial, filters, «Semana sin eventos», access log, no PC); error notices keep a title and at most one sentence («Bloqueado por 15 minutos» / «Vuelve a intentarlo a las 10:57.», «Falta el consentimiento» / «Sin él no detectamos caídas.»); subtitles are shorter («Activadas», «Vigente · 3 ago 2026», «Siempre activas»). The alert timeline reads «Caída en la Sala», «Aviso a Carmen (principal) y Luis · 6 s», «Sigue en el suelo: confirmada», «Atendida por Carmen»; Privacidad's «Sus datos» shows «Clips · 30 días», «En vivo · No se graba», «Rostros · No se reconocen»; «Qué podrá hacer» has three short lines; «¿Con quién vive?» has no subtitles and the address no example; Historial groups by «Hoy», «Ayer» or «lun 21 sep». The legal texts (Términos, Política, the consent and the movements consent) keep every fact in fewer words. A room that already has a camera is a disabled chip with «Las que ya tienen cámara no se pueden elegir.» under the chips instead of «Ya tiene cámara» inside it. Kept strings without a prototype equivalent are listed in docs/BLOCKERS.md.
 
+## [0.5.3] - 2026-10-11
+
+### Fixed
+- The release candidate now keeps `.well-known/assetlinks.json`: `actions/upload-artifact` skips hidden folders unless `include-hidden-files` is set, so 0.5.2 deployed without it and Android could not verify the App Link.
+
+## [0.5.2] - 2026-10-11
+
+### Fixed
+- The PWA host serves `/.well-known/assetlinks.json` (package `tech.tetengo.te_tengo`, release certificate SHA-256), so Android can verify App Links for `app.tetengo.reqsai.tech` once an APK with the link intent filter is installed.
+
 ## [0.5.1] - 2026-10-10
 
 ### Fixed
@@ -48,8 +58,6 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 - `docs/API_CONTRACT.md` (from te-tengo-general-api 0.3.4): `GET /api/hogar` `eliminacion`, `clips` in the revocation's `202`, and `tamano` at most 100 in `GET /api/alertas`. `docs/WEB_PWA.md`: the worker's `tt-push-recibida` message.
 
 ## [0.5.0] - 2026-10-10
-
-
 
 ## [0.4.0] - 2026-10-10
 
