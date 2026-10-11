@@ -9,16 +9,19 @@ import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/hogar/domain/hogar.dart';
+import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
 import '../camaras/repositorio_falso.dart';
 import '../familia/familia_falso.dart';
+import '../pcs/pcs_falso.dart';
 import 'hogar_falso.dart';
 
 void main() {
   late HogarRepositorioFalso repo;
+  late PcsRepositorioFalso pcs;
 
   Future<void> abrir(
     WidgetTester tester,
@@ -32,6 +35,7 @@ void main() {
         sesion: sesion,
         overrides: [
           hogarRepositorioProvider.overrideWithValue(repo),
+          pcsRepositorioProvider.overrideWithValue(pcs),
           camarasRepositorioProvider.overrideWithValue(
             CamarasRepositorioFalso(),
           ),
@@ -45,7 +49,10 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  setUp(() => repo = HogarRepositorioFalso(hogarDeRosa(consentimiento: false)));
+  setUp(() {
+    repo = HogarRepositorioFalso(hogarDeRosa(consentimiento: false));
+    pcs = PcsRepositorioFalso();
+  });
 
   testWidgets(
     'CA-05.4: el formulario indica la vista en vivo en cualquier momento',
@@ -103,8 +110,9 @@ void main() {
         find.text('Constancia exigida por la Ley N.° 29733.'),
         findsOneWidget,
       );
-      await tocar(tester, find.text('Continuar con la cámara'));
-      expect(find.text('Tu cámara ya está lista'), findsOneWidget);
+      pcs.pcs = [];
+      await tocar(tester, find.text('Continuar con la PC de la casa'));
+      expect(find.text('Vincula la PC de la casa'), findsOneWidget);
     },
   );
 
@@ -122,13 +130,10 @@ void main() {
     (tester) async {
       await abrir(tester, Rutas.configConsentimiento);
       await tocar(tester, find.text('Ahora no'));
-      expect(
-        find.text('La cámara está instalada, pero no envía video'),
-        findsOneWidget,
-      );
-      expect(find.text('Detenida'), findsWidgets);
+      // Screen 25: the PC is linked, and its cameras send nothing yet.
+      expect(find.text('La PC Sala-Rosa está vinculada'), findsOneWidget);
       expect(find.text('Falta el consentimiento de Rosa'), findsOneWidget);
-      expect(find.text('Envío de video'), findsOneWidget);
+      expect(find.textContaining('Detenida', findRichText: true), findsWidgets);
       await tocar(tester, find.text('Completar el consentimiento'));
       expect(find.text('Consentimiento informado'), findsOneWidget);
     },

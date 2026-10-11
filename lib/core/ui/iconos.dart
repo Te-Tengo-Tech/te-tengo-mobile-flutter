@@ -58,7 +58,17 @@ enum Ico {
   sun,
   share,
   expand,
-  contract;
+  contract,
+  qr,
+  scan,
+  keyboard,
+  replay,
+  prev,
+  next,
+  cloud,
+  body,
+  list,
+  report;
 
   String get _trazo => _trazos[this]!;
 }
@@ -158,6 +168,26 @@ const _trazos = <Ico, String>{
   Ico.equal: '<path d="M5 9.5h14M5 14.5h14"/>',
   Ico.sun:
       '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>',
+  // PCs, cameras and movement data (prototype `P.qr` to `P.report`).
+  Ico.qr:
+      '<rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1.5"/><path d="M14 14h2.5v2.5M20.5 14v.01M14 20.5h.01M17.5 17.5h3v3h-3Z"/>',
+  Ico.scan:
+      '<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M7.5 12h9"/>',
+  Ico.keyboard:
+      '<rect x="2.5" y="6" width="19" height="12" rx="3"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M7.5 14h9"/>',
+  Ico.replay:
+      '<path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4.5v4h4"/><path d="M10.5 9.2v5.6l4.5-2.8-4.5-2.8Z" fill="currentColor"/>',
+  Ico.prev:
+      '<path d="M6.5 5v14"/><path d="M18.5 5.5v13L9.5 12l9-6.5Z" fill="currentColor"/>',
+  Ico.next:
+      '<path d="M17.5 5v14"/><path d="M5.5 5.5v13l9-6.5-9-6.5Z" fill="currentColor"/>',
+  Ico.cloud:
+      '<path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.1 4.75 4.75 0 0 0 7 18.5Z"/>',
+  Ico.body:
+      '<circle cx="12" cy="4.6" r="2"/><path d="M12 7v6.5M12 13.5l-3.5 6.5M12 13.5l3.5 6.5M7 10.2l5-1.7 5 1.7"/><circle cx="7" cy="10.2" r=".9" fill="currentColor"/><circle cx="17" cy="10.2" r=".9" fill="currentColor"/><circle cx="8.5" cy="20" r=".9" fill="currentColor"/><circle cx="15.5" cy="20" r=".9" fill="currentColor"/>',
+  Ico.list:
+      '<path d="M8.5 6.5h11M8.5 12h11M8.5 17.5h11"/><circle cx="4.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="17.5" r="1.1" fill="currentColor" stroke="none"/>',
+  Ico.report: '<path d="M5 21V4.5h11.5l-2 4 2 4H5"/>',
 };
 
 /// Prototype icon: 24×24 stroke drawing in the current color. Decorative unless [etiqueta] is set.

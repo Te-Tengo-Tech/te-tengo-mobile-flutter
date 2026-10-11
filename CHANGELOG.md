@@ -4,6 +4,18 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **Link a PC from the phone (US-28):** «Vincula la PC de la casa» (setup step 3 and «Agregar PC») explains how to install Te Tengo Captura; the owner scans the QR it shows or types its 8-letter code, sees the PC's name, system and program before «Aprobar», or rejects it with «No reconozco esta PC» (`/api/vinculaciones/consulta`, `/aprobacion`, `/rechazo`, contract §9). The code field has 8 boxes and accepts lower case, a hyphen or none, ignoring vowels and digits; wrong, expired or used codes and the 15-minute block after 5 wrong ones are told in place. An invited member sees who can approve. The scanner (`mobile_scanner`: ML Kit on Android, Vision on iOS, `getUserMedia` with `BarcodeDetector` or zxing-wasm in the browser) first explains why it needs the camera, and offers the phone's settings and «Escribir el código» when it is blocked.
+- **The PC's QR opens the app:** `https://app.tetengo.reqsai.tech/vincular?codigo=…` opens the approval screen in the PWA (`deploy/pwa/_redirects` and a rewrite in `web/index.html` to the hash route) and, once the domain's `assetlinks.json` is served, in the Android app (App Link). iOS needs Universal Links (docs/BLOCKERS.md).
+- **Choose the cameras from the phone (US-29):** «PC vinculada» and «Elige las cámaras» list the webcams the PC reports (`GET /api/pcs/{id}/camaras`) with their state; the owner previews each one, picks its room (Sala, Dormitorio, Cocina, Comedor, Pasillo, the household's rooms or «Otra…») and chooses «Usar esta cámara» (`PUT /api/camaras/{id}/ambiente`), or «Dejar de usar» (`DELETE`), also from the camera's detail. One camera per room on any PC: rooms with a camera are shown «Ya tiene cámara» and cannot be chosen, also when renaming a room; never a bathroom. «Buscar de nuevo» asks the PC to look again (`POST /api/pcs/{id}/busqueda-de-camaras`). Offline PC, no webcams, no consent and the invited member's read-only view have their own states.
+- **Webcam preview (CA-29.7):** a 15-second sheet that plays the webcam with the live view's player (WebRTC first, LL-HLS fallback) from `POST /api/camaras/{id}/vista-previa`; it closes on its own, with «Cerrar», a tap outside or when the app goes to the background, ends the session (`DELETE /api/vista-en-vivo/{sesionId}`) and confirms «Acceso registrado». When it cannot be seen it says why (PC offline, webcam unplugged, paused, no consent).
+- «Todo listo» shows the linked PC and its rooms; the camera's «Datos de la instalación» shows its PC and webcam.
+
+### Changed
+- Setup step 3 «PC de la casa» replaces «Tu cámara ya está lista»: the consent's «Continuar con la PC de la casa» leads to it.
+- The live view's playback (WebRTC first, LL-HLS fallback, retries and watchdogs) moved into `ConexionVivo`, shared by the live view and the preview; behaviour unchanged.
+- `docs/API_CONTRACT.md` synced with te-tengo-general-api: PCs, rooms, the activity log and movement data (§9 to §11).
+
 ## [0.5.1] - 2026-10-10
 
 ### Fixed

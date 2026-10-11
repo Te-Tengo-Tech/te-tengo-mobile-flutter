@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'pantallas.dart';
 
 void main() {
-  for (final p in pantallasPrincipales) {
+  for (final p in [...pantallasPrincipales, ...pantallasNuevas]) {
     testWidgets('${p.nombre}: áreas táctiles, etiquetas y contraste', (
       tester,
     ) async {

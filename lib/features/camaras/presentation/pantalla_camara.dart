@@ -15,6 +15,8 @@ import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/camaras_repositorio.dart';
 import '../domain/camara.dart';
+import '../../pcs/data/pcs_repositorio.dart';
+import '../../pcs/presentation/acciones_camara.dart';
 import '../../vivo/data/vista_en_vivo_repositorio.dart';
 import '../../vivo/presentation/pantalla_accesos.dart';
 import '../../vivo/presentation/preparar_vivo.dart';
@@ -91,6 +93,12 @@ class _Detalle extends ConsumerWidget {
           camara: camara,
           estado: estado,
           ahora: ref.watch(relojProvider)(),
+          nombrePc: ref
+              .watch(pcsProvider)
+              .value
+              ?.where((p) => p.id == camara.pcId)
+              .firstOrNull
+              ?.nombre,
         ),
         const SizedBox(height: 16),
         ..._cuerpo(context, ref, titular, nombreAdultoMayor),
@@ -158,6 +166,33 @@ class _Detalle extends ConsumerWidget {
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
             accion: 'cambiar el nombre de la habitación',
+          ),
+        ] else if (camara.pcId != null) ...[
+          // Screen 275 (CA-29.2): the webcam stays plugged in, «sin usar».
+          const SizedBox(height: 20),
+          Text(
+            'Deja de detectar caídas ${enHabitacion(habitacion)}. La cámara '
+            'sigue conectada a la PC.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 12),
+          Boton(
+            'Dejar de usar esta cámara',
+            icono: Ico.x,
+            estilo: EstiloBoton.peligroContorno,
+            alPresionar: () async {
+              final hecho = await dejarDeUsarCamara(
+                context,
+                ref,
+                camaraId: camara.id,
+                dispositivo: camara.nombreDispositivo ?? 'de la $habitacion',
+                habitacion: habitacion,
+                pcId: camara.pcId,
+              );
+              if (hecho && context.mounted) {
+                await Navigator.of(context).maybePop();
+              }
+            },
           ),
         ],
       ],

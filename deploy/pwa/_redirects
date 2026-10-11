@@ -1,0 +1,4 @@
+# Cloudflare Pages rules of the Flutter PWA. The QR of Te Tengo Captura opens the path URL
+# https://app.tetengo.reqsai.tech/vincular?codigo=… (API contract §9, US-28); the app uses hash URLs,
+# so the page is served there and web/index.html turns the address into /#/vincular?codigo=….
+/vincular  /  200

@@ -7,40 +7,34 @@ import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
 const _sinUso = {
   // The household (`GET /api/hogar`) already carries the consent.
   'GET /api/hogar/consentimiento',
-};
-
-/// Endpoints of the change request «PCs, cámaras y datos de movimiento» (contract §9 to §11) whose
-/// screens come in the next pull requests (US-28 to US-40); each one leaves this list as it is used.
-const _pendientes = {
-  'GET /api/pcs',
-  'POST /api/vinculaciones/consulta',
-  'POST /api/vinculaciones/aprobacion',
-  'POST /api/vinculaciones/rechazo',
+  // The prototype has no screen to rename a PC: it keeps the name the PC reports (US-30).
   'PATCH /api/pcs/{id}',
-  'DELETE /api/pcs/{id}',
-  'GET /api/pcs/{id}/camaras',
-  'POST /api/pcs/{id}/busqueda-de-camaras',
-  'PUT /api/camaras/{id}/ambiente',
-  'DELETE /api/camaras/{id}/ambiente',
-  'POST /api/camaras/{id}/vista-previa',
-  'GET /api/ambientes',
+  // Rooms are created by assigning a webcam a new name (`PUT /api/camaras/{id}/ambiente` with
+  // `nombreAmbiente`) and renamed through their camera (`PATCH /api/camaras/{id}`); no screen of
+  // the prototype manages a room without its camera.
   'POST /api/ambientes',
   'PATCH /api/ambientes/{id}',
   'DELETE /api/ambientes/{id}',
+};
+
+/// Endpoints of the change request «PCs, cámaras y datos de movimiento» whose screens come in the
+/// next pull requests of US-30 to US-40.
+const _pendientes = {
+  'DELETE /api/pcs/{id}',
   'GET /api/actividad',
+  'POST /api/reportes-de-caida',
   'GET /api/hogar/consentimiento-movimientos',
   'POST /api/hogar/consentimiento-movimientos',
   'DELETE /api/hogar/consentimiento-movimientos',
   'GET /api/hogar/movimientos-en-la-nube',
   'PUT /api/hogar/movimientos-en-la-nube',
-  'POST /api/reportes-de-caida',
   'POST /api/camaras/{id}/repeticiones',
   'GET /api/repeticiones/{id}/archivos',
   'DELETE /api/repeticiones/{id}',
   'GET /api/accesos-repeticiones',
 };
 
-/// Push types of the change request whose handling comes in the next pull requests.
+/// Push types whose handling comes in the next pull requests.
 const _tiposPendientes = {'PC_DESVINCULADA', 'MOVIMIENTOS_ELIMINADOS'};
 
 /// Every endpoint of docs/API_CONTRACT.md is called by the app with its method and path.

@@ -35,6 +35,16 @@ The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#
   - invitation: `https://app.tetengo.reqsai.tech/#/invitacion/<token>?titular=<name>&adultoMayor=<name>&correo=<email>`.
   Query values are percent-encoded; the optional ones can be left out. Both screens are public, so
   they open without a session (verified in Chrome and iOS Safari).
+- **The PC's QR** (US-28) is a path URL, `https://app.tetengo.reqsai.tech/vincular?codigo=KQWT-MXHD`
+  (contract §9). `deploy/pwa/_redirects` serves the page at `/vincular` (`/vincular / 200`), and a
+  script in `web/index.html`, before Flutter starts, turns the address into `/#/vincular?codigo=…`,
+  which opens the approval screen. Other paths are untouched. The phone's camera app opens it in
+  the browser: on an iPhone that is Safari, not the home-screen app (iOS never hands links to a
+  home-screen web app), so the owner signs in there or scans the QR from the app itself.
+- **App links:** `deploy/pwa/.well-known/assetlinks.json` (copied by `build-web.yml` with the rest of
+  `deploy/pwa/`) lets Android open `/vincular` links in the installed app (the intent filter with
+  `autoVerify` in `AndroidManifest.xml`); `robots.txt` allows `/.well-known/`. iOS Universal Links are
+  pending (docs/BLOCKERS.md).
 - To switch to path URLs later: add a `_redirects` line `/* /index.html 200` to the app's Pages files
   (`deploy/pwa/`), call `usePathUrlStrategy()` (package
   `flutter_web_plugins`) before `runApp`, and change the e-mail links.
@@ -139,6 +149,8 @@ Closing it returns to the inline player at the same position.
 | Clip full screen | a full-screen route, landscape allowed, immersive system bars | the Fullscreen API on the page, with the same controls; Safari on iPhone: the `<video>`'s own full screen (below) |
 | Recording download | file in Documents / Downloads | the browser's download (`Content-Disposition: attachment` from `descarga=true`) |
 | «Llamar» | dialer | `tel:` link in the same window (the iPhone dialer opens) |
+| Scanning the PC's QR | `mobile_scanner`: ML Kit (Android), Vision (iOS); the camera permission is asked when the scanner starts (`NSCameraUsageDescription`), and a blocked camera offers the phone's settings | `mobile_scanner` web: `getUserMedia` with the browser's `BarcodeDetector` (Chrome, Edge, Safari 17+), or zxing-wasm loaded from jsDelivr where there is none; needs HTTPS or `localhost`. A blocked camera is changed in the browser's site settings, so only «Escribir el código» is offered |
+| Webcam preview (US-29) | the live view's player | the same, from `POST /api/camaras/{id}/vista-previa` |
 | Notification permission | `permission_handler` | the browser's `Notification.permission` |
 
 **Live view over WebRTC (every platform).** When the session carries `urlWebrtc`, the app first

@@ -283,8 +283,9 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'La cámara ya envía video y detectamos caídas. Puedes '
-                'revocarlo en Ajustes.',
+                // Screen 21: with no camera chosen yet, detection starts once the PC is linked.
+                '${(ref.watch(camarasProvider).value ?? const []).isNotEmpty ? 'Las cámaras ya detectan caídas.' : 'Las cámaras detectarán caídas en cuanto vincules la PC de la casa.'} '
+                'Puedes revocarlo en Ajustes.',
                 style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
               ),
               const SizedBox(height: 20),
@@ -293,7 +294,7 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               const SizedBox(height: 20),
               if (enConfiguracion)
                 Boton(
-                  'Continuar con la cámara',
+                  'Continuar con la PC de la casa',
                   alPresionar: () => context.go(Rutas.configCamara),
                 )
               else

@@ -28,6 +28,7 @@ class Boton extends StatelessWidget {
     this.cargando = false,
     this.pequeno = false,
     this.colorTexto,
+    this.textoCargando = 'Un momento…',
   });
 
   final String texto;
@@ -39,6 +40,9 @@ class Boton extends StatelessWidget {
   /// `.btn-sm`: inside notices.
   final bool pequeno;
   final Color? colorTexto;
+
+  /// Shown instead of [texto] while [cargando] («Vinculando…»).
+  final String textoCargando;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +101,7 @@ class Boton extends StatelessWidget {
         ],
         Flexible(
           child: Text(
-            cargando ? 'Un momento…' : this.texto,
+            cargando ? textoCargando : this.texto,
             textAlign: TextAlign.center,
             style: estiloTexto(pequeno ? 16 : 18, 700, color: color),
           ),

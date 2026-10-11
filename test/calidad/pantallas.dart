@@ -9,6 +9,8 @@ import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/historial/data/resumen_repositorio.dart';
+import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
+import 'package:te_tengo/features/pcs/presentation/escaner_qr.dart';
 import 'package:te_tengo/features/historial/domain/resumen_semanal.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
@@ -22,6 +24,8 @@ import '../features/alertas/alertas_falso.dart';
 import '../features/camaras/repositorio_falso.dart';
 import '../features/familia/familia_falso.dart';
 import '../features/hogar/hogar_falso.dart';
+import '../features/pcs/escaner_falso.dart';
+import '../features/pcs/pcs_falso.dart';
 import '../features/vivo/vivo_falso.dart';
 
 /// A main screen of the app, opened with every fake in place.
@@ -59,6 +63,30 @@ final pantallasOscurasYGrandes = [
   const Pantalla('términos de uso', Rutas.terminos),
   const Pantalla('política de privacidad', Rutas.politica),
   const Pantalla('documento de consentimiento', Rutas.documentoConsentimiento),
+  ...pantallasNuevas,
+];
+
+/// Screens of the change request «PCs, cámaras y datos de movimiento» (US-28 to US-40), checked for
+/// accessibility, dark mode and large text, without golden screenshots (the prototype's own dark and
+/// large-text versions are screens 237 to 249 and 280 to 302).
+final pantallasNuevas = [
+  const Pantalla('agregar PC', Rutas.vincular),
+  const Pantalla('escanear el código QR', Rutas.escanear),
+  const Pantalla('escribir el código', Rutas.escribirCodigo),
+  Pantalla('aprobar la PC', Rutas.aprobarPc('KQWT-MXHD')),
+  Pantalla(
+    'aprobar la PC (invitado)',
+    Rutas.aprobarPc('KQWT-MXHD'),
+    sesion: sesionInvitado,
+  ),
+  Pantalla('PC vinculada', Rutas.pcVinculada('pc-sala')),
+  Pantalla('elige las cámaras', Rutas.elegirCamaras('pc-sala', config: true)),
+  Pantalla(
+    'elige las cámaras (invitado)',
+    Rutas.elegirCamaras('pc-sala'),
+    sesion: sesionInvitado,
+  ),
+  Pantalla('nombre de la habitación', Rutas.nombreCamara('c1')),
 ];
 
 final pantallasPrincipales = [
@@ -125,6 +153,25 @@ Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
       sesion: p.sesion,
       overrides: [
         hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
+        pcsRepositorioProvider.overrideWithValue(
+          PcsRepositorioFalso(
+            webcams: [
+              webcam('c1', 'Webcam USB HD', habitacion: 'Sala'),
+              webcam('w2', 'Logitech C920'),
+              webcam(
+                'w3',
+                'USB2.0 PC Camera',
+                habitacion: 'Pasillo',
+                conectada: false,
+              ),
+            ],
+            habitaciones: [
+              ambiente('Sala', camara: 'c1'),
+              ambiente('Pasillo', camara: 'w3'),
+            ],
+          ),
+        ),
+        fabricaEscanerQrProvider.overrideWithValue(EscanerFalso.new),
         camarasRepositorioProvider.overrideWithValue(CamarasRepositorioFalso()),
         familiaRepositorioProvider.overrideWithValue(FamiliaRepositorioFalso()),
         alertasRepositorioProvider.overrideWithValue(alertas),
