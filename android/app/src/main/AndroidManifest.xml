@@ -36,6 +36,15 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="tetengo" android:host="app"/>
             </intent-filter>
+            <!-- The QR of Te Tengo Captura (US-28): https://app.tetengo.reqsai.tech/vincular?codigo=…
+                 opens the approval screen. Verified with /.well-known/assetlinks.json on that host
+                 (deploy/pwa); without it Android opens the PWA's route. See docs/WEB_PWA.md. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="app.tetengo.reqsai.tech" android:path="/vincular"/>
+            </intent-filter>
         </activity>
         <!-- Pushes that name no channel go to the alert channel, created with high importance in
              MainActivity (API contract §7). -->

@@ -25,9 +25,15 @@ import '../features/instalar/presentation/instalar_app.dart';
 import '../features/hogar/presentation/pantalla_persona_cuidada.dart';
 import '../features/hogar/presentation/pantalla_persona_setup.dart';
 import '../features/inicio/presentation/pantalla_inicio.dart';
-import '../features/camaras/presentation/pantalla_camara_lista.dart';
 import '../features/hogar/presentation/pantallas_consentimiento.dart';
 import '../features/hogar/presentation/pantallas_privacidad.dart';
+import '../features/pcs/domain/pc.dart';
+import '../features/pcs/presentation/pantalla_aprobar_pc.dart';
+import '../features/pcs/presentation/pantalla_elegir_camaras.dart';
+import '../features/pcs/presentation/pantalla_escanear.dart';
+import '../features/pcs/presentation/pantalla_escribir_codigo.dart';
+import '../features/pcs/presentation/pantalla_pc_vinculada.dart';
+import '../features/pcs/presentation/pantalla_vincular_pc.dart';
 import '../features/sesion/presentation/pantalla_bienvenida.dart';
 import '../features/sesion/presentation/pantalla_cuenta_creada.dart';
 import '../features/sesion/presentation/pantalla_iniciar_sesion.dart';
@@ -139,15 +145,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Rutas.configCamara,
-        builder: (context, state) => const PantallaCamaraLista(),
-      ),
-      GoRoute(
-        path: Rutas.configNombreCamara,
-        builder: (context, state) => PantallaNombreHabitacion(
-          camaraId: state.uri.queryParameters['id'] ?? '',
-          nombreActual: state.uri.queryParameters['actual'] ?? '',
-          enConfiguracion: true,
-        ),
+        builder: (context, state) => const PantallaPcDeLaCasa(),
       ),
       GoRoute(
         path: Rutas.configFamilia,
@@ -163,6 +161,52 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Rutas.configListo,
         builder: (context, state) =>
             PantallaTodoListo(invitado: state.uri.queryParameters['invitado']),
+      ),
+      // The PC's QR opens `/vincular?codigo=…` (contract §9): the approval screen.
+      GoRoute(
+        path: Rutas.vincular,
+        builder: (context, state) {
+          final q = state.uri.queryParameters;
+          final config = q['config'] == '1';
+          final codigo = q['codigo'];
+          if (codigo == null) {
+            return PantallaVincularPc(enConfiguracion: config);
+          }
+          return PantallaAprobarPc(
+            codigo: codigo,
+            consulta: state.extra is ConsultaPc
+                ? state.extra! as ConsultaPc
+                : null,
+            enConfiguracion: config,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: 'escanear',
+            builder: (context, state) => PantallaEscanear(
+              enConfiguracion: state.uri.queryParameters['config'] == '1',
+              codigoVencido: state.uri.queryParameters['vencido'] == '1',
+            ),
+          ),
+          GoRoute(
+            path: 'codigo',
+            builder: (context, state) => PantallaEscribirCodigo(
+              enConfiguracion: state.uri.queryParameters['config'] == '1',
+            ),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/pcs/:id/vinculada',
+        builder: (context, state) =>
+            PantallaPcVinculada(pcId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/pcs/:id/camaras',
+        builder: (context, state) => PantallaElegirCamaras(
+          pcId: state.pathParameters['id']!,
+          enConfiguracion: state.uri.queryParameters['config'] == '1',
+        ),
       ),
       GoRoute(
         path: Rutas.consentimiento,

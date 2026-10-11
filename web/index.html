@@ -50,6 +50,24 @@
           integrity="sha384-cciJ0zi8d1uMKC2zJd7jvPY4HQt7W4ByUI/FlMkltvBi31aW61rcpVBhpmW8/NwX"
           crossorigin="anonymous"></script>
 
+  <!--
+    The QR of Te Tengo Captura is a path URL, /vincular?codigo=… (API contract §9, US-28), while the
+    app routes with hash URLs: before Flutter starts, /vincular?… becomes /#/vincular?…, which opens
+    the PC's approval screen. deploy/pwa/_redirects serves this page at /vincular. See docs/WEB_PWA.md.
+  -->
+  <script>
+    (function () {
+      if (location.hash) return;
+      var base = document.baseURI.replace(/[?#].*$/, '');
+      var ruta = location.origin + location.pathname;
+      if (ruta.indexOf(base) !== 0) return;
+      var resto = ruta.slice(base.length).replace(/\/$/, '');
+      if (resto === 'vincular') {
+        history.replaceState(null, '', base + '#/vincular' + location.search);
+      }
+    })();
+  </script>
+
   <style>
     /* Brand purple of the splash (screen 00) while Flutter loads. */
     html, body { margin: 0; height: 100%; background: #4A2A85; }

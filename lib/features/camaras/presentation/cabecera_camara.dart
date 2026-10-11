@@ -13,11 +13,15 @@ class CabeceraCamara extends StatelessWidget {
     required this.camara,
     required this.estado,
     required this.ahora,
+    this.nombrePc,
   });
 
   final Camara camara;
   final EstadoVisible estado;
   final DateTime ahora;
+
+  /// The PC the camera is connected to (US-30), when the household has PCs.
+  final String? nombrePc;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +52,7 @@ class CabeceraCamara extends StatelessWidget {
           DatosTarjeta(datosCamara(camara, estado, ahora)),
           VerMas(
             etiqueta: 'Datos de la instalación',
-            child: DatosTarjeta(datosInstalacion(camara)),
+            child: DatosTarjeta(datosInstalacion(camara, nombrePc: nombrePc)),
           ),
         ],
       ),
@@ -99,12 +103,24 @@ List<Widget> datosCamara(Camara c, EstadoVisible estado, DateTime ahora) {
   ];
 }
 
-/// «Datos de la instalación» (`more('cam-inst')`): where it is connected, when and by whom.
-List<Widget> datosInstalacion(Camara c) => [
-  const FilaDato(clave: 'Conectada a', valor: 'PC de la casa'),
-  if (c.instaladaEn case final f?)
-    FilaDato(clave: 'Instalada el', valor: fechaConAnio(f)),
-  const FilaDato(clave: 'Instalada por', valor: 'Equipo de Te Tengo'),
-];
+/// «Datos de la instalación» (`more('cam-inst')`): where it is connected, when and by whom. A
+/// webcam chosen from the phone (US-29) shows its PC and its device name (screen 168).
+List<Widget> datosInstalacion(Camara c, {String? nombrePc}) {
+  final dispositivo = c.nombreDispositivo;
+  if (dispositivo == null) {
+    return [
+      FilaDato(clave: 'Conectada a', valor: nombrePc ?? 'PC de la casa'),
+      if (c.instaladaEn case final f?)
+        FilaDato(clave: 'Instalada el', valor: fechaConAnio(f)),
+      const FilaDato(clave: 'Instalada por', valor: 'Equipo de Te Tengo'),
+    ];
+  }
+  return [
+    FilaDato(clave: 'En la PC', valor: nombrePc ?? 'PC de la casa'),
+    FilaDato(clave: 'Cámara', valor: dispositivo),
+    if (c.instaladaEn case final f?)
+      FilaDato(clave: 'Instalada el', valor: fechaConAnio(f)),
+  ];
+}
 
 const _mono = TextStyle(fontFamily: 'AtkinsonHyperlegibleMono');

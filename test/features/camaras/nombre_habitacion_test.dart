@@ -66,11 +66,10 @@ void main() {
   setUp(() => camaras = CamarasRepositorioFalso());
 
   testWidgets(
-    'CA-06.1: la cámara instalada aparece con el nombre de la instalación',
+    'CA-06.1: la cámara instalada aparece con los datos de la instalación',
     (tester) async {
-      await abrir(tester, Rutas.configCamara);
-      expect(find.text('Tu cámara ya está lista'), findsOneWidget);
-      expect(find.text('Sala'), findsOneWidget);
+      await abrir(tester, Rutas.camara('c1'));
+      expect(find.text('Cámara · Sala'), findsOneWidget);
       expect(find.text('En línea'), findsOneWidget);
       expect(find.text('Activa'), findsOneWidget);
       // The installation data folds under «Datos de la instalación».
@@ -124,19 +123,6 @@ void main() {
     await tocar(tester, find.text('Guardar nombre'));
     expect(find.text('Escribe el nombre de la habitación.'), findsOneWidget);
     expect(camaras.renombradas, isEmpty);
-  });
-
-  testWidgets('en la configuración vuelve al paso de la cámara', (
-    tester,
-  ) async {
-    await abrir(tester, Rutas.configCamara);
-    await tocar(tester, find.text('Cambiar el nombre'));
-    expect(find.text('Paso 3 de 5'), findsOneWidget);
-    await tester.enterText(campoNombre, 'cocina');
-    await tocar(tester, find.text('Guardar nombre'));
-    expect(camaras.renombradas, {'c1': 'Cocina'});
-    expect(find.text('¿Cómo se llama esta habitación?'), findsNothing);
-    expect(find.text('Cambiar el nombre'), findsOneWidget);
   });
 
   testWidgets('un familiar invitado no puede cambiar el nombre', (

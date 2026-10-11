@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "tech.tetengo.te_tengo",
+      "sha256_cert_fingerprints": [
+        "BB:F0:37:45:23:07:25:02:A8:13:E4:FB:AD:EE:1C:66:3C:97:F3:C2:D0:B8:29:81:B2:7C:B3:A7:1B:95:80:52"
+      ]
+    }
+  }
+]

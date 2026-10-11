@@ -32,6 +32,9 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<!-- Scanning the QR of Te Tengo Captura to link a PC (US-28); no image is kept. -->
+	<key>NSCameraUsageDescription</key>
+	<string>Para escanear el código QR de la PC.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tel</string>

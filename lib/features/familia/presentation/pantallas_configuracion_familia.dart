@@ -14,10 +14,8 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/marca.dart';
 import '../../../core/ui/piezas.dart';
-import '../../camaras/data/camaras_repositorio.dart';
-import '../../camaras/domain/camara.dart';
-import '../../camaras/presentation/estado_camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
+import '../../pcs/data/pcs_repositorio.dart';
 import '../../sesion/domain/validacion.dart';
 import '../data/familia_repositorio.dart';
 
@@ -173,7 +171,8 @@ class PantallaTodoListo extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final texto = Theme.of(context).textTheme;
     final hogar = ref.watch(hogarProvider).value;
-    final camara = ref.watch(camarasProvider).value?.firstOrNull;
+    final pcs = ref.watch(pcsProvider).value;
+    final pc = pcs?.firstOrNull;
     final consentimiento = hogar?.consentimiento;
     final conConsentimiento = hogar?.conConsentimiento ?? false;
     return Scaffold(
@@ -199,21 +198,25 @@ class PantallaTodoListo extends ConsumerWidget {
             const SizedBox(height: 20),
             ListaTarjeta(
               children: [
-                if (camara != null)
-                  Builder(
-                    builder: (context) {
-                      final estado = camara.estadoVisible(
-                        conConsentimiento: conConsentimiento,
-                      );
-                      return FilaLista(
-                        inicio: IconoEstadoCamara(estado: estado),
-                        titulo:
-                            'Cámara ${deHabitacion(camara.nombreHabitacion)}',
-                        subtitulo: estado == EstadoVisible.enLinea
-                            ? estado.texto
-                            : '${estado.texto} · no envía video',
-                      );
-                    },
+                if (pc != null)
+                  FilaLista(
+                    inicio: _IconoResumen(
+                      Ico.pc,
+                      activo: pc.camaras.isNotEmpty && conConsentimiento,
+                    ),
+                    titulo: 'PC ${pc.nombre} vinculada',
+                    subtitulo: pc.camaras.isEmpty
+                        ? 'Falta elegir las cámaras'
+                        : '${pc.camaras.length} cámara'
+                              '${pc.camaras.length == 1 ? '' : 's'}: '
+                              '${enumerar([for (final c in pc.camaras) c.nombreHabitacion])}'
+                              '${conConsentimiento ? '' : ' · sin detectar'}',
+                  )
+                else if (pcs != null)
+                  const FilaLista(
+                    inicio: _IconoResumen(Ico.pc, activo: false),
+                    titulo: 'Sin PC vinculada',
+                    subtitulo: 'Agrégala desde Ajustes › Cámaras y PCs',
                   ),
                 if (conConsentimiento && consentimiento != null)
                   FilaLista(
