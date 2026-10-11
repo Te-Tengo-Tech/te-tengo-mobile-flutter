@@ -110,8 +110,9 @@ void main() {
       await tocar(tester, find.text('Dónde'));
       expect(
         find.text(
-          'En la PC de la casa y, si lo eliges, en la nube (servidores fuera del '
-          'Perú).',
+          'En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con '
+          'servidores fuera del Perú. Guardarlos ahí es un flujo transfronterizo '
+          'de datos personales.',
         ),
         findsOneWidget,
       );
@@ -125,7 +126,7 @@ void main() {
       expect(movimientos.registros, isEmpty);
       await marcarPermiso(tester);
       await tocar(tester, find.text('Registrar el permiso'));
-      expect(movimientos.registros, [('Rosa Huamán', false, '1')]);
+      expect(movimientos.registros, [('Rosa Huamán', false, '2')]);
       expect(find.text('Permiso registrado'), findsOneWidget);
       expect(find.text('Permiso para guardar movimientos'), findsOneWidget);
       expect(find.text('Carmen Huamán'), findsOneWidget);
@@ -152,7 +153,7 @@ void main() {
         'Jorge Huamán',
       );
       await tocar(tester, find.text('Registrar el permiso'));
-      expect(movimientos.registros, [('Jorge Huamán', true, '1')]);
+      expect(movimientos.registros, [('Jorge Huamán', true, '2')]);
       expect(find.text('Jorge Huamán (representante)'), findsOneWidget);
     });
 
@@ -195,6 +196,33 @@ void main() {
       expect(find.text('Guardar movimientos'), findsOneWidget);
       await verHasta(tester, find.text('Cómo retirarlo'));
       expect(find.text('Cómo retirarlo'), findsOneWidget);
+    });
+
+    testWidgets(
+      'el texto vigente nombra la nube y el flujo transfronterizo (versión 2)',
+      (tester) async {
+        await abrir(tester, Rutas.documentoMovimientos);
+        await verHasta(tester, find.textContaining('Cloudflare R2'));
+        expect(
+          find.textContaining('flujo transfronterizo de datos personales'),
+          findsOneWidget,
+        );
+        await verHasta(tester, find.text('Versión del texto: 2.'));
+      },
+    );
+
+    testWidgets('un permiso de la versión 1 conserva su texto', (tester) async {
+      movimientos = MovimientosRepositorioFalso(vigente: true);
+      await abrir(tester, Rutas.documentoMovimientos);
+      await verHasta(
+        tester,
+        find.text(
+          'En la PC de la casa y, si lo eliges, en la nube (servidores fuera '
+          'del Perú).',
+        ),
+      );
+      expect(find.textContaining('Cloudflare R2'), findsNothing);
+      await verHasta(tester, find.text('Versión del texto: 1.'));
     });
   });
 

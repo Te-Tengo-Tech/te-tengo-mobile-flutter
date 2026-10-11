@@ -16,6 +16,7 @@ import '../../../core/ui/dialogo.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../core/ui/plegable.dart';
 import '../../../core/ui/tarjeta.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
@@ -136,9 +137,19 @@ class _Privacidad extends ConsumerWidget {
         const EncabezadoSeccion('Sus datos'),
         ListaTarjeta(
           children: [
-            const FilaLista(titulo: 'Clips', subtitulo: '30 días'),
-            const FilaLista(titulo: 'En vivo', subtitulo: 'No se graba'),
-            const FilaLista(titulo: 'Rostros', subtitulo: 'No se reconocen'),
+            // The prototype's fold: video is analysed on the household PC and never stored in the
+            // cloud (docs 04-arquitectura/decision-procesamiento-en-pc.md).
+            const FilaPlegable(
+              icono: Ico.shield,
+              titulo: 'Cómo los cuidamos',
+              resumen: 'Sin video en la nube · clips 30 días',
+              child: DatosTarjeta([
+                FilaDato(clave: 'Video', valor: 'En la PC, nunca en la nube'),
+                FilaDato(clave: 'Clips', valor: '30 días'),
+                FilaDato(clave: 'En vivo', valor: 'No se graba'),
+                FilaDato(clave: 'Rostros', valor: 'No se reconocen'),
+              ]),
+            ),
             FilaLista(
               inicio: const IconoFila(Ico.eye),
               titulo: 'Registro de accesos',

@@ -29,9 +29,21 @@ import '../../pcs/data/pcs_repositorio.dart';
 import '../data/movimientos_repositorio.dart';
 import '../domain/movimientos.dart';
 
+/// Version of the movements consent text this app shows and records (CA-35.2). It must match the
+/// API's `versionTextoVigente` (`TT_MOVIMIENTOS_VERSION_TEXTO`); a consent keeps the version it was
+/// given with, and its document shows that version's text.
+///
+/// - `1`: the prototype's text.
+/// - `2`: «Dónde» names the cloud store (Cloudflare R2) and the cross-border flow of the change
+///   request (2.6); pending legal review (docs/BLOCKERS.md).
+const versionTextoMovimientos = '2';
+
 /// The sections of the movements consent (`movSec`): icon, title, summary and the full text, shared
-/// by the screen and its document (CA-35.1).
-List<(Ico, String, String, String)> seccionesMovimientos(String nombre) => [
+/// by the screen and its document (CA-35.1), in the text [version] (the current one by default).
+List<(Ico, String, String, String)> seccionesMovimientos(
+  String nombre, {
+  String version = versionTextoMovimientos,
+}) => [
   (
     Ico.eye,
     'Para qué',
@@ -48,8 +60,12 @@ List<(Ico, String, String, String)> seccionesMovimientos(String nombre) => [
     Ico.cloud,
     'Dónde',
     'PC y, si quieres, nube',
-    'En la PC de la casa y, si lo eliges, en la nube (servidores fuera del '
-        'Perú).',
+    version == '1'
+        ? 'En la PC de la casa y, si lo eliges, en la nube (servidores fuera '
+              'del Perú).'
+        : 'En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con '
+              'servidores fuera del Perú. Guardarlos ahí es un flujo '
+              'transfronterizo de datos personales.',
   ),
   (
     Ico.clock,
@@ -100,10 +116,7 @@ class _PantallaGuardarMovimientosState
     super.dispose();
   }
 
-  Future<void> _registrar(
-    ConsentimientoMovimientos actual,
-    String adulto,
-  ) async {
+  Future<void> _registrar(String adulto) async {
     final representante = _nombreRepresentante.text.trim().replaceAll(
       RegExp(r'\s+'),
       ' ',
@@ -125,7 +138,7 @@ class _PantallaGuardarMovimientosState
           .registrar(
             otorgadoPor: _representante ? representante : adulto,
             representante: _representante,
-            versionTexto: actual.versionTextoVigente,
+            versionTexto: versionTextoMovimientos,
           );
       ref
         ..invalidate(consentimientoMovimientosProvider)
@@ -315,7 +328,7 @@ class _PantallaGuardarMovimientosState
           Boton(
             'Registrar el permiso',
             cargando: _guardando,
-            alPresionar: _acepto ? () => _registrar(c, completo) : null,
+            alPresionar: _acepto ? () => _registrar(completo) : null,
           ),
           const SizedBox(height: 8),
           Boton(
@@ -495,12 +508,19 @@ class PantallaDocumentoMovimientos extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? 'la persona cuidada';
     final c = ref.watch(consentimientoMovimientosProvider).value;
+    // The document of a consent in force is the text it was given with.
+    final version = c != null && c.vigente && c.constancia != null
+        ? c.constancia!.versionTexto
+        : versionTextoMovimientos;
     return PantallaDocumento(
       titulo: 'Guardar movimientos',
       introduccion:
           'Permiso aparte y opcional. Lo acepta $nombre o su representante.',
       secciones: [
-        for (final (_, titulo, _, cuerpo) in seccionesMovimientos(nombre))
+        for (final (_, titulo, _, cuerpo) in seccionesMovimientos(
+          nombre,
+          version: version,
+        ))
           (titulo, [cuerpo]),
         (
           'Cómo se registra',
@@ -520,7 +540,7 @@ class PantallaDocumentoMovimientos extends ConsumerWidget {
       pie: c == null
           ? null
           : Text(
-              'Versión del texto: ${c.constancia?.versionTexto ?? c.versionTextoVigente}.',
+              'Versión del texto: $version.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
     );

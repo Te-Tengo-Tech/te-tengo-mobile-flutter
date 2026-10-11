@@ -307,7 +307,7 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
         context,
         titulo: 'Cámara activada',
         texto:
-            'La cámara ${deHabitacion(camara.nombreHabitacion)} envía video '
+            'La cámara ${deHabitacion(camara.nombreHabitacion)} detecta caídas '
             'desde las ${hora(ref.read(relojProvider)())}.',
         icono: Ico.shield,
       );
