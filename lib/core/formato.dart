@@ -104,3 +104,7 @@ String enumerar(List<String> partes) => switch (partes.length) {
 
 /// `03/08/2026` (`dNum`).
 String fechaNumerica(DateTime t) => '${_dos(t.day)}/${_dos(t.month)}/${t.year}';
+
+/// «1 cámara», «4 cámaras».
+String contar(int n, String uno, String varios) =>
+    '$n ${n == 1 ? uno : varios}';

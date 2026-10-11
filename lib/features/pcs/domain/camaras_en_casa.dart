@@ -1,3 +1,4 @@
+import '../../../core/formato.dart';
 import '../../camaras/domain/camara.dart';
 import 'pc.dart';
 
@@ -53,10 +54,6 @@ List<CamaraEnCasa> camarasEnCasa(
       );
     }(),
 ];
-
-/// «1 cámara», «4 cámaras».
-String contar(int n, String uno, String varios) =>
-    '$n ${n == 1 ? uno : varios}';
 
 /// The home card's line (`camTileLine`): «4 de 4 funcionan», «Funciona · Sala», «Sin cámaras»,
 /// «Detenidas».

@@ -34,12 +34,13 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `hogar` | US-04, US-05, US-09 | Done: older adult (single person per account), consent and certificate, privacy, revocation |
 | `camaras` | US-06, US-07, US-15, US-22 | Done (reference): status, rename, connection notices, unreliable detection, pause and resume |
 | `movimientos` | US-35, US-37 | The separate consent to store movements (form, certificate, document, revocation with the cloud deletion polled or pushed) and the cloud retention |
+| `actividad` | US-33 | The activity log: `GET /api/actividad` page by page (`actividadProvider` per PC filter), one sentence per `tipo` in `Actividad.frase` (a generic one for unknown types), the detail sheet, and the latest change for Ajustes |
 | `reportes` | US-40 | «¿Hubo una caída y no avisó?»: the report form and its links (Historial, camera, unstable movement); `ColaReportes` keeps the reports written without internet in the local cache and `EnvioReportesPendientes` (in the tabs' shell) sends them when the connection returns |
 | `pcs` | US-28 to US-31 | Linking a PC (QR scanner `EscanerQr` over `mobile_scanner`, 8-box code, approval, the `/vincular?codigo=` link), setup step 3, «Elige las cámaras» with rooms (one per room, no bathrooms) and the webcam preview; «Cámaras» by room (`camarasEnCasaProvider`: each camera with its PC and the state the family sees), the PC detail and removing a PC; `RefrescoPcs` reads them again every 10 s while on screen |
 | `inicio` | US-16 | Done: home card per state, notifications banner, camera, «Esta semana» |
 | `alertas` | US-13, US-14, US-16 to US-21, US-26 | Done: fall and unstable alerts, confirmation, clip, marking, escalation, recovery, recordings download |
 | `vivo` | US-23, US-24 | Done: live view over WebRTC (WHEP) with LL-HLS fallback, the stream mode, access log, `preparar` |
-| `familia` | US-08, US-10 | Done: invite, accept, member options, remove access, alert order and wait |
+| `familia` | US-08, US-10 | Done: invite, accept, the member detail (contact, role, marked alerts, live view accesses) with the owner's options, remove access, alert order and wait |
 | `historial` | US-25, US-27 | Done: filtered history with paging, weekly summary with trend |
 | `ajustes` | US-08 (read-only), US-16 | Done: settings for owner and invited member, notification preferences |
 | `instalar` | — | Web only: «Agrega Te Tengo a tu pantalla de inicio» notice and guide on iPhone browser tabs |

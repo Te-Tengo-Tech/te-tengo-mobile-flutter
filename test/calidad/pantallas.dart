@@ -3,6 +3,7 @@ import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/dispositivo/llamada.dart';
 import 'package:te_tengo/core/reloj.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
+import 'package:te_tengo/features/actividad/data/actividad_repositorio.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
 import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
@@ -21,6 +22,7 @@ import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
 import '../apoyo/app_de_prueba.dart';
 import '../apoyo/clip_falso.dart';
 import '../apoyo/datos.dart';
+import '../features/actividad/actividad_falso.dart';
 import '../features/alertas/alertas_falso.dart';
 import '../features/camaras/repositorio_falso.dart';
 import '../features/familia/familia_falso.dart';
@@ -108,6 +110,19 @@ final pantallasNuevas = [
   ),
   Pantalla('reporte enviado', Rutas.reporteEnviado()),
   Pantalla('reporte guardado', Rutas.reporteEnviado(guardado: true)),
+  const Pantalla('actividad', Rutas.actividad),
+  const Pantalla(
+    'actividad (invitado)',
+    Rutas.actividad,
+    sesion: sesionInvitado,
+  ),
+  Pantalla('familiar', Rutas.familiar('u-luis')),
+  Pantalla('tu perfil en la familia', Rutas.familiar('u-carmen')),
+  Pantalla(
+    'familiar (invitado)',
+    Rutas.familiar('u-carmen'),
+    sesion: sesionInvitado,
+  ),
 ];
 
 final pantallasPrincipales = [
@@ -193,6 +208,9 @@ Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
           ),
         ),
         fabricaEscanerQrProvider.overrideWithValue(EscanerFalso.new),
+        actividadRepositorioProvider.overrideWithValue(
+          ActividadRepositorioFalso(),
+        ),
         movimientosRepositorioProvider.overrideWithValue(
           MovimientosRepositorioFalso(vigente: true, retencion: 30),
         ),

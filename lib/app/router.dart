@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
+import '../features/actividad/presentation/pantalla_actividad.dart';
+import '../features/familia/presentation/pantalla_familiar.dart';
 import '../features/ajustes/presentation/pantalla_notificaciones.dart';
 import '../features/familia/presentation/gestion_familia.dart';
 import '../features/familia/presentation/pantallas_invitacion.dart';
@@ -263,10 +265,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Rutas.familia,
-                builder: (context, state) => PantallaFamilia(
-                  alTocarMiembro: (context, miembro, indice) =>
-                      opcionesMiembro(context, miembro, indice: indice),
-                ),
+                builder: (context, state) => const PantallaFamilia(),
               ),
             ],
           ),
@@ -309,6 +308,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Rutas.nube,
         builder: (context, state) => const PantallaMovimientosNube(),
+      ),
+      GoRoute(
+        path: '/familiares/:id',
+        builder: (context, state) =>
+            PantallaFamiliar(usuarioId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: Rutas.actividad,
+        builder: (context, state) => const PantallaActividad(),
       ),
       GoRoute(
         path: Rutas.reporteCaida,
