@@ -4,6 +4,8 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-10-11
+
 ### Fixed
 - The release candidate now keeps `.well-known/assetlinks.json`: `actions/upload-artifact` skips hidden folders unless `include-hidden-files` is set, so 0.5.2 deployed without it and Android could not verify the App Link.
 
