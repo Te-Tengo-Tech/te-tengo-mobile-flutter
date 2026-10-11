@@ -1,7 +1,25 @@
 import '../../../core/formato.dart';
 import '../../alertas/domain/alerta.dart';
 
-/// A movement file of a replay (contract §11): Parquet + zstd, one per camera and 5 minutes.
+/// The light replay file of a movement file (TTMOV v1, contract §11): what the app draws.
+class ArchivoLigero {
+  const ArchivoLigero({required this.url, this.sha256, this.tamanoBytes = 0});
+
+  final String url;
+  final String? sha256;
+  final int tamanoBytes;
+
+  static ArchivoLigero? desdeJson(Object? json) => json is Map<String, dynamic>
+      ? ArchivoLigero(
+          url: json['url'] as String,
+          sha256: json['sha256'] as String?,
+          tamanoBytes: (json['tamanoBytes'] as num?)?.toInt() ?? 0,
+        )
+      : null;
+}
+
+/// A movement file of a replay (contract §11): Parquet + zstd, one per camera and 5 minutes, for
+/// analysis; [ligero], the same frames in the format the app draws.
 class ArchivoMovimientos {
   const ArchivoMovimientos({
     required this.id,
@@ -10,14 +28,20 @@ class ArchivoMovimientos {
     required this.url,
     this.sha256,
     this.fotogramas = 0,
+    this.ligero,
   });
 
   final String id;
   final DateTime desde;
   final DateTime hasta;
+
+  /// The Parquet file (not drawn by the app).
   final String url;
   final String? sha256;
   final int fotogramas;
+
+  /// Null: the PC did not upload it (an older Te Tengo Captura); drawn as a stretch without data.
+  final ArchivoLigero? ligero;
 
   factory ArchivoMovimientos.desdeJson(Map<String, dynamic> json) =>
       ArchivoMovimientos(
@@ -27,6 +51,7 @@ class ArchivoMovimientos {
         url: json['url'] as String,
         sha256: json['sha256'] as String?,
         fotogramas: (json['fotogramas'] as num?)?.toInt() ?? 0,
+        ligero: ArchivoLigero.desdeJson(json['ligero']),
       );
 }
 

@@ -10,14 +10,22 @@ import '../alertas/alertas_falso.dart';
 import '../alertas/apoyo_alertas.dart';
 
 class _FuenteFalsa implements FuenteFotogramas {
+  _FuenteFalsa({this.falla = false});
+
+  final bool falla;
+  final cargadas = <String>[];
+
   @override
-  Future<List<Fotograma>> cargar(String url, {String? sha256Esperado}) async =>
-      [
-        Fotograma(
-          en: DateTime(2026, 9, 23, 10, 41, 40),
-          puntos: List.filled(17, const Offset(0.5, 0.5)),
-        ),
-      ];
+  Future<List<Fotograma>> cargar(String url, {String? sha256Esperado}) async {
+    cargadas.add(url);
+    if (falla) throw const FormatException('dañado');
+    return [
+      Fotograma(
+        en: DateTime(2026, 9, 23, 10, 41, 40),
+        puntos: List.filled(17, const Offset(0.5, 0.5)),
+      ),
+    ];
+  }
 }
 
 void main() {
@@ -76,18 +84,38 @@ void main() {
     );
   });
 
-  testWidgets('sin decodificador no promete dibujarlos', (tester) async {
+  testWidgets('una PC anterior que no subió el archivo ligero lo dice', (
+    tester,
+  ) async {
+    final fuente = _FuenteFalsa();
     await abrir(
       tester,
       const EnlaceClip(
         url: 'https://clips/a-1.mp4',
         puntos: 'https://puntos/a-1.parquet',
       ),
+      fuente: fuente,
     );
+    expect(fuente.cargadas, isEmpty); // never the Parquet file
+    expect(interruptor(tester).onChanged, isNull);
     expect(
-      find.text('No disponibles: esta versión aún no puede dibujarlos.'),
+      find.text('No disponibles: este clip no los tiene.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('si no se pudieron cargar lo dice', (tester) async {
+    await abrir(
+      tester,
+      const EnlaceClip(
+        url: 'https://clips/a-1.mp4',
+        puntos: 'https://puntos/a-1.parquet',
+        puntosLigeros: 'https://puntos/a-1.ttmov',
+      ),
+      fuente: _FuenteFalsa(falla: true),
+    );
+    expect(interruptor(tester).onChanged, isNull);
+    expect(find.text('No disponibles: no se pudieron cargar.'), findsOneWidget);
   });
 
   testWidgets('un backend sin el campo no muestra el interruptor', (
@@ -97,18 +125,22 @@ void main() {
     expect(find.text('Puntos del cuerpo'), findsNothing);
   });
 
-  testWidgets('CA-36.1: con un decodificador se encienden y se apagan', (
+  testWidgets('CA-36.1: se dibujan desde el archivo ligero y se apagan', (
     tester,
   ) async {
+    final fuente = _FuenteFalsa();
     await abrir(
       tester,
       const EnlaceClip(
         url: 'https://clips/a-1.mp4',
         puntos: 'https://puntos/a-1.parquet',
+        puntosLigeros: 'https://puntos/a-1.ttmov',
       ),
-      fuente: _FuenteFalsa(),
+      fuente: fuente,
     );
+    expect(fuente.cargadas, ['https://puntos/a-1.ttmov']);
     expect(interruptor(tester).value, isTrue);
+    expect(find.textContaining('No disponibles'), findsNothing);
     await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
     expect(interruptor(tester).value, isFalse);
@@ -118,10 +150,22 @@ void main() {
     final e = EnlaceClip.desdeJson({
       'url': 'u',
       'expiraEn': '2026-09-23T15:50:00Z',
-      'puntos': {'url': 'p', 'expiraEn': '2026-09-23T15:50:00Z'},
+      'puntos': {
+        'url': 'p',
+        'expiraEn': '2026-09-23T15:50:00Z',
+        'ligero': {'url': 'l'},
+      },
       'puntosNoDisponibles': null,
     });
     expect(e.puntos, 'p');
+    expect(e.puntosLigeros, 'l');
+    expect(
+      EnlaceClip.desdeJson({
+        'url': 'u',
+        'puntos': {'url': 'p', 'ligero': null},
+      }).puntosLigeros,
+      isNull,
+    );
     expect(
       EnlaceClip.desdeJson({
         'url': 'u',

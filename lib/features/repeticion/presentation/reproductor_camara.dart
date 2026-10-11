@@ -19,7 +19,9 @@ typedef CorteDeDatos = ({DateTime desde, String motivo});
 
 /// The camera's player (screens 35, 204 to 211, 303 to 306): the stored movements of a day, a
 /// 10-minute or 1-hour window, the playhead, speed, «Solo eventos» and the events of the day from
-/// the alerts (contract §11). It never shows video; the skeleton needs a [FuenteFotogramas].
+/// the alerts (contract §11). It never shows video: the skeleton comes from the light movement
+/// files ([FuenteFotogramas]) and, before any replay, from the clip's landmarks of the event it
+/// opens at (the still frame, not logged: CA-39.3).
 class ReproductorCamara extends ChangeNotifier {
   ReproductorCamara({
     required this.camaraId,
@@ -109,7 +111,15 @@ class ReproductorCamara extends ChangeNotifier {
     final finVisible = finDeDatos.isBefore(fin) ? finDeDatos : fin;
     final tramos = <Tramo>[
       if (sesion != null && finVisible.isAfter(inicio))
-        ...huecosDe(sesion!.archivos, inicio, finVisible),
+        // A file without its light file cannot be drawn: a stretch without data.
+        ...huecosDe(
+          [
+            for (final a in sesion!.archivos)
+              if (a.ligero != null) a,
+          ],
+          inicio,
+          finVisible,
+        ),
     ];
     if (finDeDatos.isBefore(fin)) {
       final desde = finDeDatos.isAfter(inicio) ? finDeDatos : inicio;
@@ -198,6 +208,32 @@ class ReproductorCamara extends ChangeNotifier {
     await _cargarDia();
     iniciado = true;
     _notificar();
+    unawaited(_fotoFija(t));
+  }
+
+  /// The still frame of the event at [t] (decided: opening shows it and is not logged, CA-39.3):
+  /// the landmarks of that alert's clip (`GET /api/alertas/{id}/clip` → `puntos.ligero`), the
+  /// cheapest source that creates no replay. Without them the stage keeps the phase tag only.
+  Future<void> _fotoFija(DateTime t) async {
+    final f = fuente;
+    if (f == null) return;
+    final alerta = [...recientes, for (final e in eventos) e.alerta]
+        .where(
+          (a) =>
+              a.camaraId == camaraId &&
+              a.ocurridaEn.difference(t).abs() < _s(6),
+        )
+        .firstOrNull;
+    if (alerta == null || _fotogramas.containsKey('clip:${alerta.id}')) return;
+    _fotogramas['clip:${alerta.id}'] = const [];
+    try {
+      final url = (await alertas.clip(alerta.id)).puntosLigeros;
+      if (url == null || _cerrado) return;
+      _fotogramas['clip:${alerta.id}'] = await f.cargar(url);
+      _notificar();
+    } on Object {
+      // No clip or no landmarks: the phase tag stays, never a guessed posture.
+    }
   }
 
   Future<void> _cargarDia() async {
@@ -317,8 +353,16 @@ class ReproductorCamara extends ChangeNotifier {
     if (f == null || s == null) return;
     for (final a in s.archivos) {
       if (_fotogramas.containsKey(a.id) || _cerrado) continue;
+      final ligero = a.ligero;
+      if (ligero == null) {
+        _fotogramas[a.id] = const [];
+        continue;
+      }
       try {
-        _fotogramas[a.id] = await f.cargar(a.url, sha256Esperado: a.sha256);
+        _fotogramas[a.id] = await f.cargar(
+          ligero.url,
+          sha256Esperado: ligero.sha256,
+        );
         _notificar();
       } on Object {
         // A file that does not load or verify draws as a stretch without data.
@@ -485,6 +529,7 @@ class ReproductorCamara extends ChangeNotifier {
     _centrar(t);
     unawaited(_actualizarArchivos());
     _notificar();
+    if (ultimo != null) unawaited(_fotoFija(ultimo.en));
   }
 
   /// «Ver lo último» when the chosen day is out of the retention.
@@ -501,6 +546,7 @@ class ReproductorCamara extends ChangeNotifier {
     _centrar(t);
     unawaited(_actualizarArchivos());
     _notificar();
+    unawaited(_fotoFija(t));
   }
 
   /// Closes the replay, if one was created; returns how long it lasted.

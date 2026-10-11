@@ -222,24 +222,27 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
     reloj: ref.read(relojProvider),
   );
 
-  /// The clip's body landmarks, when this build can draw them (US-36).
+  /// The clip's body landmarks, from their light file (US-36).
   List<Fotograma>? _puntos;
   bool _verPuntos = true;
+  bool _fallaronPuntos = false;
 
   @override
   void initState() {
     super.initState();
     _clip.iniciar();
     final fuente = ref.read(fuenteFotogramasProvider);
-    final url = widget.enlace.puntos;
-    if (fuente != null && url != null) {
+    final url = widget.enlace.puntosLigeros;
+    if (fuente != null && url != null && widget.enlace.puntos != null) {
       unawaited(
         fuente
             .cargar(url)
             .then((f) {
               if (mounted) setState(() => _puntos = f);
             })
-            .catchError((Object _) {}),
+            .catchError((Object _) {
+              if (mounted) setState(() => _fallaronPuntos = true);
+            }),
       );
     }
   }
@@ -313,6 +316,7 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
           PuntosDelCuerpo(
             enlace: widget.enlace,
             dibujables: _puntos != null,
+            fallaron: _fallaronPuntos,
             activos: _verPuntos && _puntos != null,
             alCambiar: (v) => setState(() => _verPuntos = v),
             aRas: aRas,
@@ -475,8 +479,9 @@ class _PantallaClipCompletaState extends ConsumerState<PantallaClipCompleta> {
 
 /// «Puntos del cuerpo» under the clip (US-36, screens 193 to 196): a switch that draws the
 /// skeleton over the clip, or, disabled, why it cannot: no consent to store movements, a clip
-/// without them (CA-36.2), or a build that cannot draw them yet (docs/BLOCKERS.md). Hidden with an
-/// older backend that says nothing about them.
+/// without them (CA-36.2; also a clip whose PC uploaded no light file), or a download that failed.
+/// Disabled without a reason while they load. Hidden with an older backend that says nothing
+/// about them.
 class PuntosDelCuerpo extends ConsumerWidget {
   const PuntosDelCuerpo({
     super.key,
@@ -484,13 +489,17 @@ class PuntosDelCuerpo extends ConsumerWidget {
     required this.dibujables,
     required this.activos,
     required this.alCambiar,
+    this.fallaron = false,
     this.aRas = false,
   });
 
   final EnlaceClip enlace;
 
-  /// The landmarks are loaded and this build can draw them.
+  /// The landmarks are loaded.
   final bool dibujables;
+
+  /// Their download or decoding failed.
+  final bool fallaron;
   final bool activos;
   final ValueChanged<bool> alCambiar;
   final bool aRas;
@@ -503,12 +512,13 @@ class PuntosDelCuerpo extends ConsumerWidget {
         'falta el permiso de $nombre para guardar movimientos',
       (null, 'SIN_ARCHIVO') => 'este clip no los tiene',
       (null, _) => null,
-      (_, _) when !dibujables => 'esta versión aún no puede dibujarlos',
+      _ when enlace.puntosLigeros == null => 'este clip no los tiene',
+      _ when fallaron => 'no se pudieron cargar',
       _ => '',
     };
     if (por == null) return const SizedBox.shrink();
     final c = context.colores;
-    final habilitado = por.isEmpty;
+    final habilitado = por.isEmpty && dibujables;
     return Padding(
       padding: aRas
           ? const EdgeInsets.fromLTRB(16, 6, 16, 0)
@@ -542,7 +552,7 @@ class PuntosDelCuerpo extends ConsumerWidget {
               ],
             ),
           ),
-          if (!habilitado)
+          if (por.isNotEmpty)
             Text(
               'No disponibles: $por.',
               style: estiloTexto(15, 400, color: c.tinta3),

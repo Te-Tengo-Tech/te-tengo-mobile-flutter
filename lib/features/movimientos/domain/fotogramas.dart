@@ -18,11 +18,8 @@ const huesos = [
   (11, 13), (13, 15), (12, 14), (14, 16), // legs
 ];
 
-/// Reads one movement file (Parquet compressed with zstd, written by Te Tengo Captura) into
-/// frames. **No implementation ships yet:** the Parquet columns are not fixed by any contract and
-/// there is no reliable Parquet reader for Dart on every target (docs/BLOCKERS.md, «Replay
-/// decoding»), so [decodificadorMovimientosProvider] is null and the screens say they cannot draw
-/// the movements.
+/// Reads one light movement file (TTMOV v1, contract §11, written by Te Tengo Captura next to
+/// each Parquet file) into frames: `DecodificadorTtmov`.
 abstract interface class DecodificadorMovimientos {
   /// [bytes] already checked against the file's `sha256`.
   Future<List<Fotograma>> decodificar(Uint8List bytes);
