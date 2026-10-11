@@ -154,8 +154,11 @@ void main() {
       await abrir(tester);
       expect(find.text('Constancia de consentimiento'), findsOneWidget);
       expect(find.text('3 ago 2026'), findsOneWidget);
-      await verHasta(tester, find.text('Rostros'));
+      await verHasta(tester, find.text('Cómo los cuidamos'));
       expect(find.text('Sus datos'), findsOneWidget);
+      expect(find.text('Sin video en la nube · clips 30 días'), findsOneWidget);
+      await tocar(tester, find.text('Cómo los cuidamos'));
+      expect(find.text('En la PC, nunca en la nube'), findsOneWidget);
       expect(find.text('Clips'), findsOneWidget);
       expect(find.text('No se reconocen'), findsOneWidget);
       expect(find.text('Quién miró, cuándo y cuánto'), findsOneWidget);

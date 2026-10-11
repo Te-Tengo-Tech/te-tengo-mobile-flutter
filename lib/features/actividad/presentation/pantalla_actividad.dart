@@ -214,6 +214,7 @@ class HojaActividad extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final a = actividad;
     final (antes, despues) = a.antesYDespues;
+    final repeticion = a.momentoYDuracion;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       child: Column(
@@ -230,8 +231,13 @@ class HojaActividad extends ConsumerWidget {
           DatosTarjeta([
             FilaDato(clave: 'Quién', valor: a.quien),
             FilaDato(clave: 'Desde', valor: a.desde),
-            FilaDato(clave: 'Antes', valor: antes),
-            FilaDato(clave: 'Después', valor: despues),
+            if (repeticion case (final momento, final visto)) ...[
+              FilaDato(clave: 'Momento', valor: momento),
+              FilaDato(clave: 'Duración', valor: visto),
+            ] else ...[
+              FilaDato(clave: 'Antes', valor: antes),
+              FilaDato(clave: 'Después', valor: despues),
+            ],
             FilaDato(
               clave: 'Fecha y hora',
               valor: '',

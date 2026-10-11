@@ -370,6 +370,40 @@ void main() {
       );
     });
 
+    test('CA-39.3: una repetición vista en la PC', () {
+      final momento =
+          '${DateTime(2026, 9, 23, 10, 36).toUtc().toIso8601String()}/'
+          '${DateTime(2026, 9, 23, 10, 46).toUtc().toIso8601String()}';
+      expect(
+        frase(
+          'REPETICION_VISTA',
+          actor: TipoActor.pc,
+          objeto: 'Sala',
+          antes: momento,
+          despues: '180',
+        ),
+        'Desde la PC Sala-Rosa: se vio qué pasó en la Sala '
+        '(23/09 10:36–10:46, 3\u00a0min)',
+      );
+      final a = actividad(
+        'r1',
+        'REPETICION_VISTA',
+        DateTime(2026, 9, 23, 10, 50),
+        actor: TipoActor.pc,
+        pc: 'Sala-Rosa',
+        objeto: 'Sala',
+        antes: momento,
+        despues: '180',
+      );
+      expect(a.momentoYDuracion, ('23/09 10:36–10:46', '3\u00a0min'));
+      expect(a.segundosVistos, 180);
+      // Without the moment it still reads well.
+      expect(
+        frase('REPETICION_VISTA', actor: TipoActor.pc),
+        'Desde la PC Sala-Rosa: se vio qué pasó',
+      );
+    });
+
     test('automáticas', () {
       expect(
         frase('CAMARA_REANUDADA', actor: TipoActor.sistema, objeto: 'Sala'),

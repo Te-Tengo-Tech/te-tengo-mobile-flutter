@@ -2,8 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/red/cliente_api.dart';
+import 'package:te_tengo/core/red/problema_api.dart';
 import 'package:te_tengo/core/reloj.dart';
 import 'package:te_tengo/core/sesion/almacen_sesion.dart';
+import 'package:te_tengo/features/actividad/data/actividad_repositorio.dart';
+import 'package:te_tengo/features/actividad/domain/actividad.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
@@ -19,6 +22,7 @@ import 'package:te_tengo/features/repeticion/domain/repeticion.dart';
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
+import '../actividad/actividad_falso.dart';
 import '../alertas/alertas_falso.dart';
 import '../camaras/repositorio_falso.dart';
 import '../familia/familia_falso.dart';
@@ -29,6 +33,7 @@ import 'vivo_falso.dart';
 void main() {
   late VistaEnVivoRepositorioFalso vivo;
   late RepeticionesRepositorioFalso repeticiones;
+  late ActividadRepositorioFalso actividadFalsa;
 
   Future<void> abrir(WidgetTester tester, String ubicacion) async {
     usarTelefono(tester);
@@ -49,6 +54,7 @@ void main() {
           ),
           vistaEnVivoRepositorioProvider.overrideWithValue(vivo),
           repeticionesRepositorioProvider.overrideWithValue(repeticiones),
+          actividadRepositorioProvider.overrideWithValue(actividadFalsa),
           fabricaReproductorVivoProvider.overrideWithValue(
             FabricaReproductorFalsa().crear,
           ),
@@ -90,6 +96,59 @@ void main() {
   setUp(() {
     vivo = VistaEnVivoRepositorioFalso();
     repeticiones = RepeticionesRepositorioFalso();
+    actividadFalsa = ActividadRepositorioFalso([]);
+  });
+
+  testWidgets('CA-39.3: una repetición vista en la PC está en el registro', (
+    tester,
+  ) async {
+    actividadFalsa.lista = [
+      actividad(
+        'ac-r',
+        'REPETICION_VISTA',
+        DateTime(2026, 9, 23, 9, 30),
+        actor: TipoActor.pc,
+        pcId: 'pc-sala',
+        pc: 'Sala-Rosa',
+        camaraId: 'c1',
+        objeto: 'Sala',
+        antes:
+            '${DateTime(2026, 9, 22, 7, 54).toUtc().toIso8601String()}/'
+            '${DateTime(2026, 9, 22, 8, 4).toUtc().toIso8601String()}',
+        despues: '95',
+      ),
+      // Other types are not accesses.
+      actividad(
+        'ac-m',
+        'MODO_AVANZADO_ACTIVADO',
+        DateTime(2026, 9, 23, 9, 0),
+        actor: TipoActor.pc,
+        pc: 'Sala-Rosa',
+      ),
+    ];
+    await abrir(tester, Rutas.accesos);
+    expect(find.text('Repetición · Sala, 22/09 07:54'), findsOneWidget);
+    expect(
+      find.text(
+        'PC Sala-Rosa · 09:30 · 1\u00a0min 35\u00a0s',
+        findRichText: true,
+      ),
+      findsOneWidget,
+    );
+    await tocar(tester, find.text('Repeticiones'));
+    expect(find.text('Repetición · Sala, 22/09 07:54'), findsOneWidget);
+  });
+
+  testWidgets('una API sin repeticiones en la PC muestra el resto', (
+    tester,
+  ) async {
+    vivo.lista = [registrados.first];
+    actividadFalsa.error = const ProblemaApi(
+      codigo: 'VALIDACION',
+      detalle: 'Tipo desconocido',
+    );
+    await abrir(tester, Rutas.accesos);
+    expect(find.text('Vista en vivo · Sala'), findsOneWidget);
   });
 
   Future<void> abrirAjustes(WidgetTester tester) async {

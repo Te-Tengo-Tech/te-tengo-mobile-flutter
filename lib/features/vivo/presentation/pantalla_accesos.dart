@@ -19,7 +19,9 @@ import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/presentation/fila_miembro.dart';
+import '../../repeticion/data/repeticiones_repositorio.dart';
 import '../data/registro_accesos.dart';
+import '../data/vista_en_vivo_repositorio.dart';
 
 /// The chips of the log (screens 213, 214).
 enum FiltroAccesos { todo, vivo, repeticiones }
@@ -52,7 +54,14 @@ class _PantallaAccesosState extends ConsumerState<PantallaAccesos> {
     return Scaffold(
       appBar: AppBar(title: const Text('Registro de accesos')),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(registroAccesosProvider.future),
+        onRefresh: () {
+          // The sources too: replays watched on a PC arrive from elsewhere.
+          ref
+            ..invalidate(accesosVivoProvider)
+            ..invalidate(accesosRepeticionesProvider)
+            ..invalidate(repeticionesEnPcProvider);
+          return ref.refresh(registroAccesosProvider.future);
+        },
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
           children: [
@@ -169,11 +178,16 @@ class FilaAcceso extends ConsumerWidget {
         nombre: a.nombre,
         tono: tonoDe(i < 0 ? 0 : i),
         tipo: a.tipo,
+        enPc: a.enPc,
       ),
       titulo: titulo,
       subtituloRico: TextSpan(
         children: [
-          TextSpan(text: '${a.nombre.split(' ').first}${yo ? ' (tú)' : ''} · '),
+          TextSpan(
+            text: a.enPc
+                ? '${a.nombre} · '
+                : '${a.nombre.split(' ').first}${yo ? ' (tú)' : ''} · ',
+          ),
           TextSpan(
             text: hora(a.inicio),
             style: const TextStyle(fontFamily: fuenteMono),
@@ -228,11 +242,15 @@ class _AvatarConInsignia extends StatelessWidget {
     required this.nombre,
     required this.tono,
     required this.tipo,
+    this.enPc = false,
   });
 
   final String nombre;
   final TonoAvatar tono;
   final TipoAcceso tipo;
+
+  /// A replay watched on a PC: the PC's icon instead of a member's avatar.
+  final bool enPc;
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +260,10 @@ class _AvatarConInsignia extends StatelessWidget {
       height: 50,
       child: Stack(
         children: [
-          Avatar(Avatar.inicialesDe(nombre), tono: tono),
+          if (enPc)
+            const IconoFila(Ico.pc)
+          else
+            Avatar(Avatar.inicialesDe(nombre), tono: tono),
           Positioned(
             right: 0,
             bottom: 0,
@@ -275,7 +296,11 @@ class _AvatarConInsignia extends StatelessWidget {
 /// «Luis · hoy 08:15», «Tú · lun 21 sep 12:06» or «Sin accesos» (the camera's settings).
 String resumenUltimoAcceso(Acceso? a, {String? yo, required DateTime hoy}) {
   if (a == null) return 'Sin accesos';
-  final quien = a.usuarioId == yo ? 'Tú' : a.nombre.split(' ').first;
+  final quien = a.enPc
+      ? a.nombre
+      : a.usuarioId == yo
+      ? 'Tú'
+      : a.nombre.split(' ').first;
   final dia = mismoDia(a.inicio, hoy) ? 'hoy' : fechaCorta(a.inicio);
   return '$quien · $dia ${hora(a.inicio)}';
 }

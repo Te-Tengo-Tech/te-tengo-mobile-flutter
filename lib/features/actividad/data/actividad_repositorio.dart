@@ -8,9 +8,10 @@ import '../domain/actividad.dart';
 
 /// `GET /api/actividad` (contract §10, US-33).
 abstract interface class ActividadRepositorio {
-  /// Newest first; [pcId] keeps the entries of one PC (CA-33.2).
+  /// Newest first; [pcId] keeps the entries of one PC (CA-33.2), [tipo] those of one type.
   Future<PaginaActividad> listar({
     String? pcId,
+    String? tipo,
     int pagina = 0,
     int tamano = 50,
   });
@@ -24,12 +25,18 @@ class ActividadRepositorioApi implements ActividadRepositorio {
   @override
   Future<PaginaActividad> listar({
     String? pcId,
+    String? tipo,
     int pagina = 0,
     int tamano = 50,
   }) => llamarApi(() async {
     final r = await _dio.get<Map<String, dynamic>>(
       '/api/actividad',
-      queryParameters: {'pcId': ?pcId, 'pagina': pagina, 'tamano': tamano},
+      queryParameters: {
+        'pcId': ?pcId,
+        'tipo': ?tipo,
+        'pagina': pagina,
+        'tamano': tamano,
+      },
     );
     return PaginaActividad.desdeJson(r.data!);
   });

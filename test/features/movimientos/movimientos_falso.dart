@@ -25,7 +25,7 @@ class MovimientosRepositorioFalso implements MovimientosRepositorio {
 
   ConsentimientoMovimientos get _actual => ConsentimientoMovimientos(
     vigente: vigente,
-    versionTextoVigente: '1',
+    versionTextoVigente: '2',
     constancia: registros.isNotEmpty
         ? ConstanciaMovimientos(
             otorgadoEn: DateTime(2026, 9, 23, 10, 42),

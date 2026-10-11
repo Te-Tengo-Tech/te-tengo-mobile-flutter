@@ -104,6 +104,28 @@ void main() {
     expect(find.byType(PantallaTerminos), findsOneWidget);
   });
 
+  test('los textos dicen que el video se analiza en la PC de la casa', () {
+    final consentimiento = seccionesConsentimiento
+        .map((s) => s.texto)
+        .join(' ');
+    final politica = seccionesPolitica.expand((s) => s.$2).join(' ');
+    final terminos = seccionesTerminos.expand((s) => s.$2).join(' ');
+    for (final texto in [consentimiento, politica]) {
+      expect(texto, isNot(contains('envía video a Te Tengo')));
+      expect(texto, contains('PC de la casa'));
+      expect(texto, contains('Cloudflare R2'));
+      expect(texto, contains('flujo transfronterizo'));
+    }
+    expect(
+      consentimiento,
+      contains('El video continuo nunca sale de la casa.'),
+    );
+    expect(politica, contains('con el consentimiento vigente'));
+    expect(politica, contains('cada repetición'));
+    expect(terminos, contains('permiso aparte'));
+    expect(terminos, contains('la PC de la casa apagada'));
+  });
+
   test('las páginas legales se abren con o sin sesión', () {
     expect(Rutas.redirigir(null, Rutas.terminos), isNull);
     expect(Rutas.redirigir(null, Rutas.politica), isNull);
