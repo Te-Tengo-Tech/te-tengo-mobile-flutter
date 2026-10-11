@@ -103,4 +103,5 @@ Screens of the mobile prototype in the docs repository (`05-prototipos/app-movil
 - [x] **T37 US-35, US-37 Movement data consent and cloud retention:** screens 171 to 192 (`MOVIMIENTOS_ELIMINADOS`).
 - [x] **T38 US-40 «¿Hubo una caída y no avisó?»:** screens 221 to 230.
 - [x] **T39 US-33 Activity and family member detail:** screens 76, 77, 215 to 220 and 231 to 236.
-- [x] **T40 US-36, US-39 Body points and replay:** screens 193 to 214 and 303 to 312, the camera as a player (docs `9497de2`). Drawing the skeleton waits for a movement decoder (BLOCKERS, «Replay decoding»).
+- [x] **T40 US-36, US-39 Body points and replay:** screens 193 to 214 and 303 to 312, the camera as a player (docs `9497de2`). Drawing the skeleton waited for a movement decoder (see T41).
+- [x] **T41 US-36, US-39 Drawing the movements:** the light replay format TTMOV v1 (contract §11, backend ADR 0011) decoded in pure Dart on Android, iOS and the web (`movimientos/data/decodificador_ttmov.dart`, gzip through `package:archive`), mapped to the 17 drawn keypoints; the player downloads each file's `ligero` (checked against its `sha256`), the still frame of the last event comes from its clip's `puntos.ligero` (not logged, CA-39.3), and «Puntos del cuerpo» draws them over the clip. Tested against golden fixtures written by Te Tengo Captura's encoder (`test/fixtures/movimientos`).

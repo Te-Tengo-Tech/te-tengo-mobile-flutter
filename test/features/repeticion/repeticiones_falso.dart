@@ -14,6 +14,9 @@ class RepeticionesRepositorioFalso implements RepeticionesRepositorio {
   /// Files of 5 minutes covering each window, except [sinArchivos].
   List<(DateTime, DateTime)> sinArchivos = [];
 
+  /// Files whose PC uploaded no light file (an older Te Tengo Captura).
+  bool sinLigeros = false;
+
   Repeticion _repeticion(String camaraId, DateTime desde, DateTime hasta) {
     final archivos = <ArchivoMovimientos>[];
     var t = desde;
@@ -30,6 +33,13 @@ class RepeticionesRepositorioFalso implements RepeticionesRepositorio {
             url:
                 'https://movimientos.tetengo.pe/$camaraId/${t.millisecondsSinceEpoch}.parquet',
             sha256: 'abc',
+            ligero: sinLigeros
+                ? null
+                : ArchivoLigero(
+                    url:
+                        'https://movimientos.tetengo.pe/$camaraId/${t.millisecondsSinceEpoch}.ttmov',
+                    sha256: 'def',
+                  ),
           ),
         );
       }

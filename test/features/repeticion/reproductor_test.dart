@@ -58,15 +58,22 @@ List<Alerta> _alertasDeHoy() => [
 ];
 
 class _FuenteFalsa implements FuenteFotogramas {
+  _FuenteFalsa({DateTime? desde, this.segundos = 600})
+    : desde = desde ?? DateTime(2026, 9, 23, 10, 36);
+
+  final DateTime desde;
+  final int segundos;
   final cargadas = <String>[];
+  final sha256 = <String?>[];
 
   @override
   Future<List<Fotograma>> cargar(String url, {String? sha256Esperado}) async {
     cargadas.add(url);
+    sha256.add(sha256Esperado);
     return [
-      for (var s = 0; s < 600; s++)
+      for (var s = 0; s <= segundos; s++)
         Fotograma(
-          en: DateTime(2026, 9, 23, 10, 36).add(Duration(seconds: s)),
+          en: desde.add(Duration(seconds: s)),
           puntos: List.filled(17, const Offset(0.5, 0.5)),
         ),
     ];
@@ -147,11 +154,47 @@ void main() {
       await abrir(tester, Rutas.camara('c1'));
       expect(momento('Hoy 10:48:30'), findsOneWidget);
       await verHasta(tester, find.text('Sin eventos hoy'));
+      // Nothing played yet and no event: no skeleton and no guessed posture.
       expect(
-        find.text('Esta versión aún no dibuja los movimientos'),
-        findsOneWidget,
+        find.byWidgetPredicate(
+          (w) => w is CustomPaint && w.foregroundPainter is PintorEsqueleto,
+        ),
+        findsNothing,
       );
+      expect(alertas.clips, isEmpty);
     });
+
+    testWidgets(
+      'CA-39.3: la foto fija del último evento sale de los puntos de su clip '
+      'y no se registra',
+      (tester) async {
+        final fuente = _FuenteFalsa(
+          desde: DateTime(2026, 9, 23, 10, 41, 46),
+          segundos: 12,
+        );
+        alertas.enlaces.add(
+          const EnlaceClip(
+            url: 'https://clips.tetengo.pe/a-caida.mp4',
+            puntos: 'https://clips.tetengo.pe/a-caida.landmarks.parquet',
+            puntosLigeros: 'https://clips.tetengo.pe/a-caida.landmarks.ttmov',
+          ),
+        );
+        await abrir(tester, Rutas.camara('c1'), fuente: fuente);
+        expect(momento('Hoy 10:41:52'), findsOneWidget);
+        expect(alertas.clips, ['a-caida']);
+        expect(fuente.cargadas, [
+          'https://clips.tetengo.pe/a-caida.landmarks.ttmov',
+        ]);
+        expect(
+          find.byWidgetPredicate(
+            (w) => w is CustomPaint && w.foregroundPainter is PintorEsqueleto,
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Posible caída'), findsOneWidget);
+        expect(repeticiones.creadas, isEmpty);
+      },
+    );
   });
 
   group('Reproducir registra la repetición', () {
@@ -364,17 +407,31 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.bySemanticsLabel('Pausar'));
     await tester.pumpAndSettle();
+    // The light files, checked against their own sha256, never the Parquet files.
     expect(fuente.cargadas, isNotEmpty);
+    expect(fuente.cargadas, everyElement(endsWith('.ttmov')));
+    expect(fuente.sha256, everyElement('def'));
     expect(
       find.byWidgetPredicate(
         (w) => w is CustomPaint && w.foregroundPainter is PintorEsqueleto,
       ),
       findsOneWidget,
     );
-    expect(
-      find.text('Esta versión aún no dibuja los movimientos'),
-      findsNothing,
-    );
+  });
+
+  testWidgets('un archivo sin su ligero no se descarga y se ve sin datos', (
+    tester,
+  ) async {
+    repeticiones.sinLigeros = true;
+    final fuente = _FuenteFalsa();
+    await abrir(tester, Rutas.camara('c1'), fuente: fuente);
+    await tester.tap(find.bySemanticsLabel('Reproducir'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.bySemanticsLabel('Pausar'));
+    await tester.pumpAndSettle();
+    expect(repeticiones.creadas, hasLength(1));
+    expect(fuente.cargadas.where((u) => u.contains('movimientos')), isEmpty);
+    expect(find.text('Sin datos'), findsWidgets);
   });
 
   group('Dominio', () {
@@ -474,6 +531,11 @@ void main() {
           'fotogramas': 4500,
           'sha256': 'abc',
           'url': 'https://s3/f1.parquet',
+          'ligero': {
+            'url': 'https://s3/f1.ttmov',
+            'tamanoBytes': 64000,
+            'sha256': 'def',
+          },
         },
       ],
       'urlsExpiranEn': '2026-09-23T16:00:00Z',
@@ -520,6 +582,9 @@ void main() {
     final hasta = DateTime.utc(2026, 9, 23, 15, 46);
     final r = await repo.crear('c1', desde, hasta);
     expect(r.archivos.single.fotogramas, 4500);
+    expect(r.archivos.single.ligero!.url, 'https://s3/f1.ttmov');
+    expect(r.archivos.single.ligero!.sha256, 'def');
+    expect(r.archivos.single.ligero!.tamanoBytes, 64000);
     expect(r.disponiblesDesde!.toUtc(), DateTime.utc(2026, 8, 24, 5));
     await repo.archivos('rp-1', desde, hasta);
     await repo.cerrar('rp-1');

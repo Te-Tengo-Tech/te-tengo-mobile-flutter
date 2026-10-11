@@ -318,7 +318,6 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
             reproductor: r,
             hoy: hoy,
             enVivo: enVivo,
-            puedeDibujar: r.fuente != null,
             nombreAdultoMayor: nombre,
           ),
           _ => EscenarioApagado(

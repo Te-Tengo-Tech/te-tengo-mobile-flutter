@@ -4,15 +4,19 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/red/cliente_api.dart';
 import '../domain/fotogramas.dart';
+import 'decodificador_ttmov.dart';
 
-/// The movement decoder of this build; null: none (docs/BLOCKERS.md, «Replay decoding»).
+/// The movement decoder of this build: the light replay format TTMOV v1 (contract §11), on every
+/// platform. Null would leave the screens saying they cannot draw the movements.
 final decodificadorMovimientosProvider = Provider<DecodificadorMovimientos?>(
-  (ref) => null,
+  (ref) => const DecodificadorTtmov(),
 );
 
-/// Downloads a movement file from its pre-signed URL (no session header), checks its `sha256`
-/// before drawing (contract §11) and decodes it.
+/// Downloads a light movement file from its pre-signed URL (no session header), checks its
+/// `sha256` before drawing (contract §11) and decodes it. On the web the storage must allow the
+/// PWA's origin (CORS) for these downloads.
 class FuenteFotogramas {
   FuenteFotogramas(this._decodificador, {Dio? dio}) : _dio = dio ?? Dio();
 
@@ -36,5 +40,10 @@ class FuenteFotogramas {
 /// Null without a decoder.
 final fuenteFotogramasProvider = Provider<FuenteFotogramas?>((ref) {
   final d = ref.watch(decodificadorMovimientosProvider);
-  return d == null ? null : FuenteFotogramas(d);
+  if (d == null) return null;
+  // Tests replace the HTTP adapter: the downloads never leave them either.
+  final adaptador = ref.watch(adaptadorHttpProvider);
+  final dio = Dio();
+  if (adaptador != null) dio.httpClientAdapter = adaptador;
+  return FuenteFotogramas(d, dio: dio);
 });
