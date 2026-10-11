@@ -9,6 +9,7 @@ import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/camaras/domain/camara.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:te_tengo/features/pcs/presentation/piezas_pc.dart';
 import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
 import 'package:te_tengo/features/pcs/domain/camaras_en_casa.dart';
 import 'package:te_tengo/features/pcs/domain/pc.dart';
@@ -487,15 +488,11 @@ void main() {
     ) async {
       usarCasa(casaDeRosa(cocinaSinConexion: true));
       await abrir(tester, Rutas.camara('c4'));
-      expect(find.text('Sin conexión'), findsOneWidget);
-      expect(find.text('La PC Cocina-Rosa no responde'), findsOneWidget);
-      expect(
-        find.textContaining(
-          'Las cámaras de las otras PCs siguen detectando.',
-          findRichText: true,
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Sin conexión desde las 09:58'), findsOneWidget);
+      await tocar(tester, find.text('Qué revisar'));
+      expect(find.byType(QueRevisarPc), findsOneWidget);
+      await tocar(tester, find.text('Ajustes de la cámara'));
+      expect(find.text('PC Cocina-Rosa'), findsOneWidget);
     });
   });
 

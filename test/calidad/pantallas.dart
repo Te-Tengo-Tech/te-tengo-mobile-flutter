@@ -12,6 +12,7 @@ import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/historial/data/resumen_repositorio.dart';
 import 'package:te_tengo/features/movimientos/data/movimientos_repositorio.dart';
 import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
+import 'package:te_tengo/features/repeticion/data/repeticiones_repositorio.dart';
 import 'package:te_tengo/features/pcs/presentation/escaner_qr.dart';
 import 'package:te_tengo/features/historial/domain/resumen_semanal.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
@@ -30,6 +31,7 @@ import '../features/hogar/hogar_falso.dart';
 import '../features/movimientos/movimientos_falso.dart';
 import '../features/pcs/escaner_falso.dart';
 import '../features/pcs/pcs_falso.dart';
+import '../features/repeticion/repeticiones_falso.dart';
 import '../features/vivo/vivo_falso.dart';
 
 /// A main screen of the app, opened with every fake in place.
@@ -110,6 +112,7 @@ final pantallasNuevas = [
   ),
   Pantalla('reporte enviado', Rutas.reporteEnviado()),
   Pantalla('reporte guardado', Rutas.reporteEnviado(guardado: true)),
+  Pantalla('cámara (invitado)', Rutas.camara('c1'), sesion: sesionInvitado),
   const Pantalla('actividad', Rutas.actividad),
   const Pantalla(
     'actividad (invitado)',
@@ -210,6 +213,9 @@ Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
         fabricaEscanerQrProvider.overrideWithValue(EscanerFalso.new),
         actividadRepositorioProvider.overrideWithValue(
           ActividadRepositorioFalso(),
+        ),
+        repeticionesRepositorioProvider.overrideWithValue(
+          RepeticionesRepositorioFalso(),
         ),
         movimientosRepositorioProvider.overrideWithValue(
           MovimientosRepositorioFalso(vigente: true, retencion: 30),

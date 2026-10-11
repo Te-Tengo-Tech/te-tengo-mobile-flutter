@@ -103,31 +103,14 @@ void main() {
     camaras.camaras = [noConfiable(desde: DateTime(2026, 9, 23, 10, 36))];
     await abrir(tester, Rutas.inicio);
     await tocar(tester, find.text('Ver qué revisar'));
-    expect(find.text('No confiable'), findsOneWidget);
-    expect(find.text('Desde las 10:36 no ve bien a Rosa'), findsOneWidget);
-    expect(
-      find.text('Así no podemos asegurar que detectemos una caída.'),
-      findsOneWidget,
-    );
-    await verHasta(tester, find.text('Qué revisar en la casa'));
-    await verHasta(tester, find.text('El encuadre de la cámara'));
-    expect(find.text('La luz de la habitación'), findsOneWidget);
-    expect(
-      find.text('De noche, deja una lámpara pequeña encendida'),
-      findsOneWidget,
-    );
-    expect(
-      find.text('Que nada la tape y se vea a Rosa de cuerpo entero'),
-      findsOneWidget,
-    );
-    expect(find.text('Pausar esta cámara'), findsNothing);
-  });
-
-  testWidgets('sin la hora de inicio, el título no inventa una', (
-    tester,
-  ) async {
-    camaras.camaras = [noConfiable()];
-    await abrir(tester, Rutas.camara('c1'));
-    expect(find.text('La detección no es confiable'), findsOneWidget);
+    expect(find.text('Detección no confiable'), findsOneWidget);
+    await tocar(tester, find.text('Qué revisar'));
+    expect(find.text('La luz'), findsOneWidget);
+    expect(find.text('De noche, una lámpara pequeña'), findsOneWidget);
+    expect(find.text('El encuadre'), findsOneWidget);
+    expect(find.text('Que se vea a Rosa de cuerpo entero'), findsOneWidget);
+    // It can still be paused.
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    expect(find.text('Pausar'), findsOneWidget);
   });
 }

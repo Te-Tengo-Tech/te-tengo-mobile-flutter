@@ -32,10 +32,7 @@ void main() {
     await verHasta(tester, find.text('0:00 / 0:12'));
     expect(find.text('Sala · 10:42'), findsOneWidget);
     expect(alertas.clips, ['a-1']);
-    expect(
-      find.text('Con la postura detectada · 6 s antes y 6 s después.'),
-      findsOneWidget,
-    );
+    expect(find.text('6 s antes y 6 s después.'), findsOneWidget);
     expect(
       find.bySemanticsLabel('Ver el clip en pantalla completa'),
       findsOneWidget,

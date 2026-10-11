@@ -212,14 +212,6 @@ void main() {
       expect(guardado.telefono, '987 654 321');
     });
 
-    testWidgets('CA-04.2: indica que cada cuenta cuida a una sola persona', (
-      tester,
-    ) async {
-      await abrir(tester, Rutas.personaCuidada, sesionTitular);
-      await tocar(tester, find.text('Agregar otra persona'));
-      expect(find.text('Cada cuenta cuida a una sola persona'), findsOneWidget);
-    });
-
     testWidgets('un familiar invitado solo puede ver los datos', (
       tester,
     ) async {

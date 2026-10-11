@@ -43,6 +43,13 @@ abstract final class Rutas {
   // Screens on top of the tabs.
   static const accesoCreado = '/acceso-creado';
   static String camara(String id) => '/camara/$id';
+
+  /// The camera's player at [momento] (US-39): «Ver qué pasó» of an alert, «Abrir de nuevo» of
+  /// the access log.
+  static String camaraEn(String id, DateTime momento) => Uri(
+    path: camara(id),
+    queryParameters: {'momento': momento.toIso8601String()},
+  ).toString();
   static String nombreCamara(String id) => '/camara/$id/nombre';
   static const vivo = '/vivo';
   static const accesos = '/accesos';

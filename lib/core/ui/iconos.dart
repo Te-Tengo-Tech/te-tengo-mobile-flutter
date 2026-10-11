@@ -68,7 +68,10 @@ enum Ico {
   cloud,
   body,
   list,
-  report;
+  report,
+  atras10,
+  adelante10,
+  puntos;
 
   String get _trazo => _trazos[this]!;
 }
@@ -188,6 +191,13 @@ const _trazos = <Ico, String>{
   Ico.list:
       '<path d="M8.5 6.5h11M8.5 12h11M8.5 17.5h11"/><circle cx="4.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="17.5" r="1.1" fill="currentColor" stroke="none"/>',
   Ico.report: '<path d="M5 21V4.5h11.5l-2 4 2 4H5"/>',
+  // The camera player (prototype `P.back10`, `P.fwd10`, `P.dots`); the «10» is drawn as text.
+  Ico.atras10:
+      '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/>',
+  Ico.adelante10:
+      '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/>',
+  Ico.puntos:
+      '<circle cx="5.5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
 };
 
 /// Prototype icon: 24×24 stroke drawing in the current color. Decorative unless [etiqueta] is set.

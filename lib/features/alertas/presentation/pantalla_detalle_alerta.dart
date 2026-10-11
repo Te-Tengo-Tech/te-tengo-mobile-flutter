@@ -13,6 +13,7 @@ import '../../../core/ui/tarjeta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
+import '../../movimientos/data/movimientos_repositorio.dart';
 import '../../reportes/presentation/pantallas_reporte.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/ui/botones.dart';
@@ -87,6 +88,21 @@ class _Detalle extends ConsumerWidget {
         const SizedBox(height: 20),
         ListaTarjeta(
           children: [
+            // «Ver qué pasó» opens the camera's player at that moment (US-39).
+            if (!a.activa)
+              FilaLista(
+                inicio: const IconoFila(Ico.replay),
+                titulo: 'Ver qué pasó',
+                subtitulo: switch (ref.watch(movimientosEnLaNubeProvider)) {
+                  AsyncData(:final value)
+                      when value.consentimientoVigente &&
+                          value.retencionDias != null =>
+                    'En la cámara, sin video',
+                  _ => 'Requiere guardar movimientos',
+                },
+                alTocar: () =>
+                    context.push(Rutas.camaraEn(a.camaraId, a.ocurridaEn)),
+              ),
             FilaPlegable(
               icono: Ico.clock,
               titulo: 'Registro del evento',

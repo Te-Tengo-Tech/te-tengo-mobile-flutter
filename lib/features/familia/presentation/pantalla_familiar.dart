@@ -17,8 +17,7 @@ import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
-import '../../vivo/data/vista_en_vivo_repositorio.dart';
-import '../../vivo/domain/vista_en_vivo.dart';
+import '../../vivo/data/registro_accesos.dart';
 import '../data/familia_repositorio.dart';
 import '../domain/familiar.dart';
 import 'fila_miembro.dart';
@@ -89,7 +88,7 @@ class _Detalle extends ConsumerWidget {
     final marcadas = ref.watch(alertasMarcadasProvider(f.usuarioId)).value;
     final accesos = [
       for (final a
-          in ref.watch(accesosVivoProvider).value ?? const <AccesoVivo>[])
+          in ref.watch(registroAccesosProvider).value ?? const <Acceso>[])
         if (a.usuarioId == f.usuarioId) a,
     ];
     final ultimaMarcada = marcadas?.firstOrNull;
@@ -216,14 +215,13 @@ class _Detalle extends ConsumerWidget {
               FilaLista(
                 inicio: const IconoFila(Ico.eye),
                 titulo:
-                    '${contar(accesos.length, 'acceso', 'accesos')} a la vista '
-                    'en vivo o repeticiones',
+                    '${contar(accesos.length, 'acceso', 'accesos')} a la '
+                    'cámara',
                 subtituloRico: TextSpan(
                   children: [
                     TextSpan(
                       text:
-                          'Último: ${mismoDia(ultimoAcceso.inicio, hoy) ? 'hoy' : fechaCorta(ultimoAcceso.inicio)} · '
-                          'Empezó a las ',
+                          'Último: ${mismoDia(ultimoAcceso.inicio, hoy) ? 'hoy' : fechaCorta(ultimoAcceso.inicio)} ',
                     ),
                     TextSpan(
                       text: hora(ultimoAcceso.inicio),
@@ -231,7 +229,7 @@ class _Detalle extends ConsumerWidget {
                     ),
                     TextSpan(
                       text:
-                          ' · duró ${duracion(Duration(seconds: ultimoAcceso.duracionSegundos))}',
+                          ' · ${duracion(Duration(seconds: ultimoAcceso.duracionSegundos))}',
                     ),
                   ],
                 ),

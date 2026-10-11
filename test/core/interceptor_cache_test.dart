@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -159,8 +160,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Cámara · Sala'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Sala'), findsOneWidget);
     expect(find.text('En línea'), findsOneWidget);
-    expect(find.text('Pausar esta cámara'), findsOneWidget);
+    // Without internet the player says so.
+    expect(find.text('Sin internet'), findsOneWidget);
   });
 }

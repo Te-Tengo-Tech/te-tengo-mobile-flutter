@@ -14,13 +14,13 @@ class EstadoVacio extends StatelessWidget {
     super.key,
     required this.ilustracion,
     required this.titulo,
-    required this.texto,
+    this.texto,
     this.accion,
   });
 
   final IlustracionVacio ilustracion;
   final String titulo;
-  final String texto;
+  final String? texto;
   final Widget? accion;
 
   @override
@@ -35,12 +35,14 @@ class EstadoVacio extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 8),
-        Text(
-          texto,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        if (texto case final t?) ...[
+          const SizedBox(height: 8),
+          Text(
+            t,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
         if (accion != null) ...[const SizedBox(height: 16), accion!],
       ],
     ),

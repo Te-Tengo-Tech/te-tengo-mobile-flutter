@@ -161,8 +161,7 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.camara('c1'));
-    await verHasta(tester, find.text('Disponible ahora'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     await esperar(tester, 2);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
@@ -198,8 +197,7 @@ void main() {
   ) async {
     camaras.camaras = [sala(estado: EstadoConexion.desconectada)];
     await abrir(tester, Rutas.camara('c1'));
-    await verHasta(tester, find.text('No disponible ahora'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     expect(vivo.abiertas, isEmpty);
     expect(
       find.text('La cámara de la Sala no está disponible'),
@@ -256,7 +254,7 @@ void main() {
         estado: 409,
       );
       await abrir(tester, Rutas.camara('c1'));
-      await tocar(tester, find.text('Ver en vivo'));
+      await tocar(tester, find.text('En vivo'));
       expect(vivo.abiertas, hasLength(1));
       expect(find.text('La cámara está detenida'), findsOneWidget);
       expect(
@@ -277,8 +275,7 @@ void main() {
   ) async {
     camaras.camaras = [sala(pausadaHasta: DateTime(2026, 9, 23, 11, 42))];
     await abrir(tester, Rutas.camara('c1'));
-    await verHasta(tester, find.text('No disponible hasta las 11:42'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     expect(vivo.abiertas, isEmpty);
     expect(find.text('La vista en vivo no está disponible'), findsOneWidget);
     expect(
@@ -340,7 +337,7 @@ void main() {
   ) async {
     reproductores.conImagen = false;
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     expect(find.byKey(const Key('video-en-vivo')), findsNothing);
     expect(find.byWidgetPredicate(_iconoVideo), findsOneWidget);
     expect(
@@ -357,7 +354,7 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     final proporcion = tester.widget<AspectRatio>(
       find
           .ancestor(
@@ -376,7 +373,7 @@ void main() {
   ) async {
     reproductores.fallasAlIniciar = 2;
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     expect(find.byKey(const Key('video-en-vivo')), findsNothing);
     await esperar(tester, 2 * pausaEntreIntentos.inSeconds);
     expect(reproductores.creados, hasLength(3));
@@ -391,7 +388,7 @@ void main() {
     // Like the web player on a playlist that answered 404 before the camera published.
     reproductores.cuelguesAlIniciar = 2;
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     expect(reproductores.creados, hasLength(1));
     await esperar(tester, esperaInicio.inSeconds);
     expect(reproductores.creados.single.desechado, isTrue);
@@ -495,7 +492,7 @@ void main() {
 
     testWidgets('por un error de reproducción', (tester) async {
       await abrir(tester, Rutas.camara('c1'));
-      await tocar(tester, find.text('Ver en vivo'));
+      await tocar(tester, find.text('En vivo'));
       reproductores.ultimo.cortar();
       await tester.pumpAndSettle();
       await verCorte(tester);
@@ -503,7 +500,7 @@ void main() {
 
     testWidgets('porque la imagen deja de avanzar', (tester) async {
       await abrir(tester, Rutas.camara('c1'));
-      await tocar(tester, find.text('Ver en vivo'));
+      await tocar(tester, find.text('En vivo'));
       reproductores.ultimo.congelado = true;
       await esperar(tester, esperaSinImagen.inSeconds + 1);
       await verCorte(tester);
@@ -512,7 +509,7 @@ void main() {
     testWidgets('porque la primera imagen no llega a tiempo', (tester) async {
       reproductores.conImagen = false;
       await abrir(tester, Rutas.camara('c1'));
-      await tocar(tester, find.text('Ver en vivo'));
+      await tocar(tester, find.text('En vivo'));
       await esperar(tester, esperaPrimerFotograma.inSeconds - 1);
       expect(vivo.cerradas, isEmpty);
       await esperar(tester, 1);
@@ -524,7 +521,7 @@ void main() {
     ) async {
       reproductores.cuelguesAlIniciar = 1000;
       await abrir(tester, Rutas.camara('c1'));
-      await tocar(tester, find.text('Ver en vivo'));
+      await tocar(tester, find.text('En vivo'));
       await esperar(tester, esperaPrimerFotograma.inSeconds - 1);
       expect(vivo.cerradas, isEmpty);
       // One attempt every esperaInicio + pausaEntreIntentos: 0 s, 8 s and 16 s.
@@ -542,7 +539,7 @@ void main() {
 
     testWidgets('al salir confirma el acceso registrado', (tester) async {
       await abrir(tester, Rutas.camara('c1'));
-      await tocar(tester, find.text('Ver en vivo'));
+      await tocar(tester, find.text('En vivo'));
       await esperar(tester, 5);
       reproductores.ultimo.cortar();
       await tester.pumpAndSettle();
@@ -556,7 +553,7 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     expect(_elegido(tester, 'Video'), isTrue);
     expect(_elegido(tester, 'Video y postura'), isFalse);
 
@@ -611,7 +608,7 @@ void main() {
       estado: 400,
     );
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     await tocar(tester, find.text('Video y postura'));
     expect(find.text('Detalle del backend.'), findsOneWidget);
     expect(_elegido(tester, 'Video'), isTrue);
@@ -622,7 +619,7 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     final primero = reproductores.ultimo;
     segundoPlano(tester);
     await tester.pump();
@@ -646,7 +643,7 @@ void main() {
   ) async {
     camaras.camaras = [sala(estado: EstadoConexion.desconectada)];
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await tocar(tester, find.text('En vivo'));
     segundoPlano(tester);
     await tester.pump();
     primerPlano(tester);
@@ -662,7 +659,7 @@ void main() {
 
     Future<void> verEnVivo(WidgetTester tester) async {
       await abrir(tester, Rutas.camara('c1'));
-      await tocar(tester, find.text('Ver en vivo'));
+      await tocar(tester, find.text('En vivo'));
     }
 
     /// The session went on over LL-HLS: one session, the WebRTC players gone, the HLS one showing.
@@ -828,10 +825,9 @@ void main() {
       tester,
     ) async {
       await abrir(tester, Rutas.camara('c1'));
-      await verHasta(tester, find.text('Disponible ahora'));
       await esperar(tester, 5);
       expect(vivo.preparadas, ['c1']);
-      await tocar(tester, find.text('Ver en vivo'));
+      await tocar(tester, find.text('En vivo'));
       expect(vivo.preparadas, ['c1']);
       expect(vivo.abiertas, [('c1', null)]);
     });
