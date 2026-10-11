@@ -27,6 +27,7 @@ import '../features/hogar/presentation/pantalla_persona_setup.dart';
 import '../features/inicio/presentation/pantalla_inicio.dart';
 import '../features/hogar/presentation/pantallas_consentimiento.dart';
 import '../features/hogar/presentation/pantallas_privacidad.dart';
+import '../features/movimientos/presentation/pantallas_movimientos.dart';
 import '../features/pcs/domain/pc.dart';
 import '../features/pcs/presentation/pantalla_aprobar_pc.dart';
 import '../features/pcs/presentation/pantalla_camaras.dart';
@@ -287,6 +288,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Rutas.privacidad,
         builder: (context, state) => const PantallaPrivacidad(),
+      ),
+      GoRoute(
+        path: Rutas.movimientos,
+        builder: (context, state) => const PantallaGuardarMovimientos(),
+      ),
+      GoRoute(
+        path: Rutas.documentoMovimientos,
+        builder: (context, state) => const PantallaDocumentoMovimientos(),
+      ),
+      GoRoute(
+        path: Rutas.movimientosBorrados,
+        builder: (context, state) => const PantallaBorrandoMovimientos(),
+      ),
+      GoRoute(
+        path: Rutas.nube,
+        builder: (context, state) => const PantallaMovimientosNube(),
       ),
       GoRoute(
         path: Rutas.revocado,

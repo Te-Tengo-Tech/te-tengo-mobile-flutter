@@ -33,6 +33,7 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `sesion` | US-01 to US-03 | Done: register, sign in with lockout, password recovery, sign-out |
 | `hogar` | US-04, US-05, US-09 | Done: older adult (single person per account), consent and certificate, privacy, revocation |
 | `camaras` | US-06, US-07, US-15, US-22 | Done (reference): status, rename, connection notices, unreliable detection, pause and resume |
+| `movimientos` | US-35, US-37 | The separate consent to store movements (form, certificate, document, revocation with the cloud deletion polled or pushed) and the cloud retention |
 | `pcs` | US-28 to US-31 | Linking a PC (QR scanner `EscanerQr` over `mobile_scanner`, 8-box code, approval, the `/vincular?codigo=` link), setup step 3, «Elige las cámaras» with rooms (one per room, no bathrooms) and the webcam preview; «Cámaras» by room (`camarasEnCasaProvider`: each camera with its PC and the state the family sees), the PC detail and removing a PC; `RefrescoPcs` reads them again every 10 s while on screen |
 | `inicio` | US-16 | Done: home card per state, notifications banner, camera, «Esta semana» |
 | `alertas` | US-13, US-14, US-16 to US-21, US-26 | Done: fall and unstable alerts, confirmation, clip, marking, escalation, recovery, recordings download |

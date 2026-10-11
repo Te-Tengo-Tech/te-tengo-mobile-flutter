@@ -22,11 +22,6 @@ const _sinUso = {
 const _pendientes = {
   'GET /api/actividad',
   'POST /api/reportes-de-caida',
-  'GET /api/hogar/consentimiento-movimientos',
-  'POST /api/hogar/consentimiento-movimientos',
-  'DELETE /api/hogar/consentimiento-movimientos',
-  'GET /api/hogar/movimientos-en-la-nube',
-  'PUT /api/hogar/movimientos-en-la-nube',
   'POST /api/camaras/{id}/repeticiones',
   'GET /api/repeticiones/{id}/archivos',
   'DELETE /api/repeticiones/{id}',
@@ -34,7 +29,7 @@ const _pendientes = {
 };
 
 /// Push types whose handling comes in the next pull requests.
-const _tiposPendientes = {'MOVIMIENTOS_ELIMINADOS'};
+const _tiposPendientes = <String>{};
 
 /// Every endpoint of docs/API_CONTRACT.md is called by the app with its method and path.
 void main() {

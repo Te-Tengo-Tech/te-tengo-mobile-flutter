@@ -140,6 +140,27 @@ String svgHabitacion(String habitacion, Postura postura, {String? aro}) {
   return s.toString();
 }
 
+/// A standing skeleton on the floor (`skelIll`): the body points the PC stores, never an image.
+class IlustracionEsqueleto extends StatelessWidget {
+  const IlustracionEsqueleto({super.key, required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final tono =
+        '#${(color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+    return ExcludeSemantics(
+      child: SvgPicture.string(
+        '<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">'
+        '<path d="M20 128h160" stroke="#B9AFCB" stroke-width="3" stroke-linecap="round"/>'
+        '${_esqueleto(Postura.pie, 100, 128, tono)}</svg>',
+        height: 140,
+      ),
+    );
+  }
+}
+
 /// Illustrated room, decorative.
 class Habitacion extends StatelessWidget {
   const Habitacion({

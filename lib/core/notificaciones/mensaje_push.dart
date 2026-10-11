@@ -16,6 +16,9 @@ enum TipoPush {
   pausaFinalizada('PAUSA_FINALIZADA'),
   datosEliminados('DATOS_ELIMINADOS'),
 
+  /// The cloud movements were deleted after the consent to store them was revoked (CA-35.4).
+  movimientosEliminados('MOVIMIENTOS_ELIMINADOS'),
+
   /// A PC left the household without the app: from the PC itself, for security or after 90 days
   /// without connecting (CA-31.3). Not sent when the owner removes it from the app.
   pcDesvinculada('PC_DESVINCULADA');
