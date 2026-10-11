@@ -187,13 +187,6 @@ class TarjetaDetalle extends StatelessWidget {
                 ),
                 style: texto.bodyMedium,
               ),
-            if (falsa) ...[
-              const SizedBox(height: 8),
-              Text(
-                'No cuenta en el resumen de caídas.',
-                style: texto.bodySmall,
-              ),
-            ],
           ],
         ],
       ),
@@ -263,7 +256,7 @@ class _DescargaState extends ConsumerState<_Descarga> {
       ),
       const SizedBox(height: 8),
       Text(
-        'MP4 · 12 s · disponible hasta el '
+        'MP4 · 12 s · hasta el '
         '${fechaConAnio(widget.alerta.ocurridaEn.add(const Duration(days: 30)))}',
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.bodySmall,

@@ -49,7 +49,7 @@ void main() {
     await abrir(tester, Rutas.registro, sesion: null);
     await tocar(tester, find.text('Términos'));
     expect(find.byType(PantallaTerminos), findsOneWidget);
-    expect(find.text('Las reglas para usar Te Tengo.'), findsOneWidget);
+    expect(find.text('Las reglas para usar Te Tengo.'), findsNothing);
     expect(find.text('Qué es Te Tengo'), findsOneWidget);
     await verHasta(tester, find.text('Límites del servicio'));
     await tocar(tester, find.text('Ver la política de privacidad'));

@@ -130,10 +130,7 @@ void main() {
     expect(colorDe(tester, aumento), Colores.aviso);
     expect(colorDe(tester, disminucion), Colores.calmaTinta);
     expect(colorDe(tester, igual), Colores.tinta3);
-    await verHasta(
-      tester,
-      find.text('Las falsas alarmas no suman a caídas ni a inestables.'),
-    );
+    await verHasta(tester, find.text('Las falsas alarmas no suman.'));
   });
 
   testWidgets('CA-27.2: una semana sin eventos muestra el resumen en cero', (
@@ -151,7 +148,7 @@ void main() {
     expect(find.text('Semana sin eventos'), findsOneWidget);
     expect(
       find.text('No hubo caídas ni movimientos inestables.'),
-      findsOneWidget,
+      findsNothing,
     );
     await verHasta(tester, find.text('vs. 24 – 30 ago'));
     await verHasta(tester, find.text('Falsas alarmas'));

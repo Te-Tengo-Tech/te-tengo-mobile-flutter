@@ -63,8 +63,8 @@ EstadoTarjeta estadoTarjeta(
       color: paleta.pausa,
       titulo: 'Detección detenida',
       texto: hogar.consentimiento != null
-          ? 'Revocaste el consentimiento. No hay captura ni alertas.'
-          : 'Falta el consentimiento de $nombre. La cámara no envía video.',
+          ? 'Revocaste el consentimiento.'
+          : 'Falta el consentimiento de $nombre.',
     );
   }
   final n = camaras.length;
@@ -75,8 +75,8 @@ EstadoTarjeta estadoTarjeta(
       color: paleta.pausa,
       titulo: 'Sin cámaras',
       texto: hayPc
-          ? 'Falta elegir las cámaras de la PC de la casa.'
-          : 'Aún no hay una PC vinculada. Sin ella no detectamos caídas.',
+          ? 'Falta elegir las cámaras.'
+          : 'Vincula la PC de la casa para detectar caídas.',
     );
   }
   final caidas = camaras.where((c) => c.noResponde).toList();
@@ -89,9 +89,7 @@ EstadoTarjeta estadoTarjeta(
       titulo: caidas.length == 1
           ? '1 cámara no responde · ${caidas.single.habitacion}'
           : '${caidas.length} cámaras no responden',
-      texto:
-          'Sin ella${caidas.length > 1 ? 's' : ''} no detectamos caídas '
-          '${enumerar(rooms)}. Las demás siguen cuidando.',
+      texto: 'No detectamos caídas ${enumerar(rooms)}. Las demás siguen.',
     );
   }
   final c = camarasQueImportan(camaras).first;
@@ -116,9 +114,7 @@ EstadoTarjeta estadoTarjeta(
       icono: Ico.pause,
       color: paleta.pausa,
       titulo: 'Todo tranquilo, con una pausa',
-      texto:
-          'La cámara ${deHabitacion(habitacion)} está en pausa hasta las '
-          '${hora(c.camara.pausadaHasta!)}.',
+      texto: '$habitacion en pausa hasta las ${hora(c.camara.pausadaHasta!)}.',
     ),
     _ => EstadoTarjeta(
       banda: Banda.calma,

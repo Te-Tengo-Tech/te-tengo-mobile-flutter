@@ -139,9 +139,7 @@ void main() {
     expect(find.text('Aún no hay accesos registrados'), findsOneWidget);
     expect(find.text('Todo'), findsNothing);
     expect(
-      find.text(
-        'Rosa autorizó la vista en vivo en su consentimiento del 3 ago 2026.',
-      ),
+      find.text('Quién miró, cuándo y cuánto. Toda la familia lo ve.'),
       findsOneWidget,
     );
   });

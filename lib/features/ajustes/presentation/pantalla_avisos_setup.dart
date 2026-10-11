@@ -49,8 +49,7 @@ class PantallaAvisosSetup extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Te llegará la alerta aunque tengas la app cerrada o el celular en '
-            'silencio.',
+            'Aunque la app esté cerrada o el celular en silencio.',
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -79,11 +78,6 @@ class PantallaAvisosSetup extends ConsumerWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Puedes cambiarlo después en Ajustes › Notificaciones.',
-            style: texto.bodySmall,
-          ),
           const SizedBox(height: 20),
           Boton(
             activas ? 'Continuar' : 'Continuar sin activar todo',
@@ -110,9 +104,11 @@ class PermisoActivado extends StatelessWidget {
     children: [
       Icono(Ico.check, tamano: 18, color: context.colores.calmaTinta),
       const SizedBox(width: 6),
-      Text(
-        'Activadas',
-        style: estiloTexto(15, 700, color: context.colores.calmaTinta),
+      Flexible(
+        child: Text(
+          'Activadas',
+          style: estiloTexto(15, 700, color: context.colores.calmaTinta),
+        ),
       ),
     ],
   );

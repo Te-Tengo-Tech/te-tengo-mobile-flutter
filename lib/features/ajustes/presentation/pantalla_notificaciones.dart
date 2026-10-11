@@ -67,8 +67,7 @@ class PantallaNotificaciones extends ConsumerWidget {
               titulo: familiaSinAlertas
                   ? 'Nadie de la familia recibe las alertas'
                   : 'Este celular no recibe las alertas',
-              texto:
-                  'Sin ellas no te enterarás de una caída con la app cerrada.',
+              texto: 'Sin ellas no sabrás de una caída con la app cerrada.',
               accion: Boton(
                 'Activar notificaciones',
                 estilo: EstiloBoton.tinta,
@@ -81,20 +80,18 @@ class PantallaNotificaciones extends ConsumerWidget {
               tono: TonoAviso.ok,
               icono: Ico.bell,
               titulo: 'Notificaciones activadas',
-              texto: 'Recibirás las alertas aunque tengas la app cerrada.',
             ),
-          const EncabezadoSeccion('Qué te avisamos en este celular'),
+          const EncabezadoSeccion('Avisos en este celular'),
           ListaTarjeta(
             children: [
               const _FilaInterruptor(
                 titulo: 'Caídas',
-                subtitulo: 'Siempre activas. No se pueden silenciar.',
+                subtitulo: 'Siempre activas',
                 valor: true,
               ),
               if (ref.watch(permisoNotificacionesProvider).ajustesDeSonido)
                 const FilaSonarEnSilencio(
-                  subtitulo:
-                      'Las caídas suenan aunque el celular esté en silencio',
+                  subtitulo: 'Aunque el celular esté en silencio',
                 ),
               _FilaInterruptor(
                 titulo: 'Movimientos inestables',
@@ -106,8 +103,7 @@ class PantallaNotificaciones extends ConsumerWidget {
               const _FilaInterruptor(
                 titulo: 'Estado de la cámara',
                 subtitulo:
-                    'Desconexión, reconexión o detección no confiable. Siempre '
-                    'activas.',
+                    'Desconexión o detección no confiable · siempre activas',
                 valor: true,
               ),
               _FilaInterruptor(
@@ -125,7 +121,6 @@ class PantallaNotificaciones extends ConsumerWidget {
               FilaLista(
                 inicio: const IconoFila(Ico.clock),
                 titulo: 'Avisar al secundario a los $espera min',
-                subtitulo: 'Se cambia en Orden de aviso',
                 fin: titular
                     ? null
                     : Icono(

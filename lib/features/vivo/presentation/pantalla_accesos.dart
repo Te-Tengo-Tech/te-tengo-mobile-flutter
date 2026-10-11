@@ -19,7 +19,6 @@ import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/presentation/fila_miembro.dart';
-import '../../hogar/data/hogar_repositorio.dart';
 import '../data/registro_accesos.dart';
 
 /// The chips of the log (screens 213, 214).
@@ -48,9 +47,7 @@ class _PantallaAccesosState extends ConsumerState<PantallaAccesos> {
   @override
   Widget build(BuildContext context) {
     final accesos = ref.watch(registroAccesosProvider);
-    final hogar = ref.watch(hogarProvider).value;
     final hoy = ref.watch(relojProvider)();
-    final consentimiento = hogar?.consentimiento;
     final texto = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Registro de accesos')),
@@ -115,31 +112,6 @@ class _PantallaAccesosState extends ConsumerState<PantallaAccesos> {
                 ),
               ],
             },
-            if (consentimiento != null && consentimiento.vigente) ...[
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 1),
-                    child: Icono(
-                      Ico.shield,
-                      tamano: 18,
-                      color: context.colores.tinta3,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${hogar!.adultoMayor.nombrePila} autorizó la vista en '
-                      'vivo en su consentimiento del '
-                      '${fechaConAnio(consentimiento.otorgadoEn)}.',
-                      style: texto.bodySmall,
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),

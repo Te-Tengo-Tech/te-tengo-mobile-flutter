@@ -58,10 +58,7 @@ void main() {
     await abrir(tester, Rutas.configFamilia);
     expect(find.text('Paso 4 de 5'), findsOneWidget);
     expect(
-      find.text(
-        'Recibirá las alertas de Rosa y, si no atiendes una en 5 min, le '
-        'avisaremos.',
-      ),
+      find.text('Le avisamos si no atiendes una alerta en 5 min.'),
       findsOneWidget,
     );
     await tester.enterText(campoCorreo, 'luis.huaman.r@gmail.com');

@@ -64,24 +64,15 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.ajustes);
-    expect(find.text('Activadas en este celular'), findsOneWidget);
+    expect(find.text('Activadas'), findsOneWidget);
     await tocar(tester, find.text('Notificaciones'));
     expect(find.byType(PantallaNotificaciones), findsOneWidget);
     expect(find.text('Notificaciones activadas'), findsOneWidget);
-    expect(
-      find.text('Recibirás las alertas aunque tengas la app cerrada.'),
-      findsOneWidget,
-    );
-    expect(find.text('Qué te avisamos en este celular'), findsOneWidget);
-    expect(
-      find.text('Siempre activas. No se pueden silenciar.'),
-      findsOneWidget,
-    );
+    expect(find.text('Avisos en este celular'), findsOneWidget);
+    expect(find.text('Siempre activas'), findsOneWidget);
     expect(find.text('Severidad media'), findsOneWidget);
     expect(
-      find.text(
-        'Desconexión, reconexión o detección no confiable. Siempre activas.',
-      ),
+      find.text('Desconexión o detección no confiable · siempre activas'),
       findsOneWidget,
     );
     final interruptores = tester.widgetList<Switch>(find.byType(Switch));
@@ -94,7 +85,7 @@ void main() {
       true,
     ]);
     await verHasta(tester, find.text('Avisar al secundario a los 5 min'));
-    expect(find.text('Se cambia en Orden de aviso'), findsOneWidget);
+    expect(find.text('Se cambia en Orden de aviso'), findsNothing);
   });
 
   testWidgets('silenciar los movimientos inestables se guarda y no abre la '

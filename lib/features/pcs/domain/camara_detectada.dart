@@ -70,7 +70,7 @@ class Ambiente {
   /// At most one for now (CA-29.3).
   final List<CamaraDeAmbiente> camaras;
 
-  /// «Ya tiene cámara».
+  /// The room already has a camera.
   bool get conCamara => camaras.isNotEmpty;
 
   factory Ambiente.desdeJson(Map<String, dynamic> json) => Ambiente(

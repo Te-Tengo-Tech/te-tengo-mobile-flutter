@@ -72,7 +72,7 @@ void main() {
       await tocar(tester, find.text('Cambiar').last);
       expect(find.text('¿Quién será el contacto secundario?'), findsOneWidget);
       expect(
-        find.text('Le avisamos si nadie marca la alerta en 5 minutos.'),
+        find.text('Le avisamos si nadie la marca en 5 min.'),
         findsOneWidget,
       );
       expect(find.text('ahora: principal'), findsOneWidget);
@@ -106,7 +106,7 @@ void main() {
     await verHasta(tester, find.text('Predeterminado'));
     await verHasta(
       tester,
-      find.textContaining('avisamos a Luis a las 10:47', findRichText: true),
+      find.textContaining('sin atender → Luis a las 10:47', findRichText: true),
     );
     expect(find.text('3 minutos'), findsOneWidget);
     await tocar(tester, find.text('10 minutos'));
@@ -114,7 +114,7 @@ void main() {
     expect(find.text('Tiempo de espera: 10 minutos'), findsOneWidget);
     expect(find.text('Se aplicará en las próximas alertas.'), findsOneWidget);
     expect(
-      find.textContaining('avisamos a Luis a las 10:52', findRichText: true),
+      find.textContaining('sin atender → Luis a las 10:52', findRichText: true),
       findsOneWidget,
     );
   });
@@ -126,10 +126,10 @@ void main() {
     await verHasta(tester, find.text('Predeterminado'));
     await verHasta(
       tester,
-      find.textContaining('avisamos a Luis a las 10:47', findRichText: true),
+      find.textContaining('sin atender → Luis a las 10:47', findRichText: true),
     );
     expect(
-      find.textContaining('avisamos a Luis a las 10:47', findRichText: true),
+      find.textContaining('sin atender → Luis a las 10:47', findRichText: true),
       findsOneWidget,
     );
   });
@@ -142,14 +142,11 @@ void main() {
       ..avisoActual = const ConfiguracionAviso(principalId: 'u-carmen');
     await abrir(tester, Rutas.ordenAviso);
     expect(find.text('Sin contacto secundario'), findsOneWidget);
-    expect(
-      find.text('Si nadie atiende, no habrá a quién más avisar.'),
-      findsOneWidget,
-    );
+    expect(find.text('Nadie más recibe el aviso.'), findsOneWidget);
     expect(find.text('Cambiar'), findsNothing);
     await verHasta(
       tester,
-      find.text('Este tiempo se usará cuando tengas un contacto secundario.'),
+      find.text('Se usa cuando haya un contacto secundario.'),
     );
   });
 

@@ -89,7 +89,7 @@ void main() {
       await abrir(tester);
       await entrar(tester, 'carmen.huaman@gmail.com', 'mala');
       expect(find.text('Correo o contraseña incorrectos'), findsOneWidget);
-      expect(find.text('Revisa cómo los escribiste.'), findsOneWidget);
+      expect(find.text('Revisa cómo los escribiste.'), findsNothing);
       await tocar(tester, find.text('Iniciar sesión'));
       await tocar(tester, find.text('Iniciar sesión'));
       expect(
@@ -135,47 +135,46 @@ void main() {
     expect(repo.inicios, isEmpty);
   });
 
-  testWidgets('CA-02.4: cerrar sesión la termina y exige autenticarse de nuevo', (
-    tester,
-  ) async {
-    usarTelefono(tester);
-    final almacen = AlmacenSesionMemoria(sesionTitular);
-    final sesiones = _SesionRepoFalso();
-    await tester.pumpWidget(
-      appDePrueba(
-        ubicacion: Rutas.ajustes,
-        almacen: almacen,
-        overrides: [
-          cuentasRepositorioProvider.overrideWithValue(repo),
-          hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
-          sesionRepositorioProvider.overrideWithValue(sesiones),
-        ],
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tocar(tester, find.text('Cerrar sesión'));
-    expect(find.text('¿Cerrar sesión?'), findsOneWidget);
-    expect(
-      find.text(
-        'Dejarás de recibir las alertas de Rosa en este celular hasta que vuelvas a iniciar sesión.',
-      ),
-      findsOneWidget,
-    );
-    await tocar(tester, find.text('Cancelar'));
-    expect(almacen.actual, isNotNull);
+  testWidgets(
+    'CA-02.4: cerrar sesión la termina y exige autenticarse de nuevo',
+    (tester) async {
+      usarTelefono(tester);
+      final almacen = AlmacenSesionMemoria(sesionTitular);
+      final sesiones = _SesionRepoFalso();
+      await tester.pumpWidget(
+        appDePrueba(
+          ubicacion: Rutas.ajustes,
+          almacen: almacen,
+          overrides: [
+            cuentasRepositorioProvider.overrideWithValue(repo),
+            hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
+            sesionRepositorioProvider.overrideWithValue(sesiones),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tocar(tester, find.text('Cerrar sesión'));
+      expect(find.text('¿Cerrar sesión?'), findsOneWidget);
+      expect(
+        find.text('Dejarás de recibir sus alertas en este celular.'),
+        findsOneWidget,
+      );
+      await tocar(tester, find.text('Cancelar'));
+      expect(almacen.actual, isNotNull);
 
-    await tocar(tester, find.text('Cerrar sesión'));
-    await tester.tap(find.widgetWithText(InkWell, 'Cerrar sesión').last);
-    await tester.pump();
-    expect(find.byType(PantallaArranque), findsOneWidget);
-    await tester.pump(PantallaArranque.duracionAnimacion);
-    await tester.pumpAndSettle();
-    expect(almacen.actual, isNull);
-    expect(sesiones.cerradas, ['acceso-1']);
-    expect(find.text('Inicia sesión'), findsOneWidget);
-    expect(find.text('Sesión cerrada'), findsOneWidget);
-    expect(find.text('carmen.huaman@gmail.com'), findsOneWidget);
-  });
+      await tocar(tester, find.text('Cerrar sesión'));
+      await tester.tap(find.widgetWithText(InkWell, 'Cerrar sesión').last);
+      await tester.pump();
+      expect(find.byType(PantallaArranque), findsOneWidget);
+      await tester.pump(PantallaArranque.duracionAnimacion);
+      await tester.pumpAndSettle();
+      expect(almacen.actual, isNull);
+      expect(sesiones.cerradas, ['acceso-1']);
+      expect(find.text('Inicia sesión'), findsOneWidget);
+      expect(find.text('Sesión cerrada'), findsOneWidget);
+      expect(find.text('carmen.huaman@gmail.com'), findsOneWidget);
+    },
+  );
 
   group('CuentasRepositorioApi.iniciarSesion', () {
     ProviderContainer contenedor(AdaptadorFalso http) {

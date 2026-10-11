@@ -18,10 +18,8 @@ Future<void> cerrarSesion(BuildContext context, WidgetRef ref) async {
     icono: Ico.logout,
     titulo: '¿Cerrar sesión?',
     texto: nombre == null
-        ? 'Dejarás de recibir las alertas en este celular hasta que vuelvas a '
-              'iniciar sesión.'
-        : 'Dejarás de recibir las alertas de $nombre en este celular hasta que '
-              'vuelvas a iniciar sesión.',
+        ? 'Dejarás de recibir las alertas en este celular.'
+        : 'Dejarás de recibir sus alertas en este celular.',
     aceptar: 'Cerrar sesión',
     cancelar: 'Cancelar',
   );

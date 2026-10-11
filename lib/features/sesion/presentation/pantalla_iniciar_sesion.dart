@@ -160,7 +160,7 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
                 icono: Ico.lock,
                 titulo: 'Bloqueado por 15 minutos',
                 contenido: conHora(
-                  '5 intentos fallidos. Vuelve a intentarlo a las ',
+                  'Vuelve a intentarlo a las ',
                   hora(_bloqueadaHasta!),
                   '.',
                 ),
@@ -175,7 +175,7 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
                     ? 'Te queda${restantes == 1 ? '' : 'n'} $restantes '
                           'intento${restantes == 1 ? '' : 's'} antes de un '
                           'bloqueo de 15 min.'
-                    : 'Revisa cómo los escribiste.',
+                    : null,
               ),
               const SizedBox(height: 16),
             ],

@@ -40,7 +40,7 @@ void main() {
     expect(find.text('¿Rosa no contesta?'), findsOneWidget);
     expect(
       find.text('Pide ayuda a un vecino o llama a emergencias.'),
-      findsOneWidget,
+      findsNothing,
     );
     await tocar(tester, find.text('Llamar al SAMU · 106'));
     expect(llamadas, [null, '106']);
@@ -63,11 +63,9 @@ void main() {
     );
     await verHasta(
       tester,
-      find.text(
-        'Aviso enviado a Carmen (principal) y Luis, 6 s después de la caída',
-      ),
+      find.text('Aviso a Carmen (principal) y Luis · 6 s'),
     );
-    expect(find.text('Caída detectada en la Sala'), findsOneWidget);
+    expect(find.text('Caída en la Sala'), findsOneWidget);
     expect(find.text('Marcar alerta'), findsOneWidget);
   });
 
@@ -96,14 +94,8 @@ void main() {
         findsOneWidget,
       );
       await tocar(tester, find.text('Más detalles'));
-      await verHasta(
-        tester,
-        find.text('La notificación no se pudo entregar; reintentando el envío'),
-      );
-      expect(
-        find.text('La notificación no se pudo entregar; reintentando el envío'),
-        findsOneWidget,
-      );
+      await verHasta(tester, find.text('No se pudo entregar; reintentando'));
+      expect(find.text('No se pudo entregar; reintentando'), findsOneWidget);
     },
   );
 
@@ -120,11 +112,8 @@ void main() {
       expect(find.text('No te llegó como notificación'), findsOneWidget);
       expect(find.textContaining('seguimos reintentando'), findsNothing);
       await tocar(tester, find.text('Más detalles'));
-      await verHasta(tester, find.text('La notificación no se pudo entregar'));
-      expect(
-        find.text('La notificación no se pudo entregar; reintentando el envío'),
-        findsNothing,
-      );
+      await verHasta(tester, find.text('No se pudo entregar'));
+      expect(find.text('No se pudo entregar; reintentando'), findsNothing);
     },
   );
 

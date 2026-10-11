@@ -92,10 +92,7 @@ void main() {
     await abrir(tester, Rutas.elegirCamaras('pc-sala'));
     expect(find.text('Elige las cámaras'), findsOneWidget);
     expect(
-      find.text(
-        'La PC Sala-Rosa encontró 3 cámaras. Dinos en qué habitación está cada '
-        'una; por ahora, cada habitación usa una sola cámara.',
-      ),
+      find.text('3 cámaras en la PC Sala-Rosa. Una por habitación.'),
       findsOneWidget,
     );
     expect(find.text('Webcam USB HD'), findsOneWidget);
@@ -196,7 +193,10 @@ void main() {
   ) async {
     pcs.habitaciones = [ambiente('Cocina', camara: 'c9', pc: 'Cocina-Rosa')];
     await abrir(tester, Rutas.elegirCamaras('pc-sala'));
-    expect(find.text('Ya tiene cámara'), findsOneWidget);
+    expect(
+      find.text('Las que ya tienen cámara no se pueden elegir.'),
+      findsOneWidget,
+    );
     await tocar(tester, find.text('Cocina'));
     final usar = find.text('Usar esta cámara');
     await tocar(tester, usar);
@@ -243,38 +243,41 @@ void main() {
     );
   });
 
-  testWidgets('CA-29.2: «Dejar de usar» pide confirmar y libera la habitación', (
-    tester,
-  ) async {
-    pcs.webcams = [
-      webcam('w1', 'Webcam USB HD', habitacion: 'Sala'),
-      webcam('w3', 'USB2.0 PC Camera', habitacion: 'Pasillo'),
-    ];
-    await abrir(tester, Rutas.elegirCamaras('pc-sala'));
-    await tocar(tester, find.text('USB2.0 PC Camera'));
-    await tocar(tester, find.text('Dejar de usar'));
-    expect(
-      find.text('¿Dejar de usar la cámara USB2.0 PC Camera?'),
-      findsOneWidget,
-    );
-    expect(
-      find.text(
-        'Dejaremos de detectar caídas en el Pasillo. La cámara sigue conectada '
-        'a la PC y puedes volver a elegirla.',
-      ),
-      findsOneWidget,
-    );
-    await tocar(tester, find.text('Cancelar'));
-    expect(pcs.dejadas, isEmpty);
-    await tocar(tester, find.text('Dejar de usar'));
-    await tocar(tester, find.text('Dejar de usar').last);
-    expect(pcs.dejadas, ['w3']);
-    expect(
-      find.text('Dejamos de usar la cámara USB2.0 PC Camera'),
-      findsOneWidget,
-    );
-    expect(find.text('Ya no detectamos caídas en el Pasillo.'), findsOneWidget);
-  });
+  testWidgets(
+    'CA-29.2: «Dejar de usar» pide confirmar y libera la habitación',
+    (tester) async {
+      pcs.webcams = [
+        webcam('w1', 'Webcam USB HD', habitacion: 'Sala'),
+        webcam('w3', 'USB2.0 PC Camera', habitacion: 'Pasillo'),
+      ];
+      await abrir(tester, Rutas.elegirCamaras('pc-sala'));
+      await tocar(tester, find.text('USB2.0 PC Camera'));
+      await tocar(tester, find.text('Dejar de usar'));
+      expect(
+        find.text('¿Dejar de usar la cámara USB2.0 PC Camera?'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'No detectaremos caídas en el Pasillo. Puedes volver a elegirla.',
+        ),
+        findsOneWidget,
+      );
+      await tocar(tester, find.text('Cancelar'));
+      expect(pcs.dejadas, isEmpty);
+      await tocar(tester, find.text('Dejar de usar'));
+      await tocar(tester, find.text('Dejar de usar').last);
+      expect(pcs.dejadas, ['w3']);
+      expect(
+        find.text('Dejamos de usar la cámara USB2.0 PC Camera'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Ya no detectamos caídas en el Pasillo.'),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets('CA-29.5: una cámara desconectada conserva su habitación', (
     tester,
@@ -290,16 +293,11 @@ void main() {
     );
     await tocar(tester, find.text('USB2.0 PC Camera'));
     expect(
-      find.text(
-        'Revisa el cable USB. Pasillo sigue con esta cámara: no pasa a otra.',
-      ),
+      find.text('Revisa el cable USB. Pasillo conserva esta cámara.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Logitech C270'));
-    expect(
-      find.text('Pide a alguien en la casa que la conecte por USB a la PC.'),
-      findsOneWidget,
-    );
+    expect(find.text('Pide que la conecten por USB.'), findsOneWidget);
     expect(find.text('Usar esta cámara'), findsNothing);
   });
 
@@ -312,12 +310,7 @@ void main() {
       find.text('No encontramos cámaras en la PC Sala-Rosa'),
       findsOneWidget,
     );
-    expect(
-      find.text(
-        'Pide a alguien en la casa que conecte una webcam por USB a la PC.',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Que conecten una webcam por USB.'), findsOneWidget);
     pcs.webcams = tresSinUsar();
     await tester.tap(find.text('Buscar de nuevo'));
     await tester.pump();
@@ -388,19 +381,13 @@ void main() {
         await tocar(tester, find.text('Ver vista previa'));
         expect(pcs.vistasPrevias, ['w1']);
         expect(find.text('Vista previa · Webcam USB HD'), findsOneWidget);
-        expect(
-          find.text('Así sabes qué habitación ve esta cámara.'),
-          findsOneWidget,
-        );
         expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
         expect(
           find.textContaining('VISTA PREVIA · 0:15', findRichText: true),
           findsOneWidget,
         );
         expect(
-          find.text(
-            'No se graba. Tu acceso queda en el registro de la familia.',
-          ),
+          find.text('No se graba · queda en el registro de accesos'),
           findsOneWidget,
         );
         await tester.pump(const Duration(seconds: 3));
@@ -473,10 +460,6 @@ void main() {
       await tocar(tester, find.text('Webcam USB HD'));
       await tocar(tester, find.text('Ver vista previa'));
       expect(pcs.vistasPrevias, isEmpty);
-      expect(
-        find.text('No podemos mostrar lo que ve esta cámara ahora.'),
-        findsOneWidget,
-      );
       expect(find.text('La cámara está en pausa'), findsOneWidget);
       await tocar(tester, find.text('Cerrar'));
       expect(find.text('Acceso registrado'), findsNothing);
@@ -492,13 +475,7 @@ void main() {
       );
       await tocar(tester, find.text('Ver vista previa'));
       expect(pcs.vistasPrevias, isEmpty);
-      expect(
-        find.text(
-          'Sin el consentimiento de Rosa no hay video, tampoco para la vista '
-          'previa.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Sin él no hay video.'), findsOneWidget);
     });
 
     testWidgets('si el backend dice que se desconectó, lo explica', (
@@ -571,9 +548,9 @@ void main() {
       tester,
     ) async {
       await abrir(tester, Rutas.nombreCamara('c1'));
-      expect(find.text('Ya tiene cámara'), findsOneWidget);
+      expect(find.text('Ya tiene cámara'), findsNothing);
       expect(
-        find.text('Las habitaciones que ya tienen cámara no se pueden elegir.'),
+        find.text('Las que ya tienen cámara no se pueden elegir.'),
         findsOneWidget,
       );
       await tester.enterText(find.byType(TextField), 'dormitorio');

@@ -304,7 +304,7 @@ class _Visor extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'Apunta al código QR que muestra la PC',
+                    'Apunta al QR de la PC',
                     textAlign: TextAlign.center,
                     style: estiloTexto(22, 700, color: Colors.white).copyWith(
                       shadows: const [
@@ -460,14 +460,13 @@ class _Explicar extends StatelessWidget {
       Semantics(
         header: true,
         child: Text(
-          'Para escanear el código, Te Tengo necesita usar la cámara de este '
-          'celular.',
+          'Te Tengo usará la cámara para leer el QR.',
           style: estiloTexto(24, 800, color: Colors.white),
         ),
       ),
       const SizedBox(height: 10),
       Text(
-        'No guardamos ninguna imagen.',
+        'No guarda imágenes.',
         style: estiloTexto(17, 400, color: Colores.nocheTexto),
       ),
       const SizedBox(height: 20),
@@ -502,9 +501,7 @@ class _Bloqueada extends StatelessWidget {
       const Aviso(
         tono: TonoAviso.advertencia,
         icono: Ico.lock,
-        titulo: 'La cámara del celular está bloqueada para Te Tengo',
-        texto:
-            'Puedes permitirla en los ajustes del celular o escribir el código.',
+        titulo: 'La cámara del celular está bloqueada',
       ),
       const SizedBox(height: 16),
       Boton(

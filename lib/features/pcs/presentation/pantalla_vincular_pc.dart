@@ -10,7 +10,6 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
 import '../../familia/data/familia_repositorio.dart';
-import '../../hogar/data/hogar_repositorio.dart';
 import '../data/pcs_repositorio.dart';
 import 'pantalla_pc_vinculada.dart';
 import 'piezas_pc.dart';
@@ -67,7 +66,6 @@ class PantallaVincularPc extends ConsumerWidget {
     final texto = Theme.of(context).textTheme;
     final titular = ref.watch(esTitularProvider);
     final sinInternet = ref.watch(sinInternetProvider).value ?? false;
-    final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final deshabilitado = sinInternet || !titular;
     return Scaffold(
       appBar: enConfiguracion
@@ -85,12 +83,6 @@ class PantallaVincularPc extends ConsumerWidget {
           Semantics(
             header: true,
             child: Text('Vincula la PC de la casa', style: texto.titleLarge),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Así sus cámaras empiezan a cuidar a $nombre. No hace falta '
-            'escribir contraseñas en la PC.',
-            style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
           if (sinInternet) ...[
@@ -112,9 +104,9 @@ class PantallaVincularPc extends ConsumerWidget {
           const PasosNumerados([
             (
               'Instala Te Tengo Captura en la PC',
-              'Descárgalo en $paginaDescargaCaptura desde esa PC.',
+              'Desde $paginaDescargaCaptura',
             ),
-            ('Ábrelo. Verás un código QR y un código de 8 letras', null),
+            ('Ábrelo: muestra un código QR', null),
             ('Escanea el QR con este celular', null),
           ]),
           const SizedBox(height: 20),

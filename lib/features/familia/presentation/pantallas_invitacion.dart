@@ -125,8 +125,7 @@ class _PantallaAceptarInvitacionState
               if (adulto != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  'Crea tu acceso para recibir las alertas de $adulto en este '
-                  'celular.',
+                  'Crea tu acceso para recibir sus alertas.',
                   style: texto.bodyLarge?.copyWith(
                     color: context.colores.tinta2,
                   ),
@@ -151,7 +150,6 @@ class _PantallaAceptarInvitacionState
                     controlador: _correo,
                     tipo: TipoCampo.correo,
                     habilitado: false,
-                    ayuda: 'Es el correo al que llegó la invitación.',
                   ),
                 CampoTexto(
                   etiqueta: 'Crea una contraseña',
@@ -213,13 +211,6 @@ class PantallaAccesoCreado extends ConsumerWidget {
                         style: texto.headlineMedium,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Te llegarán aunque tengas la app cerrada.',
-                      style: texto.bodyLarge?.copyWith(
-                        color: context.colores.tinta2,
-                      ),
-                    ),
                     const SizedBox(height: 20),
                     ListaTarjeta(
                       children: [
@@ -227,15 +218,14 @@ class PantallaAccesoCreado extends ConsumerWidget {
                           inicio: IconoFila(Ico.check),
                           titulo: 'Puedes',
                           subtitulo:
-                              'Ver alertas, clips, historial y la cámara en '
-                              'vivo. Marcar alertas y pausar la cámara.',
+                              'Ver alertas, clips y la cámara en vivo; marcar '
+                              'alertas y pausar.',
                         ),
                         FilaLista(
                           inicio: const IconoFila(Ico.lock),
                           titulo: 'Solo $titular puede',
                           subtitulo:
-                              'Cambiar los datos de $adulto, el consentimiento, '
-                              'la cámara y la familia.',
+                              'Cambiar datos, consentimiento, cámaras y familia.',
                         ),
                       ],
                     ),

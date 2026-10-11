@@ -86,7 +86,6 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
-    final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final invitado = _invitado;
     return Scaffold(
       appBar: CabeceraConfiguracion(
@@ -103,8 +102,8 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Recibirá las alertas de $nombre y, si no atiendes una en '
-            '$esperaPredeterminada min, le avisaremos.',
+            'Le avisamos si no atiendes una alerta en '
+            '$esperaPredeterminada min.',
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -115,13 +114,13 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
               titulo: 'Invitación enviada',
               contenido: TextSpan(
                 children: [
-                  const TextSpan(text: 'Le enviamos un enlace a '),
+                  const TextSpan(text: 'A '),
                   TextSpan(
                     text: invitado,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const TextSpan(
-                    text: '. Será tu contacto secundario cuando acepte.',
+                    text: '. Será tu contacto secundario al aceptar.',
                   ),
                 ],
               ),
@@ -190,11 +189,6 @@ class PantallaTodoListo extends ConsumerWidget {
                 style: texto.headlineMedium,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Te avisaremos aunque tengas la app cerrada.',
-              style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
-            ),
             const SizedBox(height: 20),
             ListaTarjeta(
               children: [
@@ -230,15 +224,14 @@ class PantallaTodoListo extends ConsumerWidget {
                   const FilaLista(
                     inicio: _IconoResumen(Ico.lock, activo: false),
                     titulo: 'Falta el consentimiento',
-                    subtitulo: 'Regístralo desde Inicio para activar la cámara',
+                    subtitulo: 'Regístralo desde Inicio',
                   ),
                 FilaLista(
                   inicio: _IconoResumen(Ico.users, activo: invitado != null),
                   titulo: invitado != null
                       ? '1 familiar invitado'
                       : 'Sin contacto secundario',
-                  subtitulo:
-                      invitado ?? 'Puedes invitar a alguien desde Familia',
+                  subtitulo: invitado ?? 'Invítalo desde Familia',
                 ),
               ],
             ),

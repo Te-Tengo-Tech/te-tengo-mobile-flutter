@@ -34,8 +34,8 @@ Future<bool> dejarDeUsarCamara(
     icono: Ico.cam,
     titulo: '¿Dejar de usar la cámara $dispositivo?',
     texto:
-        'Dejaremos de detectar caídas ${enHabitacion(habitacion)}. La cámara '
-        'sigue conectada a la PC y puedes volver a elegirla.',
+        'No detectaremos caídas ${enHabitacion(habitacion)}. Puedes volver a '
+        'elegirla.',
     aceptar: 'Dejar de usar',
     cancelar: 'Cancelar',
     peligro: true,

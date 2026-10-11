@@ -122,9 +122,7 @@ void main() {
         expect(find.text('Instala Te Tengo Captura en la PC'), findsOneWidget);
         await tocar(tester, find.text('Escanear el código QR'));
         expect(
-          find.text(
-            'Para escanear el código, Te Tengo necesita usar la cámara de este celular.',
-          ),
+          find.text('Te Tengo usará la cámara para leer el QR.'),
           findsOneWidget,
         );
       },
@@ -148,14 +146,11 @@ void main() {
       tester,
     ) async {
       await abrir(tester, Rutas.escanear);
-      expect(find.text('No guardamos ninguna imagen.'), findsOneWidget);
+      expect(find.text('No guarda imágenes.'), findsOneWidget);
       expect(escaner.abierto, isFalse);
       await tocar(tester, find.text('Permitir'));
       expect(escaner.abierto, isTrue);
-      expect(
-        find.text('Apunta al código QR que muestra la PC'),
-        findsOneWidget,
-      );
+      expect(find.text('Apunta al QR de la PC'), findsOneWidget);
       expect(cache.datos[claveCamaraExplicada], isNotNull);
     });
 
@@ -195,10 +190,7 @@ void main() {
       await abrir(tester, Rutas.escanear);
       escaner.fallar(FalloEscaner.permisoDenegado);
       await tester.pumpAndSettle();
-      expect(
-        find.text('La cámara del celular está bloqueada para Te Tengo'),
-        findsOneWidget,
-      );
+      expect(find.text('La cámara del celular está bloqueada'), findsOneWidget);
       expect(find.text('Abrir los ajustes del celular'), findsOneWidget);
       await tocar(tester, find.text('Escribir el código').first);
       expect(find.text('Escribe el código de la PC'), findsOneWidget);
@@ -289,8 +281,7 @@ void main() {
       await tocar(tester, find.text('Continuar'));
       expect(
         find.text(
-          'Este código ya venció o ya se usó. La PC ya muestra uno nuevo: '
-          'escríbelo o escanéalo.',
+          'Este código venció o ya se usó. La PC ya muestra uno nuevo.',
         ),
         findsOneWidget,
       );
@@ -332,10 +323,7 @@ void main() {
       await abrir(tester, Rutas.escribirCodigo);
       await tester.enterText(campoCodigo(), 'KQWTMXHD');
       await tocar(tester, find.text('Continuar'));
-      expect(
-        find.text('Sin internet. Revisa tu conexión y vuelve a intentarlo.'),
-        findsOneWidget,
-      );
+      expect(find.text('Sin internet. Vuelve a intentarlo.'), findsOneWidget);
     });
   });
 
@@ -348,12 +336,7 @@ void main() {
       expect(find.text('Sala-Rosa'), findsOneWidget);
       expect(find.text('Windows 11 Home'), findsOneWidget);
       expect(find.text('Te Tengo Captura 0.5.0'), findsOneWidget);
-      expect(
-        find.text(
-          'Usar sus cámaras para detectar caídas y movimientos inestables',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Detectar caídas con sus cámaras'), findsOneWidget);
       await verHasta(tester, find.text('No reconozco esta PC'));
       expect(find.text('No reconozco esta PC'), findsOneWidget);
     });
@@ -383,9 +366,7 @@ void main() {
         await tocar(tester, find.text('Aprobar'));
         expect(find.text('Falta el consentimiento de Rosa'), findsOneWidget);
         expect(
-          find.text(
-            'Las cámaras no enviarán nada hasta que registres el consentimiento.',
-          ),
+          find.text('Sin él, las cámaras no envían nada.'),
           findsOneWidget,
         );
       },
@@ -412,10 +393,7 @@ void main() {
       );
       await abrir(tester, Rutas.aprobarPc('KQWT-MXHD'));
       await tocar(tester, find.text('Aprobar'));
-      expect(
-        find.text('Apunta al código QR que muestra la PC'),
-        findsOneWidget,
-      );
+      expect(find.text('Apunta al QR de la PC'), findsOneWidget);
       expect(find.text('Este código ya venció o ya se usó'), findsOneWidget);
     });
 

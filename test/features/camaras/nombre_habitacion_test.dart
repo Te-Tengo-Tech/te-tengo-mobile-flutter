@@ -82,7 +82,7 @@ void main() {
       await abrir(tester, Rutas.camara('c1'));
       await tocar(tester, find.text('Ajustes de la cámara'));
       await tocar(tester, find.text('Nombre: Sala'));
-      expect(find.text('¿Cómo se llama esta habitación?'), findsOneWidget);
+      expect(find.text('Así se verá en las próximas alertas'), findsOneWidget);
       await tocar(tester, find.text('Sala comedor'));
       expect(find.text('Posible caída en la Sala comedor'), findsOneWidget);
       camaras.camaras = [
@@ -124,7 +124,7 @@ void main() {
     expect(find.text('Solo ver'), findsOneWidget);
     await tester.tap(find.text('Nombre: Sala'));
     await tester.pumpAndSettle();
-    expect(find.text('¿Cómo se llama esta habitación?'), findsNothing);
+    expect(find.text('Así se verá en las próximas alertas'), findsNothing);
   });
 
   testWidgets('403 SOLO_TITULAR muestra el mensaje del backend', (

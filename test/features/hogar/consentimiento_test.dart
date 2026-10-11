@@ -61,20 +61,15 @@ void main() {
       expect(find.text('Paso 2 de 5'), findsOneWidget);
       // The live-view clause goes first and open; the others are folded.
       expect(
-        find.textContaining('Los familiares vinculados a esta cuenta pueden'),
+        find.textContaining('La familia vinculada puede verla en vivo'),
         findsOneWidget,
       );
-      expect(find.text('Detectamos caídas por la postura'), findsOneWidget);
-      expect(find.text('La familia puede verla cuando quiera'), findsNothing);
+      expect(find.text('Caídas por la postura'), findsOneWidget);
+      expect(find.text('Cuando la familia quiera'), findsNothing);
       expect(find.text('Vista en vivo en cualquier momento'), findsOneWidget);
-      await verHasta(
-        tester,
-        find.textContaining('que sus familiares vinculados la vean'),
-      );
+      await verHasta(tester, find.textContaining('que su familia la vea'));
       expect(
-        find.textContaining(
-          'que sus familiares vinculados la vean en vivo cuando quieran',
-        ),
+        find.textContaining('que su familia la vea en vivo cuando quiera'),
         findsOneWidget,
       );
     },
@@ -85,10 +80,7 @@ void main() {
   ) async {
     await abrir(tester, Rutas.configConsentimiento);
     await tocar(tester, find.text('Registrar consentimiento'));
-    expect(
-      find.text('Marca las dos casillas. Solo se registra si Rosa lo acepta.'),
-      findsOneWidget,
-    );
+    expect(find.text('Marca las dos casillas.'), findsOneWidget);
     await tocar(tester, find.text('Leí el resumen y el documento completo.'));
     await tocar(tester, find.text('Registrar consentimiento'));
     expect(repo.consentimientos, isEmpty);
@@ -135,7 +127,12 @@ void main() {
       expect(find.text('Falta el consentimiento de Rosa'), findsOneWidget);
       expect(find.textContaining('Detenida', findRichText: true), findsWidgets);
       await tocar(tester, find.text('Completar el consentimiento'));
-      expect(find.text('Consentimiento informado'), findsOneWidget);
+      expect(
+        find.text(
+          'Lo acepta Rosa o su representante. Sin él, no detectamos caídas.',
+        ),
+        findsOneWidget,
+      );
     },
   );
 
@@ -144,12 +141,14 @@ void main() {
   ) async {
     await abrir(tester, Rutas.inicio);
     expect(find.text('Detección detenida'), findsOneWidget);
+    expect(find.text('Falta el consentimiento de Rosa.'), findsOneWidget);
+    await tocar(tester, find.text('Registrar consentimiento'));
     expect(
-      find.text('Falta el consentimiento de Rosa. La cámara no envía video.'),
+      find.text(
+        'Lo acepta Rosa o su representante. Sin él, no detectamos caídas.',
+      ),
       findsOneWidget,
     );
-    await tocar(tester, find.text('Registrar consentimiento'));
-    expect(find.text('Consentimiento informado'), findsOneWidget);
   });
 
   testWidgets('un familiar invitado ve la detención sin poder registrar', (
@@ -174,10 +173,7 @@ void main() {
       ),
     );
     await abrir(tester, Rutas.inicio);
-    expect(
-      find.text('Revocaste el consentimiento. No hay captura ni alertas.'),
-      findsOneWidget,
-    );
+    expect(find.text('Revocaste el consentimiento.'), findsOneWidget);
   });
 
   test(

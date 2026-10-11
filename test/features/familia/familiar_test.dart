@@ -159,7 +159,10 @@ void main() {
     expect(find.text('Titular de la cuenta'), findsOneWidget);
     expect(find.text('Recibe cada alerta primero'), findsOneWidget);
     expect(find.text('Aún no abrió la vista en vivo'), findsOneWidget);
-    await verHasta(tester, find.textContaining('Eres titular:'));
+    await verHasta(
+      tester,
+      find.text('Para dejar de ser principal, elige a otro contacto.'),
+    );
     expect(find.text('Retirar acceso'), findsNothing);
     expect(find.text('Opciones'), findsNothing);
   });

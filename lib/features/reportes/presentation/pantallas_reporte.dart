@@ -282,8 +282,7 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Cuéntanos dónde y a qué hora. Lo revisaremos para mejorar la '
-            'detección.',
+            'Lo revisaremos para mejorar la detección.',
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -395,8 +394,7 @@ class _NotaMovimientos extends StatelessWidget {
       icono: hay ? Ico.body : Ico.info,
       texto: hay
           ? 'Revisaremos los movimientos de ese momento.'
-          : 'No tenemos movimientos guardados de ese momento; revisaremos lo '
-                'que nos cuentes.',
+          : 'Sin movimientos de ese momento; revisaremos tu relato.',
     );
   }
 }

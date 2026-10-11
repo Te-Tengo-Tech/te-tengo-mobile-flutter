@@ -82,8 +82,7 @@ class PantallaPcVinculada extends ConsumerWidget {
                 Text(
                   elegidas
                       ? 'Sus cámaras ya están elegidas.'
-                      : 'Ahora elige desde aquí qué cámaras usar y en qué '
-                            'habitación está cada una. No hace falta ir a la PC.',
+                      : 'Ahora elige sus cámaras desde aquí.',
                   style: texto.bodyLarge,
                 ),
                 if (!h.conConsentimiento) ...[
@@ -92,9 +91,7 @@ class PantallaPcVinculada extends ConsumerWidget {
                     tono: TonoAviso.error,
                     icono: Ico.lock,
                     titulo: 'Falta el consentimiento de $nombre',
-                    texto:
-                        'Las cámaras no enviarán nada hasta que registres el '
-                        'consentimiento.',
+                    texto: 'Sin él, las cámaras no envían nada.',
                     accion: ref.watch(esTitularProvider)
                         ? Boton(
                             'Completar el consentimiento',

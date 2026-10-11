@@ -245,10 +245,7 @@ void main() {
         findsOneWidget,
       );
       await verHasta(tester, find.text('Agregar PC'));
-      expect(
-        find.text('Por ahora, cada habitación usa una sola cámara.'),
-        findsOneWidget,
-      );
+      expect(find.text('Una cámara por habitación.'), findsOneWidget);
       await tocar(tester, find.text('Agregar PC'));
       expect(find.text('Vincula la PC de la casa'), findsOneWidget);
     });
@@ -334,7 +331,7 @@ void main() {
       tester,
     ) async {
       await abrir(tester, Rutas.pcs, consentimiento: false);
-      expect(find.text('Primero registra el consentimiento'), findsOneWidget);
+      expect(find.text('Falta el consentimiento'), findsOneWidget);
       expect(find.text('Detenidas'), findsOneWidget);
       expect(
         find.textContaining('detenidas', findRichText: true),
@@ -431,7 +428,7 @@ void main() {
       expect(
         find.text(
           'Dejaremos de detectar caídas en Sala, Dormitorio y Pasillo. La PC '
-          'borrará su acceso y volverá a mostrar el código QR.',
+          'volverá a mostrar su QR.',
         ),
         findsOneWidget,
       );
@@ -514,10 +511,7 @@ void main() {
       await abrir(tester, Rutas.inicio);
       expect(find.text('1 cámara no responde · Cocina'), findsOneWidget);
       expect(
-        find.text(
-          'Sin ella no detectamos caídas en la Cocina. Las demás siguen '
-          'cuidando.',
-        ),
+        find.text('No detectamos caídas en la Cocina. Las demás siguen.'),
         findsOneWidget,
       );
       expect(find.text('3 de 4 funcionan'), findsOneWidget);
@@ -579,9 +573,7 @@ void main() {
       await abrir(tester, Rutas.inicio);
       expect(find.text('Sin cámaras'), findsWidgets);
       expect(
-        find.text(
-          'Aún no hay una PC vinculada. Sin ella no detectamos caídas.',
-        ),
+        find.text('Vincula la PC de la casa para detectar caídas.'),
         findsOneWidget,
       );
       expect(find.text('Ver en vivo'), findsNothing);
@@ -593,10 +585,7 @@ void main() {
       pcs.pcs = [pc('pc-sala', 'Sala-Rosa', const [], sinUsar: 3)];
       camaras.camaras = [];
       await abrir(tester, Rutas.inicio);
-      expect(
-        find.text('Falta elegir las cámaras de la PC de la casa.'),
-        findsOneWidget,
-      );
+      expect(find.text('Falta elegir las cámaras.'), findsOneWidget);
       expect(find.text('Elegir las cámaras'), findsOneWidget);
     });
 

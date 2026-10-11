@@ -309,10 +309,9 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
         const SizedBox(height: 8),
         Text(
           sinConexion || n == 0
-              ? 'Una cámara por habitación. Te Tengo solo usa las que elijas.'
-              : 'La PC $nombrePc encontró $n cámara${n == 1 ? '' : 's'}. Dinos en '
-                    'qué habitación está cada una; por ahora, cada habitación '
-                    'usa una sola cámara.',
+              ? 'Una cámara por habitación.'
+              : '${contar(n, 'cámara', 'cámaras')} en la PC $nombrePc. Una por '
+                    'habitación.',
           style: texto.bodyMedium,
         ),
         const SizedBox(height: 16),
@@ -321,9 +320,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
             tono: TonoAviso.error,
             icono: Ico.lock,
             titulo: 'Falta el consentimiento de $nombre',
-            texto:
-                'Puedes elegir las cámaras, pero no habrá vista previa ni '
-                'detección hasta que lo registres.',
+            texto: 'Sin él no hay vista previa ni detección.',
             accion: titular
                 ? Boton(
                     'Registrar consentimiento',
@@ -348,19 +345,19 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
             tono: TonoAviso.advertencia,
             icono: Ico.wifiOff,
             titulo: 'La PC $nombrePc no responde',
-            contenido: TextSpan(
-              children: [
-                if (pc.ultimaSenal case final s?) ...[
+            contenido: switch (pc.ultimaSenal) {
+              final s? => TextSpan(
+                children: [
                   const TextSpan(text: 'Sin conexión desde las '),
                   TextSpan(
                     text: hora(s),
                     style: estiloMono(tamano: 15.5, peso: 400),
                   ),
-                  const TextSpan(text: '. '),
+                  const TextSpan(text: '.'),
                 ],
-                const TextSpan(text: 'Cuando vuelva, verás aquí sus cámaras.'),
-              ],
-            ),
+              ),
+              null => null,
+            },
           ),
           const EncabezadoSeccion('Qué revisar en la casa'),
           const QueRevisarPc(),
@@ -388,15 +385,14 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
           ],
           if (enUso >= camarasQueCarganLaPc) ...[
             Text(
-              'Cada cámara usa más la PC. Si la detección se vuelve lenta, '
-              'conecta algunas cámaras a otra PC.',
+              'Si la detección va lenta, pasa cámaras a otra PC.',
               style: texto.bodySmall,
             ),
             const SizedBox(height: 12),
           ],
           if (titular) ...[
             Text(
-              '¿Falta una cámara? Pide que la conecten por USB a la PC.',
+              '¿Falta una? Que la conecten por USB.',
               style: texto.bodyMedium,
             ),
             const SizedBox(height: 4),
@@ -439,10 +435,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
           alPresionar: () => abrirVistaPrevia(context, camara: w, pc: pc),
         ),
         const SizedBox(height: 6),
-        Text(
-          'No se graba. Queda en el registro de la familia.',
-          style: texto.bodySmall,
-        ),
+        Text('No se graba · queda registrado', style: texto.bodySmall),
       ],
     );
     final habitacion = w.nombreHabitacion ?? '';
@@ -456,9 +449,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.wifiOff,
-              texto:
-                  'Revisa el cable USB. $habitacion sigue con esta cámara: no '
-                  'pasa a otra.',
+              texto: 'Revisa el cable USB. $habitacion conserva esta cámara.',
             ),
           const SizedBox(height: 12),
           Boton(
@@ -481,7 +472,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
       return const Aviso(
         tono: TonoAviso.neutral,
         icono: Ico.plug,
-        texto: 'Pide a alguien en la casa que la conecte por USB a la PC.',
+        texto: 'Pide que la conecten por USB.',
       );
     }
     final propias = ambientes
@@ -533,13 +524,22 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
             ],
           ),
         ),
+        if ([
+          ...habitacionesSugeridas,
+          ...propias,
+        ].any((h) => ambienteDe(h)?.conCamara ?? false)) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Las que ya tienen cámara no se pueden elegir.',
+            style: texto.bodySmall,
+          ),
+        ],
         if (_habitacion == _otra) ...[
           const SizedBox(height: 12),
           CampoTexto(
             etiqueta: 'Nombre de la habitación',
             controlador: _otraControl,
             marcador: 'Ej.: Estudio',
-            ayuda: 'Aparece en cada alerta.',
             error: _error,
             longitudMaxima: 40,
             alCambiar: (_) => setState(() => _error = null),
@@ -618,14 +618,6 @@ class _Buscando extends StatelessWidget {
                     color: context.colores.moradoTinta,
                   ),
                 ),
-                Text(
-                  'Puede tardar unos segundos.',
-                  style: estiloTexto(
-                    15,
-                    400,
-                    color: context.colores.moradoTinta,
-                  ),
-                ),
               ],
             ),
           ),
@@ -668,7 +660,7 @@ class EstadoVacioCamaras extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Pide a alguien en la casa que conecte una webcam por USB a la PC.',
+            'Que conecten una webcam por USB.',
             textAlign: TextAlign.center,
             style: texto.bodyMedium,
           ),

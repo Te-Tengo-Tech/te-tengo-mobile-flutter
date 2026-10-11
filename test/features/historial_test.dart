@@ -62,14 +62,14 @@ void main() {
     expect(find.text('Historial'), findsWidgets);
     expect(find.text('Alertas'), findsOneWidget);
     expect(find.text('Resumen semanal'), findsOneWidget);
-    expect(find.text('lunes 21 de septiembre'), findsOneWidget);
+    expect(find.text('lun 21 sep'), findsOneWidget);
     expect(find.text('12:05'), findsOneWidget);
     expect(find.text('Inestable'), findsWidgets);
     // With one camera the room adds nothing: who marked it is enough.
     expect(find.text('por Carmen'), findsWidgets);
     expect(find.text('Sala · por Carmen'), findsNothing);
     expect(find.text('ATENDIDA'), findsWidgets);
-    await verHasta(tester, find.text('lunes 14 de septiembre'));
+    await verHasta(tester, find.text('lun 14 sep'));
     expect(find.text('FALSA ALARMA'), findsOneWidget);
     expect(alertas.filtros.firstWhere((f) => f.tamano == 50).estado, isNull);
   });
@@ -184,7 +184,7 @@ void main() {
     expect(find.text('Ninguna alerta coincide'), findsOneWidget);
     expect(
       find.text('Prueba con otro rango de fechas, tipo o estado.'),
-      findsOneWidget,
+      findsNothing,
     );
     expect(find.text('Filtrar (3)'), findsOneWidget);
     await tocar(tester, find.text('Quitar filtros'));
@@ -204,7 +204,7 @@ void main() {
     expect(find.text('Sin eventos registrados'), findsOneWidget);
     expect(
       find.text('Aquí verás cada caída y movimiento inestable.'),
-      findsOneWidget,
+      findsNothing,
     );
     expect(find.text('Filtrar'), findsNothing);
   });

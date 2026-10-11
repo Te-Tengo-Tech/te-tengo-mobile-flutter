@@ -146,8 +146,7 @@ class _HojaMarcarState extends ConsumerState<_HojaMarcar> {
               seleccion: _eleccion,
               titulo: 'Falsa alarma',
               subtitulo:
-                  'No hubo ${a.esCaida ? 'caída' : 'movimiento inestable'}. No '
-                  'contará en el resumen.',
+                  'No hubo ${a.esCaida ? 'caída' : 'movimiento inestable'}.',
               error: _faltaEleccion,
               alElegir: (v) => setState(() {
                 _eleccion = v;

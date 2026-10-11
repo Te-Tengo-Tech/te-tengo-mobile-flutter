@@ -58,12 +58,7 @@ void main() {
       expect(find.text('No se pudo guardar'), findsOneWidget);
       await tocar(tester, find.text('Clip del evento'));
       await verHasta(tester, find.text('Clip no disponible'));
-      expect(
-        find.text(
-          'No se pudo guardar el video. La alerta sigue siendo válida.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('La alerta sigue siendo válida.'), findsOneWidget);
     },
   );
 

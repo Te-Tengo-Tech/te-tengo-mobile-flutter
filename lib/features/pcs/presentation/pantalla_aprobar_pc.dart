@@ -195,9 +195,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Si alguien te pidió escanear un código que no es de la casa de '
-              '${ref.read(nombreAdultoMayorProvider) ?? ''}, no lo hagas. La PC no '
-              'tendrá acceso.',
+              'La PC no tendrá acceso. No escanees códigos ajenos.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
@@ -349,25 +347,16 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
           ]),
         ),
         const EncabezadoSeccion('Si la apruebas, esta PC podrá:'),
-        const _Permiso(
-          Ico.cam,
-          'Usar sus cámaras para detectar caídas y movimientos inestables',
-        ),
-        const _Permiso(
-          Ico.bell,
-          'Enviar a Te Tengo los avisos y los clips de 12 segundos',
-        ),
-        const _Permiso(
-          Ico.video,
-          'Mostrar la vista en vivo cuando un familiar la abra',
-        ),
+        const _Permiso(Ico.cam, 'Detectar caídas con sus cámaras'),
+        const _Permiso(Ico.bell, 'Enviar avisos y clips de 12 s'),
+        const _Permiso(Ico.video, 'Mostrar la vista en vivo'),
         const SizedBox(height: 12),
         Aviso(
           tono: TonoAviso.neutral,
           icono: Ico.info,
           texto:
-              'Apruébala solo si estás frente a la PC de la casa de $nombre o si '
-              'tú la instalaste.',
+              'Apruébala solo si estás frente a la PC de $nombre o tú la '
+              'instalaste.',
         ),
         const SizedBox(height: 20),
         if (soloTitular)

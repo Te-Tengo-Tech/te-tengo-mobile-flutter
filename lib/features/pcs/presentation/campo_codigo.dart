@@ -47,8 +47,7 @@ class ErrorDeCodigo {
     ),
     'CODIGO_VENCIDO' => const ErrorDeCodigo(
       TipoErrorCodigo.vencido,
-      'Este código ya venció o ya se usó. La PC ya muestra uno nuevo: '
-      'escríbelo o escanéalo.',
+      'Este código venció o ya se usó. La PC ya muestra uno nuevo.',
     ),
     'VINCULACION_BLOQUEADA' => ErrorDeCodigo(
       TipoErrorCodigo.bloqueado,
@@ -58,7 +57,7 @@ class ErrorDeCodigo {
     'SOLO_TITULAR' => ErrorDeCodigo(TipoErrorCodigo.soloTitular, e.detalle),
     ProblemaApi.sinConexion => const ErrorDeCodigo(
       TipoErrorCodigo.sinConexion,
-      'Sin internet. Revisa tu conexión y vuelve a intentarlo.',
+      'Sin internet. Vuelve a intentarlo.',
     ),
     _ => ErrorDeCodigo(TipoErrorCodigo.otro, e.detalle),
   };

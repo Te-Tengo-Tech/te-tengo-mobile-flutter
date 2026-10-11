@@ -149,10 +149,7 @@ void main() {
     camaras.camaras = [pausada];
     await abrir(tester, Rutas.inicio);
     expect(find.text('Todo tranquilo, con una pausa'), findsOneWidget);
-    expect(
-      find.text('La cámara de la Sala está en pausa hasta las 11:42.'),
-      findsOneWidget,
-    );
+    expect(find.text('Sala en pausa hasta las 11:42.'), findsOneWidget);
     // The «Cámaras» tile says it too.
     expect(find.text('En pausa'), findsOneWidget);
   });
