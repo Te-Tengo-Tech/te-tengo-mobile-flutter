@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:te_tengo/core/cache/cache_local.dart';
+import 'package:te_tengo/core/dispositivo/conectividad.dart';
 import 'package:te_tengo/core/dispositivo/llamada.dart';
 import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
 import 'package:te_tengo/core/reloj.dart';
@@ -32,6 +34,8 @@ Future<List<String?>> abrirConAlertas(
   FabricaClipFalsa? clips,
   CamarasRepositorioFalso? camaras,
   Reloj? reloj,
+  Conectividad? conectividad,
+  CacheLocal? cache,
   List<Override> overrides = const [],
 }) async {
   final llamadas = <String?>[];
@@ -42,6 +46,8 @@ Future<List<String?>> abrirConAlertas(
       sesion: sesion,
       push: push,
       permiso: permiso,
+      conectividad: conectividad,
+      cache: cache,
       overrides: [
         alertasRepositorioProvider.overrideWithValue(alertas),
         camarasRepositorioProvider.overrideWithValue(
