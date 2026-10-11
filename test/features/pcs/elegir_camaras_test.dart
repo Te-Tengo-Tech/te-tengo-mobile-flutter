@@ -523,16 +523,16 @@ void main() {
 
     testWidgets('dice en qué PC y qué webcam es', (tester) async {
       await abrir(tester, Rutas.camara('c1'));
-      await tocar(tester, find.text('Datos de la instalación'));
-      expect(find.text('En la PC'), findsOneWidget);
-      expect(find.text('Sala-Rosa'), findsOneWidget);
-      expect(find.text('Webcam USB HD'), findsOneWidget);
+      await tocar(tester, find.text('Ajustes de la cámara'));
+      expect(find.text('PC Sala-Rosa'), findsOneWidget);
+      expect(find.textContaining('Webcam USB HD · desde el'), findsOneWidget);
     });
 
     testWidgets('CA-29.2: «Dejar de usar esta cámara» pide confirmar', (
       tester,
     ) async {
       await abrir(tester, Rutas.camara('c1'));
+      await tocar(tester, find.text('Ajustes de la cámara'));
       await tocar(tester, find.text('Dejar de usar esta cámara'));
       expect(
         find.text('¿Dejar de usar la cámara Webcam USB HD?'),
@@ -550,7 +550,8 @@ void main() {
       tester,
     ) async {
       await abrir(tester, Rutas.camara('c1'), sesion: sesionInvitado);
-      await verHasta(tester, find.textContaining('Solo Carmen (titular)'));
+      await tocar(tester, find.text('Ajustes de la cámara'));
+      expect(find.text('Solo ver'), findsOneWidget);
       expect(find.text('Dejar de usar esta cámara'), findsNothing);
     });
   });

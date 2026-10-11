@@ -228,6 +228,7 @@ void main() {
   group('desde dónde se abre', () {
     testWidgets('la cámara elige su habitación', (tester) async {
       await abrir(tester, Rutas.camara('c1'));
+      await tocar(tester, find.text('Ajustes de la cámara'));
       await tocar(tester, find.text('¿Hubo una caída y no avisó?'));
       expect(chip(tester, 'Sala').elegido, isTrue);
       expect(chip(tester, 'Cocina').elegido, isFalse);

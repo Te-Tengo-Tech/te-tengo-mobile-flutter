@@ -472,7 +472,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Cámara · Sala'), findsOneWidget);
+      expect(find.widgetWithText(AppBar, 'Sala'), findsOneWidget);
     });
 
     testWidgets(
@@ -545,7 +545,7 @@ void main() {
         );
         push.tocar(m);
         await tester.pumpAndSettle();
-        expect(find.text('Cámara · Sala'), findsOneWidget);
+        expect(find.widgetWithText(AppBar, 'Sala'), findsOneWidget);
         push.tocar(m);
         await tester.pumpAndSettle();
         final c = ProviderScope.containerOf(
@@ -554,7 +554,7 @@ void main() {
         final router = c.read(routerProvider);
         router.pop();
         await tester.pumpAndSettle();
-        expect(find.text('Cámara · Sala'), findsNothing);
+        expect(find.widgetWithText(AppBar, 'Sala'), findsNothing);
       },
     );
 
@@ -573,7 +573,7 @@ void main() {
       expect(find.text('La cámara de la Sala se desconectó'), findsOneWidget);
       await tester.tap(find.text('La cámara de la Sala se desconectó'));
       await tester.pumpAndSettle();
-      expect(find.text('Cámara · Sala'), findsOneWidget);
+      expect(find.widgetWithText(AppBar, 'Sala'), findsOneWidget);
     });
   });
 

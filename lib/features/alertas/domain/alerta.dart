@@ -175,14 +175,28 @@ class PaginaAlertas {
 
 /// `GET /api/alertas/{id}/clip`: pre-signed URL of the clip.
 class EnlaceClip {
-  const EnlaceClip({required this.url, this.expiraEn});
+  const EnlaceClip({
+    required this.url,
+    this.expiraEn,
+    this.puntos,
+    this.puntosNoDisponibles,
+  });
 
   final String url;
   final DateTime? expiraEn;
 
+  /// The clip's body landmarks (US-36): a Parquet file, synchronized by time (CA-36.1).
+  final String? puntos;
+
+  /// Why there are none: `SIN_CONSENTIMIENTO` or `SIN_ARCHIVO` (CA-36.2); null from an older
+  /// backend, which sends neither field.
+  final String? puntosNoDisponibles;
+
   factory EnlaceClip.desdeJson(Map<String, dynamic> json) => EnlaceClip(
     url: json['url'] as String,
     expiraEn: fechaDesdeJson(json['expiraEn']),
+    puntos: (json['puntos'] as Map<String, dynamic>?)?['url'] as String?,
+    puntosNoDisponibles: json['puntosNoDisponibles'] as String?,
   );
 }
 

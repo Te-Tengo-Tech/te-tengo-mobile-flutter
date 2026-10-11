@@ -363,8 +363,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/camara/:id',
-        builder: (context, state) =>
-            PantallaCamara(camaraId: state.pathParameters['id']!),
+        builder: (context, state) => PantallaCamara(
+          camaraId: state.pathParameters['id']!,
+          momento: DateTime.tryParse(
+            state.uri.queryParameters['momento'] ?? '',
+          ),
+        ),
         routes: [
           GoRoute(
             path: 'nombre',

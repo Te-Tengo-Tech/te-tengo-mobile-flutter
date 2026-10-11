@@ -56,34 +56,23 @@ void main() {
     hogar = HogarRepositorioFalso();
   });
 
-  testWidgets(
-    'CA-07.1: en línea muestra el estado con la hora de la última señal',
-    (tester) async {
-      await abrir(tester, Rutas.camara('c1'));
-      expect(find.text('En línea'), findsOneWidget);
-      expect(
-        find.textContaining('10:42 · hace 6 s', findRichText: true),
-        findsOneWidget,
-      );
-      expect(find.text('Activa'), findsOneWidget);
-    },
-  );
+  testWidgets('CA-07.1: en línea muestra el estado', (tester) async {
+    await abrir(tester, Rutas.camara('c1'));
+    expect(find.text('En línea'), findsOneWidget);
+    expect(find.text('Qué revisar'), findsNothing);
+  });
 
-  testWidgets('CA-07.2: desconectada indica qué revisar', (tester) async {
+  testWidgets('CA-07.2: desconectada indica desde cuándo y qué revisar', (
+    tester,
+  ) async {
     camaras.camaras = [desconectada];
     await abrir(tester, Rutas.camara('c1'));
-    expect(find.text('Desconectada'), findsOneWidget);
-    expect(
-      find.textContaining('a las 10:31', findRichText: true),
-      findsOneWidget,
-    );
-    // The header already says since when: no notice repeats it.
-    expect(find.text('No recibimos señal desde las 10:31'), findsNothing);
-    await verHasta(tester, find.text('La conexión a internet'));
-    expect(find.text('Conectado al puerto USB de la PC'), findsOneWidget);
-    expect(find.text('El cable de la cámara'), findsOneWidget);
+    expect(find.text('Desconectada desde las 10:31'), findsOneWidget);
+    await tocar(tester, find.text('Qué revisar'));
+    expect(find.text('El cable USB de la cámara'), findsOneWidget);
     expect(find.text('La PC encendida'), findsOneWidget);
-    expect(find.text('La conexión a internet'), findsOneWidget);
+    expect(find.text('Con Te Tengo Captura abierto'), findsOneWidget);
+    expect(find.text('El internet de la casa'), findsOneWidget);
   });
 
   testWidgets('CA-07.2: el aviso de desconexión lleva al detalle de la cámara', (
@@ -144,8 +133,9 @@ void main() {
   testWidgets('sin consentimiento la cámara está detenida', (tester) async {
     hogar.hogar = hogarDeRosa(consentimiento: false);
     await abrir(tester, Rutas.camara('c1'));
-    expect(find.text('Detenida'), findsWidgets);
-    expect(find.text('Primero registra el consentimiento'), findsOneWidget);
+    expect(find.text('Detenida'), findsOneWidget);
+    expect(find.text('Detenida: falta el consentimiento'), findsOneWidget);
+    expect(find.text('Registrar consentimiento'), findsOneWidget);
     expect(find.byType(PantallaCamara), findsOneWidget);
   });
 }

@@ -103,4 +103,4 @@ Screens of the mobile prototype in the docs repository (`05-prototipos/app-movil
 - [x] **T37 US-35, US-37 Movement data consent and cloud retention:** screens 171 to 192 (`MOVIMIENTOS_ELIMINADOS`).
 - [x] **T38 US-40 «¿Hubo una caída y no avisó?»:** screens 221 to 230.
 - [x] **T39 US-33 Activity and family member detail:** screens 76, 77, 215 to 220 and 231 to 236.
-- [ ] **T40 US-36, US-39 Body points and replay:** screens 193 to 214 (see BLOCKERS for decoding the movement files).
+- [x] **T40 US-36, US-39 Body points and replay:** screens 193 to 214 and 303 to 312, the camera as a player (docs `9497de2`). Drawing the skeleton waits for a movement decoder (BLOCKERS, «Replay decoding»).

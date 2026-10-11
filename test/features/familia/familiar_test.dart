@@ -117,15 +117,9 @@ void main() {
       ),
       findsOneWidget,
     );
+    expect(find.text('1 acceso a la cámara'), findsOneWidget);
     expect(
-      find.text('1 acceso a la vista en vivo o repeticiones'),
-      findsOneWidget,
-    );
-    expect(
-      find.text(
-        'Último: hoy · Empezó a las 10:31 · duró 2\u00a0min',
-        findRichText: true,
-      ),
+      find.text('Último: hoy 10:31 · 2\u00a0min', findRichText: true),
       findsOneWidget,
     );
     await verHasta(tester, find.text('Retirar acceso'));
@@ -151,16 +145,10 @@ void main() {
     await abrir(tester, ubicacion: Rutas.familiar('u-luis'));
     expect(find.text('Aún no marcó alertas'), findsOneWidget);
     expect(
-      find.text(
-        'Último: lun 21 sep · Empezó a las 08:00 · duró 45\u00a0s',
-        findRichText: true,
-      ),
+      find.text('Último: lun 21 sep 08:00 · 45\u00a0s', findRichText: true),
       findsOneWidget,
     );
-    await tocar(
-      tester,
-      find.text('1 acceso a la vista en vivo o repeticiones'),
-    );
+    await tocar(tester, find.text('1 acceso a la cámara'));
     expect(find.byType(PantallaAccesos), findsOneWidget);
   });
 

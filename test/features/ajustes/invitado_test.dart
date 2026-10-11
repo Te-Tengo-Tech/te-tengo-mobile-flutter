@@ -111,8 +111,8 @@ void main() {
   testWidgets('CA-08.4: el invitado puede pausar la cámara, pero no '
       'renombrarla', (tester) async {
     await abrir(tester, Rutas.camara('c1'));
-    expect(find.text('Pausar esta cámara'), findsOneWidget);
-    await verHasta(tester, find.text('Nombre que aparece en las alertas'));
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    expect(find.text('Pausar'), findsOneWidget);
     expect(find.byType(EtiquetaSoloVer), findsOneWidget);
   });
 }

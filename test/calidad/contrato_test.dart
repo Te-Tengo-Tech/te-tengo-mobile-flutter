@@ -19,12 +19,7 @@ const _sinUso = {
 
 /// Endpoints of the change request «PCs, cámaras y datos de movimiento» whose screens come in the
 /// next pull requests of US-30 to US-40.
-const _pendientes = {
-  'POST /api/camaras/{id}/repeticiones',
-  'GET /api/repeticiones/{id}/archivos',
-  'DELETE /api/repeticiones/{id}',
-  'GET /api/accesos-repeticiones',
-};
+const _pendientes = <String>{};
 
 /// Push types whose handling comes in the next pull requests.
 const _tiposPendientes = <String>{};

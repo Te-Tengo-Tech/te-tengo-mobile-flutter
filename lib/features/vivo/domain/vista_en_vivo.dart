@@ -67,6 +67,8 @@ class AccesoVivo {
     required this.inicio,
     required this.duracionSegundos,
     this.desdeAlerta = false,
+    this.camaraId,
+    this.vistaPrevia = false,
   });
 
   final String usuarioId;
@@ -74,6 +76,12 @@ class AccesoVivo {
   final DateTime inicio;
   final int duracionSegundos;
   final bool desdeAlerta;
+
+  /// Null from an older backend.
+  final String? camaraId;
+
+  /// A webcam's preview before assigning it a room (CA-29.7).
+  final bool vistaPrevia;
 
   factory AccesoVivo.desdeJson(Map<String, dynamic> json) {
     final usuario = json['usuario'] as Map<String, dynamic>;
@@ -83,6 +91,8 @@ class AccesoVivo {
       inicio: fechaDesdeJson(json['inicio'])!,
       duracionSegundos: (json['duracionSegundos'] as num).toInt(),
       desdeAlerta: json['desdeAlerta'] as bool? ?? false,
+      camaraId: json['camaraId'] as String?,
+      vistaPrevia: json['vistaPrevia'] as bool? ?? false,
     );
   }
 }

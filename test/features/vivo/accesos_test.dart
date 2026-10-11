@@ -12,6 +12,9 @@ import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
 import 'package:te_tengo/features/vivo/domain/vista_en_vivo.dart';
 import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
 import 'package:te_tengo/features/vivo/presentation/pantalla_accesos.dart';
+import 'package:te_tengo/features/camaras/presentation/pantalla_camara.dart';
+import 'package:te_tengo/features/repeticion/data/repeticiones_repositorio.dart';
+import 'package:te_tengo/features/repeticion/domain/repeticion.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -20,10 +23,12 @@ import '../alertas/alertas_falso.dart';
 import '../camaras/repositorio_falso.dart';
 import '../familia/familia_falso.dart';
 import '../hogar/hogar_falso.dart';
+import '../repeticion/repeticiones_falso.dart';
 import 'vivo_falso.dart';
 
 void main() {
   late VistaEnVivoRepositorioFalso vivo;
+  late RepeticionesRepositorioFalso repeticiones;
 
   Future<void> abrir(WidgetTester tester, String ubicacion) async {
     usarTelefono(tester);
@@ -43,6 +48,7 @@ void main() {
             AlertasRepositorioFalso(),
           ),
           vistaEnVivoRepositorioProvider.overrideWithValue(vivo),
+          repeticionesRepositorioProvider.overrideWithValue(repeticiones),
           fabricaReproductorVivoProvider.overrideWithValue(
             FabricaReproductorFalsa().crear,
           ),
@@ -81,54 +87,57 @@ void main() {
     ),
   ];
 
-  setUp(() => vivo = VistaEnVivoRepositorioFalso());
+  setUp(() {
+    vivo = VistaEnVivoRepositorioFalso();
+    repeticiones = RepeticionesRepositorioFalso();
+  });
+
+  Future<void> abrirAjustes(WidgetTester tester) async {
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    await verHasta(tester, find.text('Registro de accesos'));
+  }
 
   testWidgets('CA-24.2: muestra los accesos del más reciente al más antiguo', (
     tester,
   ) async {
     vivo.lista = registrados;
     await abrir(tester, Rutas.camara('c1'));
-    await verHasta(tester, find.text('Registro de accesos'));
-    expect(
-      find.text('Último: tú, hoy a las 10:42 · 1 min 12 s'),
-      findsOneWidget,
-    );
+    await abrirAjustes(tester);
+    expect(find.text('Tú · hoy 10:42'), findsOneWidget);
     await tocar(tester, find.text('Registro de accesos'));
     expect(find.byType(PantallaAccesos), findsOneWidget);
     expect(
-      find.text(
-        'Quién abrió la vista en vivo de la Sala, cuándo y cuánto duró. Toda '
-        'la familia lo ve.',
-      ),
+      find.text('Quién miró, cuándo y cuánto. Toda la familia lo ve.'),
       findsOneWidget,
     );
-    expect(find.text('Hoy, miércoles 23 de septiembre'), findsOneWidget);
-    expect(find.text('martes 22 de septiembre'), findsOneWidget);
-    expect(find.text('Carmen Huamán (tú)'), findsWidgets);
-    expect(find.text('Luis Huamán'), findsOneWidget);
+    expect(find.text('Hoy'), findsWidgets);
+    expect(find.text('Ayer'), findsOneWidget);
+    expect(find.text('Vista en vivo · Sala'), findsWidgets);
     expect(
-      find.textContaining(
-        'Empezó a las 08:15 · duró 2 min 5 s',
+      find.text(
+        'Carmen (tú) · 10:42 · 1\u00a0min 12\u00a0s',
         findRichText: true,
       ),
       findsOneWidget,
     );
-    final arriba = tester.getTopLeft(find.text('Luis Huamán')).dy;
     expect(
-      tester.getTopLeft(find.text('martes 22 de septiembre')).dy,
-      greaterThan(arriba),
+      find.text('Luis · 08:15 · 2\u00a0min 5\u00a0s', findRichText: true),
+      findsOneWidget,
     );
+    final arriba = tester
+        .getTopLeft(
+          find.text('Luis · 08:15 · 2\u00a0min 5\u00a0s', findRichText: true),
+        )
+        .dy;
+    expect(tester.getTopLeft(find.text('Ayer')).dy, greaterThan(arriba));
     await verHasta(tester, find.text('Desde una alerta'));
-    expect(find.text('lunes 21 de septiembre'), findsOneWidget);
+    expect(find.text('lun 21 sep'), findsOneWidget);
   });
 
   testWidgets('CA-24.3: sin accesos lo indica', (tester) async {
     await abrir(tester, Rutas.accesos);
     expect(find.text('Aún no hay accesos registrados'), findsOneWidget);
-    expect(
-      find.text('Aquí verás quién la abrió y cuánto duró.'),
-      findsOneWidget,
-    );
+    expect(find.text('Todo'), findsNothing);
     expect(
       find.text(
         'Rosa autorizó la vista en vivo en su consentimiento del 3 ago 2026.',
@@ -141,16 +150,71 @@ void main() {
     tester,
   ) async {
     await abrir(tester, Rutas.camara('c1'));
-    await verHasta(tester, find.text('Aún no hay accesos registrados'));
-    await tocar(tester, find.text('Ver en vivo'));
+    await abrirAjustes(tester);
+    expect(find.text('Sin accesos'), findsOneWidget);
+    await tocar(tester, find.text('En vivo'));
     vivo.lista = [registrados.first];
     await tocar(tester, find.text('Cerrar la vista en vivo'));
     expect(vivo.cerradas, ['v-1']);
     expect(find.text('Acceso registrado'), findsOneWidget);
-    await verHasta(tester, find.text('Registro de accesos'));
+    await verHasta(tester, find.text('Tú · hoy 10:42'));
+  });
+
+  testWidgets('CA-39.3: las repeticiones y las vistas previas, con filtros', (
+    tester,
+  ) async {
+    vivo.lista = [
+      AccesoVivo(
+        usuarioId: 'u-luis',
+        nombre: 'Luis Huamán',
+        inicio: DateTime(2026, 9, 23, 8, 15),
+        duracionSegundos: 125,
+        camaraId: 'c1',
+      ),
+      AccesoVivo(
+        usuarioId: 'u-carmen',
+        nombre: 'Carmen Huamán',
+        inicio: DateTime(2026, 9, 22, 21, 40),
+        duracionSegundos: 15,
+        camaraId: 'c1',
+        vistaPrevia: true,
+      ),
+    ];
+    repeticiones.lista = [
+      AccesoRepeticion(
+        id: 'ar-1',
+        usuarioId: 'u-carmen',
+        nombre: 'Carmen Huamán',
+        camaraId: 'c1',
+        habitacion: 'Sala',
+        momentoDesde: DateTime(2026, 9, 15, 7, 54),
+        inicio: DateTime(2026, 9, 22, 21, 46),
+        duracionSegundos: 130,
+      ),
+    ];
+    await abrir(tester, Rutas.accesos);
+    expect(find.text('Repetición · Sala, 15/09 07:54'), findsOneWidget);
     expect(
-      find.text('Último: tú, hoy a las 10:42 · 1 min 12 s'),
+      find.text(
+        'Carmen (tú) · 21:46 · 2\u00a0min 10\u00a0s',
+        findRichText: true,
+      ),
       findsOneWidget,
+    );
+    expect(find.text('Abrir de nuevo'), findsOneWidget);
+    expect(find.text('Vista previa al elegir cámaras'), findsOneWidget);
+    await tocar(tester, find.text('Repeticiones'));
+    expect(find.text('Vista en vivo · Sala'), findsNothing);
+    expect(find.text('Repetición · Sala, 15/09 07:54'), findsOneWidget);
+    await tocar(tester, find.text('Vista en vivo'));
+    expect(find.text('Repetición · Sala, 15/09 07:54'), findsNothing);
+    expect(find.text('Vista en vivo · Sala'), findsOneWidget);
+    await tocar(tester, find.text('Todo'));
+    await tocar(tester, find.text('Repetición · Sala, 15/09 07:54'));
+    expect(find.byType(PantallaCamara), findsOneWidget);
+    expect(
+      tester.widget<PantallaCamara>(find.byType(PantallaCamara)).momento,
+      DateTime(2026, 9, 15, 7, 54),
     );
   });
 
