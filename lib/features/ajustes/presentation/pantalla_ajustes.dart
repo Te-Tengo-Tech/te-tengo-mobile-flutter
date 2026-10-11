@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
 
+import '../../actividad/data/actividad_repositorio.dart';
+import '../../actividad/presentation/pantalla_actividad.dart';
 import '../../../app/rutas.dart';
+import '../../../core/reloj.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/iconos.dart';
@@ -14,7 +17,6 @@ import '../../../core/ui/aviso.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../pcs/data/pcs_repositorio.dart';
-import '../../pcs/domain/camaras_en_casa.dart';
 import '../../pcs/domain/pc.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
@@ -148,6 +150,18 @@ class PantallaAjustes extends ConsumerWidget {
               fin: soloVer,
               chevron: titular,
               alTocar: () => context.push(Rutas.privacidad),
+            ),
+            FilaLista(
+              inicio: const IconoFila(Ico.list),
+              titulo: 'Actividad',
+              subtitulo: switch (ref.watch(ultimaActividadProvider)) {
+                AsyncData(value: final a) => resumenUltimoCambio(
+                  a,
+                  ref.watch(relojProvider)(),
+                ),
+                _ => null,
+              },
+              alTocar: () => context.push(Rutas.actividad),
             ),
           ],
         ),

@@ -49,6 +49,12 @@ abstract final class Rutas {
   static String alerta(String id) => '/alerta/$id';
   static String detalleAlerta(String id) => '/alertas/$id';
   static const ordenAviso = '/familia/orden';
+
+  /// A family member's detail (screens 76, 77, 231 to 236).
+  static String familiar(String usuarioId) => '/familiares/$usuarioId';
+
+  /// «Actividad» (US-33).
+  static const actividad = '/ajustes/actividad';
   static const invitar = '/familia/invitar';
   static const personaCuidada = '/ajustes/persona';
   static const notificaciones = '/ajustes/notificaciones';
