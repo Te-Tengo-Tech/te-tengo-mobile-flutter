@@ -64,6 +64,25 @@ abstract final class Rutas {
   static const movimientosBorrados = '/ajustes/privacidad/movimientos/borrando';
   static const nube = '/ajustes/privacidad/nube';
 
+  // «¿Hubo una caída y no avisó?» (US-40).
+  static const reporteCaida = '/reporte-de-caida';
+
+  /// The report form, with the room and the moment already chosen when it comes from a camera
+  /// or an unstable movement.
+  static String reportar({String? habitacion, DateTime? cuando}) => Uri(
+    path: reporteCaida,
+    queryParameters: {
+      'habitacion': ?habitacion,
+      if (cuando != null) 'cuando': cuando.toIso8601String(),
+    },
+  ).toString();
+
+  /// «Gracias…», or «Lo guardamos para enviarlo» with [guardado].
+  static String reporteEnviado({bool guardado = false}) => Uri(
+    path: '$reporteCaida/enviado',
+    queryParameters: {if (guardado) 'guardado': '1'},
+  ).toString();
+
   // Linking a PC (US-28) and choosing its cameras (US-29). `config=1` keeps them inside setup
   // step 3. The PC's QR opens `/vincular?codigo=…` (contract §9), on the web too (docs/WEB_PWA.md).
   static const vincular = '/vincular';

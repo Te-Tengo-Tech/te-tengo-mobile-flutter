@@ -100,6 +100,14 @@ final pantallasNuevas = [
   ),
   const Pantalla('documento de movimientos', Rutas.documentoMovimientos),
   const Pantalla('movimientos en la nube', Rutas.nube),
+  Pantalla('contarnos qué pasó', Rutas.reportar(habitacion: 'Sala')),
+  Pantalla(
+    'contarnos qué pasó (invitado)',
+    Rutas.reportar(),
+    sesion: sesionInvitado,
+  ),
+  Pantalla('reporte enviado', Rutas.reporteEnviado()),
+  Pantalla('reporte guardado', Rutas.reporteEnviado(guardado: true)),
 ];
 
 final pantallasPrincipales = [

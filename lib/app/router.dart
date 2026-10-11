@@ -28,6 +28,7 @@ import '../features/inicio/presentation/pantalla_inicio.dart';
 import '../features/hogar/presentation/pantallas_consentimiento.dart';
 import '../features/hogar/presentation/pantallas_privacidad.dart';
 import '../features/movimientos/presentation/pantallas_movimientos.dart';
+import '../features/reportes/presentation/pantallas_reporte.dart';
 import '../features/pcs/domain/pc.dart';
 import '../features/pcs/presentation/pantalla_aprobar_pc.dart';
 import '../features/pcs/presentation/pantalla_camaras.dart';
@@ -235,7 +236,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         builder: (context, state, navegacion) => ShellPestanas(
           navegacion: navegacion,
-          encima: const [BarraSinInternet(), FranjaAlertaActiva()],
+          encima: const [
+            BarraSinInternet(),
+            FranjaAlertaActiva(),
+            EnvioReportesPendientes(),
+          ],
         ),
         branches: [
           StatefulShellBranch(
@@ -304,6 +309,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Rutas.nube,
         builder: (context, state) => const PantallaMovimientosNube(),
+      ),
+      GoRoute(
+        path: Rutas.reporteCaida,
+        builder: (context, state) {
+          final q = state.uri.queryParameters;
+          return PantallaReporteCaida(
+            habitacion: q['habitacion'],
+            cuando: DateTime.tryParse(q['cuando'] ?? ''),
+          );
+        },
+      ),
+      GoRoute(
+        path: '${Rutas.reporteCaida}/enviado',
+        builder: (context, state) => PantallaReporteEnviado(
+          guardado: state.uri.queryParameters['guardado'] == '1',
+        ),
       ),
       GoRoute(
         path: Rutas.revocado,

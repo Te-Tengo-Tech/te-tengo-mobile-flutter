@@ -13,6 +13,7 @@ import '../../../core/ui/tarjeta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
+import '../../reportes/presentation/pantallas_reporte.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/ui/botones.dart';
 import '../data/alertas_repositorio.dart';
@@ -97,6 +98,14 @@ class _Detalle extends ConsumerWidget {
             ),
           ],
         ),
+        // An unstable movement may have ended in a fall the detection missed (screen 229).
+        if (a.tipo == TipoAlerta.movimientoInestable &&
+            a.estado != EstadoAlerta.activa)
+          EnlaceReporte(
+            texto: '¿Terminó en caída y no avisamos?',
+            habitacion: a.habitacion,
+            cuando: a.ocurridaEn,
+          ),
       ],
     );
   }

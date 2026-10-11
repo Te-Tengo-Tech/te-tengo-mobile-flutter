@@ -20,6 +20,7 @@ import '../../pcs/domain/pc.dart';
 import '../../pcs/presentation/acciones_camara.dart';
 import '../../pcs/presentation/piezas_pc.dart';
 import '../../../app/tema/tema.dart';
+import '../../reportes/presentation/pantallas_reporte.dart';
 import '../../vivo/data/vista_en_vivo_repositorio.dart';
 import '../../vivo/presentation/pantalla_accesos.dart';
 import '../../vivo/presentation/preparar_vivo.dart';
@@ -146,6 +147,7 @@ class _Detalle extends ConsumerWidget {
             ),
           ],
         ),
+        EnlaceReporte(habitacion: habitacion),
         const SizedBox(height: 12),
         ListaTarjeta(
           children: [

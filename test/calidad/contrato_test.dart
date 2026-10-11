@@ -21,7 +21,6 @@ const _sinUso = {
 /// next pull requests of US-30 to US-40.
 const _pendientes = {
   'GET /api/actividad',
-  'POST /api/reportes-de-caida',
   'POST /api/camaras/{id}/repeticiones',
   'GET /api/repeticiones/{id}/archivos',
   'DELETE /api/repeticiones/{id}',
