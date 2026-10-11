@@ -212,24 +212,20 @@ class EscenarioApagado extends StatelessWidget {
 }
 
 /// The stage with the stored movements (`rpCanvas`): a grid and the floor, the skeleton of the
-/// frame at the playhead (never video), the phase tag, the moment and «En vivo». Without a decoder
-/// or a frame it says so instead of guessing a posture.
+/// frame at the playhead (never video), the phase tag, the moment and «En vivo». Without a frame
+/// it says so instead of guessing a posture.
 class EscenarioMovimientos extends StatelessWidget {
   const EscenarioMovimientos({
     super.key,
     required this.reproductor,
     required this.hoy,
     required this.enVivo,
-    required this.puedeDibujar,
     this.nombreAdultoMayor = '',
   });
 
   final ReproductorCamara reproductor;
   final DateTime hoy;
   final Widget enVivo;
-
-  /// This build has a movement decoder.
-  final bool puedeDibujar;
   final String nombreAdultoMayor;
 
   @override
@@ -253,8 +249,6 @@ class EscenarioMovimientos extends StatelessWidget {
         bloqueo ??
         (fotograma != null || fase?.tipo == null && fase != null
             ? null
-            : !puedeDibujar
-            ? (Ico.eyeOff, 'Esta versión aún no dibuja los movimientos')
             : r.registrada && fase == null
             ? (Ico.eyeOff, 'Sin persona en la imagen')
             : null);
