@@ -105,3 +105,11 @@ Screens of the mobile prototype in the docs repository (`05-prototipos/app-movil
 - [x] **T39 US-33 Activity and family member detail:** screens 76, 77, 215 to 220 and 231 to 236.
 - [x] **T40 US-36, US-39 Body points and replay:** screens 193 to 214 and 303 to 312, the camera as a player (docs `9497de2`). Drawing the skeleton waited for a movement decoder (see T41).
 - [x] **T41 US-36, US-39 Drawing the movements:** the light replay format TTMOV v1 (contract §11, backend ADR 0011) decoded in pure Dart on Android, iOS and the web (`movimientos/data/decodificador_ttmov.dart`, gzip through `package:archive`), mapped to the 17 drawn keypoints; the player downloads each file's `ligero` (checked against its `sha256`), the still frame of the last event comes from its clip's `puntos.ligero` (not logged, CA-39.3), and «Puntos del cuerpo» draws them over the clip. Tested against golden fixtures written by Te Tengo Captura's encoder (`test/fixtures/movimientos`).
+
+## Varias cámaras a la vez, favoritas, widget y contraste (change request, pending approval)
+Screens 313 to 354 of the mobile prototype (docs `05-prototipos/app-movil`, commits up to `5100fc7`); stories US-41 and US-44 of the backlog (docs `1ca1c8c`); contract §4 («Several cameras at once»).
+- [x] **T42 «Aumentar el contraste»:** screens 349 to 354. Ajustes › «Preferencias» (theme and contrast, on this device), the high-contrast palette in light and dark, and the phone's own setting.
+- [ ] **T43 «?» help icons:** the privacy and help lines that were always visible become a «?» icon with a popover (11 places in the app; the 12th is future work).
+- [ ] **T44 US-41 (CA-41.4) Favourites and «Ordenar»:** screens 313, 328 to 332, 338, 339 and 342; the order of this phone in «Cámaras», Inicio and the room picker.
+- [ ] **T45 US-41 «Ver todas»:** screens 314 to 327, 333 to 337, 340, 341 and 343; one access log entry per opening (contract §4).
+- [ ] **T46 US-44 Home-screen widget:** screens 344 to 348; Android 4×2 and 2×2, iOS WidgetKit, not on the web.

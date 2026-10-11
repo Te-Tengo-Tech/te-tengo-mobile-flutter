@@ -28,9 +28,12 @@ class TarjetaBanda extends StatelessWidget {
       color: context.colores.tarjeta,
       borderRadius: BorderRadius.circular(22),
       border: borde
-          ? Border.all(color: context.colores.linea, width: 1.5)
+          ? Border.all(
+              color: context.colores.linea,
+              width: context.colores.anchoBorde,
+            )
           : null,
-      boxShadow: borde ? null : sombraTarjeta,
+      boxShadow: borde ? null : sombraDe(context),
     ),
     clipBehavior: Clip.antiAlias,
     child: Column(

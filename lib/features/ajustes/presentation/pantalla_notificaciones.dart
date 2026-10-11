@@ -164,7 +164,7 @@ class _FilaInterruptor extends StatelessWidget {
         activeThumbColor: Colors.white,
         activeTrackColor: Colores.calma,
         inactiveThumbColor: Colors.white,
-        inactiveTrackColor: context.colores.linea2,
+        inactiveTrackColor: context.colores.pistaApagada,
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
     ),

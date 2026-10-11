@@ -21,9 +21,12 @@ class ListaTarjeta extends StatelessWidget {
         color: context.colores.tarjeta,
         borderRadius: BorderRadius.circular(22),
         border: borde
-            ? Border.all(color: context.colores.linea, width: 1.5)
+            ? Border.all(
+                color: context.colores.linea,
+                width: context.colores.anchoBorde,
+              )
             : null,
-        boxShadow: borde ? null : sombraTarjeta,
+        boxShadow: borde ? null : sombraDe(context),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -32,7 +35,11 @@ class ListaTarjeta extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) const Divider(height: 1, thickness: 1),
+              if (i > 0)
+                Divider(
+                  height: context.colores.anchoDivisor,
+                  thickness: context.colores.anchoDivisor,
+                ),
               children[i],
             ],
           ],
@@ -40,6 +47,12 @@ class ListaTarjeta extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The card's shadow of the current theme: [sombraTarjeta], or an outline with more contrast.
+List<BoxShadow> sombraDe(BuildContext context) {
+  final c = context.colores;
+  return c.contraste ? c.sombra : sombraTarjeta;
 }
 
 /// `--shadow-1`.

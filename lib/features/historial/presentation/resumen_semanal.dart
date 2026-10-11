@@ -163,7 +163,7 @@ class _Dias extends ConsumerWidget {
         decoration: BoxDecoration(
           color: context.colores.tarjeta,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: sombraTarjeta,
+          boxShadow: sombraDe(context),
         ),
         child: Row(
           children: [

@@ -40,7 +40,7 @@ class ChipOpcion extends StatelessWidget {
         shape: StadiumBorder(
           side: BorderSide(
             color: elegido ? context.colores.inversa : context.colores.linea2,
-            width: 1.5,
+            width: context.colores.anchoBorde,
           ),
         ),
         child: InkWell(
