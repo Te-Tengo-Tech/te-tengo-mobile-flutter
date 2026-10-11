@@ -100,11 +100,11 @@ jobs:
             --dart-define-from-file="$RUNNER_TEMP/web-defines.json" \
             "${version[@]}"
       - name: Add the Cloudflare Pages files
-        run: cp deploy/pwa/_headers deploy/pwa/robots.txt build/web/
+        run: cp deploy/pwa/_headers deploy/pwa/robots.txt build/web/ && mkdir -p build/web/.well-known && cp deploy/pwa/.well-known/assetlinks.json build/web/.well-known/
       - name: Check the PWA files
         run: |
           for f in index.html manifest.json flutter_bootstrap.js firebase-messaging-sw.js version.json \
-            _headers robots.txt icons/Icon-192.png icons/Icon-512.png icons/Icon-maskable-512.png \
+            _headers robots.txt .well-known/assetlinks.json icons/Icon-192.png icons/Icon-512.png icons/Icon-maskable-512.png \
             icons/apple-touch-icon.png; do
             test -s "build/web/$f" || { echo "::error::missing build/web/$f"; exit 1; }
           done

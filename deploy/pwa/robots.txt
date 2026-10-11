@@ -1,2 +1,4 @@
 User-agent: *
+# Android App Links verification reads /.well-known/assetlinks.json.
+Allow: /.well-known/
 Disallow: /
