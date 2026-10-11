@@ -60,9 +60,16 @@ class Camara {
   );
 
   /// State shown to the family. Precedence of the prototype (`camState`): without consent the camera
-  /// is stopped; then disconnected, paused, unreliable detection and online.
-  EstadoVisible estadoVisible({required bool conConsentimiento}) {
+  /// is stopped; then its PC offline, disconnected, paused, unreliable detection and online.
+  ///
+  /// [pcSinConexion]: the camera's PC does not answer (CA-30.3), shown as «Sin conexión · la PC no
+  /// responde» instead of the camera being unplugged.
+  EstadoVisible estadoVisible({
+    required bool conConsentimiento,
+    bool pcSinConexion = false,
+  }) {
     if (!conConsentimiento) return EstadoVisible.detenida;
+    if (pcSinConexion) return EstadoVisible.sinConexion;
     if (estado == EstadoConexion.desconectada) {
       return EstadoVisible.desconectada;
     }
@@ -115,7 +122,10 @@ enum EstadoVisible {
   desconectada('Desconectada'),
   enPausa('En pausa'),
   noConfiable('Detección no confiable'),
-  detenida('Detenida');
+  detenida('Detenida'),
+
+  /// Its PC does not answer (CA-30.3): gray and dotted, unlike an unplugged camera.
+  sinConexion('Sin conexión');
 
   const EstadoVisible(this.texto);
 

@@ -12,6 +12,7 @@ extension PresentacionEstado on EstadoVisible {
     EstadoVisible.enPausa => Ico.pause,
     EstadoVisible.noConfiable => Ico.eyeOff,
     EstadoVisible.detenida => Ico.lock,
+    EstadoVisible.sinConexion => Ico.wifiOff,
   };
 
   /// Text color of the state (`.state-txt`) in the palette [p].
@@ -19,7 +20,7 @@ extension PresentacionEstado on EstadoVisible {
     EstadoVisible.enLinea => p.calmaTinta,
     EstadoVisible.desconectada || EstadoVisible.noConfiable => p.aviso,
     EstadoVisible.enPausa => p.pausa,
-    EstadoVisible.detenida => p.tinta3,
+    EstadoVisible.detenida || EstadoVisible.sinConexion => p.tinta3,
   };
 }
 
@@ -53,10 +54,18 @@ class EstadoCamara extends StatelessWidget {
 /// Square state icon of a camera (`.camline`): online green, offline amber dashed, paused striped,
 /// stopped gray, unreliable amber dashed.
 class IconoEstadoCamara extends StatelessWidget {
-  const IconoEstadoCamara({super.key, required this.estado, this.tamano = 36});
+  const IconoEstadoCamara({
+    super.key,
+    required this.estado,
+    this.tamano = 36,
+    this.icono,
+  });
 
   final EstadoVisible estado;
   final double tamano;
+
+  /// Instead of the state's own icon (the live view's video, for example).
+  final Ico? icono;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +83,7 @@ class IconoEstadoCamara extends StatelessWidget {
         context.colores.pausaSuave,
         context.colores.pausa,
       ),
-      EstadoVisible.detenida => (
+      EstadoVisible.detenida || EstadoVisible.sinConexion => (
         context.colores.fondo2,
         context.colores.tinta3,
       ),
@@ -84,6 +93,7 @@ class IconoEstadoCamara extends StatelessWidget {
         foregroundPainter: switch (estado) {
           EstadoVisible.desconectada ||
           EstadoVisible.noConfiable => _Punteado(radio, context.colores.aviso),
+          EstadoVisible.sinConexion => _Punteado(radio, context.colores.tinta3),
           _ => null,
         },
         painter: estado == EstadoVisible.enPausa
@@ -97,7 +107,11 @@ class IconoEstadoCamara extends StatelessWidget {
             color: estado == EstadoVisible.enPausa ? null : fondo,
             borderRadius: radio,
           ),
-          child: Icono(estado.icono, tamano: tamano * 0.6, color: color),
+          child: Icono(
+            icono ?? estado.icono,
+            tamano: tamano * 0.6,
+            color: color,
+          ),
         ),
       ),
     );

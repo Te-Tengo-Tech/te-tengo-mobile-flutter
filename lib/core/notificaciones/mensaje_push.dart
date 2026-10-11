@@ -14,7 +14,11 @@ enum TipoPush {
   camaraReconectada('CAMARA_RECONECTADA'),
   deteccionNoConfiable('DETECCION_NO_CONFIABLE'),
   pausaFinalizada('PAUSA_FINALIZADA'),
-  datosEliminados('DATOS_ELIMINADOS');
+  datosEliminados('DATOS_ELIMINADOS'),
+
+  /// A PC left the household without the app: from the PC itself, for security or after 90 days
+  /// without connecting (CA-31.3). Not sent when the owner removes it from the app.
+  pcDesvinculada('PC_DESVINCULADA');
 
   const TipoPush(this.codigo);
 

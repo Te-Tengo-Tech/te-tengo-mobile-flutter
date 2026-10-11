@@ -151,10 +151,8 @@ void main() {
       find.text('La cámara de la Sala está en pausa hasta las 11:42.'),
       findsOneWidget,
     );
-    expect(
-      find.textContaining('En pausa · hasta las 11:42', findRichText: true),
-      findsOneWidget,
-    );
+    // The «Cámaras» tile says it too.
+    expect(find.text('En pausa'), findsOneWidget);
   });
 
   testWidgets('reanudar ahora reactiva la cámara', (tester) async {

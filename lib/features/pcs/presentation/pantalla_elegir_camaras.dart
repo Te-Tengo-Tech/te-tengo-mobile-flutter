@@ -222,7 +222,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
 
   void _terminar() => widget.enConfiguracion
       ? context.go(Rutas.configFamilia)
-      : salirA(context, Rutas.inicio);
+      : salirA(context, Rutas.pcs);
 
   @override
   Widget build(BuildContext context) {

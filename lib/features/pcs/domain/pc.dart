@@ -53,6 +53,10 @@ class Pc {
 
   bool get enLinea => estado == EstadoConexion.enLinea;
 
+  /// No heartbeat in the last 90 s (CA-30.3). A PC that never sent one was just linked and is
+  /// getting its tokens, so it does not count as offline.
+  bool get sinConexion => !enLinea && ultimaSenal != null;
+
   /// «Te Tengo Captura 0.5.0», or null when the PC did not report its version.
   String? get programa =>
       versionAgente == null ? null : 'Te Tengo Captura $versionAgente';

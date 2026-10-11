@@ -61,7 +61,7 @@ class PantallaPcVinculada extends ConsumerWidget {
             final nombre = h.adultoMayor.nombrePila;
             void seguir() => enConfiguracion
                 ? context.go(Rutas.configFamilia)
-                : salirA(context, Rutas.inicio);
+                : salirA(context, Rutas.pcs);
             return ListView(
               padding: EdgeInsets.fromLTRB(20, enConfiguracion ? 0 : 4, 20, 28),
               children: [

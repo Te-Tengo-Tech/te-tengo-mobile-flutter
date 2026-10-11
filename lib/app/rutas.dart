@@ -74,6 +74,9 @@ abstract final class Rutas {
       ? Uri(path: ruta, queryParameters: {'config': '1'}).toString()
       : ruta;
 
+  /// «Cámaras» (Ajustes › «Cámaras y PCs»): the household's cameras by room and its PCs (US-30).
+  static const pcs = '/pcs';
+  static String pc(String id) => '/pcs/$id';
   static String pcVinculada(String id) => '/pcs/$id/vinculada';
   static String elegirCamaras(String id, {bool config = false}) =>
       enPaso('/pcs/$id/camaras', config: config);

@@ -42,6 +42,7 @@ class FilaCamara extends StatelessWidget {
         text: 'revisa la luz y el encuadre',
       ),
       EstadoVisible.detenida => const TextSpan(text: 'sin consentimiento'),
+      EstadoVisible.sinConexion => const TextSpan(text: 'la PC no responde'),
     };
     return FilaLista(
       inicio: IconoEstadoCamara(estado: estado),

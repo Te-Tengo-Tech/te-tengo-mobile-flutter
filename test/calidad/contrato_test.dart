@@ -20,7 +20,6 @@ const _sinUso = {
 /// Endpoints of the change request «PCs, cámaras y datos de movimiento» whose screens come in the
 /// next pull requests of US-30 to US-40.
 const _pendientes = {
-  'DELETE /api/pcs/{id}',
   'GET /api/actividad',
   'POST /api/reportes-de-caida',
   'GET /api/hogar/consentimiento-movimientos',
@@ -35,7 +34,7 @@ const _pendientes = {
 };
 
 /// Push types whose handling comes in the next pull requests.
-const _tiposPendientes = {'PC_DESVINCULADA', 'MOVIMIENTOS_ELIMINADOS'};
+const _tiposPendientes = {'MOVIMIENTOS_ELIMINADOS'};
 
 /// Every endpoint of docs/API_CONTRACT.md is called by the app with its method and path.
 void main() {

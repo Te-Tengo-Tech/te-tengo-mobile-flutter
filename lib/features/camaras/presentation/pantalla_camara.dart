@@ -16,7 +16,10 @@ import '../../hogar/data/hogar_repositorio.dart';
 import '../data/camaras_repositorio.dart';
 import '../domain/camara.dart';
 import '../../pcs/data/pcs_repositorio.dart';
+import '../../pcs/domain/pc.dart';
 import '../../pcs/presentation/acciones_camara.dart';
+import '../../pcs/presentation/piezas_pc.dart';
+import '../../../app/tema/tema.dart';
 import '../../vivo/data/vista_en_vivo_repositorio.dart';
 import '../../vivo/presentation/pantalla_accesos.dart';
 import '../../vivo/presentation/preparar_vivo.dart';
@@ -34,6 +37,11 @@ class PantallaCamara extends ConsumerWidget {
     final camaras = ref.watch(camarasProvider);
     final hogar = ref.watch(hogarProvider);
     final camara = camaras.value?.where((c) => c.id == camaraId).firstOrNull;
+    final pc = ref
+        .watch(pcsProvider)
+        .value
+        ?.where((p) => p.id == camara?.pcId)
+        .firstOrNull;
     Future<void> recargar() async {
       ref
         ..invalidate(camarasProvider)
@@ -59,7 +67,9 @@ class PantallaCamara extends ConsumerWidget {
                 camara: camara,
                 estado: camara.estadoVisible(
                   conConsentimiento: h.conConsentimiento,
+                  pcSinConexion: pc?.sinConexion ?? false,
                 ),
+                pc: pc,
                 nombreAdultoMayor: h.adultoMayor.nombrePila,
               ),
             ),
@@ -76,9 +86,13 @@ class _Detalle extends ConsumerWidget {
     required this.camara,
     required this.estado,
     required this.nombreAdultoMayor,
+    this.pc,
   });
 
   final Camara camara;
+
+  /// The camera's PC (US-30), when the household has PCs.
+  final Pc? pc;
   final EstadoVisible estado;
   final String nombreAdultoMayor;
 
@@ -93,12 +107,7 @@ class _Detalle extends ConsumerWidget {
           camara: camara,
           estado: estado,
           ahora: ref.watch(relojProvider)(),
-          nombrePc: ref
-              .watch(pcsProvider)
-              .value
-              ?.where((p) => p.id == camara.pcId)
-              .firstOrNull
-              ?.nombre,
+          nombrePc: pc?.nombre,
         ),
         const SizedBox(height: 16),
         ..._cuerpo(context, ref, titular, nombreAdultoMayor),
@@ -207,6 +216,33 @@ class _Detalle extends ConsumerWidget {
     String nombre,
   ) {
     switch (estado) {
+      case EstadoVisible.sinConexion:
+        // Screen 169: the camera's PC does not answer (CA-30.3).
+        final senal = pc?.ultimaSenal;
+        return [
+          Aviso(
+            tono: TonoAviso.advertencia,
+            icono: Ico.wifiOff,
+            titulo: 'La PC ${pc?.nombre ?? ''} no responde',
+            contenido: TextSpan(
+              children: [
+                if (senal != null) ...[
+                  const TextSpan(text: 'Desde las '),
+                  TextSpan(
+                    text: hora(senal),
+                    style: estiloMono(tamano: 15.5, peso: 400),
+                  ),
+                  const TextSpan(text: '. '),
+                ],
+                const TextSpan(
+                  text: 'Las cámaras de las otras PCs siguen detectando.',
+                ),
+              ],
+            ),
+          ),
+          const EncabezadoSeccion('Qué revisar en la casa'),
+          const QueRevisarPc(),
+        ];
       case EstadoVisible.detenida:
         return [
           Aviso(
