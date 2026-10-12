@@ -7,7 +7,7 @@ import '../../app/tema/tema.dart';
 import 'iconos.dart';
 
 /// Kind of text field.
-enum TipoCampo { texto, correo, contrasena, numero }
+enum TipoCampo { texto, correo, contrasena, numero, telefono }
 
 /// Labelled text field (`.field`): label above, hint or error (with a warning icon) below.
 class CampoTexto extends StatefulWidget {
@@ -73,11 +73,14 @@ class _CampoTextoState extends State<CampoTexto> {
               keyboardType: switch (widget.tipo) {
                 TipoCampo.correo => TextInputType.emailAddress,
                 TipoCampo.numero => TextInputType.number,
+                TipoCampo.telefono => TextInputType.phone,
                 _ => TextInputType.text,
               },
               inputFormatters: [
                 if (widget.tipo == TipoCampo.numero)
                   FilteringTextInputFormatter.digitsOnly,
+                if (widget.tipo == TipoCampo.telefono)
+                  FilteringTextInputFormatter.allow(RegExp(r'[\d +]')),
                 if (widget.longitudMaxima != null)
                   LengthLimitingTextInputFormatter(widget.longitudMaxima),
               ],

@@ -6,14 +6,19 @@ import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../familia/data/familia_repositorio.dart';
+import '../../perfil/data/fotos.dart';
+import '../../perfil/domain/perfil.dart';
+import '../../perfil/presentation/cabecera_foto.dart';
 import '../data/hogar_repositorio.dart';
 import '../domain/hogar.dart';
 import 'formulario_adulto_mayor.dart';
 
-/// Screens 95 and 80: the older adult's data in Ajustes. The owner edits it
-/// (`PUT /api/hogar/adulto-mayor`); an invited member sees it read-only (CA-08.4). Each account
+/// «Persona cuidada» (screens 105, 95 and 80): the older adult's photo and data in Ajustes. The
+/// owner edits them (`PUT /api/hogar/adulto-mayor`) and changes the photo; an invited member sees
+/// them read-only (CA-08.4). Each account
 /// cares for a single person (CA-04.2).
 class PantallaPersonaCuidada extends ConsumerWidget {
   const PantallaPersonaCuidada({super.key});
@@ -84,7 +89,8 @@ class _FormularioState extends ConsumerState<_Formulario> {
   @override
   Widget build(BuildContext context) {
     final titular = ref.watch(esTitularProvider);
-    final nombre = widget.hogar.adultoMayor.nombrePila;
+    final adulto = widget.hogar.adultoMayor;
+    final nombre = adulto.nombrePila;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
@@ -95,6 +101,14 @@ class _FormularioState extends ConsumerState<_Formulario> {
           ),
           const SizedBox(height: 16),
         ],
+        CabeceraFoto(
+          de: DuenoFoto.adultoMayor,
+          nombre: adulto.nombre,
+          foto: ref.watch(fotoAdultoMayorProvider) ?? adulto.foto,
+          tono: TonoAvatar.rosa,
+          // Only the owner changes it; an older backend has no photos.
+          puedeCambiar: titular && adulto.admiteFoto,
+        ),
         if (_problema != null) ...[
           MensajeProblema(_problema!),
           const SizedBox(height: 16),
@@ -102,6 +116,7 @@ class _FormularioState extends ConsumerState<_Formulario> {
         CamposAdultoMayor(
           formulario: _formulario,
           habilitado: titular,
+          conTelefono: true,
           alCambiar: () => setState(() {}),
         ),
         if (titular) ...[

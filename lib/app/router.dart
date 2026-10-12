@@ -10,6 +10,9 @@ import '../features/actualizaciones/presentation/rutas_actualizaciones.dart';
 import '../features/familia/presentation/pantalla_familiar.dart';
 import '../features/ajustes/presentation/pantalla_notificaciones.dart';
 import '../features/ajustes/presentation/pantalla_preferencias.dart';
+import '../features/perfil/presentation/pantalla_cambiar_contrasena.dart';
+import '../features/perfil/presentation/pantalla_tu_perfil.dart';
+import '../features/perfil/presentation/renovacion_fotos.dart';
 import '../features/familia/presentation/gestion_familia.dart';
 import '../features/familia/presentation/pantallas_invitacion.dart';
 import '../features/vivo/presentation/pantalla_accesos.dart';
@@ -246,6 +249,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Rutas.personaCuidada,
         builder: (context, state) => const PantallaPersonaCuidada(),
       ),
+      GoRoute(
+        path: Rutas.tuPerfil,
+        builder: (context, state) => const PantallaTuPerfil(),
+      ),
+      GoRoute(
+        path: Rutas.cambiarContrasena,
+        builder: (context, state) => const PantallaCambiarContrasena(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navegacion) => ShellPestanas(
           navegacion: navegacion,
@@ -254,6 +265,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             FranjaAlertaActiva(),
             EnvioReportesPendientes(),
             BarraActualizacion(),
+            RenovacionFotos(),
           ],
         ),
         branches: [

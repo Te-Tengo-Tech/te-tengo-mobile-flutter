@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 
@@ -28,6 +31,10 @@ abstract interface class WidgetDelSistema {
   /// Saves [estado] with the time it was read, and asks the system to redraw the widgets.
   Future<void> mostrar(EstadoWidget estado, DateTime actualizado);
 
+  /// The older adult's photo (`avatar()` of `widgetData`), a JPEG or PNG as the backend stores it;
+  /// null brings the initials back.
+  Future<void> mostrarFoto(Uint8List? imagen);
+
   /// The state last saved, for an alert push with the app closed.
   Future<EstadoWidget?> leer();
 
@@ -46,6 +53,9 @@ class WidgetNoDisponible implements WidgetDelSistema {
 
   @override
   Future<void> mostrar(EstadoWidget estado, DateTime actualizado) async {}
+
+  @override
+  Future<void> mostrarFoto(Uint8List? imagen) async {}
 
   @override
   Future<EstadoWidget?> leer() async => null;
@@ -89,6 +99,32 @@ class WidgetHomeWidget implements WidgetDelSistema {
     } on Object catch (e) {
       // No widget on the home screen, or a platform without one: nothing to draw.
       debugPrint('Widget no actualizado: $e');
+    }
+  }
+
+  @override
+  Future<void> mostrarFoto(Uint8List? imagen) async {
+    try {
+      if (imagen == null) {
+        // Also deletes the file the plugin wrote.
+        await HomeWidget.saveWidgetData<String>('${_prefijo}foto', null);
+      } else {
+        await HomeWidget.saveFile(
+          '${_prefijo}foto',
+          await fotoRedonda(imagen),
+          extension: 'png',
+        );
+      }
+      await Future.wait([
+        HomeWidget.updateWidget(
+          qualifiedAndroidName: widgetAndroidGrande,
+          iOSName: widgetIos,
+        ),
+        if (defaultTargetPlatform == TargetPlatform.android)
+          HomeWidget.updateWidget(qualifiedAndroidName: widgetAndroidPequeno),
+      ]);
+    } on Object catch (e) {
+      debugPrint('Foto del widget no actualizada: $e');
     }
   }
 
@@ -137,3 +173,29 @@ final widgetDelSistemaProvider = Provider<WidgetDelSistema>(
       ? const WidgetNoDisponible()
       : WidgetHomeWidget(),
 );
+
+/// [imagen] cut to a circle of [lado] px as a PNG: Android's `RemoteViews` cannot round an image.
+Future<Uint8List> fotoRedonda(Uint8List imagen, {int lado = 168}) async {
+  final codec = await ui.instantiateImageCodec(
+    imagen,
+    targetWidth: lado,
+    targetHeight: lado,
+  );
+  final cuadro = (await codec.getNextFrame()).image;
+  final grabador = ui.PictureRecorder();
+  final area = Rect.fromLTWH(0, 0, lado.toDouble(), lado.toDouble());
+  ui.Canvas(grabador)
+    ..clipPath(Path()..addOval(area))
+    ..drawImageRect(
+      cuadro,
+      Rect.fromLTWH(0, 0, cuadro.width.toDouble(), cuadro.height.toDouble()),
+      area,
+      Paint()..filterQuality = FilterQuality.high,
+    );
+  final redonda = await grabador.endRecording().toImage(lado, lado);
+  final datos = await redonda.toByteData(format: ui.ImageByteFormat.png);
+  cuadro.dispose();
+  redonda.dispose();
+  codec.dispose();
+  return datos!.buffer.asUint8List();
+}

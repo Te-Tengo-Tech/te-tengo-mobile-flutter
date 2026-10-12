@@ -558,36 +558,50 @@ class _Heroe extends ConsumerWidget {
             ),
             const SizedBox(height: 14),
           ],
-          Container(
-            padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
-            decoration: BoxDecoration(
-              color: caida
-                  ? Colors.black.withValues(alpha: .18)
-                  : Colores.tinta.withValues(alpha: .1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icono(
-                  caida ? Ico.fall : Ico.unsteady,
-                  tamano: 20,
-                  color: color,
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    etiqueta.toUpperCase(),
-                    semanticsLabel: etiqueta,
-                    style: estiloTexto(
-                      15,
-                      800,
-                      color: color,
-                    ).copyWith(letterSpacing: .6),
+          // `alert-who`: who it is about, then what happened.
+          Row(
+            children: [
+              Avatar(
+                Avatar.inicialesDe(adulto.nombre),
+                tono: TonoAvatar.rosa,
+                foto: adulto.foto,
+                anillo: Colors.white.withValues(alpha: .85),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
+                  decoration: BoxDecoration(
+                    color: caida
+                        ? Colors.black.withValues(alpha: .18)
+                        : Colores.tinta.withValues(alpha: .1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icono(
+                        caida ? Ico.fall : Ico.unsteady,
+                        tamano: 20,
+                        color: color,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          etiqueta.toUpperCase(),
+                          semanticsLabel: etiqueta,
+                          style: estiloTexto(
+                            15,
+                            800,
+                            color: color,
+                          ).copyWith(letterSpacing: .6),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
           Semantics(

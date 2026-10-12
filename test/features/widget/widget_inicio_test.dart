@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:te_tengo/features/hogar/domain/hogar.dart';
+import 'package:te_tengo/core/foto.dart';
 import 'package:te_tengo/app/app.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/reloj.dart';
@@ -24,6 +28,7 @@ import 'package:te_tengo/features/widget/data/widget_sistema.dart';
 import 'package:te_tengo/features/widget/domain/estado_widget.dart';
 import 'package:te_tengo/features/widget/presentation/pasos_widget.dart';
 
+import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
 import '../alertas/alertas_falso.dart';
@@ -45,6 +50,11 @@ class _WidgetFalso implements WidgetDelSistema {
   @override
   Future<void> mostrar(EstadoWidget estado, DateTime actualizado) async =>
       mostrados.add(estado);
+
+  final fotos = <Uint8List?>[];
+
+  @override
+  Future<void> mostrarFoto(Uint8List? imagen) async => fotos.add(imagen);
 
   @override
   Future<EstadoWidget?> leer() async => mostrados.lastOrNull;
@@ -200,6 +210,8 @@ void main() {
       WidgetTester tester, {
       AlertasRepositorioFalso? alertas,
       String ubicacion = Rutas.inicio,
+      Hogar? hogar,
+      AdaptadorFalso? http,
     }) async {
       usarTelefono(tester);
       await tester.pumpWidget(
@@ -207,13 +219,14 @@ void main() {
           ubicacion: ubicacion,
           sesion: sesionTitular,
           widget: sistema,
+          http: http,
           overrides: [
             sesionRepositorioProvider.overrideWithValue(_SesionesFalsas()),
             camarasRepositorioProvider.overrideWithValue(camaras),
             pcsRepositorioProvider.overrideWithValue(pcs),
             vistaEnVivoRepositorioProvider.overrideWithValue(vivo),
             hogarRepositorioProvider.overrideWithValue(
-              HogarRepositorioFalso(hogarDeRosa()),
+              HogarRepositorioFalso(hogar ?? hogarDeRosa()),
             ),
             alertasRepositorioProvider.overrideWithValue(
               alertas ?? AlertasRepositorioFalso(),
@@ -284,6 +297,33 @@ void main() {
       await abrir(tester, alertas: AlertasRepositorioFalso([caidaSala()]));
       expect(find.byType(PantallaAlerta), findsOneWidget);
     });
+
+    testWidgets(
+      'muestra la foto de Rosa, descargada una vez, o sus iniciales',
+      (tester) async {
+        await abrir(tester);
+        expect(sistema.fotos, [null]);
+
+        const url =
+            'https://r2.test/fotos/hogares/h-1/adulto-mayor/f.jpg?firma=1';
+        final http = AdaptadorFalso()
+          ..cuando('GET', url, const Respuesta(200, 'jpeg'));
+        await abrir(
+          tester,
+          http: http,
+          hogar: Hogar(
+            hogarId: 'h-1',
+            adultoMayor: rosa.conFoto(
+              Foto(url: url, expiraEn: DateTime(2026, 9, 23, 11, 42)),
+            ),
+            rol: Rol.titular,
+            consentimiento: consentimientoVigente,
+          ),
+        );
+        expect(http.hechas('GET', url), hasLength(1));
+        expect(utf8.decode(sistema.fotos.last!), '"jpeg"');
+      },
+    );
 
     testWidgets('Ajustes explica cómo agregarlo', (tester) async {
       await abrir(tester, ubicacion: Rutas.ajustes);

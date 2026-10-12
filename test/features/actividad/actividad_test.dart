@@ -265,6 +265,17 @@ void main() {
       despues: despues,
     ).frase(adultoMayor: 'Rosa');
 
+    test('la foto de la persona cuidada (contrato §13)', () {
+      expect(
+        frase('FOTO_ADULTO_MAYOR_CAMBIADA', objeto: 'Rosa'),
+        'Carmen cambió la foto de Rosa',
+      );
+      expect(
+        frase('FOTO_ADULTO_MAYOR_QUITADA'),
+        'Carmen quitó la foto de Rosa',
+      );
+    });
+
     test('de un familiar', () {
       expect(
         frase(

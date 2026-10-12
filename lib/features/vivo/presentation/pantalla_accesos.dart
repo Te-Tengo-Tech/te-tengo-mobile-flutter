@@ -22,6 +22,8 @@ import '../../familia/presentation/fila_miembro.dart';
 import '../../repeticion/data/repeticiones_repositorio.dart';
 import '../data/registro_accesos.dart';
 import '../data/vista_en_vivo_repositorio.dart';
+import '../../../core/foto.dart';
+import '../../perfil/data/fotos.dart';
 
 /// The chips of the log (screens 213, 214).
 enum FiltroAccesos { todo, vivo, repeticiones }
@@ -189,6 +191,7 @@ class FilaAcceso extends ConsumerWidget {
     return FilaLista(
       inicio: _AvatarConInsignia(
         nombre: a.nombre,
+        foto: ref.watch(fotoDeUsuarioProvider(a.usuarioId)),
         tono: tonoDe(i < 0 ? 0 : i),
         tipo: a.tipo,
         enPc: a.enPc,
@@ -250,12 +253,14 @@ class FilaAcceso extends ConsumerWidget {
 class _AvatarConInsignia extends StatelessWidget {
   const _AvatarConInsignia({
     required this.nombre,
+    required this.foto,
     required this.tono,
     required this.tipo,
     this.enPc = false,
   });
 
   final String nombre;
+  final Foto? foto;
   final TonoAvatar tono;
   final TipoAcceso tipo;
 
@@ -273,7 +278,7 @@ class _AvatarConInsignia extends StatelessWidget {
           if (enPc)
             const IconoFila(Ico.pc)
           else
-            Avatar(Avatar.inicialesDe(nombre), tono: tono),
+            Avatar(Avatar.inicialesDe(nombre), tono: tono, foto: foto),
           Positioned(
             right: 0,
             bottom: 0,

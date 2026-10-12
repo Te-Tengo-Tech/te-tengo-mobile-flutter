@@ -37,7 +37,7 @@ void main() {
     r'`(GET|POST|PUT|PATCH|DELETE) (/api/[^`\s?]+)',
   ).allMatches(contrato).map((m) => (m.group(1)!, m.group(2)!)).toSet();
 
-  test('el contrato tiene endpoints', () => expect(endpoints, hasLength(66)));
+  test('el contrato tiene endpoints', () => expect(endpoints, hasLength(72)));
 
   for (final (metodo, ruta) in endpoints) {
     final nombre = '$metodo $ruta';

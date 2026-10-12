@@ -23,13 +23,15 @@ struct EstadoTeTengo: TimelineEntry {
     let titulo: String
     let linea: String
     let iniciales: String
+    /// The PNG of the older adult's round photo the app rendered (`tt_foto`), if any.
+    let foto: String?
     let destino: String
     let actualizado: String
     let conSesion: Bool
 
     static let vacio = EstadoTeTengo(
         date: Date(), tono: "pausa", titulo: "Te Tengo",
-        linea: "Abre la app para ver el estado.", iniciales: "", destino: "/inicio",
+        linea: "Abre la app para ver el estado.", iniciales: "", foto: nil, destino: "/inicio",
         actualizado: "", conSesion: false)
 
     static func leido() -> EstadoTeTengo {
@@ -41,6 +43,7 @@ struct EstadoTeTengo: TimelineEntry {
             titulo: d.string(forKey: "tt_titulo") ?? "Te Tengo",
             linea: d.string(forKey: "tt_linea") ?? "",
             iniciales: d.string(forKey: "tt_iniciales") ?? "",
+            foto: d.string(forKey: "tt_foto"),
             destino: d.string(forKey: "tt_destino") ?? "/inicio",
             actualizado: d.string(forKey: "tt_actualizado") ?? "",
             conSesion: d.string(forKey: "tt_conSesion") == "si")
@@ -114,10 +117,17 @@ struct VistaTeTengo: View {
             HStack(spacing: 12) {
                 if e.conSesion {
                     ZStack(alignment: .bottomTrailing) {
-                        Text(e.iniciales).font(.title3.bold())
-                            .frame(width: 52, height: 52)
-                            .background(Circle().fill(Color(red: 0.96, green: 0.89, blue: 0.93)))
-                            .foregroundColor(Color(red: 0.48, green: 0.14, blue: 0.34))
+                        if let ruta = e.foto, let imagen = UIImage(contentsOfFile: ruta) {
+                            Image(uiImage: imagen).resizable().scaledToFill()
+                                .frame(width: 52, height: 52)
+                                .clipShape(Circle())
+                                .accessibilityHidden(true)
+                        } else {
+                            Text(e.iniciales).font(.title3.bold())
+                                .frame(width: 52, height: 52)
+                                .background(Circle().fill(Color(red: 0.96, green: 0.89, blue: 0.93)))
+                                .foregroundColor(Color(red: 0.48, green: 0.14, blue: 0.34))
+                        }
                         Image(systemName: icono).font(.caption.bold())
                             .padding(5).background(Circle().fill(Color.white))
                             .foregroundColor(Color(red: 0.11, green: 0.48, blue: 0.30))

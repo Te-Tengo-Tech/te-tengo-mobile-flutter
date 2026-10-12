@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/tema/colores.dart';
 import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
+import '../foto.dart';
 import 'iconos.dart';
 
 /// White rounded list (`.list`) with a divider between rows.
@@ -249,18 +250,27 @@ class Enlace extends StatelessWidget {
 /// Avatar tones of the prototype.
 enum TonoAvatar { morado, azul, arena, rosa }
 
-/// Round avatar with initials (`.avatar`).
+/// Round avatar (`avatar()`): the person's photo when there is one, and their initials meanwhile,
+/// without one, or when the picture cannot be downloaded (an older backend, no internet, an
+/// expired signature).
 class Avatar extends StatelessWidget {
   const Avatar(
     this.iniciales, {
     super.key,
     this.tono = TonoAvatar.morado,
     this.tamano = 44,
+    this.foto,
+    this.anillo,
   });
 
   final String iniciales;
   final TonoAvatar tono;
   final double tamano;
+  final Foto? foto;
+
+  /// The ring around it: the large one of the profiles (`.avatar.xl`, the card's color and a
+  /// line) when null and [tamano] is 80 or more; [Colors.transparent] for none.
+  final Color? anillo;
 
   static String inicialesDe(String nombre) {
     final partes = nombre
@@ -281,15 +291,62 @@ class Avatar extends StatelessWidget {
       TonoAvatar.arena => (Colores.avatarArenaFondo, Colores.avatarArenaTinta),
       TonoAvatar.rosa => (Colores.avatarRosaFondo, Colores.avatarRosaTinta),
     };
-    return ExcludeSemantics(
-      child: Container(
-        width: tamano,
-        height: tamano,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: fondo, shape: BoxShape.circle),
-        child: Text(iniciales, style: estiloTexto(16, 800, color: tinta)),
+    final letra = tamano >= 80
+        ? 30.0
+        : tamano <= 32
+        ? 12.0
+        : 16.0;
+    final foto = this.foto;
+    Widget circulo = SizedBox(
+      width: tamano,
+      height: tamano,
+      child: ClipOval(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ColoredBox(
+              color: fondo,
+              child: Center(
+                child: Text(
+                  iniciales,
+                  textScaler: TextScaler.noScaling,
+                  style: estiloTexto(letra, 800, color: tinta),
+                ),
+              ),
+            ),
+            if (foto != null)
+              Image.network(
+                urlEstable(foto),
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+                // Decoded at the size it is drawn, not the stored 512 × 512.
+                cacheWidth: (tamano * MediaQuery.devicePixelRatioOf(context))
+                    .round(),
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+              ),
+          ],
+        ),
       ),
     );
+    final anillo = this.anillo;
+    if (anillo == null && tamano >= 80) {
+      circulo = Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: context.colores.tarjeta,
+          shape: BoxShape.circle,
+          border: Border.all(color: context.colores.linea),
+        ),
+        child: circulo,
+      );
+    } else if (anillo != null && anillo != Colors.transparent) {
+      circulo = Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(color: anillo, shape: BoxShape.circle),
+        child: circulo,
+      );
+    }
+    return ExcludeSemantics(child: circulo);
   }
 }
 

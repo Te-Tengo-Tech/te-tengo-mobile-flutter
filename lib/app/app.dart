@@ -8,6 +8,7 @@ import '../core/ui/avisos_flotantes.dart';
 import '../features/ajustes/data/apariencia.dart';
 import '../features/actualizaciones/presentation/guardia_actualizaciones.dart';
 import '../features/ajustes/data/contraste.dart';
+import '../features/ajustes/data/tamano_letra.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/widget/presentation/actualizador_widget.dart';
 import 'push.dart';
@@ -67,9 +68,13 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
       routerConfig: ref.watch(routerProvider),
       // The home-screen widget follows what the app reads (US-44); US-43 looks for a new version
       // and covers the app below the minimum one.
-      builder: (context, hijo) => AnfitrionAvisos(
-        child: ActualizadorWidget(
-          child: GuardiaActualizaciones(child: hijo ?? const SizedBox.shrink()),
+      builder: (context, hijo) => EscalaLetra(
+        child: AnfitrionAvisos(
+          child: ActualizadorWidget(
+            child: GuardiaActualizaciones(
+              child: hijo ?? const SizedBox.shrink(),
+            ),
+          ),
         ),
       ),
     );

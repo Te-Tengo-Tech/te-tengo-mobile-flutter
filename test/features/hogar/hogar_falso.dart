@@ -8,6 +8,7 @@ const rosa = AdultoMayor(
   edad: 78,
   direccion: 'Jr. Los Pinos 482, San Miguel, Lima',
   convivencia: Convivencia.solo,
+  admiteFoto: true,
 );
 
 final consentimientoVigente = Consentimiento(

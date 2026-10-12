@@ -63,6 +63,15 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <!-- The older adult's photo, over the initials when the app saved one. -->
+            <ImageView
+                android:id="@+id/retrato"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:importantForAccessibility="no"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
             <ImageView
                 android:id="@+id/insignia"
                 android:layout_width="26dp"

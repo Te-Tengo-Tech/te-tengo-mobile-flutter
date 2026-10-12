@@ -159,6 +159,10 @@ class Actividad {
         return actor == TipoActor.sistema
             ? 'Terminó la pausa ${deHabitacion(o)}'
             : segun('reanudó la cámara ${deHabitacion(o)}');
+      case 'FOTO_ADULTO_MAYOR_CAMBIADA':
+        return segun('cambió la foto de ${o.isEmpty ? adultoMayor : o}');
+      case 'FOTO_ADULTO_MAYOR_QUITADA':
+        return segun('quitó la foto de ${o.isEmpty ? adultoMayor : o}');
       case 'CONSENTIMIENTO_OTORGADO':
         return segun('registró el consentimiento de monitoreo');
       case 'CONSENTIMIENTO_REVOCADO':

@@ -48,7 +48,7 @@ class TarjetasInicio extends StatelessWidget {
       linea: n == null ? '' : contar(n, 'persona', 'personas'),
       cabeza: familia == null || familia!.isEmpty
           ? null
-          : _Fotos([for (final f in familia!.take(3)) f.nombre]),
+          : _Fotos(familia!.take(3).toList()),
       alTocar: alTocarFamilia,
     );
     final grande = MediaQuery.textScalerOf(context).scale(16) > 24;
@@ -139,26 +139,28 @@ class _Tile extends StatelessWidget {
   }
 }
 
-/// Up to three people's initials, stacked.
+/// Up to three people's photos (or initials), stacked (`.stack`: 30 px, ringed with the card).
 class _Fotos extends StatelessWidget {
-  const _Fotos(this.nombres);
+  const _Fotos(this.familia);
 
-  final List<String> nombres;
+  final List<Familiar> familia;
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
     child: SizedBox(
-      height: 32,
-      width: 32.0 + 22 * (nombres.length - 1),
+      height: 34,
+      width: 34.0 + 22 * (familia.length - 1),
       child: Stack(
         children: [
-          for (var i = 0; i < nombres.length; i++)
+          for (var i = 0; i < familia.length; i++)
             Positioned(
               left: 22.0 * i,
               child: Avatar(
-                Avatar.inicialesDe(nombres[i]),
+                Avatar.inicialesDe(familia[i].nombre),
                 tono: TonoAvatar.values[i % TonoAvatar.values.length],
-                tamano: 32,
+                tamano: 30,
+                foto: familia[i].foto,
+                anillo: context.colores.tarjeta,
               ),
             ),
         ],
