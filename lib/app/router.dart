@@ -61,7 +61,9 @@ final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: ref.read(ubicacionInicialProvider),
     refreshListenable: sesion,
-    redirect: (context, state) => Rutas.redirigir(sesion.value, state.uri.path),
+    redirect: (context, state) =>
+        Rutas.destinoDeWidget(state.uri) ??
+        Rutas.redirigir(sesion.value, state.uri.path),
     routes: [
       GoRoute(
         path: Rutas.arranque,

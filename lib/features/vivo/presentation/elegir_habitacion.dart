@@ -23,6 +23,12 @@ void verEnVivo(BuildContext context, List<CamaraEnCasa> camaras) {
     context.push(_vivo(camaras.single));
     return;
   }
+  elegirHabitacion(context, camaras);
+}
+
+/// «¿Qué habitación quieres ver?» even with one camera: from the home-screen widget's «Ver en
+/// vivo», which never opens the live view by itself (CA-44.2).
+void elegirHabitacion(BuildContext context, List<CamaraEnCasa> camaras) {
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -107,17 +113,18 @@ class HojaElegirHabitacion extends ConsumerWidget {
             ListaTarjeta(
               borde: true,
               children: [
-                // «Ver todas a la vez» first (US-41); the sheet only opens with two or more.
-                FilaLista(
-                  inicio: const IconoFila(Ico.grid),
-                  titulo: 'Ver todas a la vez',
-                  subtitulo: 'Hasta 4 por página',
-                  alTocar: () {
-                    final router = GoRouter.of(context);
-                    Navigator.of(context).pop();
-                    router.push(Rutas.verTodas);
-                  },
-                ),
+                // «Ver todas a la vez» first (US-41), with two or more cameras.
+                if (camaras.length > 1)
+                  FilaLista(
+                    inicio: const IconoFila(Ico.grid),
+                    titulo: 'Ver todas a la vez',
+                    subtitulo: 'Hasta 4 por página',
+                    alTocar: () {
+                      final router = GoRouter.of(context);
+                      Navigator.of(context).pop();
+                      router.push(Rutas.verTodas);
+                    },
+                  ),
                 for (final c in ordenadas)
                   if (c.vivoDisponible)
                     FilaLista(

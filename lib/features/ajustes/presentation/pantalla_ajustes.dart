@@ -11,6 +11,7 @@ import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../core/ui/plegable.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/aviso.dart';
@@ -23,6 +24,8 @@ import '../../familia/domain/familiar.dart';
 import '../../hogar/domain/hogar.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../sesion/presentation/cerrar_sesion.dart';
+import '../../widget/data/widget_sistema.dart';
+import '../../widget/presentation/pasos_widget.dart';
 import 'pantalla_preferencias.dart';
 
 /// `78 años · Vive solo(a)` (the age only when the backend sends it).
@@ -138,6 +141,17 @@ class PantallaAjustes extends ConsumerWidget {
               subtitulo: resumenPreferencias(ref),
               alTocar: () => context.push(Rutas.preferencias),
             ),
+            // The home-screen widget (US-44): Android and iOS, not the web.
+            if (ref.watch(widgetDelSistemaProvider).disponible)
+              FilaPlegable(
+                icono: Ico.grid,
+                titulo: 'Agregar el widget',
+                resumen: hogar == null
+                    ? null
+                    : '${hogar.adultoMayor.nombrePila} y «Ver en vivo» en tu '
+                          'pantalla de inicio',
+                child: const PasosWidget(),
+              ),
             FilaLista(
               inicio: const IconoFila(Ico.shield),
               titulo: 'Privacidad y consentimiento',

@@ -45,6 +45,7 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `historial` | US-25, US-27 | Done: filtered history with paging, weekly summary with trend |
 | `ajustes` | US-08 (read-only), US-16 | Done: settings for owner and invited member, notification preferences |
 | `instalar` | — | Web only: «Agrega Te Tengo a tu pantalla de inicio» notice and guide on iPhone browser tabs |
+| `widget` | US-44 | The home-screen widget: `estadoDelHogar` (alert, cameras, consent), `ActualizadorWidget` (saves it through `home_widget` and routes the taps `tetengo-widget://abrir?ir=…`), the Android providers `WidgetTeTengoGrande`/`Pequeno` and the iOS extension source; an alert push with the app closed redraws it on Android |
 | `legal` | US-01, US-05, US-09 | Términos de uso, Política de privacidad and the full consent document; the consent text shared with the summary |
 
 ## Design system

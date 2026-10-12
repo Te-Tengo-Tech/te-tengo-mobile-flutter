@@ -8,6 +8,7 @@ import '../core/ui/avisos_flotantes.dart';
 import '../features/ajustes/data/apariencia.dart';
 import '../features/ajustes/data/contraste.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
+import '../features/widget/presentation/actualizador_widget.dart';
 import 'push.dart';
 import 'router.dart';
 import 'tema/tema.dart';
@@ -63,8 +64,10 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
       // or dark on this device.
       themeMode: ref.watch(aparienciaProvider).modo,
       routerConfig: ref.watch(routerProvider),
-      builder: (context, hijo) =>
-          AnfitrionAvisos(child: hijo ?? const SizedBox.shrink()),
+      // The home-screen widget follows what the app reads (US-44).
+      builder: (context, hijo) => AnfitrionAvisos(
+        child: ActualizadorWidget(child: hijo ?? const SizedBox.shrink()),
+      ),
     );
   }
 }

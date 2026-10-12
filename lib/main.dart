@@ -12,9 +12,15 @@ import 'core/sesion/almacen_sesion.dart';
 import 'core/web/navegador.dart';
 import 'features/ajustes/data/apariencia.dart';
 import 'features/ajustes/data/contraste.dart';
+import 'features/widget/data/widget_desde_push.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // An alert push with the app closed redraws the home-screen widget (US-44); Android only, where
+  // data pushes reach the app in the background.
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    registrarWidgetDesdePush();
+  }
   if (kIsWeb) {
     // The PWA's only service worker: offline cache and, with the Firebase defines, web push.
     unawaited(
