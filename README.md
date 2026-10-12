@@ -56,6 +56,7 @@ The switches are **organization variables**, on only when exactly `true`; `ENABL
 | [docs/RELEASES.md](docs/RELEASES.md) | Release pipeline: release candidates, staging from the release branch, produccion from `main`, tag at the end and rollback; channels (PWA, APK, Google Play, TestFlight) × switches, job graphs, build number, secrets and variables, costs and how to turn each channel on; iOS signing |
 | [docs/RELEASE_ANDROID.md](docs/RELEASE_ANDROID.md) | Release AAB and universal APK, release key, sideload distribution and updates, Google Play internal testing and store policy forms |
 | [docs/FIREBASE.md](docs/FIREBASE.md) | Firebase project, config files, APNs key and how to test push on simulators and emulators |
+| [docs/APP_UPDATES.md](docs/APP_UPDATES.md) | How the app learns about new versions (`GET /api/versiones`) and updates on each platform: PWA reload, APK download and install, Google Play in-app updates, iPhone stores, the minimum version, the Android install permission kept out of Play builds |
 | [docs/WEB_PWA.md](docs/WEB_PWA.md) | The installable web app: hosting at `https://app.tetengo.reqsai.tech/`, service worker, web push, iPhone limits and how to test |
 | [docs/references/](docs/references/) | 115 prototype screens, the prototype HTML, DESIGN.md, PRODUCT.md and the product backlog (Spanish sources) |
 
