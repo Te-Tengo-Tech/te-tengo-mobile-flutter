@@ -15,6 +15,7 @@ import 'package:te_tengo/core/ui/formulario.dart';
 import 'package:te_tengo/app/tema/paleta.dart';
 import 'package:te_tengo/features/ajustes/data/apariencia.dart';
 import 'package:te_tengo/features/ajustes/data/contraste.dart';
+import 'package:te_tengo/features/ajustes/data/tamano_letra.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
 import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
@@ -215,7 +216,7 @@ void main() {
       addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
       await abrir(tester, cache: CacheMemoria());
       await verHasta(tester, find.text('Preferencias'));
-      expect(find.text('Tema automático'), findsOneWidget);
+      expect(find.text('Tema automático · letra estándar'), findsOneWidget);
       expect(modo(tester), ThemeMode.system);
       expect(brillo(tester), Brightness.dark);
     });
@@ -269,8 +270,8 @@ void main() {
       expect(cache.datos[AlmacenAparienciaLocal.clave], 'oscura');
       await tester.pageBack();
       await tester.pumpAndSettle();
-      await verHasta(tester, find.text('Tema oscuro'));
-      expect(find.text('Tema oscuro'), findsOneWidget);
+      await verHasta(tester, find.text('Tema oscuro · letra estándar'));
+      expect(find.text('Tema oscuro · letra estándar'), findsOneWidget);
     });
 
     testWidgets('«Claro» se mantiene aunque el celular esté en oscuro', (
@@ -305,8 +306,41 @@ void main() {
       expect(modo(tester), ThemeMode.dark);
       expect(brillo(tester), Brightness.dark);
       expect(paleta(tester).contraste, isTrue);
-      await verHasta(tester, find.text('Tema oscuro · más contraste'));
-      expect(find.text('Tema oscuro · más contraste'), findsOneWidget);
+      await verHasta(
+        tester,
+        find.text('Tema oscuro · letra estándar · más contraste'),
+      );
+      expect(
+        find.text('Tema oscuro · letra estándar · más contraste'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('«Tamaño de letra» «Grande» agranda el texto un 25 % sobre el '
+        'del celular, y se guarda en este celular (pantalla 113)', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 1.2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final cache = CacheMemoria();
+      await abrir(tester, cache: cache);
+      await tocar(tester, find.text('Preferencias'));
+      expect(find.text('Tamaño de letra'), findsOneWidget);
+      expect(find.byType(OpcionRadio<TamanoLetra>), findsNWidgets(2));
+      double escala() => MediaQuery.textScalerOf(
+        tester.element(find.text('Tamaño de letra')),
+      ).scale(10);
+      expect(escala(), closeTo(12, .001));
+      await tocar(tester, find.text('Grande'));
+      expect(escala(), closeTo(15, .001));
+      expect(cache.datos[AlmacenTamanoLetraLocal.clave], 'grande');
+      expect(await cargarTamanoLetra(cache), TamanoLetra.grande);
+      await tocar(tester, find.text('Estándar'));
+      expect(escala(), closeTo(12, .001));
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await verHasta(tester, find.text('Tema automático · letra estándar'));
+      expect(find.text('Tema automático · letra estándar'), findsOneWidget);
     });
 
     testWidgets('«Aumentar el contraste» marca texto y bordes, en claro y en '
