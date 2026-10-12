@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- US-43, CA-43.5: the sideloaded APK opens the Android installer with its new version.
+         Google Play restricts this permission, so it is only merged into the APK builds, never
+         into the bundle uploaded to Play (android/app/build.gradle.kts, docs/RELEASE_ANDROID.md). -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+</manifest>
