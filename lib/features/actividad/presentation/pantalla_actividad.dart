@@ -5,6 +5,7 @@ import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/chips.dart';
@@ -51,12 +52,22 @@ class _PantallaActividadState extends ConsumerState<PantallaActividad> {
 
   @override
   Widget build(BuildContext context) {
-    final texto = Theme.of(context).textTheme;
     final actividad = ref.watch(actividadProvider(_pcId));
     final pcs = ref.watch(pcsProvider).value ?? const [];
     final hoy = ref.watch(relojProvider)();
     return Scaffold(
-      appBar: AppBar(title: const Text('Actividad')),
+      appBar: AppBar(
+        title: const Text('Actividad'),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: AyudaInfo(
+              texto: 'Nadie puede borrar ni cambiar este registro.',
+              tema: 'registro de actividad',
+            ),
+          ),
+        ],
+      ),
       body: NotificationListener<ScrollNotification>(
         onNotification: (n) {
           if (n.metrics.extentAfter < 300) {
@@ -111,27 +122,6 @@ class _PantallaActividadState extends ConsumerState<PantallaActividad> {
                       padding: EdgeInsets.all(16),
                       child: Center(child: CircularProgressIndicator()),
                     ),
-                  const SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 1),
-                        child: Icono(
-                          Ico.lock,
-                          tamano: 18,
-                          color: context.colores.tinta3,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Nadie puede borrar ni cambiar este registro.',
-                          style: texto.bodySmall,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
                 AsyncError(:final error) => [
                   const SizedBox(height: 16),

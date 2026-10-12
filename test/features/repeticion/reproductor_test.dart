@@ -137,7 +137,13 @@ void main() {
         await abrir(tester, Rutas.camara('c1'));
         expect(momento('Hoy 10:41:52'), findsOneWidget);
         expect(find.text('Posible caída'), findsOneWidget);
-        expect(find.text('Nunca video · con registro'), findsOneWidget);
+        expect(
+          ayudaCon(
+            'Solo puntos del cuerpo, nunca video. Cada repetición queda en el '
+            'registro de accesos.',
+          ),
+          findsOneWidget,
+        );
         expect(find.text('Eventos · Hoy'), findsOneWidget);
         await verHasta(tester, find.text('Inestable'));
         expect(find.text('Se levantó'), findsOneWidget);

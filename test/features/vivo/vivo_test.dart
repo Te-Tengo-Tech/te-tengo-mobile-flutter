@@ -115,6 +115,11 @@ void main() {
     );
     expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
     expect(find.text('En vivo · Sala'), findsOneWidget);
+    await verAyuda(
+      tester,
+      'No se graba. Tu acceso queda en el registro que ve toda la familia: '
+      'quién, cuándo y cuánto.',
+    );
     await verHasta(tester, find.text('Cerrar la vista en vivo'));
     final ya = int.parse(
       RegExp(r'00:(\d\d)')
@@ -134,10 +139,6 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Ves la Sala en este momento.'), findsOneWidget);
-    expect(
-      find.text('No se graba · tu acceso queda registrado.'),
-      findsOneWidget,
-    );
     await tester.tap(find.text('Llamar a Rosa'));
     await tester.pump();
     expect(llamadas, hasLength(1));
@@ -313,7 +314,10 @@ void main() {
     await abrir(tester, Rutas.inicio, sesion: sesionInvitado);
     await tocar(tester, find.text('Ver en vivo'));
     expect(
-      find.text('No se graba · tu acceso queda registrado.'),
+      ayudaCon(
+        'No se graba. Tu acceso queda en el registro que ve toda la familia: '
+        'quién, cuándo y cuánto.',
+      ),
       findsOneWidget,
     );
   });

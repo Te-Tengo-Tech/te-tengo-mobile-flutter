@@ -75,7 +75,11 @@ void main() {
     expect(find.text('Cámaras'), findsOneWidget);
     expect(find.text('Funciona · Sala'), findsOneWidget);
     expect(find.text('Ver en vivo'), findsOneWidget);
-    expect(find.text('Cada acceso queda registrado'), findsOneWidget);
+    await verAyuda(
+      tester,
+      'No se graba. Tu acceso queda en el registro que ve toda la familia: '
+      'quién, cuándo y cuánto.',
+    );
     expect(find.text('Activa las notificaciones'), findsNothing);
     // With one camera «Ver en vivo» opens it directly.
     await tocar(tester, find.text('Ver en vivo'));

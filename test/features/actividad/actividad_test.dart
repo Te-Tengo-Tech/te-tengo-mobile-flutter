@@ -119,10 +119,7 @@ void main() {
         tester,
         find.text('Luis pausó la cámara de la Sala hasta las 09:15'),
       );
-      await verHasta(
-        tester,
-        find.text('Nadie puede borrar ni cambiar este registro.'),
-      );
+      await verAyuda(tester, 'Nadie puede borrar ni cambiar este registro.');
     });
 
     testWidgets('CA-33.2: filtra por PC', (tester) async {
@@ -187,6 +184,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.byType(ChipOpcion), findsNothing);
+      // The «?» stays in the bar, closed.
       expect(
         find.text('Nadie puede borrar ni cambiar este registro.'),
         findsNothing,

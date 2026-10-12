@@ -9,6 +9,7 @@ import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/botones.dart';
@@ -276,12 +277,24 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Semantics(
-                header: true,
-                child: Text(
-                  'Vista previa · ${widget.camara.nombreDispositivo}',
-                  style: texto.titleLarge,
-                ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        'Vista previa · ${widget.camara.nombreDispositivo}',
+                        style: texto.titleLarge,
+                      ),
+                    ),
+                  ),
+                  AyudaInfo(
+                    texto:
+                        'No se graba y queda en el registro de accesos. Se '
+                        'cierra sola a los ${duracionVistaPrevia.inSeconds} s.',
+                    tema: 'vista previa',
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               if (motivo != null)
@@ -296,32 +309,6 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
                   const SizedBox(height: 12),
                   MensajeProblema(_problema!),
                 ],
-                const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Icono(
-                        Ico.eye,
-                        tamano: 20,
-                        color: context.colores.moradoTinta,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'No se graba · queda en el registro de accesos',
-                        style: texto.bodyMedium,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Se cierra sola a los ${duracionVistaPrevia.inSeconds} s.',
-                  style: texto.bodySmall,
-                ),
               ],
               const SizedBox(height: 16),
               Boton(

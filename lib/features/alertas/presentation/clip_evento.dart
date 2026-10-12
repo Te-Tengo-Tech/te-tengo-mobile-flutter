@@ -8,6 +8,7 @@ import '../../../core/dispositivo/pantalla_completa.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/ilustraciones.dart';
@@ -312,7 +313,16 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
                 : _Poster(alerta: widget.alerta),
           ),
           if (!aRas) const SizedBox(height: 8),
-          ControlesClip(reproduccion: _clip, aRas: aRas),
+          ControlesClip(
+            reproduccion: _clip,
+            aRas: aRas,
+            ayuda: const AyudaInfo(
+              texto: 'El clip dura 12 s: 6 s antes y 6 s después de la alerta.',
+              tema: 'el clip',
+              sobreOscuro: true,
+              arriba: true,
+            ),
+          ),
           PuntosDelCuerpo(
             enlace: widget.enlace,
             dibujables: _puntos != null,
@@ -321,15 +331,7 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
             alCambiar: (v) => setState(() => _verPuntos = v),
             aRas: aRas,
           ),
-          Padding(
-            padding: aRas
-                ? const EdgeInsets.fromLTRB(16, 10, 16, 14)
-                : const EdgeInsets.only(top: 8),
-            child: Text(
-              '6 s antes y 6 s después.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
+          if (aRas) const SizedBox(height: 6),
         ],
       );
     },

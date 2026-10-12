@@ -10,6 +10,7 @@ import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/formulario.dart';
@@ -424,18 +425,23 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
     List<CamaraDetectada> todas,
   ) {
     final texto = Theme.of(context).textTheme;
-    final vistaPrevia = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final vistaPrevia = Row(
       children: [
-        Boton(
-          'Ver vista previa',
-          icono: Ico.eye,
-          estilo: EstiloBoton.secundario,
-          pequeno: true,
-          alPresionar: () => abrirVistaPrevia(context, camara: w, pc: pc),
+        Flexible(
+          child: Boton(
+            'Ver vista previa',
+            icono: Ico.eye,
+            estilo: EstiloBoton.secundario,
+            pequeno: true,
+            alPresionar: () => abrirVistaPrevia(context, camara: w, pc: pc),
+          ),
         ),
-        const SizedBox(height: 6),
-        Text('No se graba · queda registrado', style: texto.bodySmall),
+        const AyudaInfo(
+          texto:
+              'Muestra lo que ve la cámara durante 15 s. No se graba y queda '
+              'en el registro de accesos.',
+          tema: 'vista previa',
+        ),
       ],
     );
     final habitacion = w.nombreHabitacion ?? '';
@@ -491,11 +497,21 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
       children: [
         vistaPrevia,
         const SizedBox(height: 16),
-        Text(
-          '¿En qué habitación está?',
-          style: estiloTexto(16, 700, color: context.colores.tinta),
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                '¿En qué habitación está?',
+                style: estiloTexto(16, 700, color: context.colores.tinta),
+              ),
+            ),
+            const AyudaInfo(
+              texto: 'Por privacidad, Te Tengo no admite cámaras en el baño.',
+              tema: 'habitaciones',
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Semantics(
           label: '¿En qué habitación está?',
           child: Wrap(
@@ -549,27 +565,6 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
           const SizedBox(height: 10),
           MensajeCampo(_error!),
         ],
-        const SizedBox(height: 8),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Icono(
-                Ico.shield,
-                tamano: 20,
-                color: context.colores.tinta3,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Por privacidad, Te Tengo no admite cámaras en el baño.',
-                style: texto.bodySmall,
-              ),
-            ),
-          ],
-        ),
         const SizedBox(height: 16),
         Boton(
           'Usar esta cámara',

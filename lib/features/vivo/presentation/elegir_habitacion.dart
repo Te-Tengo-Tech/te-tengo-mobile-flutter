@@ -5,11 +5,13 @@ import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../camaras/domain/camara.dart';
 import '../../camaras/presentation/estado_camara.dart';
 import '../../pcs/domain/camaras_en_casa.dart';
+import 'pantalla_vivo.dart' show textoPrivacidadVivo;
 
 /// «Ver en vivo» from Inicio: one camera opens directly; with several, «¿Qué habitación quieres
 /// ver?» (screens 166, 293, 294).
@@ -80,16 +82,21 @@ class HojaElegirHabitacion extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Semantics(
-              header: true,
-              child: Text(
-                '¿Qué habitación quieres ver?',
-                style: texto.titleLarge,
-              ),
+            Row(
+              children: [
+                Flexible(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      '¿Qué habitación quieres ver?',
+                      style: texto.titleLarge,
+                    ),
+                  ),
+                ),
+                const AyudaInfo(texto: textoPrivacidadVivo, tema: 'privacidad'),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text('Cada acceso queda registrado.', style: texto.bodyMedium),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ListaTarjeta(
               borde: true,
               children: [
