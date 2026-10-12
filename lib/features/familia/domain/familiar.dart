@@ -1,18 +1,26 @@
+import '../../../core/foto.dart';
 import '../../../core/sesion/sesion.dart';
 
-/// Member of the household (`GET /api/familiares`).
+/// Member of the household (`GET /api/familiares`). [telefono], [parentesco] and [foto] are what
+/// the member wrote in «Tu perfil» (contract §13); an older backend does not send them.
 class Familiar {
   const Familiar({
     required this.usuarioId,
     required this.nombre,
     required this.correo,
     required this.rol,
+    this.telefono,
+    this.parentesco,
+    this.foto,
   });
 
   final String usuarioId;
   final String nombre;
   final String correo;
   final Rol? rol;
+  final String? telefono;
+  final String? parentesco;
+  final Foto? foto;
 
   bool get esTitular => rol == Rol.titular;
 
@@ -23,8 +31,14 @@ class Familiar {
     nombre: json['nombre'] as String,
     correo: json['correo'] as String,
     rol: Rol.desde(json['rol']),
+    telefono: _texto(json['telefono']),
+    parentesco: _texto(json['parentesco']),
+    foto: Foto.desdeJson(json['foto']),
   );
 }
+
+String? _texto(Object? valor) =>
+    valor is String && valor.trim().isNotEmpty ? valor.trim() : null;
 
 /// Invitation sent by email (`POST /api/invitaciones`).
 class Invitacion {

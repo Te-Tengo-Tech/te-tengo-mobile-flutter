@@ -34,7 +34,9 @@
 	</dict>
 	<!-- Scanning the QR of Te Tengo Captura to link a PC (US-28); no image is kept. -->
 	<key>NSCameraUsageDescription</key>
-	<string>Para escanear el código QR de la PC.</string>
+	<string>Para escanear el código QR de la PC y tomar las fotos de perfil que ve tu familia.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Para elegir de tu galería la foto de perfil que ve tu familia.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tel</string>

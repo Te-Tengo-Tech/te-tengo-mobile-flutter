@@ -1,4 +1,5 @@
 import '../../../core/formato.dart';
+import '../../../core/foto.dart';
 import '../../../core/sesion/sesion.dart';
 
 /// Living arrangement of the older adult (contract §2, from the prototype's profile screen).
@@ -19,8 +20,8 @@ enum Convivencia {
 /// The older adult cared for (contract §2 `adultoMayor`).
 ///
 /// `edad` is null only for households registered before the contract asked for it. `telefono` is
-/// optional: «Llamar a Rosa · 987 654 321» dials it, and the app has no field to capture it yet
-/// (docs/BLOCKERS.md), so it is sent back unchanged when the profile is saved.
+/// optional: «Llamar a Rosa · 987 654 321» dials it. [foto] is their photo (contract §13), which
+/// only the owner changes; [admiteFoto] is false with a backend older than the photos.
 class AdultoMayor {
   const AdultoMayor({
     required this.nombre,
@@ -28,6 +29,8 @@ class AdultoMayor {
     required this.convivencia,
     this.edad,
     this.telefono,
+    this.foto,
+    this.admiteFoto = false,
   });
 
   final String nombre;
@@ -35,6 +38,8 @@ class AdultoMayor {
   final Convivencia? convivencia;
   final int? edad;
   final String? telefono;
+  final Foto? foto;
+  final bool admiteFoto;
 
   /// `Rosa`.
   String get nombrePila => nombre.trim().split(RegExp(r'\s+')).first;
@@ -45,6 +50,19 @@ class AdultoMayor {
     convivencia: Convivencia.desde(json['convivencia']),
     edad: json['edad'] as int?,
     telefono: json['telefono'] as String?,
+    foto: Foto.desdeJson(json['foto']),
+    admiteFoto: json.containsKey('foto'),
+  );
+
+  /// The same person with another photo (or none).
+  AdultoMayor conFoto(Foto? foto) => AdultoMayor(
+    nombre: nombre,
+    direccion: direccion,
+    convivencia: convivencia,
+    edad: edad,
+    telefono: telefono,
+    foto: foto,
+    admiteFoto: true,
   );
 
   /// Body of `POST /api/hogar` and `PUT /api/hogar/adulto-mayor`. The `PUT` replaces the whole

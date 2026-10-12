@@ -60,6 +60,16 @@ class Sesion {
 
   bool get tieneHogar => hogarId != null;
 
+  /// The same session after «Tu perfil» changed the name.
+  Sesion conUsuario(Usuario usuario) => Sesion(
+    tokenAcceso: tokenAcceso,
+    tokenRefresco: tokenRefresco,
+    expiraEn: expiraEn,
+    usuario: usuario,
+    hogarId: hogarId,
+    rol: rol,
+  );
+
   /// Only the owner can edit the profile, consent, camera name, family and alert order (CA-08.4).
   bool get esTitular => rol == Rol.titular;
 

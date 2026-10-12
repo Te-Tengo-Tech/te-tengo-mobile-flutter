@@ -11,6 +11,7 @@ import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
 import 'package:te_tengo/core/ui/avisos_flotantes.dart';
 import 'package:te_tengo/core/ui/ayuda.dart';
+import 'package:te_tengo/features/perfil/data/perfil_repositorio.dart';
 import 'package:te_tengo/features/widget/data/widget_sistema.dart';
 
 import 'package:te_tengo/core/dispositivo/conectividad.dart';
@@ -19,6 +20,7 @@ import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
 import 'package:te_tengo/core/notificaciones/dispositivos_repositorio.dart';
 import 'package:te_tengo/core/notificaciones/notificaciones_push.dart';
 
+import '../features/perfil/perfil_falso.dart';
 import 'adaptador_falso.dart';
 import 'push_falso.dart';
 import 'dispositivo_falso.dart';
@@ -60,6 +62,7 @@ Widget appDePrueba({
   CacheLocal? cache,
   AdaptadorFalso? http,
   WidgetDelSistema? widget,
+  PerfilRepositorio? perfil,
 }) => ProviderScope(
   retry: (_, _) => null,
   overrides: [
@@ -81,6 +84,10 @@ Widget appDePrueba({
     // No home-screen widget unless a test brings its own.
     widgetDelSistemaProvider.overrideWithValue(
       widget ?? const WidgetNoDisponible(),
+    ),
+    // Without a profile (a backend older than «Tu perfil») unless a test brings one.
+    perfilRepositorioProvider.overrideWithValue(
+      perfil ?? PerfilRepositorioFalso(),
     ),
     ...overrides,
   ],
