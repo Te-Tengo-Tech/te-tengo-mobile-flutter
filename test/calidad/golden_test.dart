@@ -28,14 +28,10 @@ String _archivo(String nombre) {
 /// `test/calidad/goldens/`. Regenerate with `flutter test --update-goldens test/calidad`.
 void main() {
   setUpAll(() async {
-    await _cargarFuente(
-      'AtkinsonHyperlegibleNext',
-      'assets/fonts/AtkinsonHyperlegibleNext.ttf',
-    );
-    await _cargarFuente(
-      'AtkinsonHyperlegibleMono',
-      'assets/fonts/AtkinsonHyperlegibleMono.ttf',
-    );
+    await _cargarFuente('Poppins', 'assets/fonts/Poppins-Regular.ttf');
+    await _cargarFuente('Poppins', 'assets/fonts/Poppins-Medium.ttf');
+    await _cargarFuente('Poppins', 'assets/fonts/Poppins-SemiBold.ttf');
+    await _cargarFuente('Poppins', 'assets/fonts/Poppins-Bold.ttf');
   });
 
   for (final p in pantallasPrincipales) {

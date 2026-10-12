@@ -122,7 +122,7 @@ class FilaDato extends StatelessWidget {
       fontWeight: FontWeight.w700,
       fontSize: 16,
       color: context.colores.tinta,
-      fontFamily: mono ? 'AtkinsonHyperlegibleMono' : null,
+      fontFeatures: mono ? const [FontFeature.tabularFigures()] : null,
     );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),

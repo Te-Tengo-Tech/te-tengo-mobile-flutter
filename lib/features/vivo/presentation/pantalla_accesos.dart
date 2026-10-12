@@ -201,10 +201,7 @@ class FilaAcceso extends ConsumerWidget {
                 ? 'Varias cámaras · '
                 : '$quien · ',
           ),
-          TextSpan(
-            text: hora(a.inicio),
-            style: const TextStyle(fontFamily: fuenteMono),
-          ),
+          TextSpan(text: hora(a.inicio), style: estiloCifras),
           TextSpan(
             text: ' · ${duracion(Duration(seconds: a.duracionSegundos))}',
           ),

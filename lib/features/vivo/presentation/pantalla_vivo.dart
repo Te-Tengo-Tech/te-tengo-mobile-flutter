@@ -483,7 +483,7 @@ class _Imagen extends StatelessWidget {
                             const TextSpan(text: 'EN VIVO · '),
                             TextSpan(
                               text: minutosSegundos(s),
-                              style: const TextStyle(fontFamily: fuenteMono),
+                              style: estiloCifras,
                             ),
                           ],
                         ),
@@ -527,7 +527,7 @@ class _NoDisponibleVista extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const mono = TextStyle(fontFamily: fuenteMono);
+    const mono = estiloCifras;
     final (icono, color, titulo, texto) = switch (motivo) {
       _NoDisponible.desconectada => (
         Ico.wifiOff,

@@ -638,7 +638,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
               titulo: a.esCaida ? 'Caída' : 'Inestable',
               subtituloRico: TextSpan(
                 text: hora(a.ocurridaEn),
-                style: const TextStyle(fontFamily: fuenteMono),
+                style: estiloCifras,
               ),
               fin: SelloEstado(a),
               alTocar: () => context.push(

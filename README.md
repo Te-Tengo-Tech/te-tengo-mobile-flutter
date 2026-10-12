@@ -65,4 +65,4 @@ The switches are **organization variables**, on only when exactly `true`; `ENABL
 
 ---
 
-Thesis project, Software Engineering, Universidad Peruana de Ciencias Aplicadas (UPC). Authors: Jhosepmyr Gutierrez Soto and Elmer Riva Rodriguez. Atkinson Hyperlegible typeface: SIL Open Font License (`assets/fonts/OFL.txt`).
+Thesis project, Software Engineering, Universidad Peruana de Ciencias Aplicadas (UPC). Authors: Jhosepmyr Gutierrez Soto and Elmer Riva Rodriguez. Poppins typeface: SIL Open Font License (`assets/fonts/OFL.txt`).
