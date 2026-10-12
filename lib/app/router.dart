@@ -19,6 +19,7 @@ import '../features/alertas/presentation/pantalla_detalle_alerta.dart';
 import '../features/arranque/pantalla_arranque.dart';
 import '../features/camaras/presentation/pantalla_camara.dart';
 import '../features/camaras/presentation/pantalla_nombre_habitacion.dart';
+import '../features/camaras/presentation/pantalla_ordenar.dart';
 import '../features/familia/presentation/pantalla_familia.dart';
 import '../features/familia/presentation/pantalla_orden_aviso.dart';
 import '../features/familia/presentation/pantallas_configuracion_familia.dart';
@@ -206,6 +207,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Rutas.pcs,
         builder: (context, state) => const PantallaCamaras(),
+      ),
+      GoRoute(
+        path: Rutas.ordenarCamaras,
+        builder: (context, state) => const PantallaOrdenarCamaras(),
       ),
       GoRoute(
         path: '/pcs/:id',

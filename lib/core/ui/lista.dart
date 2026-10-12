@@ -74,10 +74,14 @@ class FilaLista extends StatelessWidget {
     this.alTocar,
     this.peligro = false,
     this.chevron,
+    this.marcaTitulo,
   });
 
   final Widget? inicio;
   final String titulo;
+
+  /// A small mark after the title (the favourite's star).
+  final Widget? marcaTitulo;
   final String? subtitulo;
   final InlineSpan? subtituloRico;
 
@@ -97,6 +101,11 @@ class FilaLista extends StatelessWidget {
     final finDebajo =
         fin != null && MediaQuery.textScalerOf(context).scale(16) > 24;
     final subtituloEstilo = estiloTexto(15, 400, color: context.colores.tinta3);
+    final estiloTitulo = estiloTexto(
+      17,
+      700,
+      color: peligro ? context.colores.caidaTinta : context.colores.tinta,
+    );
     final contenido = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 64),
       child: Padding(
@@ -109,16 +118,24 @@ class FilaLista extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    titulo,
-                    style: estiloTexto(
-                      17,
-                      700,
-                      color: peligro
-                          ? context.colores.caidaTinta
-                          : context.colores.tinta,
+                  if (marcaTitulo == null)
+                    Text(titulo, style: estiloTitulo)
+                  else
+                    Text.rich(
+                      TextSpan(
+                        text: titulo,
+                        children: [
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: marcaTitulo,
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: estiloTitulo,
                     ),
-                  ),
                   if (subtituloRico != null)
                     Text.rich(subtituloRico!, style: subtituloEstilo)
                   else if (subtitulo != null)

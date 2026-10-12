@@ -118,6 +118,9 @@ abstract final class Rutas {
 
   /// «Cámaras» (Ajustes › «Cámaras y PCs»): the household's cameras by room and its PCs (US-30).
   static const pcs = '/pcs';
+
+  /// «Ordenar»: favourites and the order of the cameras on this phone (CA-41.4).
+  static const ordenarCamaras = '/pcs/ordenar';
   static String pc(String id) => '/pcs/$id';
   static String pcVinculada(String id) => '/pcs/$id/vinculada';
   static String elegirCamaras(String id, {bool config = false}) =>
