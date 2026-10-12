@@ -8,7 +8,6 @@ import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
-import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
@@ -21,6 +20,7 @@ import '../domain/versiones.dart';
 import '../../../core/ui/ayuda.dart';
 import 'barra_actualizacion.dart';
 import 'situacion.dart';
+import '../../../core/ui/marca.dart';
 
 /// How each platform updates, behind the «?» of «Actualizaciones».
 String comoSeActualiza(Canal canal) => switch (canal) {
@@ -167,10 +167,7 @@ class _PanelActualizaciones extends ConsumerWidget {
             contenido: TextSpan(
               children: [
                 const TextSpan(text: 'Revisado hoy a las '),
-                TextSpan(
-                  text: hora(revisado),
-                  style: const TextStyle(fontFamily: fuenteMono),
-                ),
+                TextSpan(text: hora(revisado), style: estiloCifras),
                 const TextSpan(text: '.'),
               ],
             ),

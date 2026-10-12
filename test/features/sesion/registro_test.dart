@@ -71,7 +71,7 @@ void main() {
       });
       expect(repo.inicios.single['correo'], 'carmen.huaman@gmail.com');
       expect(find.text('Tu cuenta está lista, Carmen.'), findsOneWidget);
-      expect(find.text('Su cámara, ya instalada'), findsOneWidget);
+      expect(find.text('Vincular la PC de la casa'), findsOneWidget);
       await tester.tap(find.text('Empezar'));
       await tester.pumpAndSettle();
       expect(find.text('Persona cuidada'), findsOneWidget);

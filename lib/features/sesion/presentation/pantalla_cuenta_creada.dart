@@ -55,7 +55,7 @@ class PantallaCuentaCreada extends ConsumerWidget {
                         const PasosNumerados([
                           ('Datos de la persona', null),
                           ('Consentimiento informado', null),
-                          ('Su cámara, ya instalada', null),
+                          ('Vincular la PC de la casa', null),
                           ('Invitar a un familiar', null),
                           ('Activar los avisos', null),
                         ]),
