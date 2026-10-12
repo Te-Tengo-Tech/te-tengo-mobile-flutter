@@ -23,6 +23,7 @@ import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/pcs_repositorio.dart';
 import '../domain/camaras_en_casa.dart';
+import '../../actualizaciones/presentation/version_pc.dart';
 import '../domain/pc.dart';
 import '../../vivo/presentation/pantalla_mosaico.dart' show verTodas;
 import 'piezas_pc.dart';
@@ -645,6 +646,7 @@ class FilaPc extends StatelessWidget {
           ],
         ),
       },
+      debajo: EtiquetaVersionPc(pc: pc),
       alTocar: alTocar,
     );
   }

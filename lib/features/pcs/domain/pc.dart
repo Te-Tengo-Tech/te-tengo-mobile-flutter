@@ -21,6 +21,7 @@ class Pc {
     required this.estado,
     this.sistemaOperativo,
     this.versionAgente,
+    this.actualizacionAutomatica,
     this.ultimaSenal,
     this.vinculadaEn,
     this.vinculadaPor,
@@ -33,6 +34,10 @@ class Pc {
   final String nombre;
   final String? sistemaOperativo;
   final String? versionAgente;
+
+  /// «Actualizar automáticamente» of the PC (CA-43.7); null when the PC never said (an older
+  /// Te Tengo Captura).
+  final bool? actualizacionAutomatica;
 
   /// A heartbeat of the PC or of one of its cameras in the last 90 s (CA-30.2, CA-30.3).
   final EstadoConexion estado;
@@ -68,6 +73,7 @@ class Pc {
       nombre: json['nombre'] as String,
       sistemaOperativo: json['sistemaOperativo'] as String?,
       versionAgente: json['versionAgente'] as String?,
+      actualizacionAutomatica: json['actualizacionAutomatica'] as bool?,
       estado: EstadoConexion.desde(json['estadoConexion'] as String? ?? ''),
       ultimaSenal: fechaDesdeJson(json['ultimaSenal']),
       vinculadaEn: fechaDesdeJson(json['vinculadaEn']),

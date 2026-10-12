@@ -172,6 +172,7 @@ class FilaActividad extends ConsumerWidget {
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     return FilaLista(
       inicio: switch (a.actor) {
+        _ when a.esActualizacion => const IconoFila(Ico.refresh),
         TipoActor.familiar => Avatar(
           Avatar.inicialesDe(a.usuario ?? '?'),
           tono: tonoDe(i < 0 ? 0 : i),

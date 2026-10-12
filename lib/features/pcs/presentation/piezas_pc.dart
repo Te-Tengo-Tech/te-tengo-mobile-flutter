@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../actualizaciones/data/actualizacion_controller.dart';
+import '../../actualizaciones/presentation/version_pc.dart';
 import '../../camaras/presentation/cabecera_camara.dart';
 import '../domain/pc.dart';
 
@@ -105,7 +108,7 @@ class _CirculoPunteado extends CustomPainter {
 
 /// Header row of a PC (`pcHead`): icon, name, state and the version of Te Tengo Captura. Opens the
 /// PC's detail when [alTocar] is set.
-class CabeceraPc extends StatelessWidget {
+class CabeceraPc extends ConsumerWidget {
   const CabeceraPc({
     super.key,
     required this.pc,
@@ -118,8 +121,13 @@ class CabeceraPc extends StatelessWidget {
   final VoidCallback? alTocar;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final estado = EstadoPc.de(pc);
+    final programa = programaConVersion(
+      context,
+      pc,
+      ref.watch(versionesPublicadasProvider),
+    );
     final colorEstado = switch (estado) {
       EstadoPc.enLinea => context.colores.calmaTinta,
       EstadoPc.sinConexion => context.colores.aviso,
@@ -134,7 +142,7 @@ class CabeceraPc extends StatelessWidget {
             style: estiloTexto(15, 700, color: colorEstado),
             children: [textoEstadoPc(pc, ahora)],
           ),
-          if (pc.programa case final programa?) TextSpan(text: '\n$programa'),
+          if (programa != null) ...[const TextSpan(text: '\n'), programa],
         ],
       ),
       alTocar: alTocar,
