@@ -287,6 +287,25 @@ void main() {
       );
     });
 
+    testWidgets('una PC ya vinculada lo avisa y vuelve a «Agregar PC»', (
+      tester,
+    ) async {
+      pcs.errorConsulta = const ProblemaApi(
+        codigo: 'PC_YA_VINCULADA',
+        detalle: 'Esta PC ya está vinculada.',
+        extras: {'mismoHogar': false},
+      );
+      await abrir(tester, Rutas.vincular);
+      await tocar(tester, find.text('Escribir el código'));
+      await tester.enterText(campoCodigo(), 'KQWTMXHD');
+      await tocar(tester, find.text('Continuar'));
+      expect(find.text('Esta PC ya está vinculada'), findsOneWidget);
+      expect(find.text('La encuentras en Cámaras y PCs.'), findsOneWidget);
+      expect(find.text('Escribe el código de la PC'), findsNothing);
+      expect(find.text('Escanear el código QR'), findsOneWidget);
+      expect(pcs.aprobaciones, isEmpty);
+    });
+
     testWidgets('CA-28.6: 5 códigos incorrectos bloquean hasta la hora', (
       tester,
     ) async {
@@ -383,6 +402,52 @@ void main() {
       await tocar(tester, find.text('Entendido'));
       expect(find.text('No vinculamos la PC'), findsNothing);
       expect(find.text('Aprobar la PC'), findsNothing);
+    });
+
+    testWidgets('al escanear una PC ya vinculada lo avisa', (tester) async {
+      cache.datos[claveCamaraExplicada] = 'si';
+      pcs.errorConsulta = const ProblemaApi(
+        codigo: 'PC_YA_VINCULADA',
+        detalle: 'Esta PC ya está vinculada.',
+        extras: {'mismoHogar': true, 'pcId': 'pc-1'},
+      );
+      await abrir(tester, Rutas.vincular);
+      await tocar(tester, find.text('Escanear el código QR'));
+      escaner.leer(_qrDeLaPc);
+      await tester.pumpAndSettle();
+      expect(find.text('Esta PC ya está vinculada'), findsOneWidget);
+      expect(find.text('La encuentras en Cámaras y PCs.'), findsOneWidget);
+      expect(find.text('Apunta al QR de la PC'), findsNothing);
+      expect(find.text('Escanear el código QR'), findsOneWidget);
+    });
+
+    testWidgets('el enlace del QR de una PC ya vinculada lleva a sus PCs', (
+      tester,
+    ) async {
+      pcs.errorConsulta = const ProblemaApi(
+        codigo: 'PC_YA_VINCULADA',
+        detalle: 'Esta PC ya está vinculada.',
+        extras: {'mismoHogar': false},
+      );
+      await abrir(tester, Rutas.aprobarPc('KQWT-MXHD'));
+      expect(find.text('Esta PC ya está vinculada'), findsOneWidget);
+      expect(find.text('Aprobar'), findsNothing);
+      expect(pcs.aprobaciones, isEmpty);
+    });
+
+    testWidgets('si al aprobar la PC ya estaba vinculada, lo avisa', (
+      tester,
+    ) async {
+      pcs.errorAprobacion = const ProblemaApi(
+        codigo: 'PC_YA_VINCULADA',
+        detalle: 'Esta PC ya está vinculada.',
+        extras: {'mismoHogar': true, 'pcId': 'pc-1'},
+      );
+      await abrir(tester, Rutas.aprobarPc('KQWT-MXHD'));
+      await tocar(tester, find.text('Aprobar'));
+      expect(find.text('Esta PC ya está vinculada'), findsOneWidget);
+      expect(find.text('La encuentras en Cámaras y PCs.'), findsOneWidget);
+      expect(find.text('Aprobar'), findsNothing);
     });
 
     testWidgets('CA-28.3: el código venció mientras decidía', (tester) async {

@@ -87,7 +87,13 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
       final consulta = await ref.read(pcsRepositorioProvider).consultar(codigo);
       if (mounted) setState(() => _consulta = consulta);
     } on ProblemaApi catch (e) {
-      if (mounted) setState(() => _errorConsulta = ErrorDeCodigo.desde(e));
+      if (!mounted) return;
+      final error = ErrorDeCodigo.desde(e);
+      if (error.tipo == TipoErrorCodigo.yaVinculada) {
+        avisarPcYaVinculada(context, enConfiguracion: widget.enConfiguracion);
+        return;
+      }
+      setState(() => _errorConsulta = error);
     }
   }
 
@@ -127,6 +133,8 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
           setState(() => _errorRed = true);
         case TipoErrorCodigo.soloTitular:
           setState(() => _errorConsulta = error);
+        case TipoErrorCodigo.yaVinculada:
+          avisarPcYaVinculada(context, enConfiguracion: widget.enConfiguracion);
         default:
           setState(() => _problema = e);
       }
