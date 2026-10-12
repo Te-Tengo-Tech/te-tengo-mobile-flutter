@@ -4,6 +4,8 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-11
+
 ### Added
 - **Versions for the apps** (US-43): each production job publishes its channel's version (`versiones/<pwa|apk|play|ios>.json`, with the APK's SHA-256 and size and the «Qué cambió» lines of the new `NOVEDADES.md`) to the downloads bucket for the API's `GET /api/versiones`; `rollback.yml` republishes the PWA and APK ones. The AAB is built with `tt.googlePlay=true` and checked for `REQUEST_INSTALL_PACKAGES`; the APK with `tt.googlePlay=false`.
 - **Home-screen widget (US-44, CA-44.1 to CA-44.3):** Android 4 × 2 and 2 × 2 (`AppWidgetProvider`s over `home_widget`, light and dark) show the older adult's initials with a state badge and the state, never an image of the home: «Todo tranquilo» / «4 cámaras», «Posible caída» / «Sala · 10:41» (red), «Movimiento inestable» (mustard), «1 cámara no responde» / «Cocina» (amber, dashed), «Sin cámaras», «Detección detenida» / «Falta el consentimiento»; the 4 × 2 adds «Te Tengo» and the time of the last update. A tap opens the active alert, «Cámaras» or Inicio; «Ver en vivo» opens Inicio with the room picker (never the live view by itself). The app redraws it whenever it reads a change (opening, refreshes, pushes in the foreground); an alert push with the app closed redraws it on Android from the push's room and time; Android also redraws every 30 min from the last state. Signed out: «Te Tengo» / «Abre la app para ver el estado.». iOS: a WidgetKit extension (`ios/TeTengoWidget`), not yet in the Xcode project (needs the Apple account's App Group; docs/BLOCKERS.md). Ajustes › «Agregar el widget» explains how to add it (not on the web).
