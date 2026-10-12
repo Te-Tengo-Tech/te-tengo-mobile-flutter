@@ -17,6 +17,7 @@ import '../../../core/ui/iconos.dart';
 import '../data/pcs_repositorio.dart';
 import '../domain/pc.dart';
 import 'campo_codigo.dart';
+import 'navegacion_pc.dart';
 
 /// «Escribe el código de la PC» (screens 128 to 133): the fallback when the QR cannot be scanned
 /// (CA-28.2). Wrong codes (CA-28.6), expired or used ones (CA-28.3) and the 15-minute block are
@@ -77,6 +78,10 @@ class _PantallaEscribirCodigoState
       final error = ErrorDeCodigo.desde(e);
       if (error.tipo == TipoErrorCodigo.soloTitular) {
         context.pushReplacement(Rutas.aprobarPc(codigo, config: config));
+        return;
+      }
+      if (error.tipo == TipoErrorCodigo.yaVinculada) {
+        avisarPcYaVinculada(context, enConfiguracion: config);
         return;
       }
       setState(() {

@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
+import '../../../core/ui/aviso.dart';
+import '../../../core/ui/iconos.dart';
+import '../../../core/ui/piezas.dart';
 
 /// The location of the screen on top of the stack.
 String ubicacionArriba(GoRouter router) =>
@@ -27,4 +30,20 @@ void salirA(BuildContext context, String destino) {
   } else {
     context.go(destino);
   }
+}
+
+/// «Esta PC ya está vinculada» (`409 PC_YA_VINCULADA`): the toast, then back to «Agregar PC», or to
+/// «Cámaras y PCs» (step 3 in setup) when the pairing was opened from the PC's QR.
+void avisarPcYaVinculada(
+  BuildContext context, {
+  required bool enConfiguracion,
+}) {
+  mostrarToast(
+    context,
+    titulo: 'Esta PC ya está vinculada',
+    texto: 'La encuentras en Cámaras y PCs.',
+    icono: Ico.pc,
+    tono: TonoAviso.advertencia,
+  );
+  salirA(context, enConfiguracion ? Rutas.configCamara : Rutas.pcs);
 }

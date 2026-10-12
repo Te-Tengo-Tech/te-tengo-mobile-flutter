@@ -19,6 +19,7 @@ import '../data/pcs_repositorio.dart';
 import '../domain/pc.dart';
 import 'campo_codigo.dart';
 import 'escaner_qr.dart';
+import 'navegacion_pc.dart';
 
 /// Where this phone remembers that it already explained why it uses the camera (screen 122).
 const claveCamaraExplicada = '${deDispositivo}camaraQrExplicada';
@@ -170,6 +171,10 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
       final error = ErrorDeCodigo.desde(e);
       if (error.tipo == TipoErrorCodigo.soloTitular) {
         context.pushReplacement(Rutas.aprobarPc(codigo, config: config));
+        return;
+      }
+      if (error.tipo == TipoErrorCodigo.yaVinculada) {
+        avisarPcYaVinculada(context, enConfiguracion: config);
         return;
       }
       setState(() => _estado = _Estado.escaneando);
