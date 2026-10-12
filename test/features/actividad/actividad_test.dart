@@ -356,6 +356,14 @@ void main() {
         'Desde la PC Sala-Rosa: se desvinculó esta PC',
       );
       expect(
+        frase('PC_DESVINCULADA', actor: TipoActor.pc, despues: 'RESTABLECIDA'),
+        'La PC Sala-Rosa se restableció',
+      );
+      expect(
+        frase('PC_DESVINCULADA', actor: TipoActor.pc, despues: 'DESINSTALADA'),
+        'La PC Sala-Rosa se desinstaló',
+      );
+      expect(
         frase('CAMARA_RETIRADA', actor: TipoActor.pc, objeto: 'C920'),
         'Desde la PC Sala-Rosa: se dejó de usar la cámara C920',
       );

@@ -124,6 +124,10 @@ class Actividad {
       case 'PC_DESVINCULADA':
         return switch (actor) {
           TipoActor.familiar => familiar('quitó la PC $o'),
+          TipoActor.pc when despues == 'RESTABLECIDA' =>
+            'La PC ${pc ?? o} se restableció',
+          TipoActor.pc when despues == 'DESINSTALADA' =>
+            'La PC ${pc ?? o} se desinstaló',
           TipoActor.pc => desdePc('se desvinculó esta PC'),
           TipoActor.sistema =>
             despues == 'VENCIDA'
