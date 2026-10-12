@@ -4,6 +4,9 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Activity: «La PC Sala-Rosa se restableció» and «La PC Sala-Rosa se desinstaló» for `PC_DESVINCULADA` with `valorNuevo` `RESTABLECIDA` or `DESINSTALADA` (API contract, activity types); the PC disappears from «PCs y cámaras» as with any unlink.
+
 ## [0.6.0] - 2026-10-11
 
 ### Added
