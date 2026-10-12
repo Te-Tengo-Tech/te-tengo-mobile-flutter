@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'pantallas.dart';
@@ -33,6 +33,19 @@ void main() {
     await _cargarFuente('Poppins', 'assets/fonts/Poppins-SemiBold.ttf');
     await _cargarFuente('Poppins', 'assets/fonts/Poppins-Bold.ttf');
   });
+
+  // The profiles and settings in dark mode too (the prototype's screen 243 is a member's detail).
+  for (final p in pantallasPerfilesOscuras) {
+    testWidgets('captura en oscuro: ${p.nombre}', (tester) async {
+      tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+      addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+      await abrirPantalla(tester, p);
+      await expectLater(
+        find.byType(WidgetsApp).first,
+        matchesGoldenFile(_archivo('${p.nombre} oscuro')),
+      );
+    });
+  }
 
   for (final p in pantallasPrincipales) {
     testWidgets('captura: ${p.nombre}', (tester) async {
