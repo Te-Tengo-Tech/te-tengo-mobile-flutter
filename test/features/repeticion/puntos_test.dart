@@ -45,7 +45,11 @@ void main() {
         if (fuente != null) fuenteFotogramasProvider.overrideWithValue(fuente),
       ],
     );
-    await verHasta(tester, find.text('6 s antes y 6 s después.'));
+    // The bottom of the clip card.
+    await verHasta(
+      tester,
+      ayudaCon('El clip dura 12 s: 6 s antes y 6 s después de la alerta.'),
+    );
   }
 
   Switch interruptor(WidgetTester tester) => tester.widget(find.byType(Switch));

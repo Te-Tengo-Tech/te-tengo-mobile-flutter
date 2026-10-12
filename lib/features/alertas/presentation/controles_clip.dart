@@ -25,9 +25,13 @@ class ControlesClip extends StatelessWidget {
     required this.reproduccion,
     this.alSalir,
     this.aRas = false,
+    this.ayuda,
   });
 
   final ReproduccionClip reproduccion;
+
+  /// The «?» next to the time (not in full screen).
+  final Widget? ayuda;
 
   /// Leaves full screen; only the full-screen view sets it.
   final VoidCallback? alSalir;
@@ -118,6 +122,7 @@ class ControlesClip extends StatelessWidget {
                     Expanded(child: pista),
                     const SizedBox(width: 12),
                     tiempo,
+                    ?ayuda,
                     const SizedBox(width: 4),
                     velocidad,
                     ?pantalla,
@@ -146,6 +151,7 @@ class ControlesClip extends StatelessWidget {
                             ),
                           ),
                         ),
+                        ?ayuda,
                         const SizedBox(width: 4),
                         velocidad,
                         ?pantalla,

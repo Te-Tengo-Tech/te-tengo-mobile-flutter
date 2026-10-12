@@ -99,9 +99,14 @@ void main() {
     // The first one without a room is open.
     expect(find.text('Ver vista previa'), findsOneWidget);
     expect(find.text('¿En qué habitación está?'), findsOneWidget);
-    expect(
-      find.text('Por privacidad, Te Tengo no admite cámaras en el baño.'),
-      findsOneWidget,
+    await verAyuda(
+      tester,
+      'Por privacidad, Te Tengo no admite cámaras en el baño.',
+    );
+    await verAyuda(
+      tester,
+      'Muestra lo que ve la cámara durante 15 s. No se graba y queda en el '
+      'registro de accesos.',
     );
     await verHasta(tester, find.text('USB2.0 PC Camera'));
     expect(find.text('Logitech C920'), findsOneWidget);
@@ -163,7 +168,7 @@ void main() {
     await tocar(tester, find.text('Usar esta cámara'));
     expect(
       find.text('Por privacidad, Te Tengo no admite cámaras en el baño.'),
-      findsNWidgets(2),
+      findsOneWidget,
     );
     expect(pcs.usos, isEmpty);
     expect(esBano('SS.HH.'), isTrue);
@@ -184,7 +189,7 @@ void main() {
     await tocar(tester, find.text('Usar esta cámara'));
     expect(
       find.text('Por privacidad, Te Tengo no admite cámaras en el baño.'),
-      findsNWidgets(2),
+      findsOneWidget,
     );
   });
 
@@ -386,8 +391,12 @@ void main() {
           find.textContaining('VISTA PREVIA · 0:15', findRichText: true),
           findsOneWidget,
         );
+        // Behind the title's «?»; opening it would let the countdown run.
         expect(
-          find.text('No se graba · queda en el registro de accesos'),
+          ayudaCon(
+            'No se graba y queda en el registro de accesos. Se cierra sola a '
+            'los 15 s.',
+          ),
           findsOneWidget,
         );
         await tester.pump(const Duration(seconds: 3));

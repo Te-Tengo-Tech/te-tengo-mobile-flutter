@@ -11,6 +11,7 @@ import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/avisos_flotantes.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/chips.dart';
 import '../../../core/ui/iconos.dart';
@@ -300,6 +301,17 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             habitacion.isEmpty ? 'En vivo' : 'En vivo · $habitacion',
             style: estiloTexto(20, 700, color: Colors.white),
           ),
+          actions: [
+            if (viendo)
+              const Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: AyudaInfo(
+                  texto: textoPrivacidadVivo,
+                  tema: 'privacidad',
+                  sobreOscuro: true,
+                ),
+              ),
+          ],
         ),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
@@ -342,23 +354,6 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
                   desdeAlerta: _desdeAlerta,
                 ),
                 style: estiloTexto(16, 400, color: Colores.nocheTexto),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 2),
-                    child: Icono(Ico.eye, tamano: 20, color: Colors.white),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'No se graba · tu acceso queda registrado.',
-                      style: estiloTexto(16, 400, color: Colores.nocheTexto),
-                    ),
-                  ),
-                ],
               ),
             ],
             const SizedBox(height: 16),
@@ -404,6 +399,11 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   }
 }
 
+/// The live view's privacy help (the «?» in its bar, Inicio's «Ver en vivo» and the room picker).
+const textoPrivacidadVivo =
+    'No se graba. Tu acceso queda en el registro que ve toda la familia: '
+    'quién, cuándo y cuánto.';
+
 /// What the viewer sees in each mode, worded from the prototype's «Ves la Sala y la postura de
 /// Rosa en este momento» (see docs/BLOCKERS.md).
 String queSeVe(
@@ -427,7 +427,7 @@ String queSeVe(
           ? 'Ves la postura detectada.'
           : 'Ves la postura de $nombre en este momento.',
   };
-  // «No se graba» is said once, next to the access record below the image.
+  // «No se graba» is in the «?» of the bar.
   return que;
 }
 

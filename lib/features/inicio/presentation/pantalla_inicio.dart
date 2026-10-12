@@ -11,6 +11,7 @@ import '../../historial/presentation/pantalla_historial.dart';
 import '../../historial/presentation/resumen_semanal.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/sesion/sesion_controller.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
@@ -26,6 +27,7 @@ import '../../familia/data/familia_repositorio.dart';
 import '../../pcs/data/pcs_repositorio.dart';
 import '../../pcs/domain/camaras_en_casa.dart';
 import '../../vivo/presentation/elegir_habitacion.dart';
+import '../../vivo/presentation/pantalla_vivo.dart' show textoPrivacidadVivo;
 import 'tarjetas_inicio.dart';
 import 'tarjeta_adulto_mayor.dart';
 
@@ -165,9 +167,15 @@ class _ContenidoInicio extends ConsumerWidget {
                   FilaLista(
                     inicio: const IconoFila(Ico.video),
                     titulo: 'Ver en vivo',
+                    // The privacy line is behind the «?»; «No disponible ahora» stays visible.
                     subtitulo: enCasa.any((c) => c.vivoDisponible)
-                        ? 'Cada acceso queda registrado'
+                        ? null
                         : 'No disponible ahora',
+                    fin: const AyudaInfo(
+                      texto: textoPrivacidadVivo,
+                      tema: 'privacidad',
+                    ),
+                    chevron: true,
                     alTocar: () => verEnVivo(context, enCasa),
                   ),
                 ],

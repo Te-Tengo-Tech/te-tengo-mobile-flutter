@@ -11,6 +11,7 @@ import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/botones.dart';
@@ -344,22 +345,11 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
             children: [
               _EstadoCamara(estado: estado, camara: camara, pc: pc, hoy: hoy),
               if (datos)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icono(Ico.eye, tamano: 18, color: context.colores.tinta3),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        'Nunca video · con registro',
-                        style: estiloTexto(
-                          15,
-                          600,
-                          color: context.colores.tinta3,
-                        ),
-                      ),
-                    ),
-                  ],
+                const AyudaInfo(
+                  texto:
+                      'Solo puntos del cuerpo, nunca video. Cada repetición '
+                      'queda en el registro de accesos.',
+                  tema: 'privacidad',
                 ),
             ],
           ),
