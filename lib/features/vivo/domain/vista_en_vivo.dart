@@ -69,6 +69,8 @@ class AccesoVivo {
     this.desdeAlerta = false,
     this.camaraId,
     this.vistaPrevia = false,
+    this.camaraIds = const [],
+    this.mosaico = false,
   });
 
   final String usuarioId;
@@ -83,6 +85,13 @@ class AccesoVivo {
   /// A webcam's preview before assigning it a room (CA-29.7).
   final bool vistaPrevia;
 
+  /// The cameras watched, in the order first watched; several for a «Ver todas» opening. Empty
+  /// from an older backend.
+  final List<String> camaraIds;
+
+  /// One opening of «Ver todas» (US-41, CA-41.6): one entry for all its cameras.
+  final bool mosaico;
+
   factory AccesoVivo.desdeJson(Map<String, dynamic> json) {
     final usuario = json['usuario'] as Map<String, dynamic>;
     return AccesoVivo(
@@ -93,6 +102,10 @@ class AccesoVivo {
       desdeAlerta: json['desdeAlerta'] as bool? ?? false,
       camaraId: json['camaraId'] as String?,
       vistaPrevia: json['vistaPrevia'] as bool? ?? false,
+      camaraIds: [
+        for (final id in json['camaraIds'] as List? ?? const []) '$id',
+      ],
+      mosaico: json['mosaico'] as bool? ?? false,
     );
   }
 }

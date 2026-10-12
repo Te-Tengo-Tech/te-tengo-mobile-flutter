@@ -14,12 +14,18 @@ abstract interface class VistaEnVivoRepositorio {
   Future<void> preparar(String camaraId);
 
   /// Opens a session; `409 CAMARA_DESCONECTADA` or `409 CAMARA_EN_PAUSA` when unavailable.
-  /// Without [modo] the camera keeps the mode it streams in.
+  /// Without [modo] the camera keeps the mode it streams in. [mosaicoId]: the «Ver todas» opening
+  /// it belongs to (US-41), so the access log shows one entry.
   Future<SesionVivo> abrir(
     String camaraId, {
     String? alertaId,
     ModoVista? modo,
+    String? mosaicoId,
   });
+
+  /// «Ver todas» opened (CA-41.6): the id its sessions share. Null from an API without it (older
+  /// than US-41): each camera is then its own access.
+  Future<String?> abrirMosaico();
 
   /// Changes what the camera's stream shows, for every viewer; returns the mode now in effect.
   Future<ModoVista> cambiarModo(String sesionId, ModoVista modo);
@@ -53,14 +59,34 @@ class VistaEnVivoRepositorioApi implements VistaEnVivoRepositorio {
     String camaraId, {
     String? alertaId,
     ModoVista? modo,
+    String? mosaicoId,
   }) async {
     try {
       final respuesta = await _dio.post<Map<String, dynamic>>(
         '/api/camaras/$camaraId/vista-en-vivo',
-        data: {'alertaId': alertaId, 'modo': ?modo?.codigo},
+        data: {
+          'alertaId': alertaId,
+          'modo': ?modo?.codigo,
+          'mosaicoId': ?mosaicoId,
+        },
       );
       return SesionVivo.desdeJson(respuesta.data!);
     } on DioException catch (e) {
+      throw ProblemaApi.desde(e);
+    }
+  }
+
+  @override
+  Future<String?> abrirMosaico() async {
+    try {
+      final respuesta = await _dio.post<Map<String, dynamic>>(
+        '/api/vista-en-vivo/mosaicos',
+      );
+      return respuesta.data?['mosaicoId'] as String?;
+    } on DioException catch (e) {
+      final estado = e.response?.statusCode;
+      // An API older than US-41 has no such route.
+      if (estado == 404 || estado == 405) return null;
       throw ProblemaApi.desde(e);
     }
   }

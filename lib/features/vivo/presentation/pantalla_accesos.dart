@@ -160,7 +160,20 @@ class FilaAcceso extends ConsumerWidget {
         camaras.where((c) => c.id == a.camaraId).firstOrNull ??
         (a.camaraId == null ? camaras.firstOrNull : null);
     final habitacion = a.habitacion ?? camara?.nombreHabitacion ?? '';
+    final quien = a.enPc
+        ? a.nombre
+        : '${a.nombre.split(' ').first}${yo ? ' (tú)' : ''}';
+    String habitacionDe(String id) =>
+        camaras.where((c) => c.id == id).firstOrNull?.nombreHabitacion ?? '';
     final titulo = switch (a.tipo) {
+      // «Carmen (tú) vio Sala, Cocina y Pasillo» (CA-41.6); a removed camera has no name left.
+      TipoAcceso.mosaico => switch ([
+        for (final id in a.camaraIds) habitacionDe(id),
+      ].where((h) => h.isNotEmpty).toList()) {
+        final List<String> vistas when vistas.isNotEmpty =>
+          '$quien vio ${enumerar(vistas)}',
+        _ => 'Varias cámaras',
+      },
       TipoAcceso.vivo =>
         habitacion.isEmpty ? 'Vista en vivo' : 'Vista en vivo · $habitacion',
       TipoAcceso.vistaPrevia => switch (camara?.nombreDispositivo) {
@@ -184,9 +197,9 @@ class FilaAcceso extends ConsumerWidget {
       subtituloRico: TextSpan(
         children: [
           TextSpan(
-            text: a.enPc
-                ? '${a.nombre} · '
-                : '${a.nombre.split(' ').first}${yo ? ' (tú)' : ''} · ',
+            text: a.tipo == TipoAcceso.mosaico
+                ? 'Varias cámaras · '
+                : '$quien · ',
           ),
           TextSpan(
             text: hora(a.inicio),
@@ -279,6 +292,7 @@ class _AvatarConInsignia extends StatelessWidget {
               child: Icono(
                 switch (tipo) {
                   TipoAcceso.vivo => Ico.video,
+                  TipoAcceso.mosaico => Ico.grid,
                   TipoAcceso.vistaPrevia => Ico.cam,
                   TipoAcceso.repeticion => Ico.replay,
                 },

@@ -24,6 +24,7 @@ import '../../hogar/data/hogar_repositorio.dart';
 import '../data/pcs_repositorio.dart';
 import '../domain/camaras_en_casa.dart';
 import '../domain/pc.dart';
+import '../../vivo/presentation/pantalla_mosaico.dart' show verTodas;
 import 'piezas_pc.dart';
 import 'refresco_pcs.dart';
 
@@ -147,6 +148,15 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
         const SizedBox(height: 14),
         Row(
           children: [
+            Expanded(
+              child: Boton(
+                'Ver todas',
+                icono: Ico.grid,
+                pequeno: true,
+                alPresionar: () => verTodas(context),
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Boton(
                 'Ordenar',
