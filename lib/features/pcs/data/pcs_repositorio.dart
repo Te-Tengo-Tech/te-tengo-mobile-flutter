@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/red/cliente_api.dart';
 import '../../../core/red/problema_api.dart';
+import '../../camaras/data/orden_camaras.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
@@ -168,6 +169,7 @@ final ambientesProvider = FutureProvider<List<Ambiente>>(
 
 /// The household's cameras with their PC and the state the family sees: Inicio, «Cámaras» and the
 /// live view's room picker. An older backend without `/api/pcs` gives cameras without a PC.
+/// The household's cameras with their PC and state, in the order of this phone.
 final camarasEnCasaProvider = FutureProvider<List<CamaraEnCasa>>((ref) async {
   final camaras = await ref.watch(camarasProvider.future);
   final hogar = await ref.watch(hogarProvider.future);
@@ -177,9 +179,11 @@ final camarasEnCasaProvider = FutureProvider<List<CamaraEnCasa>>((ref) async {
   } on Object {
     pcs = const [];
   }
-  return camarasEnCasa(
-    camaras,
-    pcs,
-    conConsentimiento: hogar.conConsentimiento,
-  );
+  // In the order of this phone, favourites first (CA-41.4).
+  return ref
+      .watch(ordenCamarasProvider)
+      .ordenar(
+        camarasEnCasa(camaras, pcs, conConsentimiento: hogar.conConsentimiento),
+        (c) => c.camara.id,
+      );
 });

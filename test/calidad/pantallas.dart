@@ -120,6 +120,7 @@ final pantallasNuevas = [
     sesion: sesionInvitado,
   ),
   const Pantalla('preferencias', Rutas.preferencias),
+  const Pantalla('ordenar las cámaras', Rutas.ordenarCamaras),
   Pantalla('familiar', Rutas.familiar('u-luis')),
   Pantalla('tu perfil en la familia', Rutas.familiar('u-carmen')),
   Pantalla(

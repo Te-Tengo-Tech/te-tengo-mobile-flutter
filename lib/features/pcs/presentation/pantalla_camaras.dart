@@ -16,6 +16,7 @@ import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
+import '../../camaras/presentation/favorita.dart';
 import '../../camaras/presentation/estado_camara.dart';
 import '../../camaras/presentation/pausa_camara.dart';
 import '../../familia/data/familia_repositorio.dart';
@@ -141,6 +142,23 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
     final bien = camaras.where((c) => !c.necesitaAtencion).toList();
     return [
       _Resumen(resumen),
+      // «Ordenar» (and «Ver todas») only with two or more cameras (CA-41.1, CA-41.4).
+      if (todas.length > 1) ...[
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: Boton(
+                'Ordenar',
+                icono: Ico.swap,
+                estilo: EstiloBoton.secundario,
+                pequeno: true,
+                alPresionar: () => context.push(Rutas.ordenarCamaras),
+              ),
+            ),
+          ],
+        ),
+      ],
       if (varias) ...[
         const SizedBox(height: 12),
         Semantics(
@@ -502,7 +520,7 @@ class TarjetaHabitacion extends StatelessWidget {
     final c = context.colores;
     final estado = camara.estado;
     final color = estado.colorEn(c);
-    return Semantics(
+    final tarjeta = Semantics(
       button: true,
       label: '${camara.habitacion}, ${estado.texto}',
       excludeSemantics: true,
@@ -558,6 +576,21 @@ class TarjetaHabitacion extends StatelessWidget {
           ),
         ),
       ),
+    );
+    // The star stays outside the card's label, as its own button (CA-41.4).
+    return Stack(
+      children: [
+        tarjeta,
+        Positioned(
+          top: 4,
+          right: 4,
+          child: BotonFavorita(
+            camaraId: camara.camara.id,
+            habitacion: camara.habitacion,
+            sobreImagen: true,
+          ),
+        ),
+      ],
     );
   }
 }

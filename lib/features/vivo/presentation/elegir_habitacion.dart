@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
@@ -8,7 +9,9 @@ import '../../../core/formato.dart';
 import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../camaras/data/orden_camaras.dart';
 import '../../camaras/domain/camara.dart';
+import '../../camaras/presentation/favorita.dart';
 import '../../camaras/presentation/estado_camara.dart';
 import '../../pcs/domain/camaras_en_casa.dart';
 import 'pantalla_vivo.dart' show textoPrivacidadVivo;
@@ -60,13 +63,17 @@ InlineSpan porQueNoEnVivo(CamaraEnCasa c) {
 
 /// «¿Qué habitación quieres ver?»: the rooms that can be watched first; the others disabled but
 /// readable, with the reason (a camera whose PC is offline cannot open the live view).
-class HojaElegirHabitacion extends StatelessWidget {
+class HojaElegirHabitacion extends ConsumerWidget {
   const HojaElegirHabitacion({super.key, required this.camaras});
 
+  /// In the order of this phone, favourites first (CA-41.4).
   final List<CamaraEnCasa> camaras;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final orden = ref.watch(ordenCamarasProvider);
+    Widget? estrella(CamaraEnCasa c) =>
+        orden.esFavorita(c.camara.id) ? const MarcaFavorita() : null;
     final texto = Theme.of(context).textTheme;
     final ordenadas = [
       ...camaras.where((c) => c.vivoDisponible),
@@ -108,6 +115,7 @@ class HojaElegirHabitacion extends StatelessWidget {
                         icono: Ico.video,
                       ),
                       titulo: c.habitacion,
+                      marcaTitulo: estrella(c),
                       subtitulo: 'Disponible ahora',
                       alTocar: () {
                         final router = GoRouter.of(context);
@@ -121,6 +129,7 @@ class HojaElegirHabitacion extends StatelessWidget {
                       child: FilaLista(
                         inicio: IconoEstadoCamara(estado: c.estado),
                         titulo: c.habitacion,
+                        marcaTitulo: estrella(c),
                         subtituloRico: TextSpan(
                           style: estiloTexto(
                             15,
