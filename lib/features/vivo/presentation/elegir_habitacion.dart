@@ -107,6 +107,17 @@ class HojaElegirHabitacion extends ConsumerWidget {
             ListaTarjeta(
               borde: true,
               children: [
+                // «Ver todas a la vez» first (US-41); the sheet only opens with two or more.
+                FilaLista(
+                  inicio: const IconoFila(Ico.grid),
+                  titulo: 'Ver todas a la vez',
+                  subtitulo: 'Hasta 4 por página',
+                  alTocar: () {
+                    final router = GoRouter.of(context);
+                    Navigator.of(context).pop();
+                    router.push(Rutas.verTodas);
+                  },
+                ),
                 for (final c in ordenadas)
                   if (c.vivoDisponible)
                     FilaLista(

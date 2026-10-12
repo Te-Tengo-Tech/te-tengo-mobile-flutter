@@ -8,7 +8,14 @@ import '../domain/vista_en_vivo.dart';
 import 'vista_en_vivo_repositorio.dart';
 
 /// Kind of an access (the access log's chips and badges).
-enum TipoAcceso { vivo, vistaPrevia, repeticion }
+enum TipoAcceso {
+  vivo,
+  vistaPrevia,
+  repeticion,
+
+  /// «Ver todas», several cameras at once (US-41, CA-41.6): with the live view in the filter.
+  mosaico,
+}
 
 /// One entry of the access log (US-24, CA-39.3): the live view, a webcam's preview or a replay.
 class Acceso {
@@ -23,10 +30,16 @@ class Acceso {
     this.desdeAlerta = false,
     this.momento,
     this.pc,
+    this.camaraIds = const [],
   });
 
   factory Acceso.vivo(AccesoVivo a) => Acceso(
-    tipo: a.vistaPrevia ? TipoAcceso.vistaPrevia : TipoAcceso.vivo,
+    tipo: a.mosaico
+        ? TipoAcceso.mosaico
+        : a.vistaPrevia
+        ? TipoAcceso.vistaPrevia
+        : TipoAcceso.vivo,
+    camaraIds: a.camaraIds,
     usuarioId: a.usuarioId,
     nombre: a.nombre,
     inicio: a.inicio,
@@ -81,6 +94,9 @@ class Acceso {
 
   /// The PC's name when the replay was watched on a PC; null in the app.
   final String? pc;
+
+  /// The cameras seen in a «Ver todas» opening, in the order first watched.
+  final List<String> camaraIds;
 
   bool get enPc => pc != null;
 }

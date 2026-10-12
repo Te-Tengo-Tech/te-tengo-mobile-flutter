@@ -111,5 +111,5 @@ Screens 313 to 354 of the mobile prototype (docs `05-prototipos/app-movil`, comm
 - [x] **T42 «Aumentar el contraste»:** screens 349 to 354. Ajustes › «Preferencias» (theme and contrast, on this device), the high-contrast palette in light and dark, and the phone's own setting.
 - [x] **T43 «?» help icons:** the privacy and help lines that were always visible become a «?» icon with a popover (11 places in the app; the 12th is future work).
 - [x] **T44 US-41 (CA-41.4) Favourites and «Ordenar»:** screens 313, 328 to 332, 338, 339 and 342; the order of this phone in «Cámaras», Inicio and the room picker.
-- [ ] **T45 US-41 «Ver todas»:** screens 314 to 327, 333 to 337, 340, 341 and 343; one access log entry per opening (contract §4).
+- [x] **T45 US-41 «Ver todas»:** screens 314 to 327, 333 to 337, 340, 341 and 343; one access log entry per opening (contract §4).
 - [ ] **T46 US-44 Home-screen widget:** screens 344 to 348; Android 4×2 and 2×2, iOS WidgetKit, not on the web.

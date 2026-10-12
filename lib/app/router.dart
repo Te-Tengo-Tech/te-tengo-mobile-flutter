@@ -11,6 +11,7 @@ import '../features/ajustes/presentation/pantalla_preferencias.dart';
 import '../features/familia/presentation/gestion_familia.dart';
 import '../features/familia/presentation/pantallas_invitacion.dart';
 import '../features/vivo/presentation/pantalla_accesos.dart';
+import '../features/vivo/presentation/pantalla_mosaico.dart';
 import '../features/vivo/presentation/pantalla_vivo.dart';
 import '../features/ajustes/presentation/pantalla_ajustes.dart';
 import '../features/ajustes/presentation/pantalla_avisos_setup.dart';
@@ -365,10 +366,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PantallaAccesos(),
       ),
       GoRoute(
+        path: Rutas.verTodas,
+        builder: (context, state) => const PantallaMosaico(),
+      ),
+      GoRoute(
         path: Rutas.vivo,
         builder: (context, state) => PantallaVivo(
           camaraId: state.uri.queryParameters['camara'],
           alertaId: state.uri.queryParameters['alerta'],
+          mosaicoId: state.uri.queryParameters['mosaico'],
         ),
       ),
       GoRoute(

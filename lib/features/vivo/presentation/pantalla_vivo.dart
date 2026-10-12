@@ -13,15 +13,16 @@ import '../../../core/reloj.dart';
 import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/botones.dart';
-import '../../../core/ui/chips.dart';
 import '../../../core/ui/iconos.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
+import '../data/preferencias_vivo.dart';
 import '../data/vista_en_vivo_repositorio.dart';
 import '../domain/vista_en_vivo.dart';
 import 'conexion_vivo.dart';
+import 'modos_vista.dart';
 import 'reproductor_vivo.dart';
 import 'reproductor_webrtc.dart';
 
@@ -33,10 +34,14 @@ enum _NoDisponible { desconectada, enPausa, detenida }
 /// Live view (screens 38–40, 54 and 74): the room in real time, how long it has been open, and the
 /// reminder that the access is recorded. From an alert it shows that alert's room (CA-23.2).
 class PantallaVivo extends ConsumerStatefulWidget {
-  const PantallaVivo({super.key, this.camaraId, this.alertaId});
+  const PantallaVivo({super.key, this.camaraId, this.alertaId, this.mosaicoId});
 
   final String? camaraId;
   final String? alertaId;
+
+  /// Opened full screen from «Ver todas» in portrait (US-41): its session is part of that opening's
+  /// single access (CA-41.6), it goes back «Volver a todas», and the mosaic confirms the access.
+  final String? mosaicoId;
 
   @override
   ConsumerState<PantallaVivo> createState() => _PantallaVivoState();
@@ -74,11 +79,14 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   late final AppLifecycleListener _ciclo;
 
   bool get _desdeAlerta => widget.alertaId != null;
+  bool get _desdeMosaico => widget.mosaicoId != null;
 
   @override
   void initState() {
     super.initState();
     _repositorio = ref.read(vistaEnVivoRepositorioProvider);
+    // The mode this phone chose last time (CA-41.3); none keeps the camera's.
+    _modoElegido = ref.read(preferenciasVivoProvider).modo;
     // The DELETE may finish after the widget is gone: refresh the log through the container.
     _contenedor = ProviderScope.containerOf(context, listen: false);
     _ciclo = AppLifecycleListener(onHide: _alOcultar, onShow: _alMostrar);
@@ -130,6 +138,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
         camara.id,
         alertaId: widget.alertaId,
         modo: _modoElegido,
+        mosaicoId: widget.mosaicoId,
       );
       if (!vigente()) return _cerrarSesion(sesion);
       setState(() {
@@ -215,7 +224,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   void _terminar() {
     _intento++;
     _detener();
-    if (!_huboSesion) return;
+    if (!_huboSesion || _desdeMosaico) return;
     final habitacion = _camara?.nombreHabitacion ?? '';
     ref
         .read(avisoFlotanteProvider.notifier)
@@ -233,6 +242,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   Future<void> _cambiarModo(ModoVista modo) async {
     final sesion = _sesion;
     if (sesion == null || modo == _modo) return;
+    unawaited(ref.read(preferenciasVivoProvider.notifier).elegirModo(modo));
     setState(() {
       _cambiandoModo = true;
       _problema = null;
@@ -283,6 +293,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     final nombre = adulto?.nombrePila ?? '';
     final cerrar = _desdeAlerta
         ? 'Volver a la alerta'
+        : _desdeMosaico
+        ? 'Volver a todas'
         : 'Cerrar la vista en vivo';
     final viendo = _sesion != null;
     return PopScope(
@@ -294,7 +306,10 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
           foregroundColor: Colors.white,
           leading: IconButton(
             tooltip: cerrar,
-            icon: Icono(_desdeAlerta ? Ico.back : Ico.x, color: Colors.white),
+            icon: Icono(
+              _desdeAlerta || _desdeMosaico ? Ico.back : Ico.x,
+              color: Colors.white,
+            ),
             onPressed: () => Navigator.of(context).maybePop(),
           ),
           title: Text(
@@ -341,19 +356,9 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             ],
             if (viendo) ...[
               const SizedBox(height: 16),
-              _Modos(
+              ModosVista(
                 modo: _modo,
-                alElegir: _cambiandoModo ? null : _cambiarModo,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                queSeVe(
-                  _modo,
-                  habitacion: habitacion,
-                  nombre: nombre,
-                  desdeAlerta: _desdeAlerta,
-                ),
-                style: estiloTexto(16, 400, color: Colores.nocheTexto),
+                alCambiar: _cambiandoModo ? null : _cambiarModo,
               ),
             ],
             const SizedBox(height: 16),
@@ -403,64 +408,6 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
 const textoPrivacidadVivo =
     'No se graba. Tu acceso queda en el registro que ve toda la familia: '
     'quién, cuándo y cuánto.';
-
-/// What the viewer sees in each mode, worded from the prototype's «Ves la Sala y la postura de
-/// Rosa en este momento» (see docs/BLOCKERS.md).
-String queSeVe(
-  ModoVista modo, {
-  required String habitacion,
-  required String nombre,
-  required bool desdeAlerta,
-}) {
-  final que = switch (modo) {
-    ModoVista.video =>
-      desdeAlerta
-          ? 'Ves la habitación.'
-          : 'Ves ${conArticulo(habitacion)} en este momento.',
-    ModoVista.videoConPostura =>
-      desdeAlerta
-          ? 'Ves la habitación y la postura detectada.'
-          : 'Ves ${conArticulo(habitacion)} y la postura de $nombre en este '
-                'momento.',
-    ModoVista.soloPostura =>
-      desdeAlerta
-          ? 'Ves la postura detectada.'
-          : 'Ves la postura de $nombre en este momento.',
-  };
-  // «No se graba» is in the «?» of the bar.
-  return que;
-}
-
-/// The three modes of the stream as chips; the chosen one is filled and checked.
-class _Modos extends StatelessWidget {
-  const _Modos({required this.modo, required this.alElegir});
-
-  final ModoVista modo;
-
-  /// Null while a change is on its way.
-  final ValueChanged<ModoVista>? alElegir;
-
-  static const _textos = {
-    ModoVista.video: 'Video',
-    ModoVista.videoConPostura: 'Video y postura',
-    ModoVista.soloPostura: 'Solo postura',
-  };
-
-  @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: 8,
-    runSpacing: 8,
-    children: [
-      for (final m in ModoVista.values)
-        ChipOpcion(
-          texto: _textos[m]!,
-          elegido: m == modo,
-          icono: m == modo ? Ico.check : null,
-          alTocar: alElegir == null ? null : () => alElegir!(m),
-        ),
-    ],
-  );
-}
 
 /// The live frame, whole at its own aspect ratio, with the «EN VIVO · mm:ss» tag.
 class _Imagen extends StatelessWidget {

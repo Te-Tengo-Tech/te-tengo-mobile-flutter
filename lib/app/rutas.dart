@@ -52,6 +52,9 @@ abstract final class Rutas {
   ).toString();
   static String nombreCamara(String id) => '/camara/$id/nombre';
   static const vivo = '/vivo';
+
+  /// «Ver todas»: several cameras at once (US-41).
+  static const verTodas = '/vivo/todas';
   static const accesos = '/accesos';
   static String alerta(String id) => '/alerta/$id';
   static String detalleAlerta(String id) => '/alertas/$id';

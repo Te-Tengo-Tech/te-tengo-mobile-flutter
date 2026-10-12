@@ -40,7 +40,7 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `pcs` | US-28 to US-31 | Linking a PC (QR scanner `EscanerQr` over `mobile_scanner`, 8-box code, approval, the `/vincular?codigo=` link), setup step 3, «Elige las cámaras» with rooms (one per room, no bathrooms) and the webcam preview; «Cámaras» by room (`camarasEnCasaProvider`: each camera with its PC and the state the family sees), the PC detail and removing a PC; `RefrescoPcs` reads them again every 10 s while on screen |
 | `inicio` | US-16 | Done: home card per state, notifications banner, camera, «Esta semana» |
 | `alertas` | US-13, US-14, US-16 to US-21, US-26 | Done: fall and unstable alerts, confirmation, clip, marking, escalation, recovery, recordings download |
-| `vivo` | US-23, US-24 | Done: live view over WebRTC (WHEP) with LL-HLS fallback, the stream mode, access log, `preparar` |
+| `vivo` | US-23, US-24, US-41 | Done: live view over WebRTC (WHEP) with LL-HLS fallback, the «Video» / «Esqueleto» switches (remembered on this phone, `preferencias_vivo.dart`), access log, `preparar`; «Ver todas» (`PantallaMosaico`): up to 4 sessions of one mosaic (`POST /api/vista-en-vivo/mosaicos`), only the visible page streams, landscape by default |
 | `familia` | US-08, US-10 | Done: invite, accept, the member detail (contact, role, marked alerts, live view accesses) with the owner's options, remove access, alert order and wait |
 | `historial` | US-25, US-27 | Done: filtered history with paging, weekly summary with trend |
 | `ajustes` | US-08 (read-only), US-16 | Done: settings for owner and invited member, notification preferences |
