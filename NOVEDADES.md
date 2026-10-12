@@ -7,3 +7,8 @@
 - The lines are copy: they need the same approval as any other label (docs/BLOCKERS.md). A version without a section is published without notes, and the apps hide «Qué cambió».
 
 ## [Unreleased]
+
+## [0.7.0]
+
+- Ahora Te Tengo te avisa cuando una PC se restablece o se desinstala.
+- Las PC que se quitan de la casa desaparecen de «PCs y cámaras».
