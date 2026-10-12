@@ -11,6 +11,7 @@ import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
 import 'package:te_tengo/core/ui/avisos_flotantes.dart';
 import 'package:te_tengo/core/ui/ayuda.dart';
+import 'package:te_tengo/features/widget/data/widget_sistema.dart';
 
 import 'package:te_tengo/core/dispositivo/conectividad.dart';
 import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
@@ -58,6 +59,7 @@ Widget appDePrueba({
   DispositivosRepositorio? dispositivos,
   CacheLocal? cache,
   AdaptadorFalso? http,
+  WidgetDelSistema? widget,
 }) => ProviderScope(
   retry: (_, _) => null,
   overrides: [
@@ -76,6 +78,10 @@ Widget appDePrueba({
     permisoNotificacionesProvider.overrideWithValue(permiso ?? PermisoFalso()),
     conectividadProvider.overrideWithValue(conectividad ?? ConectividadFalsa()),
     ubicacionInicialProvider.overrideWithValue(ubicacion),
+    // No home-screen widget unless a test brings its own.
+    widgetDelSistemaProvider.overrideWithValue(
+      widget ?? const WidgetNoDisponible(),
+    ),
     ...overrides,
   ],
   child: const TeTengoApp(),

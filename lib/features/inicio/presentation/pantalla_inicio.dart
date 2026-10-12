@@ -28,6 +28,7 @@ import '../../pcs/data/pcs_repositorio.dart';
 import '../../pcs/domain/camaras_en_casa.dart';
 import '../../vivo/presentation/elegir_habitacion.dart';
 import '../../vivo/presentation/pantalla_vivo.dart' show textoPrivacidadVivo;
+import '../../widget/presentation/actualizador_widget.dart';
 import 'tarjetas_inicio.dart';
 import 'tarjeta_adulto_mayor.dart';
 
@@ -53,6 +54,16 @@ class _ContenidoInicio extends ConsumerWidget {
     final hogar = ref.watch(hogarProvider);
     final camaras = ref.watch(camarasProvider);
     final enCasa = ref.watch(camarasEnCasaProvider).value ?? const [];
+    // «Ver en vivo» on the home-screen widget: the room picker, once the cameras are read.
+    if (ref.watch(habitacionesPendientesProvider) && enCasa.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted || !ref.read(habitacionesPendientesProvider)) {
+          return;
+        }
+        ref.read(habitacionesPendientesProvider.notifier).atendido();
+        elegirHabitacion(context, enCasa);
+      });
+    }
     final pcs = ref.watch(pcsProvider).value;
     final familia = ref.watch(familiaresProvider).value;
     final texto = Theme.of(context).textTheme;

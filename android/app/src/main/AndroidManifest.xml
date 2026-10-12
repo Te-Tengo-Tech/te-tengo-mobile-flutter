@@ -46,6 +46,29 @@
                 <data android:scheme="https" android:host="app.tetengo.reqsai.tech" android:path="/vincular"/>
             </intent-filter>
         </activity>
+        <!-- Home-screen widget, 4 × 2 and 2 × 2 (US-44): state only, never images. -->
+        <receiver
+            android:name=".WidgetTeTengoGrande"
+            android:exported="false"
+            android:label="@string/widget_nombre">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_te_tengo_grande_info" />
+        </receiver>
+        <receiver
+            android:name=".WidgetTeTengoPequeno"
+            android:exported="false"
+            android:label="@string/widget_nombre">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_te_tengo_pequeno_info" />
+        </receiver>
         <!-- Pushes that name no channel go to the alert channel, created with high importance in
              MainActivity (API contract §7). -->
         <meta-data
