@@ -32,9 +32,9 @@ void main() {
     await verHasta(tester, find.text('0:00 / 0:12'));
     expect(find.text('Sala · 10:42'), findsOneWidget);
     expect(alertas.clips, ['a-1']);
-    expect(
-      find.text('Con la postura detectada · 6 s antes y 6 s después.'),
-      findsOneWidget,
+    await verAyuda(
+      tester,
+      'El clip dura 12 s: 6 s antes y 6 s después de la alerta.',
     );
     expect(
       find.bySemanticsLabel('Ver el clip en pantalla completa'),
@@ -61,12 +61,7 @@ void main() {
       expect(find.text('No se pudo guardar'), findsOneWidget);
       await tocar(tester, find.text('Clip del evento'));
       await verHasta(tester, find.text('Clip no disponible'));
-      expect(
-        find.text(
-          'No se pudo guardar el video. La alerta sigue siendo válida.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('La alerta sigue siendo válida.'), findsOneWidget);
     },
   );
 

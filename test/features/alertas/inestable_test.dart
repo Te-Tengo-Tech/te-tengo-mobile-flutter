@@ -40,9 +40,7 @@ void main() {
     expect(find.text('12 s, antes y después'), findsNothing);
     await tocar(tester, find.text('Más detalles'));
     expect(
-      find.text(
-        'No es una caída. Si termina en una, te enviamos una alerta urgente.',
-      ),
+      find.text('No es una caída. Si termina en una, te avisamos.'),
       findsOneWidget,
     );
     expect(find.text('Bomberos'), findsNothing);
@@ -96,7 +94,7 @@ void main() {
     await verHasta(tester, find.text('Empezó como movimiento inestable'));
     expect(
       find.textContaining(
-        'A las 10:39 en la Sala. La situación terminó en una caída.',
+        'A las 10:39 en la Sala. Terminó en caída.',
         findRichText: true,
       ),
       findsOneWidget,

@@ -6,7 +6,6 @@ import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
-import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../data/hogar_repositorio.dart';
@@ -47,7 +46,6 @@ class _Formulario extends ConsumerStatefulWidget {
 
 class _FormularioState extends ConsumerState<_Formulario> {
   late final _formulario = FormularioAdultoMayor(widget.hogar.adultoMayor);
-  bool _otraPersona = false;
   ProblemaApi? _problema;
   bool _enviando = false;
 
@@ -108,16 +106,6 @@ class _FormularioState extends ConsumerState<_Formulario> {
         ),
         if (titular) ...[
           Boton('Guardar cambios', cargando: _enviando, alPresionar: _guardar),
-          const EncabezadoSeccion('¿Cuidas a otra persona?'),
-          if (_otraPersona)
-            const AvisoUnaSolaPersona()
-          else
-            Boton(
-              'Agregar otra persona',
-              estilo: EstiloBoton.secundario,
-              icono: Ico.plus,
-              alPresionar: () => setState(() => _otraPersona = true),
-            ),
         ],
       ],
     );
@@ -133,9 +121,6 @@ class AvisoUnaSolaPersona extends StatelessWidget {
     tono: TonoAviso.info,
     icono: Ico.info,
     titulo: 'Cada cuenta cuida a una sola persona',
-    texto:
-        'Te Tengo no usa reconocimiento facial, así que no puede distinguir '
-        'entre dos personas en la misma casa. Para cuidar a alguien más, crea '
-        'otra cuenta con un correo distinto.',
+    texto: 'Para cuidar a alguien más, crea otra cuenta.',
   );
 }

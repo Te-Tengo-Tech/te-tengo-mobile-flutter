@@ -17,10 +17,7 @@ import 'fila_miembro.dart';
 
 /// Familia tab (screens 62, 72 and 78): who receives the alerts and in which order they answer.
 class PantallaFamilia extends ConsumerWidget {
-  const PantallaFamilia({super.key, this.alTocarMiembro});
-
-  /// Member options of the owner (US-08, screen 70).
-  final void Function(BuildContext, MiembroFamilia, int indice)? alTocarMiembro;
+  const PantallaFamilia({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -87,9 +84,8 @@ class PantallaFamilia extends ConsumerWidget {
               miembro: lista[i],
               indice: i,
               esYo: lista[i].familiar.usuarioId == yo,
-              alTocar: titular && alTocarMiembro != null
-                  ? () => alTocarMiembro!(context, lista[i], i)
-                  : null,
+              alTocar: () =>
+                  context.push(Rutas.familiar(lista[i].familiar.usuarioId)),
             ),
         ],
       ),

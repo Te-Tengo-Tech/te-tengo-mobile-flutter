@@ -257,7 +257,7 @@ class OpcionRadio<T> extends StatelessWidget {
               : context.colores.tarjeta,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: borde, width: 1.5),
+            side: BorderSide(color: borde, width: context.colores.anchoBorde),
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(

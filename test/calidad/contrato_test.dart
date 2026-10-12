@@ -7,7 +7,22 @@ import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
 const _sinUso = {
   // The household (`GET /api/hogar`) already carries the consent.
   'GET /api/hogar/consentimiento',
+  // The prototype has no screen to rename a PC: it keeps the name the PC reports (US-30).
+  'PATCH /api/pcs/{id}',
+  // Rooms are created by assigning a webcam a new name (`PUT /api/camaras/{id}/ambiente` with
+  // `nombreAmbiente`) and renamed through their camera (`PATCH /api/camaras/{id}`); no screen of
+  // the prototype manages a room without its camera.
+  'POST /api/ambientes',
+  'PATCH /api/ambientes/{id}',
+  'DELETE /api/ambientes/{id}',
 };
+
+/// Endpoints of the change request «PCs, cámaras y datos de movimiento» whose screens come in the
+/// next pull requests of US-30 to US-40.
+const _pendientes = <String>{};
+
+/// Push types whose handling comes in the next pull requests.
+const _tiposPendientes = <String>{};
 
 /// Every endpoint of docs/API_CONTRACT.md is called by the app with its method and path.
 void main() {
@@ -22,11 +37,11 @@ void main() {
     r'`(GET|POST|PUT|PATCH|DELETE) (/api/[^`\s?]+)',
   ).allMatches(contrato).map((m) => (m.group(1)!, m.group(2)!)).toSet();
 
-  test('el contrato tiene endpoints', () => expect(endpoints, hasLength(38)));
+  test('el contrato tiene endpoints', () => expect(endpoints, hasLength(66)));
 
   for (final (metodo, ruta) in endpoints) {
     final nombre = '$metodo $ruta';
-    if (_sinUso.contains(nombre)) continue;
+    if (_sinUso.contains(nombre) || _pendientes.contains(nombre)) continue;
     test(nombre, () {
       // `{id}` becomes a Dart interpolation: `$camaraId` or `${Uri.encodeComponent(token)}`.
       final patron = RegExp.escape(ruta).replaceAllMapped(
@@ -59,6 +74,9 @@ void main() {
           m.group(1)!,
     };
     expect(tipos, isNotEmpty);
-    expect(TipoPush.values.map((t) => t.codigo).toSet(), tipos);
+    expect(
+      TipoPush.values.map((t) => t.codigo).toSet(),
+      tipos.difference(_tiposPendientes),
+    );
   });
 }

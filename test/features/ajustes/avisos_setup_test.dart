@@ -26,10 +26,7 @@ void main() {
     expect(find.text('Paso 5 de 5'), findsOneWidget);
     expect(find.text('Que no se te pase ninguna caída'), findsOneWidget);
     expect(
-      find.text(
-        'Te llegará la alerta aunque tengas la app cerrada o el celular en '
-        'silencio.',
-      ),
+      find.text('Aunque la app esté cerrada o el celular en silencio.'),
       findsOneWidget,
     );
     expect(find.text('Para recibir las alertas'), findsOneWidget);
@@ -92,10 +89,7 @@ void main() {
       alertas: AlertasRepositorioFalso(),
       permiso: permiso,
     );
-    expect(
-      find.text('Las caídas suenan aunque el celular esté en silencio'),
-      findsOneWidget,
-    );
+    expect(find.text('Aunque el celular esté en silencio'), findsOneWidget);
     await tocar(tester, find.text('Permitir'));
     expect(permiso.ajustesAbiertos, 1);
   });

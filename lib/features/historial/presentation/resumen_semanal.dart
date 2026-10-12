@@ -80,7 +80,6 @@ class VistaResumenSemanal extends ConsumerWidget {
               const EstadoVacio(
                 ilustracion: IlustracionVacio.semana,
                 titulo: 'Semana sin eventos',
-                texto: 'No hubo caídas ni movimientos inestables.',
               )
             else ...[
               const SizedBox(height: 12),
@@ -121,10 +120,7 @@ class VistaResumenSemanal extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              'Las falsas alarmas no suman a caídas ni a inestables.',
-              style: texto.bodySmall,
-            ),
+            Text('Las falsas alarmas no suman.', style: texto.bodySmall),
           ],
           AsyncError(:final error) => [
             const SizedBox(height: 12),
@@ -167,7 +163,7 @@ class _Dias extends ConsumerWidget {
         decoration: BoxDecoration(
           color: context.colores.tarjeta,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: sombraTarjeta,
+          boxShadow: sombraDe(context),
         ),
         child: Row(
           children: [

@@ -3,12 +3,17 @@ import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/dispositivo/llamada.dart';
 import 'package:te_tengo/core/reloj.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
+import 'package:te_tengo/features/actividad/data/actividad_repositorio.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
 import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/historial/data/resumen_repositorio.dart';
+import 'package:te_tengo/features/movimientos/data/movimientos_repositorio.dart';
+import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
+import 'package:te_tengo/features/repeticion/data/repeticiones_repositorio.dart';
+import 'package:te_tengo/features/pcs/presentation/escaner_qr.dart';
 import 'package:te_tengo/features/historial/domain/resumen_semanal.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
@@ -18,10 +23,15 @@ import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
 import '../apoyo/app_de_prueba.dart';
 import '../apoyo/clip_falso.dart';
 import '../apoyo/datos.dart';
+import '../features/actividad/actividad_falso.dart';
 import '../features/alertas/alertas_falso.dart';
 import '../features/camaras/repositorio_falso.dart';
 import '../features/familia/familia_falso.dart';
 import '../features/hogar/hogar_falso.dart';
+import '../features/movimientos/movimientos_falso.dart';
+import '../features/pcs/escaner_falso.dart';
+import '../features/pcs/pcs_falso.dart';
+import '../features/repeticion/repeticiones_falso.dart';
 import '../features/vivo/vivo_falso.dart';
 
 /// A main screen of the app, opened with every fake in place.
@@ -59,6 +69,66 @@ final pantallasOscurasYGrandes = [
   const Pantalla('términos de uso', Rutas.terminos),
   const Pantalla('política de privacidad', Rutas.politica),
   const Pantalla('documento de consentimiento', Rutas.documentoConsentimiento),
+  ...pantallasNuevas,
+];
+
+/// Screens of the change request «PCs, cámaras y datos de movimiento» (US-28 to US-40), checked for
+/// accessibility, dark mode and large text, without golden screenshots (the prototype's own dark and
+/// large-text versions are screens 237 to 249 and 280 to 302).
+final pantallasNuevas = [
+  const Pantalla('agregar PC', Rutas.vincular),
+  const Pantalla('escanear el código QR', Rutas.escanear),
+  const Pantalla('escribir el código', Rutas.escribirCodigo),
+  Pantalla('aprobar la PC', Rutas.aprobarPc('KQWT-MXHD')),
+  Pantalla(
+    'aprobar la PC (invitado)',
+    Rutas.aprobarPc('KQWT-MXHD'),
+    sesion: sesionInvitado,
+  ),
+  Pantalla('PC vinculada', Rutas.pcVinculada('pc-sala')),
+  Pantalla('elige las cámaras', Rutas.elegirCamaras('pc-sala', config: true)),
+  Pantalla(
+    'elige las cámaras (invitado)',
+    Rutas.elegirCamaras('pc-sala'),
+    sesion: sesionInvitado,
+  ),
+  Pantalla('nombre de la habitación', Rutas.nombreCamara('c1')),
+  const Pantalla('cámaras', Rutas.pcs),
+  const Pantalla('cámaras (invitado)', Rutas.pcs, sesion: sesionInvitado),
+  Pantalla('detalle de la PC', Rutas.pc('pc-sala')),
+  const Pantalla('guardar movimientos', Rutas.movimientos),
+  const Pantalla(
+    'guardar movimientos (invitado)',
+    Rutas.movimientos,
+    sesion: sesionInvitado,
+  ),
+  const Pantalla('documento de movimientos', Rutas.documentoMovimientos),
+  const Pantalla('movimientos en la nube', Rutas.nube),
+  Pantalla('contarnos qué pasó', Rutas.reportar(habitacion: 'Sala')),
+  Pantalla(
+    'contarnos qué pasó (invitado)',
+    Rutas.reportar(),
+    sesion: sesionInvitado,
+  ),
+  Pantalla('reporte enviado', Rutas.reporteEnviado()),
+  Pantalla('reporte guardado', Rutas.reporteEnviado(guardado: true)),
+  Pantalla('cámara (invitado)', Rutas.camara('c1'), sesion: sesionInvitado),
+  const Pantalla('actividad', Rutas.actividad),
+  const Pantalla(
+    'actividad (invitado)',
+    Rutas.actividad,
+    sesion: sesionInvitado,
+  ),
+  const Pantalla('preferencias', Rutas.preferencias),
+  const Pantalla('ordenar las cámaras', Rutas.ordenarCamaras),
+  const Pantalla('ver todas', Rutas.verTodas),
+  Pantalla('familiar', Rutas.familiar('u-luis')),
+  Pantalla('tu perfil en la familia', Rutas.familiar('u-carmen')),
+  Pantalla(
+    'familiar (invitado)',
+    Rutas.familiar('u-carmen'),
+    sesion: sesionInvitado,
+  ),
 ];
 
 final pantallasPrincipales = [
@@ -125,6 +195,34 @@ Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
       sesion: p.sesion,
       overrides: [
         hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
+        pcsRepositorioProvider.overrideWithValue(
+          PcsRepositorioFalso(
+            webcams: [
+              webcam('c1', 'Webcam USB HD', habitacion: 'Sala'),
+              webcam('w2', 'Logitech C920'),
+              webcam(
+                'w3',
+                'USB2.0 PC Camera',
+                habitacion: 'Pasillo',
+                conectada: false,
+              ),
+            ],
+            habitaciones: [
+              ambiente('Sala', camara: 'c1'),
+              ambiente('Pasillo', camara: 'w3'),
+            ],
+          ),
+        ),
+        fabricaEscanerQrProvider.overrideWithValue(EscanerFalso.new),
+        actividadRepositorioProvider.overrideWithValue(
+          ActividadRepositorioFalso(),
+        ),
+        repeticionesRepositorioProvider.overrideWithValue(
+          RepeticionesRepositorioFalso(),
+        ),
+        movimientosRepositorioProvider.overrideWithValue(
+          MovimientosRepositorioFalso(vigente: true, retencion: 30),
+        ),
         camarasRepositorioProvider.overrideWithValue(CamarasRepositorioFalso()),
         familiaRepositorioProvider.overrideWithValue(FamiliaRepositorioFalso()),
         alertasRepositorioProvider.overrideWithValue(alertas),

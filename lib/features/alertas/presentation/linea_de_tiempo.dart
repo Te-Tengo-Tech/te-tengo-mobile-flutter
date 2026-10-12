@@ -61,29 +61,25 @@ List<ItemLinea> itemsDeAlerta(
   return [
     ItemLinea(
       a.ocurridaEn,
-      '${caida ? 'Caída detectada' : 'Movimiento inestable detectado'} '
+      '${caida ? 'Caída' : 'Movimiento inestable'} '
       '${enHabitacion(a.habitacion)}',
       caida ? PuntoLinea.caida : PuntoLinea.inestable,
     ),
     // Only what the backend says (`estadoAviso`): «reintentando» only while it does.
     if (notificada == null && a.avisoReintentando)
-      ItemLinea(
-        a.ocurridaEn,
-        'La notificación no se pudo entregar; reintentando el envío',
-      )
+      ItemLinea(a.ocurridaEn, 'No se pudo entregar; reintentando')
     else if (notificada == null && a.avisoNoEntregado)
-      ItemLinea(a.ocurridaEn, 'La notificación no se pudo entregar')
+      ItemLinea(a.ocurridaEn, 'No se pudo entregar')
     else if (notificada != null)
       ItemLinea(
         notificada,
-        'Aviso enviado a $avisadosTexto, '
-        '${notificada.difference(a.ocurridaEn).inSeconds} s después '
-        '${caida ? 'de la caída' : 'del movimiento'}',
+        'Aviso a $avisadosTexto · '
+        '${notificada.difference(a.ocurridaEn).inSeconds} s',
       ),
     if (a.esCaida && a.confirmada)
       ItemLinea(
         a.confirmadaEn,
-        'Sigue en el suelo tras 30 s: caída confirmada',
+        'Sigue en el suelo: confirmada',
         PuntoLinea.caida,
       ),
     if (a.recuperadaEn case final r?)
@@ -92,16 +88,15 @@ List<ItemLinea> itemsDeAlerta(
       ItemLinea(
         e,
         secundario != null
-            ? 'Sin respuesta en $esperaMinutos min: aviso urgente a '
-                  '$secundario (secundario)'
-            : 'Sin respuesta en $esperaMinutos min: no hay contacto '
-                  'secundario a quién avisar',
+            ? 'Sin respuesta en $esperaMinutos min: aviso a '
+                  '${secundario.split(' ').first} (secundario)'
+            : 'Sin respuesta en $esperaMinutos min y sin secundario',
         PuntoLinea.escalada,
       ),
     if (a.estado == EstadoAlerta.atendida && a.atendidaEn != null)
       ItemLinea(
         a.atendidaEn!,
-        'Marcada como atendida por ${a.atendidaPor ?? ''}',
+        'Atendida por ${(a.atendidaPor ?? '').split(' ').first}',
         PuntoLinea.ok,
       ),
     if (a.estado == EstadoAlerta.atendida &&
@@ -111,13 +106,12 @@ List<ItemLinea> itemsDeAlerta(
         a.atendidaEn!.difference(a.ocurridaEn).inMinutes < esperaMinutos)
       ItemLinea(
         a.atendidaEn!,
-        'Se atendió antes de los $esperaMinutos min: no hizo falta avisar a '
-        '${secundario.split(' ').first} (secundario)',
+        'Atendida antes de $esperaMinutos min: sin escalar',
       ),
     if (a.estado == EstadoAlerta.falsaAlarma && a.atendidaEn != null)
       ItemLinea(
         a.atendidaEn!,
-        'Marcada como falsa alarma por ${a.atendidaPor ?? ''}',
+        'Falsa alarma, marcada por ${(a.atendidaPor ?? '').split(' ').first}',
       ),
   ];
 }

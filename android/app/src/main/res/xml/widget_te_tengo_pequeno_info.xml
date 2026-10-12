@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget 2 × 2 (US-44). updatePeriodMillis is the platform's minimum (30 min): it
+     redraws the last state the app saved; the app and alert pushes save a new one. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_descripcion"
+    android:initialLayout="@layout/widget_te_tengo_pequeno"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:previewLayout="@layout/widget_te_tengo_pequeno"
+    android:resizeMode="none"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen" />

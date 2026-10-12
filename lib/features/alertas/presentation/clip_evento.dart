@@ -8,10 +8,15 @@ import '../../../core/dispositivo/pantalla_completa.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/ilustraciones.dart';
 import '../../camaras/domain/camara.dart';
+import '../../hogar/data/hogar_repositorio.dart';
+import '../../movimientos/data/fuente_fotogramas.dart';
+import '../../movimientos/domain/fotogramas.dart';
+import '../../movimientos/presentation/esqueleto.dart';
 import '../../sesion/presentation/pantalla_bienvenida.dart' show EtiquetaClip;
 import '../data/alertas_repositorio.dart';
 import '../domain/alerta.dart';
@@ -80,13 +85,9 @@ class ClipNoDisponible extends StatelessWidget {
             'La grabación ya no está disponible',
             'Se borró el '
                 '${fechaConAnio(alerta.ocurridaEn.add(const Duration(days: 30)))} '
-                '(se guardan 30 días). El registro se conserva.',
+                '(se guardan 30 días).',
           )
-        : (
-            Ico.video,
-            'Clip no disponible',
-            'No se pudo guardar el video. La alerta sigue siendo válida.',
-          );
+        : (Ico.video, 'Clip no disponible', 'La alerta sigue siendo válida.');
     return Container(
       constraints: BoxConstraints(minHeight: aRas ? 0 : 170),
       padding: const EdgeInsets.all(18),
@@ -222,10 +223,29 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
     reloj: ref.read(relojProvider),
   );
 
+  /// The clip's body landmarks, from their light file (US-36).
+  List<Fotograma>? _puntos;
+  bool _verPuntos = true;
+  bool _fallaronPuntos = false;
+
   @override
   void initState() {
     super.initState();
     _clip.iniciar();
+    final fuente = ref.read(fuenteFotogramasProvider);
+    final url = widget.enlace.puntosLigeros;
+    if (fuente != null && url != null && widget.enlace.puntos != null) {
+      unawaited(
+        fuente
+            .cargar(url)
+            .then((f) {
+              if (mounted) setState(() => _puntos = f);
+            })
+            .catchError((Object _) {
+              if (mounted) setState(() => _fallaronPuntos = true);
+            }),
+      );
+    }
   }
 
   @override
@@ -270,20 +290,48 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
             aRas: aRas,
             alPantallaCompleta: _pantallaCompleta,
             child: _clip.listo && !_clip.enPantallaCompleta
-                ? FittedBox(fit: BoxFit.cover, child: _clip.vista())
+                ? Stack(
+                    fit: StackFit.passthrough,
+                    children: [
+                      FittedBox(fit: BoxFit.cover, child: _clip.vista()),
+                      if (_verPuntos && _puntos != null)
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: PintorEsqueleto(
+                              fotogramaEn(
+                                _puntos!,
+                                widget.alerta.ocurridaEn
+                                    .subtract(const Duration(seconds: 6))
+                                    .add(_clip.posicion),
+                              ),
+                              color: const Color(0xFF221A38),
+                            ),
+                          ),
+                        ),
+                    ],
+                  )
                 : _Poster(alerta: widget.alerta),
           ),
           if (!aRas) const SizedBox(height: 8),
-          ControlesClip(reproduccion: _clip, aRas: aRas),
-          Padding(
-            padding: aRas
-                ? const EdgeInsets.fromLTRB(16, 10, 16, 14)
-                : const EdgeInsets.only(top: 8),
-            child: Text(
-              'Con la postura detectada · 6 s antes y 6 s después.',
-              style: Theme.of(context).textTheme.bodySmall,
+          ControlesClip(
+            reproduccion: _clip,
+            aRas: aRas,
+            ayuda: const AyudaInfo(
+              texto: 'El clip dura 12 s: 6 s antes y 6 s después de la alerta.',
+              tema: 'el clip',
+              sobreOscuro: true,
+              arriba: true,
             ),
           ),
+          PuntosDelCuerpo(
+            enlace: widget.enlace,
+            dibujables: _puntos != null,
+            fallaron: _fallaronPuntos,
+            activos: _verPuntos && _puntos != null,
+            alCambiar: (v) => setState(() => _verPuntos = v),
+            aRas: aRas,
+          ),
+          if (aRas) const SizedBox(height: 6),
         ],
       );
     },
@@ -425,6 +473,92 @@ class _PantallaClipCompletaState extends ConsumerState<PantallaClipCompleta> {
               child: ControlesClip(reproduccion: r, alSalir: salir),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// «Puntos del cuerpo» under the clip (US-36, screens 193 to 196): a switch that draws the
+/// skeleton over the clip, or, disabled, why it cannot: no consent to store movements, a clip
+/// without them (CA-36.2; also a clip whose PC uploaded no light file), or a download that failed.
+/// Disabled without a reason while they load. Hidden with an older backend that says nothing
+/// about them.
+class PuntosDelCuerpo extends ConsumerWidget {
+  const PuntosDelCuerpo({
+    super.key,
+    required this.enlace,
+    required this.dibujables,
+    required this.activos,
+    required this.alCambiar,
+    this.fallaron = false,
+    this.aRas = false,
+  });
+
+  final EnlaceClip enlace;
+
+  /// The landmarks are loaded.
+  final bool dibujables;
+
+  /// Their download or decoding failed.
+  final bool fallaron;
+  final bool activos;
+  final ValueChanged<bool> alCambiar;
+  final bool aRas;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
+    final por = switch ((enlace.puntos, enlace.puntosNoDisponibles)) {
+      (null, 'SIN_CONSENTIMIENTO') =>
+        'falta el permiso de $nombre para guardar movimientos',
+      (null, 'SIN_ARCHIVO') => 'este clip no los tiene',
+      (null, _) => null,
+      _ when enlace.puntosLigeros == null => 'este clip no los tiene',
+      _ when fallaron => 'no se pudieron cargar',
+      _ => '',
+    };
+    if (por == null) return const SizedBox.shrink();
+    final c = context.colores;
+    final habilitado = por.isEmpty && dibujables;
+    return Padding(
+      padding: aRas
+          ? const EdgeInsets.fromLTRB(16, 6, 16, 0)
+          : const EdgeInsets.only(top: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          MergeSemantics(
+            child: Row(
+              children: [
+                Icono(
+                  Ico.body,
+                  tamano: 20,
+                  color: habilitado ? c.tinta : c.tinta3,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Puntos del cuerpo',
+                    style: estiloTexto(
+                      16,
+                      700,
+                      color: habilitado ? c.tinta : c.tinta3,
+                    ),
+                  ),
+                ),
+                Switch(
+                  value: activos,
+                  onChanged: habilitado ? alCambiar : null,
+                ),
+              ],
+            ),
+          ),
+          if (por.isNotEmpty)
+            Text(
+              'No disponibles: $por.',
+              style: estiloTexto(15, 400, color: c.tinta3),
+            ),
         ],
       ),
     );

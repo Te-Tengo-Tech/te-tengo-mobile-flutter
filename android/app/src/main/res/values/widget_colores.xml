@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget (US-44): the prototype's `.wg` colors; values-night has the dark ones. -->
+<resources>
+    <color name="widget_tinta">#2B1D4E</color>
+    <color name="widget_tinta2">#5A4F70</color>
+    <color name="widget_aviso_tinta">#5E3700</color>
+</resources>

@@ -175,14 +175,37 @@ class PaginaAlertas {
 
 /// `GET /api/alertas/{id}/clip`: pre-signed URL of the clip.
 class EnlaceClip {
-  const EnlaceClip({required this.url, this.expiraEn});
+  const EnlaceClip({
+    required this.url,
+    this.expiraEn,
+    this.puntos,
+    this.puntosLigeros,
+    this.puntosNoDisponibles,
+  });
 
   final String url;
   final DateTime? expiraEn;
 
+  /// The clip's body landmarks (US-36): a Parquet file, synchronized by time (CA-36.1).
+  final String? puntos;
+
+  /// The same landmarks in the light replay format (`puntos.ligero.url`, contract §11): what the
+  /// app draws over the clip. Null when the PC did not upload them (an older Te Tengo Captura).
+  final String? puntosLigeros;
+
+  /// Why there are none: `SIN_CONSENTIMIENTO` or `SIN_ARCHIVO` (CA-36.2); null from an older
+  /// backend, which sends neither field.
+  final String? puntosNoDisponibles;
+
   factory EnlaceClip.desdeJson(Map<String, dynamic> json) => EnlaceClip(
     url: json['url'] as String,
     expiraEn: fechaDesdeJson(json['expiraEn']),
+    puntos: (json['puntos'] as Map<String, dynamic>?)?['url'] as String?,
+    puntosLigeros:
+        ((json['puntos'] as Map<String, dynamic>?)?['ligero']
+                as Map<String, dynamic>?)?['url']
+            as String?,
+    puntosNoDisponibles: json['puntosNoDisponibles'] as String?,
   );
 }
 

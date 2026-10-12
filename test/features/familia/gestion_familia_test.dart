@@ -59,16 +59,9 @@ void main() {
       await abrir(tester, Rutas.familia);
       await tocar(tester, find.text('Invitar a un familiar'));
       expect(find.byType(PantallaInvitar), findsOneWidget);
-      expect(
-        find.text('Le enviaremos un enlace para crear su acceso.'),
-        findsOneWidget,
-      );
       expect(find.text('Qué podrá hacer'), findsOneWidget);
       expect(
-        find.text(
-          'No podrá cambiar los datos de Rosa, el consentimiento, la cámara ni '
-          'la familia',
-        ),
+        find.text('No cambia datos, consentimiento, cámaras ni familia'),
         findsOneWidget,
       );
       await tocar(tester, find.text('Enviar invitación'));
@@ -130,17 +123,10 @@ void main() {
       expect(find.byType(PantallaAceptarInvitacion), findsOneWidget);
       expect(find.text('Carmen te invitó a cuidar a Rosa'), findsOneWidget);
       expect(
-        find.text(
-          'Crea tu acceso para recibir las alertas de Rosa Huamán en este '
-          'celular.',
-        ),
+        find.text('Crea tu acceso para recibir sus alertas.'),
         findsOneWidget,
       );
       expect(find.text('milagros.quispe@outlook.com'), findsOneWidget);
-      expect(
-        find.text('Es el correo al que llegó la invitación.'),
-        findsOneWidget,
-      );
       await tocar(tester, find.text('Crear mi acceso'));
       expect(find.text('Escribe tu nombre y apellido.'), findsOneWidget);
       expect(find.text('Crea una contraseña.'), findsOneWidget);
@@ -153,10 +139,6 @@ void main() {
       expect(find.byType(PantallaAccesoCreado), findsOneWidget);
       expect(
         find.text('Listo, Luis. Ya recibes las alertas de Rosa.'),
-        findsOneWidget,
-      );
-      expect(
-        find.text('Te llegarán aunque tengas la app cerrada.'),
         findsOneWidget,
       );
       expect(find.text('Solo Carmen puede'), findsOneWidget);
@@ -202,8 +184,8 @@ void main() {
       expect(find.text('¿Retirar el acceso de Luis Huamán?'), findsOneWidget);
       expect(
         find.text(
-          'Dejará de recibir las alertas de Rosa y no podrá ver el historial ni '
-          'los clips. Te quedarás sin contacto secundario.',
+          'Dejará de recibir alertas y de ver el historial. Te quedarás sin '
+          'contacto secundario.',
         ),
         findsOneWidget,
       );
@@ -232,7 +214,10 @@ void main() {
     testWidgets('el titular no puede retirarse a sí mismo', (tester) async {
       await abrir(tester, Rutas.familia);
       await tocar(tester, find.text('Carmen Huamán (tú)'));
-      expect(find.textContaining('Eres titular:'), findsOneWidget);
+      expect(
+        find.text('Para dejar de ser principal, elige a otro contacto.'),
+        findsOneWidget,
+      );
       expect(find.text('Retirar acceso'), findsNothing);
       // The family always keeps a principal: it changes by choosing another one.
       expect(find.text('Hacer contacto secundario'), findsNothing);

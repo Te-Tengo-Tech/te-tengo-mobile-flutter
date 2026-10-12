@@ -14,10 +14,8 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/marca.dart';
 import '../../../core/ui/piezas.dart';
-import '../../camaras/data/camaras_repositorio.dart';
-import '../../camaras/domain/camara.dart';
-import '../../camaras/presentation/estado_camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
+import '../../pcs/data/pcs_repositorio.dart';
 import '../../sesion/domain/validacion.dart';
 import '../data/familia_repositorio.dart';
 
@@ -88,7 +86,6 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
-    final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final invitado = _invitado;
     return Scaffold(
       appBar: CabeceraConfiguracion(
@@ -105,8 +102,8 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Recibirá las alertas de $nombre y, si no atiendes una en '
-            '$esperaPredeterminada min, le avisaremos.',
+            'Le avisamos si no atiendes una alerta en '
+            '$esperaPredeterminada min.',
             style: texto.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -117,13 +114,13 @@ class _PantallaInvitarSetupState extends ConsumerState<PantallaInvitarSetup> {
               titulo: 'Invitación enviada',
               contenido: TextSpan(
                 children: [
-                  const TextSpan(text: 'Le enviamos un enlace a '),
+                  const TextSpan(text: 'A '),
                   TextSpan(
                     text: invitado,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const TextSpan(
-                    text: '. Será tu contacto secundario cuando acepte.',
+                    text: '. Será tu contacto secundario al aceptar.',
                   ),
                 ],
               ),
@@ -173,7 +170,8 @@ class PantallaTodoListo extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final texto = Theme.of(context).textTheme;
     final hogar = ref.watch(hogarProvider).value;
-    final camara = ref.watch(camarasProvider).value?.firstOrNull;
+    final pcs = ref.watch(pcsProvider).value;
+    final pc = pcs?.firstOrNull;
     final consentimiento = hogar?.consentimiento;
     final conConsentimiento = hogar?.conConsentimiento ?? false;
     return Scaffold(
@@ -191,29 +189,28 @@ class PantallaTodoListo extends ConsumerWidget {
                 style: texto.headlineMedium,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Te avisaremos aunque tengas la app cerrada.',
-              style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
-            ),
             const SizedBox(height: 20),
             ListaTarjeta(
               children: [
-                if (camara != null)
-                  Builder(
-                    builder: (context) {
-                      final estado = camara.estadoVisible(
-                        conConsentimiento: conConsentimiento,
-                      );
-                      return FilaLista(
-                        inicio: IconoEstadoCamara(estado: estado),
-                        titulo:
-                            'Cámara ${deHabitacion(camara.nombreHabitacion)}',
-                        subtitulo: estado == EstadoVisible.enLinea
-                            ? estado.texto
-                            : '${estado.texto} · no envía video',
-                      );
-                    },
+                if (pc != null)
+                  FilaLista(
+                    inicio: _IconoResumen(
+                      Ico.pc,
+                      activo: pc.camaras.isNotEmpty && conConsentimiento,
+                    ),
+                    titulo: 'PC ${pc.nombre} vinculada',
+                    subtitulo: pc.camaras.isEmpty
+                        ? 'Falta elegir las cámaras'
+                        : '${pc.camaras.length} cámara'
+                              '${pc.camaras.length == 1 ? '' : 's'}: '
+                              '${enumerar([for (final c in pc.camaras) c.nombreHabitacion])}'
+                              '${conConsentimiento ? '' : ' · sin detectar'}',
+                  )
+                else if (pcs != null)
+                  const FilaLista(
+                    inicio: _IconoResumen(Ico.pc, activo: false),
+                    titulo: 'Sin PC vinculada',
+                    subtitulo: 'Agrégala desde Ajustes › Cámaras y PCs',
                   ),
                 if (conConsentimiento && consentimiento != null)
                   FilaLista(
@@ -227,15 +224,14 @@ class PantallaTodoListo extends ConsumerWidget {
                   const FilaLista(
                     inicio: _IconoResumen(Ico.lock, activo: false),
                     titulo: 'Falta el consentimiento',
-                    subtitulo: 'Regístralo desde Inicio para activar la cámara',
+                    subtitulo: 'Regístralo desde Inicio',
                   ),
                 FilaLista(
                   inicio: _IconoResumen(Ico.users, activo: invitado != null),
                   titulo: invitado != null
                       ? '1 familiar invitado'
                       : 'Sin contacto secundario',
-                  subtitulo:
-                      invitado ?? 'Puedes invitar a alguien desde Familia',
+                  subtitulo: invitado ?? 'Invítalo desde Familia',
                 ),
               ],
             ),

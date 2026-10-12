@@ -33,24 +33,34 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `sesion` | US-01 to US-03 | Done: register, sign in with lockout, password recovery, sign-out |
 | `hogar` | US-04, US-05, US-09 | Done: older adult (single person per account), consent and certificate, privacy, revocation |
 | `camaras` | US-06, US-07, US-15, US-22 | Done (reference): status, rename, connection notices, unreliable detection, pause and resume |
+| `movimientos` | US-35, US-37 | The separate consent to store movements (form, certificate, document, revocation with the cloud deletion polled or pushed) and the cloud retention |
+| `actividad` | US-33 | The activity log: `GET /api/actividad` page by page (`actividadProvider` per PC filter), one sentence per `tipo` in `Actividad.frase` (a generic one for unknown types), the detail sheet, and the latest change for Ajustes |
+| `repeticion` | US-36, US-39 | The camera's player (`ReproductorCamara`: day, 10-minute or 1-hour window, playhead, speed, «Solo eventos», events from the alerts, stretches without data); a replay is created and logged in one place, only when the member plays or moves along the timeline (CA-39.3); the access log merges live views, previews and replays (`registroAccesosProvider`). The movement files go through `FuenteFotogramas` (download, `sha256`) and a `DecodificadorMovimientos`, which this build does not have (`decodificadorMovimientosProvider` is null) |
+| `reportes` | US-40 | «¿Hubo una caída y no avisó?»: the report form and its links (Historial, camera, unstable movement); `ColaReportes` keeps the reports written without internet in the local cache and `EnvioReportesPendientes` (in the tabs' shell) sends them when the connection returns |
+| `pcs` | US-28 to US-31 | Linking a PC (QR scanner `EscanerQr` over `mobile_scanner`, 8-box code, approval, the `/vincular?codigo=` link), setup step 3, «Elige las cámaras» with rooms (one per room, no bathrooms) and the webcam preview; «Cámaras» by room (`camarasEnCasaProvider`: each camera with its PC and the state the family sees), the PC detail and removing a PC; `RefrescoPcs` reads them again every 10 s while on screen |
 | `inicio` | US-16 | Done: home card per state, notifications banner, camera, «Esta semana» |
 | `alertas` | US-13, US-14, US-16 to US-21, US-26 | Done: fall and unstable alerts, confirmation, clip, marking, escalation, recovery, recordings download |
-| `vivo` | US-23, US-24 | Done: live view over WebRTC (WHEP) with LL-HLS fallback, the stream mode, access log, `preparar` |
-| `familia` | US-08, US-10 | Done: invite, accept, member options, remove access, alert order and wait |
+| `vivo` | US-23, US-24, US-41 | Done: live view over WebRTC (WHEP) with LL-HLS fallback, the «Video» / «Esqueleto» switches (remembered on this phone, `preferencias_vivo.dart`), access log, `preparar`; «Ver todas» (`PantallaMosaico`): up to 4 sessions of one mosaic (`POST /api/vista-en-vivo/mosaicos`), only the visible page streams, landscape by default |
+| `familia` | US-08, US-10 | Done: invite, accept, the member detail (contact, role, marked alerts, live view accesses) with the owner's options, remove access, alert order and wait |
 | `historial` | US-25, US-27 | Done: filtered history with paging, weekly summary with trend |
 | `ajustes` | US-08 (read-only), US-16 | Done: settings for owner and invited member, notification preferences |
 | `instalar` | — | Web only: «Agrega Te Tengo a tu pantalla de inicio» notice and guide on iPhone browser tabs |
+| `widget` | US-44 | The home-screen widget: `estadoDelHogar` (alert, cameras, consent), `ActualizadorWidget` (saves it through `home_widget` and routes the taps `tetengo-widget://abrir?ir=…`), the Android providers `WidgetTeTengoGrande`/`Pequeno` and the iOS extension source; an alert push with the app closed redraws it on Android |
 | `legal` | US-01, US-05, US-09 | Términos de uso, Política de privacidad and the full consent document; the consent text shared with the summary |
 
 ## Design system
 - **Colors:** use `context.colores` (the `Paleta` of the current theme) for anything that changes
-  in dark mode; `Colores` keeps the fixed ones (severity floods, brand, the live view's night).
-  The app follows the phone's theme by default; Ajustes › «Apariencia» (`aparienciaProvider`,
-  `features/ajustes/data/apariencia.dart`) can keep this device light or dark. It is a device
-  setting, not an account one: stored under the `dispositivo|apariencia` key of the local cache,
-  which `vaciar()` keeps on sign-out, and read in `main()` before the first frame (with the session,
-  on the same database the app then uses), so `MaterialApp.themeMode` starts with it and there is no
-  flash of the other theme. The alert flood keeps the light theme.
+  in dark mode or with more contrast; `Colores` keeps the fixed ones (severity floods, brand, the
+  live view's night). The app follows the phone's theme by default; Ajustes › «Preferencias»
+  (`aparienciaProvider`, `features/ajustes/data/apariencia.dart`) can keep this device light or
+  dark, and «Aumentar el contraste» (`contrasteProvider`, `contraste.dart`) switches to the
+  high-contrast palettes `Paleta.claraContraste` and `Paleta.oscuraContraste` (the phone's own
+  setting does too, through `MaterialApp.highContrastTheme`). Shared widgets take the border and
+  divider widths and the card outline from the palette (`anchoBorde`, `anchoDivisor`, `sombraDe`).
+  Both are device settings, not account ones: stored under the `dispositivo|apariencia` and
+  `dispositivo|contraste` keys of the local cache, which `vaciar()` keeps on sign-out, and read in
+  `main()` before the first frame (with the session, on the same database the app then uses), so the
+  first frame already has the right theme. The alert flood keeps the light theme.
 - **Progressive disclosure:** a screen shows first what decides the action; secondary detail goes
   in a `FilaPlegable` (a row in a list) or a `VerMas` (inside a card). Nothing is removed.
 - **Large text:** every screen must work with the system text at 200 % (`test/calidad/`).
@@ -72,5 +82,5 @@ Platform code is behind conditional imports (`if (dart.library.js_interop)`): `c
 (drift's SQLite file on the phones, `localStorage` in the browser), so the phone builds never compile
 web code and the web build never imports `dart:ffi`. `entornoNavegadorProvider` tells screens whether
 they run in a browser and whether an iPhone tab must be installed first; tests override it.
-- **Live view:** on demand, behind the `ReproductorVivo` interface. When the session has `urlWebrtc`, `ReproductorWebrtc` (`flutter_webrtc`, WHEP signalling in `ClienteWhep`) plays it first; `PantallaVivo` switches the same session to LL-HLS (`ReproductorHls`, `video_player`) when WebRTC fails, still answers `404` after `esperaPublicacionWebrtc` (8 s), shows no first frame within `esperaWebrtc` (4 s) of MediaMTX's answer, or stops getting frames for `esperaSinImagenWebrtc` (3 s); after a break mid-stream LL-HLS has `esperaRescateHls` (10 s) to show a frame. The camera detail and an open alert send `preparar` once when they open (`PrepararVivo`, `prepararVivo`). The session ends when the screen closes or the app goes to the background.
-- **Local cache:** `drift` (SQLite) keeps the last answers per household and serves them offline; sign-out clears them. Keys starting with `dispositivo|` belong to the phone (notification preferences, appearance) and survive sign-out.
+- **Live view:** on demand, behind the `ReproductorVivo` interface; `ConexionVivo` plays a session (WebRTC first, LL-HLS fallback, retries and watchdogs) for the live view and the webcam preview (US-29). When the session has `urlWebrtc`, `ReproductorWebrtc` (`flutter_webrtc`, WHEP signalling in `ClienteWhep`) plays it first; `PantallaVivo` switches the same session to LL-HLS (`ReproductorHls`, `video_player`) when WebRTC fails, still answers `404` after `esperaPublicacionWebrtc` (8 s), shows no first frame within `esperaWebrtc` (4 s) of MediaMTX's answer, or stops getting frames for `esperaSinImagenWebrtc` (3 s); after a break mid-stream LL-HLS has `esperaRescateHls` (10 s) to show a frame. The camera detail and an open alert send `preparar` once when they open (`PrepararVivo`, `prepararVivo`). The session ends when the screen closes or the app goes to the background.
+- **Local cache:** `drift` (SQLite) keeps the last answers per household and serves them offline; sign-out clears them. Keys starting with `dispositivo|` belong to the phone (notification preferences, appearance) and survive sign-out. The fall reports written without internet wait under `reportesDeCaidaPendientes` until they are sent.

@@ -94,3 +94,17 @@ bool mismoDia(DateTime a, DateTime b) =>
 /// Parses an ISO-8601 UTC time from the backend into local time.
 DateTime? fechaDesdeJson(Object? valor) =>
     valor == null ? null : DateTime.parse(valor as String).toLocal();
+
+/// `Sala`, `Sala y Cocina`, `Sala, Dormitorio y Pasillo` (`listJoin`).
+String enumerar(List<String> partes) => switch (partes.length) {
+  0 => '',
+  1 => partes.first,
+  _ => '${partes.sublist(0, partes.length - 1).join(', ')} y ${partes.last}',
+};
+
+/// `03/08/2026` (`dNum`).
+String fechaNumerica(DateTime t) => '${_dos(t.day)}/${_dos(t.month)}/${t.year}';
+
+/// «1 cámara», «4 cámaras».
+String contar(int n, String uno, String varios) =>
+    '$n ${n == 1 ? uno : varios}';

@@ -75,10 +75,7 @@ void main() {
       pasada,
     ], ubicacion: Rutas.detalleAlerta('h1'));
     await verHasta(tester, find.text('Descargar grabación'));
-    expect(
-      find.text('MP4 · 12 s · disponible hasta el 21 oct 2026'),
-      findsOneWidget,
-    );
+    expect(find.text('MP4 · 12 s · hasta el 21 oct 2026'), findsOneWidget);
     await tocar(tester, find.text('Descargar grabación'));
     expect(alertas.descargas, ['h1']);
     expect(
@@ -104,10 +101,7 @@ void main() {
     expect(find.text('Alerta del mar 11 ago'), findsOneWidget);
     await verHasta(tester, find.text('La grabación ya no está disponible'));
     expect(
-      find.text(
-        'Se borró el 10 sep 2026 (se guardan 30 días). El registro se '
-        'conserva.',
-      ),
+      find.text('Se borró el 10 sep 2026 (se guardan 30 días).'),
       findsOneWidget,
     );
     expect(find.text('Descargar grabación'), findsNothing);

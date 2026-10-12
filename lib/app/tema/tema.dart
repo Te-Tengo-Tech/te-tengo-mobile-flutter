@@ -42,13 +42,15 @@ TextStyle estiloMono({double tamano = 16, double peso = 600, Color? color}) =>
 
 /// App theme: calm neutral base; semantic color appears only when something needs attention.
 /// [oscuro] gives the dark theme of the prototype (`.screen.dark`); the app follows the phone's
-/// unless this device chose «Claro» or «Oscuro» in Ajustes (`aparienciaProvider`).
+/// unless this device chose «Claro» or «Oscuro» in Ajustes › «Preferencias» (`aparienciaProvider`).
+/// [contraste] is «Aumentar el contraste» (`.screen.hc`): darker ink, thicker borders and dividers,
+/// outlined cards and a visible off switch; the severity colors do not change.
 ///
 /// Text scale (prototype classes): `headlineMedium` = `.t-title`, `titleLarge` = `.t-h2`,
 /// `titleMedium` = `.t-h3`, `bodyLarge` = `.t-body`, `bodyMedium` = `.t-small`,
 /// `bodySmall` = `.t-meta`. Body text is never below 16 (DESIGN.md accessibility).
-ThemeData temaTeTengo({bool oscuro = false}) {
-  final p = oscuro ? Paleta.oscuraTeTengo : Paleta.clara;
+ThemeData temaTeTengo({bool oscuro = false, bool contraste = false}) {
+  final p = Paleta.de(oscuro: oscuro, contraste: contraste);
   final esquema = ColorScheme.fromSeed(
     seedColor: Colores.morado,
     brightness: oscuro ? Brightness.dark : Brightness.light,
@@ -112,12 +114,12 @@ ThemeData temaTeTengo({bool oscuro = false}) {
       helperMaxLines: 3,
       errorMaxLines: 3,
       errorStyle: estiloTexto(15, 700, color: p.caidaTinta),
-      border: borde(p.linea2, 1.5),
-      enabledBorder: borde(p.linea2, 1.5),
+      border: borde(p.linea2, p.anchoBorde),
+      enabledBorder: borde(p.linea2, p.anchoBorde),
       focusedBorder: borde(oscuro ? p.moradoTinta : Colores.morado, 2),
       errorBorder: borde(Colores.caida, 2),
       focusedErrorBorder: borde(Colores.caida, 2.5),
-      disabledBorder: borde(p.linea2, 1.5),
+      disabledBorder: borde(p.linea2, p.anchoBorde),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -138,7 +140,7 @@ ThemeData temaTeTengo({bool oscuro = false}) {
         minimumSize: const Size.fromHeight(56),
         padding: const EdgeInsets.symmetric(horizontal: 22),
         textStyle: botonTexto,
-        side: BorderSide(color: p.linea2, width: 1.5),
+        side: BorderSide(color: p.linea2, width: p.anchoBorde),
         shape: RoundedRectangleBorder(borderRadius: radioControl),
       ),
     ),
@@ -176,7 +178,11 @@ ThemeData temaTeTengo({bool oscuro = false}) {
       titleTextStyle: estiloTexto(22, 800, color: p.tinta),
       contentTextStyle: estiloTexto(16, 400, color: p.tinta2),
     ),
-    dividerTheme: DividerThemeData(color: p.linea, space: 1),
+    dividerTheme: DividerThemeData(
+      color: p.linea,
+      space: p.anchoDivisor,
+      thickness: p.anchoDivisor,
+    ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: oscuro ? p.moradoTinta : Colores.morado,
     ),

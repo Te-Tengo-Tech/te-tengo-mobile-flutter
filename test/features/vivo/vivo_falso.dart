@@ -25,13 +25,28 @@ class VistaEnVivoRepositorioFalso implements VistaEnVivoRepositorio {
   @override
   Future<void> preparar(String camaraId) async => preparadas.add(camaraId);
 
+  /// The mosaic id each session was opened with.
+  final mosaicosPedidos = <String?>[];
+
+  /// «Ver todas» openings; null answers as an older API without the endpoint.
+  int mosaicos = 0;
+  bool sinMosaicos = false;
+
+  @override
+  Future<String?> abrirMosaico() async {
+    if (sinMosaicos) return null;
+    return 'm-${++mosaicos}';
+  }
+
   @override
   Future<SesionVivo> abrir(
     String camaraId, {
     String? alertaId,
     ModoVista? modo,
+    String? mosaicoId,
   }) async {
     abiertas.add((camaraId, alertaId));
+    mosaicosPedidos.add(mosaicoId);
     modosPedidos.add(modo);
     if (errorAbrir != null) throw errorAbrir!;
     if (modo != null) this.modo = modo;

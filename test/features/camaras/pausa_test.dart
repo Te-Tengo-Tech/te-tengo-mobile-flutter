@@ -69,13 +69,15 @@ void main() {
     push = NotificacionesPushFalsas();
   });
 
+  /// «Ajustes de la cámara» › «Pausar».
+  Future<void> abrirPausa(WidgetTester tester) async {
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    await tocar(tester, find.text('Pausar'));
+  }
+
   testWidgets('CA-22.1: pausa la cámara eligiendo la duración', (tester) async {
     await abrir(tester, Rutas.camara('c1'));
-    expect(
-      find.text('Útil si hay visitas en esta habitación.'),
-      findsOneWidget,
-    );
-    await tocar(tester, find.text('Pausar esta cámara'));
+    await abrirPausa(tester);
     expect(find.text('Pausar la cámara de la Sala'), findsOneWidget);
     expect(
       find.text('Sin detección ni vista en vivo. Se reactiva sola.'),
@@ -90,39 +92,39 @@ void main() {
       expect(find.text(t), findsOneWidget);
       expect(find.text(s), findsOneWidget);
     }
-    await tester.tap(find.text('Pausar'));
+    await tester.tap(find.text('Pausar').last);
     await tester.pumpAndSettle();
     expect(camaras.pausas, [DuracionPausa.hora1]);
     expect(find.text('Cámara de la Sala en pausa'), findsOneWidget);
     expect(find.text('Se reactivará sola a las 11:42.'), findsOneWidget);
     // CA-22.2: the detail shows it is paused and until when.
-    expect(find.text('En pausa hasta las 11:42'), findsOneWidget);
-    expect(find.text('Detenida'), findsOneWidget);
+    expect(find.text('En pausa hasta las 11:42'), findsWidgets);
+    expect(find.text('Reanudar ahora'), findsOneWidget);
   });
 
   testWidgets('«Hasta mañana» se reactiva a las 07:00 de mañana', (
     tester,
   ) async {
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Pausar esta cámara'));
+    await abrirPausa(tester);
     await tester.tap(find.text('Hasta mañana'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Pausar'));
+    await tester.tap(find.text('Pausar').last);
     await tester.pumpAndSettle();
     expect(camaras.pausas, [DuracionPausa.hastaManana]);
     expect(
       find.text('Se reactivará sola a las 07:00 de mañana.'),
       findsOneWidget,
     );
-    expect(find.text('En pausa hasta las 07:00 de mañana'), findsOneWidget);
+    expect(find.text('En pausa hasta las 07:00 de mañana'), findsWidgets);
   });
 
   testWidgets('un familiar invitado también puede pausarla', (tester) async {
     await abrir(tester, Rutas.camara('c1'), sesion: sesionInvitado);
-    await tocar(tester, find.text('Pausar esta cámara'));
+    await abrirPausa(tester);
     await tester.tap(find.text('30 minutos'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Pausar'));
+    await tester.tap(find.text('Pausar').last);
     await tester.pumpAndSettle();
     expect(camaras.pausas, [DuracionPausa.min30]);
   });
@@ -134,8 +136,8 @@ void main() {
       estado: 422,
     );
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(tester, find.text('Pausar esta cámara'));
-    await tester.tap(find.text('Pausar'));
+    await abrirPausa(tester);
+    await tester.tap(find.text('Pausar').last);
     await tester.pumpAndSettle();
     expect(find.text('Elige una duración válida.'), findsOneWidget);
     expect(find.text('Pausar la cámara de la Sala'), findsOneWidget);
@@ -147,26 +149,16 @@ void main() {
     camaras.camaras = [pausada];
     await abrir(tester, Rutas.inicio);
     expect(find.text('Todo tranquilo, con una pausa'), findsOneWidget);
-    expect(
-      find.text('La cámara de la Sala está en pausa hasta las 11:42.'),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining('En pausa · hasta las 11:42', findRichText: true),
-      findsOneWidget,
-    );
+    expect(find.text('Sala en pausa hasta las 11:42.'), findsOneWidget);
+    // The «Cámaras» tile says it too.
+    expect(find.text('En pausa'), findsOneWidget);
   });
 
   testWidgets('reanudar ahora reactiva la cámara', (tester) async {
     camaras.camaras = [pausada];
     await abrir(tester, Rutas.camara('c1'));
     expect(find.text('En pausa hasta las 11:42'), findsOneWidget);
-    expect(
-      find.text(
-        'Sin detección ni vista en vivo. Se reactiva sola y te avisaremos.',
-      ),
-      findsOneWidget,
-    );
+    await tocar(tester, find.text('Ajustes de la cámara'));
     await tocar(tester, find.text('Reanudar ahora'));
     expect(camaras.reanudaciones, 1);
     expect(find.text('Cámara de la Sala reactivada'), findsOneWidget);
@@ -174,8 +166,8 @@ void main() {
       find.text('La detección y la vista en vivo vuelven a estar disponibles.'),
       findsOneWidget,
     );
-    expect(find.text('Pausar esta cámara'), findsOneWidget);
-    expect(find.text('Activa'), findsOneWidget);
+    expect(find.text('Pausar'), findsOneWidget);
+    expect(find.text('En línea', skipOffstage: false), findsOneWidget);
   });
 
   testWidgets('CA-22.3: al terminar la pausa llega el aviso de reactivación', (

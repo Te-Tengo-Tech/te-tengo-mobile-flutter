@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget copy (prototype `widget`, `widgetSteps`). -->
+<resources>
+    <string name="widget_nombre">Te Tengo</string>
+    <string name="widget_descripcion">Muestra el estado, nunca imágenes de la casa.</string>
+    <string name="widget_ver_en_vivo">Ver en vivo</string>
+    <string name="widget_cargando">Abre la app para ver el estado.</string>
+</resources>

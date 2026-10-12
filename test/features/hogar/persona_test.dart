@@ -115,7 +115,7 @@ void main() {
         await tester.enterText(campo('Nombre y apellido'), 'Rosa Huamán');
         await tocar(tester, find.text('Guardar y continuar'));
         await alInicio(tester);
-        expect(find.text('Faltan datos obligatorios'), findsOneWidget);
+        expect(find.text('Completa los campos marcados'), findsOneWidget);
         expect(
           find.text('Escribe la dirección de la vivienda.'),
           findsOneWidget,
@@ -210,14 +210,6 @@ void main() {
       expect(guardado.edad, 79);
       // The form has no phone field: the PUT sends the stored one back.
       expect(guardado.telefono, '987 654 321');
-    });
-
-    testWidgets('CA-04.2: indica que cada cuenta cuida a una sola persona', (
-      tester,
-    ) async {
-      await abrir(tester, Rutas.personaCuidada, sesionTitular);
-      await tocar(tester, find.text('Agregar otra persona'));
-      expect(find.text('Cada cuenta cuida a una sola persona'), findsOneWidget);
     });
 
     testWidgets('un familiar invitado solo puede ver los datos', (

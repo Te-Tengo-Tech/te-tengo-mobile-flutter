@@ -19,47 +19,54 @@ class SeccionConsentimiento {
 }
 
 /// The consent text. The live-view clause goes first: the checkbox mentions it.
+///
+/// Video is analysed on the household PC (docs `04-arquitectura/decision-procesamiento-en-pc.md`).
+/// The prototype's words are kept; the sentences it does not have, and the ones naming
+/// Cloudflare R2 and the cross-border flow, are pending legal review (docs/BLOCKERS.md).
 const seccionesConsentimiento = [
   SeccionConsentimiento(
     icono: Ico.eye,
     titulo: 'Vista en vivo en cualquier momento',
-    resumen: 'La familia puede verla cuando quiera',
+    resumen: 'Cuando la familia quiera',
     texto:
-        'Los familiares vinculados a esta cuenta pueden ver la cámara en vivo '
-        'cuando quieran, no solo durante una alerta. Cada acceso queda '
-        'registrado: quién la vio, cuándo y cuánto tiempo.',
+        'La familia vinculada puede verla en vivo cuando quiera, no solo en una '
+        'alerta. Cada acceso queda registrado: quién, cuándo y cuánto.',
   ),
   SeccionConsentimiento(
     icono: Ico.cam,
     titulo: 'Qué hacemos',
-    resumen: 'Detectamos caídas por la postura',
+    resumen: 'Caídas por la postura',
     texto:
-        'La cámara instalada en su vivienda envía video a Te Tengo, donde '
-        'analizamos la postura del cuerpo para detectar caídas y movimientos '
-        'inestables.',
+        'La PC de la casa analiza la postura para detectar caídas y '
+        'movimientos inestables. El video continuo nunca sale de la casa. Solo '
+        'salen el aviso y el clip de cada alerta, y la vista en vivo mientras '
+        'alguien de la familia la mira.',
   ),
   SeccionConsentimiento(
     icono: Ico.eyeOff,
     titulo: 'Qué no hacemos',
-    resumen: 'Sin reconocer rostros ni grabar siempre',
+    resumen: 'Ni rostros ni grabación continua',
     texto:
-        'No reconocemos rostros ni grabamos de forma continua. La vista en vivo '
-        'no se guarda.',
+        'Sin reconocimiento facial ni grabación continua. La vista en vivo no se '
+        'guarda.',
   ),
   SeccionConsentimiento(
     icono: Ico.video,
     titulo: 'Qué guardamos',
-    resumen: 'Solo el clip de cada alerta, 30 días',
-    texto: 'Solo el clip de cada alerta, durante 30 días. Luego se elimina.',
+    resumen: 'Clip de cada alerta, 30 días',
+    texto:
+        'Solo el clip de cada alerta, 30 días; luego se borra. Se guarda en '
+        'Cloudflare R2, con servidores fuera del Perú: es un flujo '
+        'transfronterizo de datos personales. Sus movimientos (puntos del '
+        'cuerpo, sin imagen) solo se guardan con un permiso aparte.',
   ),
   SeccionConsentimiento(
     icono: Ico.shield,
     titulo: 'Sus derechos',
-    resumen: 'Ley N.° 29733 · puede revocarlo',
+    resumen: 'Ley N.° 29733 · revocable',
     texto:
-        'Según la Ley N.° 29733 de Protección de Datos Personales, puede '
-        'acceder a sus datos, corregirlos, pedir su eliminación u oponerse a su '
-        'uso, y revocar este consentimiento cuando quiera.',
+        'Por la Ley N.° 29733, puede ver, corregir o borrar sus datos, oponerse a '
+        'su uso y revocar este consentimiento.',
   ),
 ];
 
@@ -71,55 +78,52 @@ const seccionesTerminos = <SeccionDocumento>[
   (
     'Qué es Te Tengo',
     [
-      'Te Tengo avisa a tu familia cuando la cámara instalada en la casa de la '
-          'persona cuidada detecta una posible caída o un movimiento inestable. '
-          'No es una cámara de seguridad.',
+      'Avisa a tu familia si la cámara de la casa detecta una posible caída o '
+          'un movimiento inestable. No es una cámara de seguridad.',
     ],
   ),
   (
     'Tu cuenta',
     [
-      'Quien crea la cuenta es el titular. Solo el titular cambia los datos de '
-          'la persona cuidada, el consentimiento, el nombre de la habitación, la '
-          'familia y el orden de aviso.',
-      'Cada cuenta cuida a una sola persona. La contraseña debe tener 8 '
-          'caracteres o más, con un número. Tras 5 intentos fallidos, el acceso '
-          'se bloquea 15 minutos.',
+      'Solo el titular (quien la crea) cambia los datos de la persona cuidada, '
+          'el consentimiento, las habitaciones, la familia y el orden de aviso.',
+      'Cada cuenta cuida a una sola persona. Contraseña de 8 caracteres o más, '
+          'con un número; 5 intentos fallidos bloquean el acceso 15 minutos.',
     ],
   ),
   (
     'Familiares invitados',
     [
-      'Ven las mismas alertas, clips, historial y la cámara en vivo, y pueden '
-          'marcar alertas y pausar la cámara. El titular puede retirar su acceso '
-          'cuando quiera.',
+      'Ven alertas, clips, historial y vista en vivo; marcan alertas y pausan '
+          'la cámara. El titular puede retirar el acceso.',
     ],
   ),
   (
     'Consentimiento',
     [
-      'La cámara solo envía video si la persona cuidada, o su representante '
-          'legal, acepta el consentimiento informado. Se puede revocar en '
-          'Ajustes: la captura se detiene y las grabaciones se borran.',
+      'Sin el consentimiento de la persona cuidada o de su representante legal, '
+          'la cámara no envía video. Revocarlo detiene la captura y borra las '
+          'grabaciones.',
+      'Guardar sus movimientos necesita un permiso aparte y opcional; las '
+          'alertas funcionan igual sin él.',
     ],
   ),
   (
     'Alertas',
     [
-      'Todos los familiares vinculados reciben cada alerta. Si el contacto '
-          'principal no la marca en el tiempo de espera (3, 5 o 10 minutos), '
-          'avisamos al contacto secundario.',
+      'Las reciben todos los familiares vinculados. Si el principal no marca '
+          'una en el tiempo de espera (3, 5 o 10 minutos), avisamos al '
+          'secundario.',
     ],
   ),
   (
     'Límites del servicio',
     [
-      'Solo detectamos caídas cuando la cámara está en línea. No hay detección '
-          'si está desconectada, en pausa o sin consentimiento, y no es '
-          'confiable si la cámara no ve bien a la persona por la luz o el '
-          'encuadre.',
-      'Para recibir las alertas con la app cerrada, las notificaciones del '
-          'celular deben estar activadas.',
+      'Sin detección con la PC de la casa apagada, la cámara desconectada, en '
+          'pausa o sin consentimiento; no es confiable si no ve bien a la '
+          'persona.',
+      'Con la app cerrada, las alertas llegan solo con las notificaciones '
+          'activadas.',
     ],
   ),
 ];
@@ -129,41 +133,60 @@ const seccionesPolitica = <SeccionDocumento>[
   (
     'Qué datos guardamos',
     [
-      'De tu cuenta: nombre, correo y contraseña.',
-      'De la persona cuidada: nombre, edad, dirección y con quién vive.',
-      'De cada alerta: tipo, habitación, fecha, hora y quién la atendió.',
+      'Cuenta: nombre, correo y contraseña.',
+      'Persona cuidada: nombre, edad, dirección y con quién vive.',
+      'Alertas: tipo, habitación, fecha, hora y quién atendió.',
     ],
   ),
   (
     'Video',
     [
-      'La cámara envía video para analizar la postura del cuerpo. No '
-          'reconocemos rostros ni grabamos de forma continua.',
-      'Solo guardamos el clip de cada alerta (6 s antes y 6 s después) durante '
-          '30 días; luego se elimina. La vista en vivo no se graba.',
+      'Se analiza en la PC de la casa. Sin reconocimiento facial ni video en '
+          'la nube.',
+      'Solo salen de la casa el aviso y el clip de cada alerta, y la vista en '
+          'vivo mientras alguien de la familia la mira con el consentimiento '
+          'vigente.',
+      'Solo el clip de cada alerta (6 s antes y 6 s después), 30 días. La '
+          'vista en vivo no se graba.',
+    ],
+  ),
+  (
+    'Movimientos',
+    [
+      'Solo con un permiso aparte y opcional: puntos del cuerpo (hombros, '
+          'caderas, rodillas…), sin imagen ni video.',
+      'En la PC de la casa y, si el titular lo elige, en la nube, de 7 días a '
+          '1 año. Retirar el permiso borra los de la nube; la PC pregunta si '
+          'también los borra.',
+    ],
+  ),
+  (
+    'Dónde se guardan',
+    [
+      'Los clips y los movimientos de la nube se guardan en Cloudflare R2, con '
+          'servidores fuera del Perú: es un flujo transfronterizo de datos '
+          'personales.',
     ],
   ),
   (
     'Quién ve los datos',
     [
-      'Solo los familiares vinculados a la cuenta. Cada acceso a la vista en '
-          'vivo queda registrado: quién, cuándo y cuánto duró, y toda la '
-          'familia ve ese registro.',
+      'Solo la familia vinculada. Cada acceso en vivo y cada repetición quedan '
+          'en un registro que ven todos: quién, cuándo y cuánto.',
     ],
   ),
   (
     'Revocar el consentimiento',
     [
-      'Detiene la captura y la vista en vivo y borra las grabaciones. Te '
-          'enviamos la constancia por correo.',
+      'Detiene la captura y la vista en vivo y borra las grabaciones; te '
+          'enviamos la constancia.',
     ],
   ),
   (
     'Tus derechos',
     [
-      'Según la Ley N.° 29733 de Protección de Datos Personales, puedes pedir '
-          'acceder a tus datos, corregirlos, eliminarlos u oponerte a su uso. '
-          'Escríbenos a privacidad@tetengo.pe.',
+      'Ver, corregir o borrar tus datos, u oponerte a su uso (Ley N.° 29733): '
+          'privacidad@tetengo.pe.',
     ],
   ),
 ];
@@ -172,7 +195,7 @@ const seccionesPolitica = <SeccionDocumento>[
 const seccionRegistroConsentimiento = (
   'Cómo se registra',
   [
-    'Guardamos quién lo otorgó, quién lo registró, la fecha y la hora, como '
-        'constancia exigida por la Ley N.° 29733.',
+    'Guardamos quién lo otorgó, quién lo registró, fecha y hora (Ley N.° '
+        '29733).',
   ],
 );

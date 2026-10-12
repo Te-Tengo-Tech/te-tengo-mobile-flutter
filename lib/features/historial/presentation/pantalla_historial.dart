@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ui/chips.dart';
+import '../../reportes/presentation/pantallas_reporte.dart';
 import '../data/historial_provider.dart';
 import '../data/resumen_repositorio.dart';
 import 'lista_alertas.dart';
@@ -66,9 +67,10 @@ class PantallaHistorial extends ConsumerWidget {
               alCambiar: ref.read(seccionHistorialProvider.notifier).elegir,
             ),
             const SizedBox(height: 16),
-            if (seccion == SeccionHistorial.alertas)
-              const ListaHistorial()
-            else
+            if (seccion == SeccionHistorial.alertas) ...[
+              const ListaHistorial(),
+              const EnlaceReporte(),
+            ] else
               const VistaResumenSemanal(),
           ],
         ),

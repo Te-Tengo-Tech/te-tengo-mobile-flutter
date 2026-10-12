@@ -11,6 +11,9 @@ class Camara {
     this.deteccionConfiable = true,
     this.instaladaEn,
     this.noConfiableDesde,
+    this.pcId,
+    this.ambienteId,
+    this.nombreDispositivo,
   });
 
   final String id;
@@ -30,6 +33,16 @@ class Camara {
   /// Since when detection is unreliable (CA-15.3); null while it is reliable.
   final DateTime? noConfiableDesde;
 
+  /// The PC the camera is connected to (contract §9); null only for old rows.
+  final String? pcId;
+
+  /// The room (`ambiente`) the camera watches.
+  final String? ambienteId;
+
+  /// The webcam's name as the PC shows it («Webcam USB HD»); null for cameras installed by the
+  /// project team.
+  final String? nombreDispositivo;
+
   bool get enPausa => pausadaHasta != null;
 
   factory Camara.desdeJson(Map<String, dynamic> json) => Camara(
@@ -41,12 +54,22 @@ class Camara {
     deteccionConfiable: json['deteccionConfiable'] as bool? ?? true,
     instaladaEn: fechaDesdeJson(json['instaladaEn']),
     noConfiableDesde: fechaDesdeJson(json['noConfiableDesde']),
+    pcId: json['pcId'] as String?,
+    ambienteId: json['ambienteId'] as String?,
+    nombreDispositivo: json['nombreDispositivo'] as String?,
   );
 
   /// State shown to the family. Precedence of the prototype (`camState`): without consent the camera
-  /// is stopped; then disconnected, paused, unreliable detection and online.
-  EstadoVisible estadoVisible({required bool conConsentimiento}) {
+  /// is stopped; then its PC offline, disconnected, paused, unreliable detection and online.
+  ///
+  /// [pcSinConexion]: the camera's PC does not answer (CA-30.3), shown as «Sin conexión · la PC no
+  /// responde» instead of the camera being unplugged.
+  EstadoVisible estadoVisible({
+    required bool conConsentimiento,
+    bool pcSinConexion = false,
+  }) {
     if (!conConsentimiento) return EstadoVisible.detenida;
+    if (pcSinConexion) return EstadoVisible.sinConexion;
     if (estado == EstadoConexion.desconectada) {
       return EstadoVisible.desconectada;
     }
@@ -99,7 +122,10 @@ enum EstadoVisible {
   desconectada('Desconectada'),
   enPausa('En pausa'),
   noConfiable('Detección no confiable'),
-  detenida('Detenida');
+  detenida('Detenida'),
+
+  /// Its PC does not answer (CA-30.3): gray and dotted, unlike an unplugged camera.
+  sinConexion('Sin conexión');
 
   const EstadoVisible(this.texto);
 

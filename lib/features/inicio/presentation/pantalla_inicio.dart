@@ -11,6 +11,7 @@ import '../../historial/presentation/pantalla_historial.dart';
 import '../../historial/presentation/resumen_semanal.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/sesion/sesion_controller.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
@@ -21,9 +22,14 @@ import '../../instalar/presentation/instalar_app.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
-import '../../camaras/presentation/fila_camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
-import '../../hogar/domain/hogar.dart';
+import '../../familia/data/familia_repositorio.dart';
+import '../../pcs/data/pcs_repositorio.dart';
+import '../../pcs/domain/camaras_en_casa.dart';
+import '../../vivo/presentation/elegir_habitacion.dart';
+import '../../vivo/presentation/pantalla_vivo.dart' show textoPrivacidadVivo;
+import '../../widget/presentation/actualizador_widget.dart';
+import 'tarjetas_inicio.dart';
 import 'tarjeta_adulto_mayor.dart';
 
 /// Inicio tab (screens 25–27 and 102): greeting, notifications notice (CA-16.3), the older adult
@@ -47,7 +53,19 @@ class _ContenidoInicio extends ConsumerWidget {
     if (sesion == null) return const SizedBox.shrink();
     final hogar = ref.watch(hogarProvider);
     final camaras = ref.watch(camarasProvider);
-    final camara = camaras.value?.firstOrNull;
+    final enCasa = ref.watch(camarasEnCasaProvider).value ?? const [];
+    // «Ver en vivo» on the home-screen widget: the room picker, once the cameras are read.
+    if (ref.watch(habitacionesPendientesProvider) && enCasa.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted || !ref.read(habitacionesPendientesProvider)) {
+          return;
+        }
+        ref.read(habitacionesPendientesProvider.notifier).atendido();
+        elegirHabitacion(context, enCasa);
+      });
+    }
+    final pcs = ref.watch(pcsProvider).value;
+    final familia = ref.watch(familiaresProvider).value;
     final texto = Theme.of(context).textTheme;
     final notificaciones = ref.watch(notificacionesActivasProvider).value;
     final celularSinAlertas = ref.watch(celularSinAlertasProvider);
@@ -59,6 +77,7 @@ class _ContenidoInicio extends ConsumerWidget {
         ref
           ..invalidate(hogarProvider)
           ..invalidate(camarasProvider)
+          ..invalidate(pcsProvider)
           ..invalidate(alertaActivaProvider)
           ..invalidate(notificacionesActivasProvider);
         await ref.read(hogarProvider.future);
@@ -90,8 +109,7 @@ class _ContenidoInicio extends ConsumerWidget {
                   : notificaciones == false
                   ? 'Activa las notificaciones'
                   : 'Este celular no recibe las alertas',
-              texto:
-                  'Sin ellas no te enterarás de una caída con la app cerrada.',
+              texto: 'Sin ellas no sabrás de una caída con la app cerrada.',
               accion: Boton(
                 'Activar notificaciones',
                 estilo: EstiloBoton.tinta,
@@ -106,8 +124,9 @@ class _ContenidoInicio extends ConsumerWidget {
               adulto: h.adultoMayor,
               estado: estadoTarjeta(
                 h,
-                camara,
+                enCasa,
                 alerta: alerta,
+                hayPc: pcs?.isNotEmpty ?? false,
                 paleta: context.colores,
               ),
               accion: alerta != null
@@ -121,7 +140,8 @@ class _ContenidoInicio extends ConsumerWidget {
                   : _accionTarjeta(
                       context,
                       h.conConsentimiento,
-                      camara,
+                      enCasa,
+                      primeraPc: pcs?.firstOrNull?.id,
                       titular: sesion.esTitular,
                     ),
             ),
@@ -135,32 +155,43 @@ class _ContenidoInicio extends ConsumerWidget {
             const SizedBox(height: 16),
             MensajeProblema(error),
           ],
-          if (camara != null && hogar.value != null) ...[
-            const EncabezadoSeccion('Cámara'),
-            ListaTarjeta(
-              children: [
-                FilaCamara(
-                  camara: camara,
-                  estado: camara.estadoVisible(
-                    conConsentimiento: hogar.value!.conConsentimiento,
-                  ),
-                  alTocar: () => context.push(Rutas.camara(camara.id)),
-                ),
-                FilaLista(
-                  inicio: const IconoFila(Ico.video),
-                  titulo: 'Ver en vivo',
-                  subtitulo: _vivoDisponible(camara, hogar.value!)
-                      ? 'Cada acceso queda registrado'
-                      : 'No disponible ahora',
-                  alTocar: () => context.push(
-                    Uri(
-                      path: Rutas.vivo,
-                      queryParameters: {'camara': camara.id},
-                    ).toString(),
-                  ),
-                ),
-              ],
+          if (hogar.value case final h?) ...[
+            const SizedBox(height: 16),
+            TarjetasInicio(
+              camaras: enCasa,
+              conConsentimiento: h.conConsentimiento,
+              familia: familia,
+              alTocarCamaras: () => context.push(Rutas.pcs),
+              alTocarFamilia: () => context.go(Rutas.familia),
             ),
+            if (enCasa.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ListaTarjeta(
+                children: [
+                  ?filaAtencionInicio(
+                    context,
+                    enCasa,
+                    conConsentimiento: h.conConsentimiento,
+                    hayAlerta: alerta != null,
+                    alTocar: () => context.push(Rutas.pcs),
+                  ),
+                  FilaLista(
+                    inicio: const IconoFila(Ico.video),
+                    titulo: 'Ver en vivo',
+                    // The privacy line is behind the «?»; «No disponible ahora» stays visible.
+                    subtitulo: enCasa.any((c) => c.vivoDisponible)
+                        ? null
+                        : 'No disponible ahora',
+                    fin: const AyudaInfo(
+                      texto: textoPrivacidadVivo,
+                      tema: 'privacidad',
+                    ),
+                    chevron: true,
+                    alTocar: () => verEnVivo(context, enCasa),
+                  ),
+                ],
+              ),
+            ],
           ],
           if (hogar.value?.conConsentimiento ?? false)
             SemanaEnInicio(
@@ -176,17 +207,11 @@ class _ContenidoInicio extends ConsumerWidget {
     );
   }
 
-  /// The live view can open now: consent given and the camera neither disconnected nor paused.
-  bool _vivoDisponible(Camara camara, Hogar hogar) => switch (camara
-      .estadoVisible(conConsentimiento: hogar.conConsentimiento)) {
-    EstadoVisible.enLinea || EstadoVisible.noConfiable => true,
-    _ => false,
-  };
-
   Boton? _accionTarjeta(
     BuildContext context,
     bool conConsentimiento,
-    Camara? camara, {
+    List<CamaraEnCasa> camaras, {
+    required String? primeraPc,
     required bool titular,
   }) {
     if (!conConsentimiento) {
@@ -197,16 +222,33 @@ class _ContenidoInicio extends ConsumerWidget {
             )
           : null;
     }
-    final estado = camara?.estadoVisible(conConsentimiento: true);
-    if (estado == EstadoVisible.desconectada ||
-        estado == EstadoVisible.noConfiable) {
-      return Boton(
-        'Ver qué revisar',
-        estilo: EstiloBoton.secundario,
-        alPresionar: () => context.push(Rutas.camara(camara!.id)),
-      );
+    if (camaras.isEmpty) {
+      if (!titular) return null;
+      return primeraPc != null
+          ? Boton(
+              'Elegir las cámaras',
+              icono: Ico.cam,
+              alPresionar: () => context.push(Rutas.elegirCamaras(primeraPc)),
+            )
+          : Boton(
+              'Agregar PC',
+              icono: Ico.plus,
+              alPresionar: () => context.push(Rutas.vincular),
+            );
     }
-    return null;
+    final c = camarasQueImportan(camaras).first;
+    final revisar = c.noResponde || c.estado == EstadoVisible.noConfiable;
+    if (!revisar) return null;
+    final pc = c.pc;
+    return Boton(
+      'Ver qué revisar',
+      estilo: EstiloBoton.secundario,
+      alPresionar: () => context.push(
+        c.estado == EstadoVisible.sinConexion && pc != null
+            ? Rutas.pc(pc.id)
+            : Rutas.camara(c.camara.id),
+      ),
+    );
   }
 }
 

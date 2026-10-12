@@ -27,6 +27,18 @@ if (hasUploadKey) {
     logger.lifecycle("android/key.properties not found: release builds use the debug key (docs/RELEASE_ANDROID.md)")
 }
 
+// US-43, CA-43.5: the sideloaded APK updates itself through the Android installer, which needs
+// REQUEST_INSTALL_PACKAGES. Google Play restricts that permission (and updates its own builds), so
+// it lives in src/sideload/AndroidManifest.xml and is merged into the release and profile APKs only,
+// never into an app bundle: `flutter build appbundle` runs a `bundle*` task. The Gradle property
+// `-Ptt.googlePlay=true|false` (`flutter build … --android-project-arg=tt.googlePlay=true`) overrides
+// the guess. Debug builds declare it in src/debug/AndroidManifest.xml. See docs/RELEASE_ANDROID.md.
+val paraGooglePlay: Boolean = providers.gradleProperty("tt.googlePlay").orNull?.toBoolean()
+    ?: gradle.startParameter.taskNames.any { it.substringAfterLast(':').startsWith("bundle") }
+if (paraGooglePlay) {
+    logger.lifecycle("Google Play build: without REQUEST_INSTALL_PACKAGES (docs/RELEASE_ANDROID.md)")
+}
+
 android {
     namespace = "tech.tetengo.te_tengo"
     // permission_handler_android requires compiling against API 37 (checkReleaseAarMetadata fails
@@ -69,6 +81,10 @@ android {
             signingConfig = signingConfigs.getByName(if (hasUploadKey) "release" else "debug")
         }
     }
+    if (!paraGooglePlay) {
+        sourceSets.getByName("release").manifest.srcFile("src/sideload/AndroidManifest.xml")
+        sourceSets.findByName("profile")?.manifest?.srcFile("src/sideload/AndroidManifest.xml")
+    }
 }
 
 kotlin {
@@ -79,4 +95,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // FileProvider, which hands the downloaded APK to the Android installer (US-43).
+    implementation("androidx.core:core:1.13.1")
 }

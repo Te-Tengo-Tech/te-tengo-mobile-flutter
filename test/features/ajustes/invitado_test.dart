@@ -6,7 +6,7 @@ import 'package:te_tengo/core/ui/piezas.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
 import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/presentation/pantalla_camara.dart';
+import 'package:te_tengo/features/pcs/presentation/pantalla_camaras.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
@@ -58,16 +58,13 @@ void main() {
     await abrir(tester, Rutas.ajustes);
     expect(find.text('Eres familiar invitado'), findsOneWidget);
     expect(
-      find.text(
-        'Ves lo mismo que Carmen. Lo que tiene candado solo lo cambia Carmen '
-        '(titular).',
-      ),
+      find.text('Lo que tiene candado solo lo cambia Carmen.'),
       findsOneWidget,
     );
-    expect(find.text('Cámara · Sala'), findsOneWidget);
-    expect(find.text('En línea'), findsOneWidget);
+    expect(find.text('Cámaras y PCs'), findsOneWidget);
+    expect(find.text('1 cámara'), findsOneWidget);
     expect(find.text('Carmen → Luis · 5 min'), findsOneWidget);
-    expect(find.text('Vigente desde el 3 ago 2026'), findsOneWidget);
+    expect(find.text('Vigente · 3 ago 2026'), findsOneWidget);
     // Profile, alert order and privacy: «Solo ver».
     expect(find.byType(EtiquetaSoloVer), findsNWidgets(3));
     await verHasta(tester, find.text('Tu cuenta · Familiar invitado'));
@@ -79,8 +76,8 @@ void main() {
     expect(find.text('Eres familiar invitado'), findsNothing);
     expect(find.byType(EtiquetaSoloVer), findsNothing);
     expect(find.text('Orden de aviso y espera'), findsOneWidget);
-    await tocar(tester, find.text('Cámara · Sala'));
-    expect(find.byType(PantallaCamara), findsOneWidget);
+    await tocar(tester, find.text('Cámaras y PCs'));
+    expect(find.byType(PantallaCamaras), findsOneWidget);
   });
 
   testWidgets('CA-08.4: el invitado abre en solo lectura los datos de Rosa, el '
@@ -111,8 +108,8 @@ void main() {
   testWidgets('CA-08.4: el invitado puede pausar la cámara, pero no '
       'renombrarla', (tester) async {
     await abrir(tester, Rutas.camara('c1'));
-    expect(find.text('Pausar esta cámara'), findsOneWidget);
-    await verHasta(tester, find.text('Nombre que aparece en las alertas'));
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    expect(find.text('Pausar'), findsOneWidget);
     expect(find.byType(EtiquetaSoloVer), findsOneWidget);
   });
 }

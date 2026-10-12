@@ -7,7 +7,7 @@ import 'package:dio/dio.dart';
 import 'cache_local.dart';
 
 /// Keeps the last answer of each household read (alerts, history pages, cameras, household,
-/// family, summary, access log) and serves it when there is no connection. Keys carry the
+/// family, summary, access log, PCs and rooms) and serves it when there is no connection. Keys carry the
 /// household of the session, so households never mix.
 class InterceptorCache extends Interceptor {
   InterceptorCache({required this.cache, required this.hogarId});
@@ -25,6 +25,8 @@ class InterceptorCache extends Interceptor {
     '/api/familiares',
     '/api/resumen-semanal',
     '/api/accesos-vista-en-vivo',
+    '/api/pcs',
+    '/api/ambientes',
   ];
 
   bool _guardable(RequestOptions o) =>

@@ -181,6 +181,7 @@ jobs:
         run: |
           timeout 40m flutter build apk --release \
             --build-name="$NAME" --build-number="$CODE" \
+            --android-project-arg=tt.googlePlay=false \
             --dart-define=TT_API_URL="$API_URL"
       - name: Remove the signing material
         if: always()

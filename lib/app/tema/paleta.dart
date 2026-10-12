@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'colores.dart';
 
-/// The tokens that change with the phone's theme (`.screen.dark` in the prototype).
+/// The tokens that change with the phone's theme (`.screen.dark` in the prototype) and with
+/// «Aumentar el contraste» (`.screen.hc`).
 ///
-/// Light is [Colores]; dark follows the prototype's dark palette. Colors that do not change (the
-/// severity floods, brand, the live view's night) stay in [Colores]. Read them with
-/// `context.colores`.
+/// Light is [Colores]; dark follows the prototype's dark palette; [claraContraste] and
+/// [oscuraContraste] are the prototype's high-contrast tokens (darker ink, or white in dark, marked
+/// lines and borders, cards outlined instead of shadowed). Colors that do not change (the severity
+/// floods, brand, the live view's night) stay in [Colores]: the alerts keep their color. Read them
+/// with `context.colores`.
 @immutable
 class Paleta extends ThemeExtension<Paleta> {
   const Paleta({
@@ -41,9 +44,26 @@ class Paleta extends ThemeExtension<Paleta> {
     required this.errorTexto,
     required this.marcador,
     required this.sombra,
+    this.contraste = false,
+    this.anchoBorde = 1.5,
+    this.anchoDivisor = 1,
+    this.interruptorApagado,
   });
 
   final bool oscura;
+
+  /// «Aumentar el contraste» is on (`.screen.hc`).
+  final bool contraste;
+
+  /// Width of the borders of chips, choices, fields and outlined cards: 1.5, or 2 with more
+  /// contrast.
+  final double anchoBorde;
+
+  /// Width of the dividers between rows: 1, or 1.5 with more contrast.
+  final double anchoDivisor;
+
+  /// Track of a switch that is off; [linea2] when null. More contrast makes it visible.
+  final Color? interruptorApagado;
   final Color fondo;
   final Color fondo2;
   final Color tarjeta;
@@ -164,6 +184,126 @@ class Paleta extends ThemeExtension<Paleta> {
       BoxShadow(color: Color(0x66000000), blurRadius: 2, offset: Offset(0, 1)),
     ],
   );
+
+  /// High contrast in light (`.screen.hc`): darker ink, marked lines, outlined cards.
+  static final claraContraste = clara._conContraste(
+    tinta: const Color(0xFF140B2E),
+    tinta2: const Color(0xFF2B1D4E),
+    tinta3: const Color(0xFF3D3357),
+    linea: const Color(0xFF8C82A0),
+    linea2: const Color(0xFF4F4566),
+    moradoSuave: const Color(0xFFECE4F7),
+    moradoTinta: const Color(0xFF36196B),
+    caidaTinta: const Color(0xFF841C12),
+    inestableTinta: const Color(0xFF4F3500),
+    calmaTinta: const Color(0xFF0B4529),
+    aviso: const Color(0xFF6B3D00),
+    pausa: const Color(0xFF353F56),
+    inversa: const Color(0xFF140B2E),
+    marcador: const Color(0xFF3D3357),
+    contorno: const Color(0xFF4F4566),
+    interruptorApagado: const Color(0xFF6E6585),
+  );
+
+  /// High contrast in dark (`.screen.dark.hc`): white ink on a deeper background.
+  static final oscuraContraste = oscuraTeTengo._conContraste(
+    fondo: const Color(0xFF0A0810),
+    fondo2: const Color(0xFF14101C),
+    tarjeta: const Color(0xFF1A1524),
+    tinta: const Color(0xFFFFFFFF),
+    tinta2: const Color(0xFFEFEAF8),
+    tinta3: const Color(0xFFD9D2E6),
+    linea: const Color(0xFF8E85A3),
+    linea2: const Color(0xFFBDB5CE),
+    moradoSuave: const Color(0xFF2E2448),
+    moradoTinta: const Color(0xFFE4D9FF),
+    caidaTinta: const Color(0xFFFFB6AA),
+    inestableTinta: const Color(0xFFFFD98A),
+    calmaTinta: const Color(0xFFA9EDC8),
+    aviso: const Color(0xFFFFCD80),
+    pausa: const Color(0xFFCAD2E1),
+    inversa: const Color(0xFFFFFFFF),
+    sobreInversa: const Color(0xFF0A0810),
+    hoja: const Color(0xFF1E1829),
+    barra: const Color(0xFA1A1524),
+    marcador: const Color(0xFFD9D2E6),
+    contorno: const Color(0xFFBDB5CE),
+    interruptorApagado: const Color(0xFF8E85A3),
+  );
+
+  /// The palette for a theme: light or dark, with or without more contrast.
+  static Paleta de({bool oscuro = false, bool contraste = false}) =>
+      switch ((oscuro, contraste)) {
+        (false, false) => clara,
+        (true, false) => oscuraTeTengo,
+        (false, true) => claraContraste,
+        (true, true) => oscuraContraste,
+      };
+
+  Paleta _conContraste({
+    required Color tinta,
+    required Color tinta2,
+    required Color tinta3,
+    required Color linea,
+    required Color linea2,
+    required Color moradoSuave,
+    required Color moradoTinta,
+    required Color caidaTinta,
+    required Color inestableTinta,
+    required Color calmaTinta,
+    required Color aviso,
+    required Color pausa,
+    required Color inversa,
+    required Color marcador,
+    required Color contorno,
+    required Color interruptorApagado,
+    Color? fondo,
+    Color? fondo2,
+    Color? tarjeta,
+    Color? sobreInversa,
+    Color? hoja,
+    Color? barra,
+  }) => Paleta(
+    oscura: oscura,
+    fondo: fondo ?? this.fondo,
+    fondo2: fondo2 ?? this.fondo2,
+    tarjeta: tarjeta ?? this.tarjeta,
+    tinta: tinta,
+    tinta2: tinta2,
+    tinta3: tinta3,
+    linea: linea,
+    linea2: linea2,
+    moradoSuave: moradoSuave,
+    moradoTinta: moradoTinta,
+    caidaSuave: caidaSuave,
+    caidaTinta: caidaTinta,
+    inestableSuave: inestableSuave,
+    inestableTinta: inestableTinta,
+    calmaSuave: calmaSuave,
+    calmaTinta: calmaTinta,
+    aviso: aviso,
+    avisoSuave: avisoSuave,
+    avisoTinta: avisoTinta,
+    pausa: pausa,
+    pausaSuave: pausaSuave,
+    botonPrimario: botonPrimario,
+    inversa: inversa,
+    sobreInversa: sobreInversa ?? this.sobreInversa,
+    hoja: hoja ?? this.hoja,
+    barra: barra ?? this.barra,
+    barraClip: barraClip,
+    errorTexto: errorTexto,
+    marcador: marcador,
+    // Cards are outlined instead of shadowed (`--shadow-1: 0 0 0 1.5px`).
+    sombra: [BoxShadow(color: contorno, spreadRadius: 1.5)],
+    contraste: true,
+    anchoBorde: 2,
+    anchoDivisor: 1.5,
+    interruptorApagado: interruptorApagado,
+  );
+
+  /// Track of a switch that is off.
+  Color get pistaApagada => interruptorApagado ?? linea2;
 
   @override
   Paleta copyWith() => this;

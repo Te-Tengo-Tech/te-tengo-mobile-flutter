@@ -12,7 +12,9 @@ import 'package:te_tengo/core/sesion/sesion.dart';
 import 'package:te_tengo/core/sesion/sesion_controller.dart';
 import 'package:te_tengo/core/sesion/sesion_repositorio.dart';
 import 'package:te_tengo/core/ui/formulario.dart';
+import 'package:te_tengo/app/tema/paleta.dart';
 import 'package:te_tengo/features/ajustes/data/apariencia.dart';
+import 'package:te_tengo/features/ajustes/data/contraste.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
 import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
@@ -124,12 +126,46 @@ void main() {
     });
   });
 
-  group('Ajustes › Apariencia', () {
+  group('almacén del contraste', () {
+    test('sin nada guardado está apagado', () async {
+      expect(await AlmacenContrasteLocal(CacheMemoria()).cargar(), isFalse);
+    });
+
+    test('guarda y lee las dos opciones; cerrar sesión no lo borra', () async {
+      final cache = CacheDrift(NativeDatabase.memory());
+      addTearDown(cache.cerrar);
+      await AlmacenContrasteLocal(cache).guardar(true);
+      expect(await AlmacenContrasteLocal(cache).cargar(), isTrue);
+      await cache.vaciar();
+      expect(await AlmacenContrasteLocal(cache).cargar(), isTrue);
+      await AlmacenContrasteLocal(cache).guardar(false);
+      expect(await AlmacenContrasteLocal(cache).cargar(), isFalse);
+    });
+
+    test('un localStorage bloqueado lo deja apagado', () async {
+      final cache = CacheEnAlmacen(_AlmacenMapa()..bloqueado = true);
+      await AlmacenContrasteLocal(cache).guardar(true);
+      expect(await AlmacenContrasteLocal(cache).cargar(), isFalse);
+    });
+
+    test('al arrancar no espera a una base que no responde', () async {
+      expect(
+        await cargarContraste(
+          _CacheColgada(),
+          espera: const Duration(milliseconds: 10),
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('Ajustes › Preferencias', () {
     Future<void> abrir(
       WidgetTester tester, {
       required CacheLocal cache,
       Sesion sesion = sesionTitular,
       Apariencia inicial = Apariencia.automatica,
+      bool contraste = false,
     }) async {
       usarTelefono(tester);
       await tester.pumpWidget(
@@ -139,6 +175,7 @@ void main() {
           cache: cache,
           overrides: [
             aparienciaInicialProvider.overrideWithValue(inicial),
+            contrasteInicialProvider.overrideWithValue(contraste),
             sesionRepositorioProvider.overrideWithValue(_SesionesFalsas()),
             hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
             camarasRepositorioProvider.overrideWithValue(
@@ -168,31 +205,34 @@ void main() {
         tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode!;
 
     Brightness brillo(WidgetTester tester) =>
-        Theme.of(tester.element(find.text('Apariencia').first)).brightness;
+        Theme.of(tester.element(find.text('Preferencias').first)).brightness;
+
+    Paleta paleta(WidgetTester tester) =>
+        tester.element(find.text('Preferencias').first).colores;
 
     testWidgets('por defecto sigue el tema del celular', (tester) async {
       tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
       addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
       await abrir(tester, cache: CacheMemoria());
-      await verHasta(tester, find.text('Apariencia'));
-      expect(find.text('Automático'), findsOneWidget);
+      await verHasta(tester, find.text('Preferencias'));
+      expect(find.text('Tema automático'), findsOneWidget);
       expect(modo(tester), ThemeMode.system);
       expect(brillo(tester), Brightness.dark);
     });
 
-    testWidgets('ofrece tres opciones como radio, con 48 dp y lectores de '
-        'pantalla', (tester) async {
+    testWidgets('el tema ofrece tres opciones como radio, con 48 dp y '
+        'lectores de pantalla', (tester) async {
       final semantica = tester.ensureSemantics();
       await abrir(tester, cache: CacheMemoria());
-      await tocar(tester, find.text('Apariencia'));
+      await tocar(tester, find.text('Preferencias'));
       expect(find.byType(OpcionRadio<Apariencia>), findsNWidgets(3));
-      expect(find.text('Sigue el tema del celular'), findsOneWidget);
+      expect(find.text('Igual que tu celular'), findsOneWidget);
       expect(
         tester.getSemantics(
-          find.bySemanticsLabel('Automático. Sigue el tema del celular'),
+          find.bySemanticsLabel('Automático. Igual que tu celular'),
         ),
         isSemantics(
-          label: 'Automático. Sigue el tema del celular',
+          label: 'Automático. Igual que tu celular',
           isButton: true,
           isChecked: true,
           isInMutuallyExclusiveGroup: true,
@@ -221,14 +261,16 @@ void main() {
     ) async {
       final cache = CacheMemoria();
       await abrir(tester, cache: cache);
-      await tocar(tester, find.text('Apariencia'));
+      await tocar(tester, find.text('Preferencias'));
       await tester.tap(find.text('Oscuro'));
       await tester.pumpAndSettle();
-      expect(find.byType(OpcionRadio<Apariencia>), findsNothing);
       expect(modo(tester), ThemeMode.dark);
       expect(brillo(tester), Brightness.dark);
-      expect(find.text('Oscuro'), findsOneWidget);
       expect(cache.datos[AlmacenAparienciaLocal.clave], 'oscura');
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await verHasta(tester, find.text('Tema oscuro'));
+      expect(find.text('Tema oscuro'), findsOneWidget);
     });
 
     testWidgets('«Claro» se mantiene aunque el celular esté en oscuro', (
@@ -237,7 +279,7 @@ void main() {
       tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
       addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
       await abrir(tester, cache: CacheMemoria());
-      await tocar(tester, find.text('Apariencia'));
+      await tocar(tester, find.text('Preferencias'));
       await tester.tap(find.text('Claro'));
       await tester.pumpAndSettle();
       expect(modo(tester), ThemeMode.light);
@@ -247,25 +289,95 @@ void main() {
     testWidgets('sobrevive a reiniciar la app', (tester) async {
       final cache = CacheMemoria();
       await abrir(tester, cache: cache);
-      await tocar(tester, find.text('Apariencia'));
+      await tocar(tester, find.text('Preferencias'));
       await tester.tap(find.text('Oscuro'));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Aumentar el contraste'));
+      await tester.pumpAndSettle();
 
-      // A new launch: main() reads the appearance before the first frame.
+      // A new launch: main() reads both before the first frame.
       await tester.pumpWidget(const SizedBox.shrink());
       final leida = await cargarApariencia(cache);
+      final contraste = await cargarContraste(cache);
       expect(leida, Apariencia.oscura);
-      await abrir(tester, cache: cache, inicial: leida);
+      expect(contraste, isTrue);
+      await abrir(tester, cache: cache, inicial: leida, contraste: contraste);
       expect(modo(tester), ThemeMode.dark);
       expect(brillo(tester), Brightness.dark);
-      await verHasta(tester, find.text('Apariencia'));
-      expect(find.text('Oscuro'), findsOneWidget);
+      expect(paleta(tester).contraste, isTrue);
+      await verHasta(tester, find.text('Tema oscuro · más contraste'));
+      expect(find.text('Tema oscuro · más contraste'), findsOneWidget);
     });
 
-    testWidgets('cerrar sesión no la cambia ni la borra', (tester) async {
+    testWidgets('«Aumentar el contraste» marca texto y bordes, en claro y en '
+        'oscuro, y lo guarda en este celular', (tester) async {
+      final semantica = tester.ensureSemantics();
       final cache = CacheMemoria();
-      await abrir(tester, cache: cache, inicial: Apariencia.oscura);
+      await abrir(tester, cache: cache);
+      await tocar(tester, find.text('Preferencias'));
+      expect(find.text('Texto y bordes más marcados'), findsOneWidget);
+      expect(find.text('Las alertas conservan su color.'), findsOneWidget);
+      expect(paleta(tester).contraste, isFalse);
+      expect(
+        tester.getSemantics(find.byType(Switch)),
+        isSemantics(
+          label: 'Aumentar el contraste\nTexto y bordes más marcados',
+          hasToggledState: true,
+          isToggled: false,
+        ),
+      );
+
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      expect(cache.datos[AlmacenContrasteLocal.clave], 'si');
+      final clara = paleta(tester);
+      expect(clara.contraste, isTrue);
+      expect(clara.tinta, Paleta.claraContraste.tinta);
+      expect(clara.anchoBorde, 2);
+      expect(
+        tester.getSemantics(find.byType(Switch)),
+        isSemantics(isToggled: true),
+      );
+
+      await tester.tap(find.text('Oscuro'));
+      await tester.pumpAndSettle();
+      final oscura = paleta(tester);
+      expect(oscura.oscura && oscura.contraste, isTrue);
+      expect(oscura.tinta, const Color(0xFFFFFFFF));
+
+      // The whole row toggles it, not only the switch.
+      await tester.tap(find.text('Aumentar el contraste'));
+      await tester.pumpAndSettle();
+      expect(paleta(tester).contraste, isFalse);
+      expect(cache.datos[AlmacenContrasteLocal.clave], 'no');
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      semantica.dispose();
+    });
+
+    testWidgets('el ajuste de contraste del celular también lo activa', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          FakeAccessibilityFeatures.allOn;
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await abrir(tester, cache: CacheMemoria());
+      expect(paleta(tester).contraste, isTrue);
+    });
+
+    testWidgets('cerrar sesión no cambia ni borra las preferencias', (
+      tester,
+    ) async {
+      final cache = CacheMemoria();
+      await abrir(
+        tester,
+        cache: cache,
+        inicial: Apariencia.oscura,
+        contraste: true,
+      );
       await cache.guardar(AlmacenAparienciaLocal.clave, 'oscura');
+      await cache.guardar(AlmacenContrasteLocal.clave, 'si');
       await cache.guardar('h1|/api/camaras?', '[]');
       final contenedor = ProviderScope.containerOf(
         tester.element(find.byType(TeTengoApp)),
@@ -275,29 +387,36 @@ void main() {
       expect(contenedor.read(sesionControllerProvider), isNull);
       expect(cache.datos.containsKey('h1|/api/camaras?'), isFalse);
       expect(cache.datos[AlmacenAparienciaLocal.clave], 'oscura');
+      expect(cache.datos[AlmacenContrasteLocal.clave], 'si');
       expect(modo(tester), ThemeMode.dark);
+      expect(contenedor.read(contrasteProvider), isTrue);
     });
 
-    testWidgets('el familiar invitado también la cambia (es del celular)', (
+    testWidgets('el familiar invitado también las cambia (son del celular)', (
       tester,
     ) async {
       await abrir(tester, cache: CacheMemoria(), sesion: sesionInvitado);
-      await tocar(tester, find.text('Apariencia'));
+      await tocar(tester, find.text('Preferencias'));
       await tester.tap(find.text('Oscuro'));
       await tester.pumpAndSettle();
       expect(modo(tester), ThemeMode.dark);
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      expect(paleta(tester).contraste, isTrue);
     });
 
-    testWidgets('con el texto al 200 % la hoja no se desborda', (tester) async {
+    testWidgets('con el texto al 200 % no se desborda', (tester) async {
       tester.platformDispatcher.textScaleFactorTestValue = 2;
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-      await abrir(tester, cache: CacheMemoria());
-      await tocar(tester, find.text('Apariencia'));
+      await abrir(tester, cache: CacheMemoria(), contraste: true);
+      await tocar(tester, find.text('Preferencias'));
       expect(tester.takeException(), isNull);
-      expect(find.text('Sigue el tema del celular'), findsOneWidget);
+      expect(find.text('Igual que tu celular'), findsOneWidget);
       await tester.tap(find.text('Claro'));
       await tester.pumpAndSettle();
       expect(modo(tester), ThemeMode.light);
+      await verHasta(tester, find.text('Aumentar el contraste'));
+      expect(tester.takeException(), isNull);
     });
   });
 }

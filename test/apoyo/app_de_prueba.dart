@@ -10,6 +10,8 @@ import 'package:te_tengo/core/red/cliente_api.dart';
 import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
 import 'package:te_tengo/core/ui/avisos_flotantes.dart';
+import 'package:te_tengo/core/ui/ayuda.dart';
+import 'package:te_tengo/features/widget/data/widget_sistema.dart';
 
 import 'package:te_tengo/core/dispositivo/conectividad.dart';
 import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
@@ -57,6 +59,7 @@ Widget appDePrueba({
   DispositivosRepositorio? dispositivos,
   CacheLocal? cache,
   AdaptadorFalso? http,
+  WidgetDelSistema? widget,
 }) => ProviderScope(
   retry: (_, _) => null,
   overrides: [
@@ -75,6 +78,10 @@ Widget appDePrueba({
     permisoNotificacionesProvider.overrideWithValue(permiso ?? PermisoFalso()),
     conectividadProvider.overrideWithValue(conectividad ?? ConectividadFalsa()),
     ubicacionInicialProvider.overrideWithValue(ubicacion),
+    // No home-screen widget unless a test brings its own.
+    widgetDelSistemaProvider.overrideWithValue(
+      widget ?? const WidgetNoDisponible(),
+    ),
     ...overrides,
   ],
   child: const TeTengoApp(),
@@ -106,4 +113,25 @@ Future<void> verHasta(WidgetTester tester, Finder finder) async {
     scrollable: find.byType(Scrollable).hitTestable().first,
   );
   await tester.pumpAndSettle();
+}
+
+/// The «?» help whose text is [texto] (docs `5100fc7`).
+Finder ayudaCon(String texto) =>
+    find.byWidgetPredicate((w) => w is AyudaInfo && w.texto == texto);
+
+/// The «?» with [texto] is on screen, its text is not until a tap opens it, and a second tap closes
+/// it again.
+Future<void> verAyuda(WidgetTester tester, String texto) async {
+  final ayuda = ayudaCon(texto);
+  await verHasta(tester, ayuda);
+  expect(ayuda, findsOneWidget);
+  await tester.ensureVisible(ayuda);
+  await tester.pumpAndSettle();
+  final antes = find.text(texto).evaluate().length;
+  await tester.tap(ayuda);
+  await tester.pumpAndSettle();
+  expect(find.text(texto), findsNWidgets(antes + 1));
+  await tester.tap(ayuda);
+  await tester.pumpAndSettle();
+  expect(find.text(texto), findsNWidgets(antes));
 }

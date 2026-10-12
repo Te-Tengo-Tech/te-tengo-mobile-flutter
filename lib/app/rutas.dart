@@ -30,7 +30,6 @@ abstract final class Rutas {
   static const configConsentimiento = '/configuracion/consentimiento';
   static const configConstancia = '/configuracion/constancia';
   static const configCamara = '/configuracion/camara';
-  static const configNombreCamara = '/configuracion/camara/nombre';
   static const configFamilia = '/configuracion/familia';
   static const configAvisos = '/configuracion/avisos';
   static const configListo = '/configuracion/listo';
@@ -44,19 +43,91 @@ abstract final class Rutas {
   // Screens on top of the tabs.
   static const accesoCreado = '/acceso-creado';
   static String camara(String id) => '/camara/$id';
+
+  /// The camera's player at [momento] (US-39): «Ver qué pasó» of an alert, «Abrir de nuevo» of
+  /// the access log.
+  static String camaraEn(String id, DateTime momento) => Uri(
+    path: camara(id),
+    queryParameters: {'momento': momento.toIso8601String()},
+  ).toString();
   static String nombreCamara(String id) => '/camara/$id/nombre';
   static const vivo = '/vivo';
+
+  /// «Ver todas»: several cameras at once (US-41).
+  static const verTodas = '/vivo/todas';
   static const accesos = '/accesos';
   static String alerta(String id) => '/alerta/$id';
   static String detalleAlerta(String id) => '/alertas/$id';
   static const ordenAviso = '/familia/orden';
+
+  /// A family member's detail (screens 76, 77, 231 to 236).
+  static String familiar(String usuarioId) => '/familiares/$usuarioId';
+
+  /// «Actividad» (US-33).
+  static const actividad = '/ajustes/actividad';
   static const invitar = '/familia/invitar';
   static const personaCuidada = '/ajustes/persona';
   static const notificaciones = '/ajustes/notificaciones';
+
+  /// «Preferencias» of this phone: theme and contrast.
+  static const preferencias = '/ajustes/preferencias';
   static const privacidad = '/ajustes/privacidad';
   static const consentimiento = '/ajustes/consentimiento';
   static const constancia = '/ajustes/constancia';
   static const revocado = '/ajustes/privacidad/revocado';
+
+  // Movement data (US-35, US-37).
+  static const movimientos = '/ajustes/privacidad/movimientos';
+  static const documentoMovimientos =
+      '/ajustes/privacidad/movimientos/documento';
+  static const movimientosBorrados = '/ajustes/privacidad/movimientos/borrando';
+  static const nube = '/ajustes/privacidad/nube';
+
+  // «¿Hubo una caída y no avisó?» (US-40).
+  static const reporteCaida = '/reporte-de-caida';
+
+  /// The report form, with the room and the moment already chosen when it comes from a camera
+  /// or an unstable movement.
+  static String reportar({String? habitacion, DateTime? cuando}) => Uri(
+    path: reporteCaida,
+    queryParameters: {
+      'habitacion': ?habitacion,
+      if (cuando != null) 'cuando': cuando.toIso8601String(),
+    },
+  ).toString();
+
+  /// «Gracias…», or «Lo guardamos para enviarlo» with [guardado].
+  static String reporteEnviado({bool guardado = false}) => Uri(
+    path: '$reporteCaida/enviado',
+    queryParameters: {if (guardado) 'guardado': '1'},
+  ).toString();
+
+  // Linking a PC (US-28) and choosing its cameras (US-29). `config=1` keeps them inside setup
+  // step 3. The PC's QR opens `/vincular?codigo=…` (contract §9), on the web too (docs/WEB_PWA.md).
+  static const vincular = '/vincular';
+  static const escanear = '/vincular/escanear';
+  static const escribirCodigo = '/vincular/codigo';
+
+  /// The approval screen of a code (CA-28.4), also the PC QR's link.
+  static String aprobarPc(String codigo, {bool config = false}) => Uri(
+    path: vincular,
+    queryParameters: {'codigo': codigo, if (config) 'config': '1'},
+  ).toString();
+
+  /// [ruta] with `config=1` when it runs inside setup step 3.
+  static String enPaso(String ruta, {required bool config}) => config
+      ? Uri(path: ruta, queryParameters: {'config': '1'}).toString()
+      : ruta;
+
+  /// «Cámaras» (Ajustes › «Cámaras y PCs»): the household's cameras by room and its PCs (US-30).
+  static const pcs = '/pcs';
+
+  /// «Ordenar»: favourites and the order of the cameras on this phone (CA-41.4).
+  static const ordenarCamaras = '/pcs/ordenar';
+  static String pc(String id) => '/pcs/$id';
+  static String pcVinculada(String id) => '/pcs/$id/vinculada';
+  static String elegirCamaras(String id, {bool config = false}) =>
+      enPaso('/pcs/$id/camaras', config: config);
 
   /// Reachable without a session.
   static const _publicas = [
@@ -78,6 +149,16 @@ abstract final class Rutas {
   static bool _bajo(String ubicacion, String ruta) =>
       ubicacion == ruta || ubicacion.startsWith('$ruta/');
 
+  /// A tap on the home-screen widget (US-44) reaches the router as `/?ir=/alerta/a-1` (Flutter's
+  /// deep linking keeps only the path and query of `tetengo-widget://abrir?ir=…`): the app's route
+  /// it names, which the guards then check. Anything else is not a widget tap.
+  static String? destinoDeWidget(Uri uri) {
+    if (uri.path.isNotEmpty && uri.path != '/') return null;
+    final ir = uri.queryParameters['ir'];
+    if (ir == null || !ir.startsWith('/') || ir.startsWith('//')) return null;
+    return ir;
+  }
+
   /// Router guards:
   /// - no session → welcome (public screens stay reachable);
   /// - session without household → onboarding (after registering, «Tu cuenta está lista»);
@@ -85,6 +166,8 @@ abstract final class Rutas {
   static String? redirigir(Sesion? sesion, String ubicacion) {
     if (_bajo(ubicacion, arranque) ||
         _bajo(ubicacion, instalar) ||
+        // The APK's install permission, also from the minimum-version screen without a session.
+        _bajo(ubicacion, '/actualizacion') ||
         _bajo(ubicacion, terminos) ||
         _bajo(ubicacion, politica)) {
       return null;

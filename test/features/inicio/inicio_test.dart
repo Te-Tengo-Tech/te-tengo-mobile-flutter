@@ -71,16 +71,19 @@ void main() {
     expect(find.text('Jr. Los Pinos 482, San Miguel'), findsNothing);
     expect(find.text('Todo tranquilo'), findsOneWidget);
     expect(find.text('Sin eventos hoy.'), findsOneWidget);
-    expect(find.text('Cámara'), findsOneWidget);
-    expect(
-      find.textContaining('última señal 10:42', findRichText: true),
-      findsOneWidget,
-    );
+    // One camera: the «Cámaras» tile says it works; no list of cameras (screen 284).
+    expect(find.text('Cámaras'), findsOneWidget);
+    expect(find.text('Funciona · Sala'), findsOneWidget);
     expect(find.text('Ver en vivo'), findsOneWidget);
-    expect(find.text('Cada acceso queda registrado'), findsOneWidget);
+    await verAyuda(
+      tester,
+      'No se graba. Tu acceso queda en el registro que ve toda la familia: '
+      'quién, cuándo y cuánto.',
+    );
     expect(find.text('Activa las notificaciones'), findsNothing);
-    await tocar(tester, find.text('Sala'));
-    expect(find.text('Cámara · Sala'), findsOneWidget);
+    // With one camera «Ver en vivo» opens it directly.
+    await tocar(tester, find.text('Ver en vivo'));
+    expect(find.text('En vivo · Sala'), findsOneWidget);
   });
 
   testWidgets('CA-16.3: con las notificaciones desactivadas pide activarlas', (
@@ -90,7 +93,7 @@ void main() {
     await abrir(tester, permiso: permiso);
     expect(find.text('Activa las notificaciones'), findsOneWidget);
     expect(
-      find.text('Sin ellas no te enterarás de una caída con la app cerrada.'),
+      find.text('Sin ellas no sabrás de una caída con la app cerrada.'),
       findsOneWidget,
     );
     await tocar(tester, find.text('Activar notificaciones'));
@@ -122,7 +125,7 @@ void main() {
     final red = ConectividadFalsa(hay: false);
     await abrir(tester, conectividad: red);
     expect(find.text('Tu celular no tiene internet'), findsOneWidget);
-    await tocar(tester, find.text('Familia'));
+    await tocar(tester, find.text('Familia').first);
     expect(find.text('Tu celular no tiene internet'), findsOneWidget);
     red.cambiar(true);
     await tester.pumpAndSettle();
@@ -142,10 +145,7 @@ void main() {
     ];
     await abrir(tester);
     expect(find.text('La cámara está desconectada'), findsOneWidget);
-    expect(
-      find.textContaining('desde las 10:31', findRichText: true),
-      findsOneWidget,
-    );
+    expect(find.text('Desconectada'), findsOneWidget);
     expect(find.text('Ver qué revisar'), findsOneWidget);
     // The live view cannot open now.
     expect(find.text('No disponible ahora'), findsOneWidget);
@@ -162,10 +162,7 @@ void main() {
     ];
     await abrir(tester);
     expect(find.text('Todo tranquilo, con una pausa'), findsOneWidget);
-    expect(
-      find.text('La cámara de la Sala está en pausa hasta las 11:42.'),
-      findsOneWidget,
-    );
+    expect(find.text('Sala en pausa hasta las 11:42.'), findsOneWidget);
     expect(
       find.textContaining('hasta las 11:42', findRichText: true),
       findsWidgets,
@@ -174,7 +171,7 @@ void main() {
   });
 
   group('si las alertas no llegan a este celular o a nadie', () {
-    const texto = 'Sin ellas no te enterarás de una caída con la app cerrada.';
+    const texto = 'Sin ellas no sabrás de una caída con la app cerrada.';
 
     testWidgets('el registro fallido se avisa aunque el permiso esté dado', (
       tester,

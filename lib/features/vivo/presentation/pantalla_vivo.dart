@@ -11,18 +11,22 @@ import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/avisos_flotantes.dart';
+import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/botones.dart';
-import '../../../core/ui/chips.dart';
 import '../../../core/ui/iconos.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
-import '../data/cliente_whep.dart';
+import '../data/preferencias_vivo.dart';
 import '../data/vista_en_vivo_repositorio.dart';
 import '../domain/vista_en_vivo.dart';
+import 'conexion_vivo.dart';
+import 'modos_vista.dart';
 import 'reproductor_vivo.dart';
 import 'reproductor_webrtc.dart';
+
+export 'conexion_vivo.dart';
 
 /// Why the live view cannot open (`liveState`): CA-23.3, CA-23.4 and, without consent, CA-05.2.
 enum _NoDisponible { desconectada, enPausa, detenida }
@@ -30,54 +34,22 @@ enum _NoDisponible { desconectada, enPausa, detenida }
 /// Live view (screens 38–40, 54 and 74): the room in real time, how long it has been open, and the
 /// reminder that the access is recorded. From an alert it shows that alert's room (CA-23.2).
 class PantallaVivo extends ConsumerStatefulWidget {
-  const PantallaVivo({super.key, this.camaraId, this.alertaId});
+  const PantallaVivo({super.key, this.camaraId, this.alertaId, this.mosaicoId});
 
   final String? camaraId;
   final String? alertaId;
+
+  /// Opened full screen from «Ver todas» in portrait (US-41): its session is part of that opening's
+  /// single access (CA-41.6), it goes back «Volver a todas», and the mosaic confirms the access.
+  final String? mosaicoId;
 
   @override
   ConsumerState<PantallaVivo> createState() => _PantallaVivoState();
 }
 
-/// Waiting longer than this for the first frame counts as a lost stream [implementation choice].
-const esperaPrimerFotograma = Duration(seconds: 20);
-
-/// A stream whose position stops advancing this long is lost [implementation choice].
-const esperaSinImagen = Duration(seconds: 10);
-
-/// Pause between attempts to open the playlist while the camera starts publishing.
-const pausaEntreIntentos = Duration(seconds: 2);
-
-/// Longest one attempt to start the player may take before it is dropped and another one starts
-/// [implementation choice].
-const esperaInicio = Duration(seconds: 6);
-
-/// Longest WebRTC may take to answer the offer, and then to show its first frame, before the view
-/// plays LL-HLS instead [implementation choice].
-const esperaWebrtc = Duration(seconds: 4);
-
-/// Pause between WHEP offers while the camera starts publishing (MediaMTX answers `404`).
-const pausaEntreOfertas = Duration(milliseconds: 500);
-
-/// Longest the WHEP offer is sent again while MediaMTX answers `404`, counted from the session's
-/// start; then LL-HLS gets the rest of [esperaPrimerFotograma], so a WebRTC route that always
-/// answers `404` (e.g. a proxy without it) costs a few seconds, not the live view
-/// [implementation choice].
-const esperaPublicacionWebrtc = Duration(seconds: 8);
-
-/// After WebRTC broke off mid-stream, how long LL-HLS has to show a frame before the stream counts
-/// as lost: enough for LL-HLS to start on a stream that is still published, without keeping a
-/// viewer waiting the whole [esperaPrimerFotograma] when the camera stopped (paused, consent
-/// revoked, PC off) [implementation choice].
-const esperaRescateHls = Duration(seconds: 10);
-
-/// A WebRTC stream without new frames this long is replaced by LL-HLS [implementation choice].
-const esperaSinImagenWebrtc = Duration(seconds: 3);
-
 class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   Camara? _camara;
   SesionVivo? _sesion;
-  DateTime? _inicio;
   _NoDisponible? _noDisponible;
   DateTime? _pausadaHasta;
   ProblemaApi? _problema;
@@ -90,28 +62,12 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   ModoVista? _modoElegido;
   bool _cambiandoModo = false;
 
-  /// Seconds of the current session, and of the sessions already closed on this screen.
-  int _segundos = 0;
+  /// Seconds of the sessions already closed on this screen.
   int _segundosVistos = 0;
   bool _huboSesion = false;
 
-  ReproductorVivo? _reproductor;
-
-  /// The current player is WebRTC (WHEP); otherwise LL-HLS.
-  bool _porWebrtc = false;
-
-  /// WebRTC failed in this session: it plays LL-HLS until it ends.
-  bool _soloHls = false;
-
-  /// Runs out when WebRTC answered but no frame came within [esperaWebrtc].
-  Timer? _plazoWebrtc;
-
-  /// The first frame of the current session arrived.
-  bool _enVivo = false;
-  int _esperando = 0;
-  int _sinAvance = 0;
-  Timer? _reloj;
-  Timer? _reintento;
+  /// Plays the session: WebRTC first, LL-HLS as the fallback.
+  late final ConexionVivo _conexion;
 
   /// Bumped to drop an opening in flight (the screen closed or went to the background).
   int _intento = 0;
@@ -123,14 +79,22 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   late final AppLifecycleListener _ciclo;
 
   bool get _desdeAlerta => widget.alertaId != null;
+  bool get _desdeMosaico => widget.mosaicoId != null;
 
   @override
   void initState() {
     super.initState();
     _repositorio = ref.read(vistaEnVivoRepositorioProvider);
+    // The mode this phone chose last time (CA-41.3); none keeps the camera's.
+    _modoElegido = ref.read(preferenciasVivoProvider).modo;
     // The DELETE may finish after the widget is gone: refresh the log through the container.
     _contenedor = ProviderScope.containerOf(context, listen: false);
     _ciclo = AppLifecycleListener(onHide: _alOcultar, onShow: _alMostrar);
+    _conexion = ConexionVivo(
+      fabricaHls: ref.read(fabricaReproductorVivoProvider),
+      fabricaWebrtc: ref.read(fabricaReproductorWebrtcProvider),
+      alPerder: _perder,
+    )..addListener(_alCambiarConexion);
     unawaited(_abrir());
   }
 
@@ -174,24 +138,15 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
         camara.id,
         alertaId: widget.alertaId,
         modo: _modoElegido,
+        mosaicoId: widget.mosaicoId,
       );
       if (!vigente()) return _cerrarSesion(sesion);
       setState(() {
         _sesion = sesion;
         _huboSesion = true;
         _modo = sesion.modo;
-        _inicio = ref.read(relojProvider)();
-        _segundos = 0;
-        _enVivo = false;
-        _esperando = 0;
-        _sinAvance = 0;
-        _soloHls = false;
       });
-      _reloj = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) => _cadaSegundo(),
-      );
-      unawaited(_conectar(sesion));
+      _conexion.conectar(sesion);
     } on ProblemaApi catch (e) {
       if (!vigente()) return;
       setState(() {
@@ -216,112 +171,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     }
   }
 
-  /// Plays the session's stream: over WebRTC when the session offers it, else LL-HLS. Until the
-  /// camera publishes, the stream does not exist yet, so a start that fails, or hangs for
-  /// [esperaInicio], is retried with a new player until [esperaPrimerFotograma] runs out.
-  Future<void> _conectar(SesionVivo sesion) async {
-    final whep = sesion.urlWebrtc;
-    if (whep != null && !_soloHls) return _conectarWebrtc(sesion, whep);
-    final reproductor = ref.read(fabricaReproductorVivoProvider)(
-      sesion.urlTransmision,
-    );
-    _reproductor = reproductor;
-    reproductor.addListener(_alCambiarReproductor);
-    try {
-      await reproductor.iniciar().timeout(esperaInicio);
-    } on TimeoutException {
-      // Slow to finish, but already showing the stream: keep it.
-      if (!reproductor.listo) _reintentar(reproductor);
-    } on Object {
-      _reintentar(reproductor);
-    }
-  }
-
-  /// WebRTC first: MediaMTX answers `404` until the camera publishes, so the offer is sent again
-  /// every [pausaEntreOfertas], for up to [esperaPublicacionWebrtc]. Any other failure, an answer slower than [esperaWebrtc] or no first
-  /// frame within [esperaWebrtc] of the answer switches the session to LL-HLS.
-  Future<void> _conectarWebrtc(SesionVivo sesion, Uri whep) async {
-    final reproductor = ref.read(fabricaReproductorWebrtcProvider)(
-      whep,
-      sesion.tokenEspectador,
-    );
-    _reproductor = reproductor;
-    _porWebrtc = true;
-    reproductor.addListener(_alCambiarReproductor);
-    try {
-      await reproductor.iniciar().timeout(esperaWebrtc);
-    } on OfertaRechazada catch (e) {
-      return e.sinTransmision && _esperando < esperaPublicacionWebrtc.inSeconds
-          ? _reintentar(reproductor, pausa: pausaEntreOfertas)
-          : _pasarAHls(reproductor);
-    } on Object {
-      // A timeout, no connection, a CORS or SDP error: LL-HLS may still work.
-      if (!reproductor.listo) _pasarAHls(reproductor);
-      return;
-    }
-    if (!mounted || _reproductor != reproductor || reproductor.listo) return;
-    _plazoWebrtc = Timer(esperaWebrtc, () {
-      if (_reproductor == reproductor && !reproductor.listo) {
-        _pasarAHls(reproductor);
-      }
-    });
-  }
-
-  /// WebRTC did not start or broke off: the same session goes on over LL-HLS.
-  void _pasarAHls(ReproductorVivo reproductor) {
-    final sesion = _sesion;
-    if (!mounted || _reproductor != reproductor || sesion == null) return;
-    // Lost mid-stream: LL-HLS gets esperaRescateHls for its own first frame.
-    if (_enVivo) {
-      _esperando = esperaPrimerFotograma.inSeconds - esperaRescateHls.inSeconds;
-    }
-    _soloHls = true;
-    _sinAvance = 0;
-    _soltarReproductor();
-    setState(() {});
-    unawaited(_conectar(sesion));
-  }
-
-  void _reintentar(
-    ReproductorVivo reproductor, {
-    Duration pausa = pausaEntreIntentos,
-  }) {
-    final sesion = _sesion;
-    if (!mounted || _reproductor != reproductor || sesion == null) return;
-    _soltarReproductor();
-    _reintento = Timer(pausa, () {
-      if (mounted && _sesion == sesion) unawaited(_conectar(sesion));
-    });
-  }
-
-  void _alCambiarReproductor() {
-    final r = _reproductor;
-    if (r == null || !mounted) return;
-    if (r.cortado) {
-      if (_porWebrtc) return _pasarAHls(r);
-      return _enVivo ? _perder() : _reintentar(r);
-    }
-    setState(() => _enVivo = _enVivo || r.listo);
-  }
-
-  /// The «EN VIVO» clock, and the watchdog for a stream that never starts or stalls.
-  void _cadaSegundo() {
-    if (_sesion == null) return;
-    setState(() => _segundos++);
-    final r = _reproductor;
-    if (!_enVivo || r == null) {
-      if (++_esperando >= esperaPrimerFotograma.inSeconds) _perder();
-      return;
-    }
-    if (r.detenido) {
-      if (_porWebrtc) {
-        if (++_sinAvance >= esperaSinImagenWebrtc.inSeconds) _pasarAHls(r);
-      } else if (++_sinAvance >= esperaSinImagen.inSeconds) {
-        _perder();
-      }
-    } else {
-      _sinAvance = 0;
-    }
+  void _alCambiarConexion() {
+    if (mounted) setState(() {});
   }
 
   /// The stream failed, stalled or never started: the session ends and the view offers a new one.
@@ -334,31 +185,14 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     });
   }
 
-  void _soltarReproductor() {
-    final r = _reproductor;
-    _reproductor = null;
-    _enVivo = false;
-    _porWebrtc = false;
-    _plazoWebrtc?.cancel();
-    _plazoWebrtc = null;
-    if (r == null) return;
-    r.removeListener(_alCambiarReproductor);
-    // It may be the one notifying right now: dispose it once the notification is over.
-    scheduleMicrotask(r.dispose);
-  }
-
   /// Stops playback and ends the session, which records the access (CA-24.1).
   void _detener() {
-    _reloj?.cancel();
-    _reloj = null;
-    _reintento?.cancel();
-    _reintento = null;
-    _soltarReproductor();
+    final segundos = _conexion.segundos;
+    _conexion.detener();
     final sesion = _sesion;
     _sesion = null;
     if (sesion == null) return;
-    _segundosVistos += _segundos;
-    _segundos = 0;
+    _segundosVistos += segundos;
     _cerrarSesion(sesion);
   }
 
@@ -390,7 +224,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   void _terminar() {
     _intento++;
     _detener();
-    if (!_huboSesion) return;
+    if (!_huboSesion || _desdeMosaico) return;
     final habitacion = _camara?.nombreHabitacion ?? '';
     ref
         .read(avisoFlotanteProvider.notifier)
@@ -408,6 +242,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   Future<void> _cambiarModo(ModoVista modo) async {
     final sesion = _sesion;
     if (sesion == null || modo == _modo) return;
+    unawaited(ref.read(preferenciasVivoProvider.notifier).elegirModo(modo));
     setState(() {
       _cambiandoModo = true;
       _problema = null;
@@ -445,6 +280,9 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     // Left without popping (e.g. replaced): still end the session.
     _intento++;
     _detener();
+    _conexion
+      ..removeListener(_alCambiarConexion)
+      ..dispose();
     super.dispose();
   }
 
@@ -455,6 +293,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     final nombre = adulto?.nombrePila ?? '';
     final cerrar = _desdeAlerta
         ? 'Volver a la alerta'
+        : _desdeMosaico
+        ? 'Volver a todas'
         : 'Cerrar la vista en vivo';
     final viendo = _sesion != null;
     return PopScope(
@@ -466,13 +306,27 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
           foregroundColor: Colors.white,
           leading: IconButton(
             tooltip: cerrar,
-            icon: Icono(_desdeAlerta ? Ico.back : Ico.x, color: Colors.white),
+            icon: Icono(
+              _desdeAlerta || _desdeMosaico ? Ico.back : Ico.x,
+              color: Colors.white,
+            ),
             onPressed: () => Navigator.of(context).maybePop(),
           ),
           title: Text(
             habitacion.isEmpty ? 'En vivo' : 'En vivo · $habitacion',
             style: estiloTexto(20, 700, color: Colors.white),
           ),
+          actions: [
+            if (viendo)
+              const Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: AyudaInfo(
+                  texto: textoPrivacidadVivo,
+                  tema: 'privacidad',
+                  sobreOscuro: true,
+                ),
+              ),
+          ],
         ),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
@@ -489,8 +343,8 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
               )
             else
               _Imagen(
-                reproductor: _enVivo ? _reproductor : null,
-                segundos: viendo ? _segundos : null,
+                reproductor: _conexion.reproductorEnVivo,
+                segundos: viendo ? _conexion.segundos : null,
                 habitacion: habitacion,
               ),
             if (_problema != null) ...[
@@ -502,49 +356,9 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             ],
             if (viendo) ...[
               const SizedBox(height: 16),
-              _Modos(
+              ModosVista(
                 modo: _modo,
-                alElegir: _cambiandoModo ? null : _cambiarModo,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                queSeVe(
-                  _modo,
-                  habitacion: habitacion,
-                  nombre: nombre,
-                  desdeAlerta: _desdeAlerta,
-                ),
-                style: estiloTexto(16, 400, color: Colores.nocheTexto),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 2),
-                    child: Icono(Ico.eye, tamano: 20, color: Colors.white),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          const TextSpan(
-                            text: 'No se graba. Tu acceso desde las ',
-                          ),
-                          TextSpan(
-                            text: hora(_inicio!),
-                            style: const TextStyle(fontFamily: fuenteMono),
-                          ),
-                          const TextSpan(
-                            text: ' queda en el registro de la familia.',
-                          ),
-                        ],
-                      ),
-                      style: estiloTexto(16, 400, color: Colores.nocheTexto),
-                    ),
-                  ),
-                ],
+                alCambiar: _cambiandoModo ? null : _cambiarModo,
               ),
             ],
             const SizedBox(height: 16),
@@ -590,63 +404,10 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   }
 }
 
-/// What the viewer sees in each mode, worded from the prototype's «Ves la Sala y la postura de
-/// Rosa en este momento» (see docs/BLOCKERS.md).
-String queSeVe(
-  ModoVista modo, {
-  required String habitacion,
-  required String nombre,
-  required bool desdeAlerta,
-}) {
-  final que = switch (modo) {
-    ModoVista.video =>
-      desdeAlerta
-          ? 'Ves la habitación.'
-          : 'Ves ${conArticulo(habitacion)} en este momento.',
-    ModoVista.videoConPostura =>
-      desdeAlerta
-          ? 'Ves la habitación y la postura detectada.'
-          : 'Ves ${conArticulo(habitacion)} y la postura de $nombre en este '
-                'momento.',
-    ModoVista.soloPostura =>
-      desdeAlerta
-          ? 'Ves la postura detectada.'
-          : 'Ves la postura de $nombre en este momento.',
-  };
-  // «No se graba» is said once, next to the access record below the image.
-  return que;
-}
-
-/// The three modes of the stream as chips; the chosen one is filled and checked.
-class _Modos extends StatelessWidget {
-  const _Modos({required this.modo, required this.alElegir});
-
-  final ModoVista modo;
-
-  /// Null while a change is on its way.
-  final ValueChanged<ModoVista>? alElegir;
-
-  static const _textos = {
-    ModoVista.video: 'Video',
-    ModoVista.videoConPostura: 'Video y postura',
-    ModoVista.soloPostura: 'Solo postura',
-  };
-
-  @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: 8,
-    runSpacing: 8,
-    children: [
-      for (final m in ModoVista.values)
-        ChipOpcion(
-          texto: _textos[m]!,
-          elegido: m == modo,
-          icono: m == modo ? Ico.check : null,
-          alTocar: alElegir == null ? null : () => alElegir!(m),
-        ),
-    ],
-  );
-}
+/// The live view's privacy help (the «?» in its bar, Inicio's «Ver en vivo» and the room picker).
+const textoPrivacidadVivo =
+    'No se graba. Tu acceso queda en el registro que ve toda la familia: '
+    'quién, cuándo y cuánto.';
 
 /// The live frame, whole at its own aspect ratio, with the «EN VIVO · mm:ss» tag.
 class _Imagen extends StatelessWidget {
@@ -790,13 +551,13 @@ class _NoDisponibleVista extends StatelessWidget {
       _NoDisponible.enPausa => (
         Ico.pause,
         Colores.nochePausa,
-        'La vista en vivo no está disponible',
+        'Vista en vivo no disponible',
         TextSpan(
           children: [
             if (pausadaHasta case final p?) ...[
               const TextSpan(text: 'En pausa hasta las '),
               TextSpan(text: finDePausa(p, ahora), style: mono),
-              const TextSpan(text: ', o hasta que la reanudes.'),
+              const TextSpan(text: '.'),
             ] else
               TextSpan(
                 text: 'La cámara ${deHabitacion(habitacion)} está en pausa.',

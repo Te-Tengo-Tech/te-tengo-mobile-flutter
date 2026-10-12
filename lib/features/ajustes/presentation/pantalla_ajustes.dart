@@ -3,22 +3,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
 
+import '../../actividad/data/actividad_repositorio.dart';
+import '../../actividad/presentation/pantalla_actividad.dart';
+import '../../actualizaciones/presentation/fila_acerca_de.dart';
 import '../../../app/rutas.dart';
+import '../../../core/reloj.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../core/ui/plegable.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/formato.dart';
 import '../../../core/ui/aviso.dart';
 import '../../camaras/data/camaras_repositorio.dart';
+import '../../camaras/domain/camara.dart';
+import '../../pcs/data/pcs_repositorio.dart';
+import '../../pcs/domain/pc.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
 import '../../hogar/domain/hogar.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../sesion/presentation/cerrar_sesion.dart';
-import '../data/apariencia.dart';
-import 'hoja_apariencia.dart';
+import '../../widget/data/widget_sistema.dart';
+import '../../widget/presentation/pasos_widget.dart';
+import 'pantalla_preferencias.dart';
 
 /// `78 años · Vive solo(a)` (the age only when the backend sends it).
 String resumenAdultoMayor(AdultoMayor a) => [
@@ -44,7 +53,6 @@ class PantallaAjustes extends ConsumerWidget {
     final soloVer = titular ? null : const EtiquetaSoloVer();
     final texto = Theme.of(context).textTheme;
     final duena = ref.watch(nombreTitularProvider) ?? '';
-    final camara = ref.watch(camarasProvider).value?.firstOrNull;
     final miembros = ref.watch(miembrosProvider).value ?? const [];
     final aviso = ref.watch(avisoProvider).value;
     String? nombreCon(PapelAviso papel) => miembros
@@ -72,9 +80,7 @@ class PantallaAjustes extends ConsumerWidget {
             tono: TonoAviso.info,
             icono: Ico.users,
             titulo: 'Eres familiar invitado',
-            texto:
-                'Ves lo mismo que $duena. Lo que tiene candado solo lo cambia '
-                '$duena (titular).',
+            texto: 'Lo que tiene candado solo lo cambia $duena.',
           ),
           const SizedBox(height: 16),
         ],
@@ -98,15 +104,15 @@ class PantallaAjustes extends ConsumerWidget {
         ],
         ListaTarjeta(
           children: [
-            if (camara != null && hogar != null)
-              FilaLista(
-                inicio: const IconoFila(Ico.cam),
-                titulo: 'Cámara · ${camara.nombreHabitacion}',
-                subtitulo: camara
-                    .estadoVisible(conConsentimiento: hogar.conConsentimiento)
-                    .texto,
-                alTocar: () => context.push(Rutas.camara(camara.id)),
+            FilaLista(
+              inicio: const IconoFila(Ico.cam),
+              titulo: 'Cámaras y PCs',
+              subtitulo: _resumenCamaras(
+                ref.watch(pcsProvider).value,
+                ref.watch(camarasProvider).value,
               ),
+              alTocar: () => context.push(Rutas.pcs),
+            ),
             if (principal != null)
               FilaLista(
                 inicio: const IconoFila(Ico.swap),
@@ -123,28 +129,53 @@ class PantallaAjustes extends ConsumerWidget {
               inicio: const IconoFila(Ico.bell),
               titulo: 'Notificaciones',
               subtitulo: switch (ref.watch(notificacionesActivasProvider)) {
-                AsyncData(value: true) => 'Activadas en este celular',
-                AsyncData(value: false) => 'Desactivadas en el celular',
+                AsyncData(value: true) => 'Activadas',
+                AsyncData(value: false) => 'Desactivadas',
                 _ => null,
               },
               alTocar: () => context.push(Rutas.notificaciones),
             ),
-            // This phone's setting, so the invited member changes it too.
+            // This phone's settings, so the invited member changes them too.
             FilaLista(
               inicio: const IconoFila(Ico.sun),
-              titulo: 'Apariencia',
-              subtitulo: ref.watch(aparienciaProvider).texto,
-              alTocar: () => elegirApariencia(context),
+              titulo: 'Preferencias',
+              subtitulo: resumenPreferencias(ref),
+              alTocar: () => context.push(Rutas.preferencias),
             ),
+            // This phone's app and its updates (US-43, screen 379).
+            const FilaAcercaDe(),
+            // The home-screen widget (US-44): Android and iOS, not the web.
+            if (ref.watch(widgetDelSistemaProvider).disponible)
+              FilaPlegable(
+                icono: Ico.grid,
+                titulo: 'Agregar el widget',
+                resumen: hogar == null
+                    ? null
+                    : '${hogar.adultoMayor.nombrePila} y «Ver en vivo» en tu '
+                          'pantalla de inicio',
+                child: const PasosWidget(),
+              ),
             FilaLista(
               inicio: const IconoFila(Ico.shield),
               titulo: 'Privacidad y consentimiento',
               subtitulo: consentimiento != null && consentimiento.vigente
-                  ? 'Vigente desde el ${fechaConAnio(consentimiento.otorgadoEn)}'
+                  ? 'Vigente · ${fechaConAnio(consentimiento.otorgadoEn)}'
                   : 'Sin consentimiento',
               fin: soloVer,
               chevron: titular,
               alTocar: () => context.push(Rutas.privacidad),
+            ),
+            FilaLista(
+              inicio: const IconoFila(Ico.list),
+              titulo: 'Actividad',
+              subtitulo: switch (ref.watch(ultimaActividadProvider)) {
+                AsyncData(value: final a) => resumenUltimoCambio(
+                  a,
+                  ref.watch(relojProvider)(),
+                ),
+                _ => null,
+              },
+              alTocar: () => context.push(Rutas.actividad),
             ),
           ],
         ),
@@ -167,12 +198,20 @@ class PantallaAjustes extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 20),
-        Text(
-          'Te Tengo 1.0',
-          textAlign: TextAlign.center,
-          style: texto.bodySmall,
-        ),
+        const PieVersion(),
       ],
     );
   }
+}
+
+/// «4 cámaras · 2 PCs», «Cocina-Rosa sin conexión» or «Aún no hay una PC vinculada» (screen 167).
+String? _resumenCamaras(List<Pc>? pcs, List<Camara>? camaras) {
+  if (pcs == null) {
+    return camaras == null ? null : contar(camaras.length, 'cámara', 'cámaras');
+  }
+  if (pcs.isEmpty) return 'Aún no hay una PC vinculada';
+  final sinConexion = pcs.where((p) => p.sinConexion).firstOrNull;
+  if (sinConexion != null) return '${sinConexion.nombre} sin conexión';
+  final n = camaras?.length ?? pcs.fold<int>(0, (t, p) => t + p.camaras.length);
+  return '${contar(n, 'cámara', 'cámaras')} · ${contar(pcs.length, 'PC', 'PCs')}';
 }

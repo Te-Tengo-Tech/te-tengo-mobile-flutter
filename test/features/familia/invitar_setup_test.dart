@@ -9,12 +9,14 @@ import 'package:te_tengo/core/ui/formulario.dart';
 import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
 import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
 import '../camaras/repositorio_falso.dart';
 import '../hogar/hogar_falso.dart';
+import '../pcs/pcs_falso.dart';
 import 'familia_falso.dart';
 
 Finder get campoCorreo => find.descendant(
@@ -35,6 +37,7 @@ void main() {
         overrides: [
           familiaRepositorioProvider.overrideWithValue(familia),
           hogarRepositorioProvider.overrideWithValue(hogar),
+          pcsRepositorioProvider.overrideWithValue(PcsRepositorioFalso()),
           camarasRepositorioProvider.overrideWithValue(
             CamarasRepositorioFalso(),
           ),
@@ -55,10 +58,7 @@ void main() {
     await abrir(tester, Rutas.configFamilia);
     expect(find.text('Paso 4 de 5'), findsOneWidget);
     expect(
-      find.text(
-        'Recibirá las alertas de Rosa y, si no atiendes una en 5 min, le '
-        'avisaremos.',
-      ),
+      find.text('Le avisamos si no atiendes una alerta en 5 min.'),
       findsOneWidget,
     );
     await tester.enterText(campoCorreo, 'luis.huaman.r@gmail.com');
@@ -74,7 +74,9 @@ void main() {
     expect(find.text('1 familiar invitado'), findsOneWidget);
     expect(find.text('luis.huaman.r@gmail.com'), findsOneWidget);
     expect(find.text('Consentimiento registrado'), findsOneWidget);
-    expect(find.text('Cámara de la Sala'), findsOneWidget);
+    // Screen 29: the linked PC and its cameras.
+    expect(find.text('PC Sala-Rosa vinculada'), findsOneWidget);
+    expect(find.text('1 cámara: Sala'), findsOneWidget);
   });
 
   testWidgets('no permite invitarse a sí misma ni un correo incompleto', (

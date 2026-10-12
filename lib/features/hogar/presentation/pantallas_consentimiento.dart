@@ -127,14 +127,8 @@ class _PantallaConsentimientoState
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
       children: [
-        Semantics(
-          header: true,
-          child: Text('Consentimiento informado', style: texto.titleLarge),
-        ),
-        const SizedBox(height: 8),
         Text(
-          '$nombre o su representante debe aceptarlo antes de activar la '
-          'cámara. Sin él, la cámara no envía video.',
+          'Lo acepta $nombre o su representante. Sin él, no detectamos caídas.',
           style: texto.bodyMedium,
         ),
         const SizedBox(height: 16),
@@ -162,9 +156,8 @@ class _PantallaConsentimientoState
               marcada: _acepta,
               error: _faltanCasillas && !_acepta,
               texto:
-                  '$nombre fue informada y acepta la cámara en su vivienda '
-                  'para detectar caídas, y que sus familiares vinculados la '
-                  'vean en vivo cuando quieran.',
+                  '$nombre fue informada y acepta la cámara para detectar '
+                  'caídas y que su familia la vea en vivo cuando quiera.',
               alCambiar: (v) => setState(() {
                 _acepta = v;
                 if (_acepta && _leyo) _faltanCasillas = false;
@@ -179,15 +172,11 @@ class _PantallaConsentimientoState
                 if (_acepta && _leyo) _faltanCasillas = false;
               }),
             ),
-            if (_faltanCasillas)
-              MensajeCampo(
-                'Marca las dos casillas. Solo se registra si $nombre lo acepta.',
-              ),
+            if (_faltanCasillas) const MensajeCampo('Marca las dos casillas.'),
           ],
         ),
         Text(
-          'Guardamos la fecha y la hora como constancia (Ley N.° 29733). Si '
-          '$nombre no acepta, elige «Ahora no»: la cámara queda detenida.',
+          'Guardamos fecha y hora como constancia (Ley N.° 29733).',
           style: texto.bodySmall,
         ),
         const SizedBox(height: 16),
@@ -283,8 +272,10 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'La cámara ya envía video y detectamos caídas. Puedes '
-                'revocarlo en Ajustes.',
+                // Screen 21: with no camera chosen yet, detection starts once the PC is linked.
+                (ref.watch(camarasProvider).value ?? const []).isNotEmpty
+                    ? 'Las cámaras ya detectan caídas.'
+                    : 'Detectarán caídas al vincular la PC.',
                 style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
               ),
               const SizedBox(height: 20),
@@ -293,7 +284,7 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               const SizedBox(height: 20),
               if (enConfiguracion)
                 Boton(
-                  'Continuar con la cámara',
+                  'Continuar con la PC de la casa',
                   alPresionar: () => context.go(Rutas.configCamara),
                 )
               else
@@ -316,7 +307,7 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
         context,
         titulo: 'Cámara activada',
         texto:
-            'La cámara ${deHabitacion(camara.nombreHabitacion)} envía video '
+            'La cámara ${deHabitacion(camara.nombreHabitacion)} detecta caídas '
             'desde las ${hora(ref.read(relojProvider)())}.',
         icono: Ico.shield,
       );

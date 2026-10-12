@@ -65,33 +65,24 @@ void main() {
 
   setUp(() => camaras = CamarasRepositorioFalso());
 
-  testWidgets(
-    'CA-06.1: la cámara instalada aparece con el nombre de la instalación',
-    (tester) async {
-      await abrir(tester, Rutas.configCamara);
-      expect(find.text('Tu cámara ya está lista'), findsOneWidget);
-      expect(find.text('Sala'), findsOneWidget);
-      expect(find.text('En línea'), findsOneWidget);
-      expect(find.text('Activa'), findsOneWidget);
-      // The installation data folds under «Datos de la instalación».
-      expect(find.text('Equipo de Te Tengo'), findsNothing);
-      await tocar(tester, find.text('Datos de la instalación'));
-      expect(find.text('PC de la casa'), findsOneWidget);
-      expect(find.text('22 sep 2026'), findsOneWidget);
-      expect(find.text('Equipo de Te Tengo'), findsOneWidget);
-    },
-  );
+  testWidgets('CA-06.1: la cámara instalada aparece con su PC y su fecha', (
+    tester,
+  ) async {
+    await abrir(tester, Rutas.camara('c1'));
+    expect(find.text('Sala'), findsWidgets);
+    expect(find.text('En línea'), findsOneWidget);
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    expect(find.text('PC de la casa'), findsOneWidget);
+    expect(find.text('desde el 22/09/2026'), findsOneWidget);
+  });
 
   testWidgets(
     'CA-06.2: la titular cambia el nombre y se usa en las próximas alertas',
     (tester) async {
       await abrir(tester, Rutas.camara('c1'));
-      expect(find.text('Cámara · Sala'), findsOneWidget);
-      await tocar(
-        tester,
-        find.text('Cambiar el nombre que aparece en las alertas'),
-      );
-      expect(find.text('¿Cómo se llama esta habitación?'), findsOneWidget);
+      await tocar(tester, find.text('Ajustes de la cámara'));
+      await tocar(tester, find.text('Nombre: Sala'));
+      expect(find.text('Así se verá en las próximas alertas'), findsOneWidget);
       await tocar(tester, find.text('Sala comedor'));
       expect(find.text('Posible caída en la Sala comedor'), findsOneWidget);
       camaras.camaras = [
@@ -108,16 +99,14 @@ void main() {
         find.text('Las próximas alertas dirán «en la Sala comedor».'),
         findsOneWidget,
       );
-      expect(find.text('Cámara · Sala comedor'), findsOneWidget);
+      expect(find.text('Sala comedor'), findsWidgets);
     },
   );
 
   testWidgets('CA-06.3: no permite guardar el nombre vacío', (tester) async {
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(
-      tester,
-      find.text('Cambiar el nombre que aparece en las alertas'),
-    );
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    await tocar(tester, find.text('Nombre: Sala'));
     await tester.enterText(campoNombre, '   ');
     await tester.pump();
     expect(find.text('Posible caída …'), findsOneWidget);
@@ -126,41 +115,16 @@ void main() {
     expect(camaras.renombradas, isEmpty);
   });
 
-  testWidgets('en la configuración vuelve al paso de la cámara', (
-    tester,
-  ) async {
-    await abrir(tester, Rutas.configCamara);
-    await tocar(tester, find.text('Cambiar el nombre'));
-    expect(find.text('Paso 3 de 5'), findsOneWidget);
-    await tester.enterText(campoNombre, 'cocina');
-    await tocar(tester, find.text('Guardar nombre'));
-    expect(camaras.renombradas, {'c1': 'Cocina'});
-    expect(find.text('¿Cómo se llama esta habitación?'), findsNothing);
-    expect(find.text('Cambiar el nombre'), findsOneWidget);
-  });
-
   testWidgets('un familiar invitado no puede cambiar el nombre', (
     tester,
   ) async {
     await abrir(tester, Rutas.camara('c1'), sesion: sesionInvitado);
-    await verHasta(
-      tester,
-      find.text(
-        'Solo Carmen (titular) puede cambiar el nombre de la habitación.',
-      ),
-    );
-    expect(find.text('Nombre que aparece en las alertas'), findsOneWidget);
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    expect(find.text('Nombre: Sala'), findsOneWidget);
     expect(find.text('Solo ver'), findsOneWidget);
-    expect(
-      find.text(
-        'Solo Carmen (titular) puede cambiar el nombre de la habitación.',
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.text('Cambiar el nombre que aparece en las alertas'),
-      findsNothing,
-    );
+    await tester.tap(find.text('Nombre: Sala'));
+    await tester.pumpAndSettle();
+    expect(find.text('Así se verá en las próximas alertas'), findsNothing);
   });
 
   testWidgets('403 SOLO_TITULAR muestra el mensaje del backend', (
@@ -174,10 +138,8 @@ void main() {
       ),
     );
     await abrir(tester, Rutas.camara('c1'));
-    await tocar(
-      tester,
-      find.text('Cambiar el nombre que aparece en las alertas'),
-    );
+    await tocar(tester, find.text('Ajustes de la cámara'));
+    await tocar(tester, find.text('Nombre: Sala'));
     await tocar(tester, find.text('Guardar nombre'));
     expect(find.text('Solo la titular puede hacer esto.'), findsOneWidget);
   });

@@ -11,9 +11,16 @@ import 'core/notificaciones/firebase_web.dart';
 import 'core/sesion/almacen_sesion.dart';
 import 'core/web/navegador.dart';
 import 'features/ajustes/data/apariencia.dart';
+import 'features/ajustes/data/contraste.dart';
+import 'features/widget/data/widget_desde_push.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // An alert push with the app closed redraws the home-screen widget (US-44); Android only, where
+  // data pushes reach the app in the background.
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    registrarWidgetDesdePush();
+  }
   if (kIsWeb) {
     // The PWA's only service worker: offline cache and, with the Firebase defines, web push.
     unawaited(
@@ -22,15 +29,16 @@ Future<void> main() async {
       ),
     );
   }
-  // The session and this phone's appearance are read before the first frame: the router guards
+  // The session and this phone's appearance and contrast are read before the first frame: the router guards
   // never see a loading state and the app never paints the other theme first (the native splash
   // and the PWA's loading page are brand purple in both themes). The local database opened here
   // is the app's for its whole life.
   final almacen = AlmacenSesionSeguro();
   final cache = crearCacheDispositivo();
-  final (_, apariencia) = await (
+  final (_, apariencia, contraste) = await (
     almacen.cargar(),
     cargarApariencia(cache),
+    cargarContraste(cache),
   ).wait;
   runApp(
     ProviderScope(
@@ -40,6 +48,7 @@ Future<void> main() async {
         almacenSesionProvider.overrideWithValue(almacen),
         cacheLocalProvider.overrideWithValue(cache),
         aparienciaInicialProvider.overrideWithValue(apariencia),
+        contrasteInicialProvider.overrideWithValue(contraste),
       ],
       child: const TeTengoApp(),
     ),

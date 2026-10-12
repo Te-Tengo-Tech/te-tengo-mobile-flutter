@@ -21,9 +21,12 @@ class ListaTarjeta extends StatelessWidget {
         color: context.colores.tarjeta,
         borderRadius: BorderRadius.circular(22),
         border: borde
-            ? Border.all(color: context.colores.linea, width: 1.5)
+            ? Border.all(
+                color: context.colores.linea,
+                width: context.colores.anchoBorde,
+              )
             : null,
-        boxShadow: borde ? null : sombraTarjeta,
+        boxShadow: borde ? null : sombraDe(context),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -32,7 +35,11 @@ class ListaTarjeta extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) const Divider(height: 1, thickness: 1),
+              if (i > 0)
+                Divider(
+                  height: context.colores.anchoDivisor,
+                  thickness: context.colores.anchoDivisor,
+                ),
               children[i],
             ],
           ],
@@ -40,6 +47,12 @@ class ListaTarjeta extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The card's shadow of the current theme: [sombraTarjeta], or an outline with more contrast.
+List<BoxShadow> sombraDe(BuildContext context) {
+  final c = context.colores;
+  return c.contraste ? c.sombra : sombraTarjeta;
 }
 
 /// `--shadow-1`.
@@ -61,10 +74,14 @@ class FilaLista extends StatelessWidget {
     this.alTocar,
     this.peligro = false,
     this.chevron,
+    this.marcaTitulo,
   });
 
   final Widget? inicio;
   final String titulo;
+
+  /// A small mark after the title (the favourite's star).
+  final Widget? marcaTitulo;
   final String? subtitulo;
   final InlineSpan? subtituloRico;
 
@@ -84,6 +101,11 @@ class FilaLista extends StatelessWidget {
     final finDebajo =
         fin != null && MediaQuery.textScalerOf(context).scale(16) > 24;
     final subtituloEstilo = estiloTexto(15, 400, color: context.colores.tinta3);
+    final estiloTitulo = estiloTexto(
+      17,
+      700,
+      color: peligro ? context.colores.caidaTinta : context.colores.tinta,
+    );
     final contenido = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 64),
       child: Padding(
@@ -96,16 +118,24 @@ class FilaLista extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    titulo,
-                    style: estiloTexto(
-                      17,
-                      700,
-                      color: peligro
-                          ? context.colores.caidaTinta
-                          : context.colores.tinta,
+                  if (marcaTitulo == null)
+                    Text(titulo, style: estiloTitulo)
+                  else
+                    Text.rich(
+                      TextSpan(
+                        text: titulo,
+                        children: [
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: marcaTitulo,
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: estiloTitulo,
                     ),
-                  ),
                   if (subtituloRico != null)
                     Text.rich(subtituloRico!, style: subtituloEstilo)
                   else if (subtitulo != null)

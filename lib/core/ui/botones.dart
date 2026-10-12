@@ -28,6 +28,7 @@ class Boton extends StatelessWidget {
     this.cargando = false,
     this.pequeno = false,
     this.colorTexto,
+    this.textoCargando = 'Un momento…',
   });
 
   final String texto;
@@ -40,6 +41,9 @@ class Boton extends StatelessWidget {
   final bool pequeno;
   final Color? colorTexto;
 
+  /// Shown instead of [texto] while [cargando] («Vinculando…»).
+  final String textoCargando;
+
   @override
   Widget build(BuildContext context) {
     final (fondo, texto, borde) = switch (estilo) {
@@ -48,10 +52,13 @@ class Boton extends StatelessWidget {
         Colors.white,
         null,
       ),
+      // More contrast outlines it in its own purple (`.screen.hc .btn-secondary`).
       EstiloBoton.secundario => (
         context.colores.tarjeta,
         context.colores.moradoTinta,
-        context.colores.linea2,
+        context.colores.contraste
+            ? context.colores.moradoTinta
+            : context.colores.linea2,
       ),
       EstiloBoton.fantasma => (
         Colors.transparent,
@@ -97,7 +104,7 @@ class Boton extends StatelessWidget {
         ],
         Flexible(
           child: Text(
-            cargando ? 'Un momento…' : this.texto,
+            cargando ? textoCargando : this.texto,
             textAlign: TextAlign.center,
             style: estiloTexto(pequeno ? 16 : 18, 700, color: color),
           ),
@@ -120,7 +127,7 @@ class Boton extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             side: borde == null
                 ? BorderSide.none
-                : BorderSide(color: borde, width: 1.5),
+                : BorderSide(color: borde, width: context.colores.anchoBorde),
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(

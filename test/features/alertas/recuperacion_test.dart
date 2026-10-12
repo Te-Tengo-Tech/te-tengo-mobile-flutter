@@ -45,10 +45,7 @@ void main() {
     );
     await tocar(tester, find.text('Más detalles'));
     expect(
-      find.text(
-        'Se puso de pie en la Sala. Confirma cómo está antes de marcar la '
-        'alerta.',
-      ),
+      find.text('Se puso de pie. Confirma cómo está antes de marcarla.'),
       findsOneWidget,
     );
     expect(find.byType(PantallaAlerta), findsOneWidget);

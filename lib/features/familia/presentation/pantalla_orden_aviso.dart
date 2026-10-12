@@ -107,8 +107,7 @@ class _Orden extends ConsumerWidget {
           const SizedBox(height: 16),
         ],
         Text(
-          'Todos reciben cada alerta. Si el principal no la marca a tiempo, '
-          'avisamos al secundario.',
+          'Si el principal no marca la alerta a tiempo, avisamos al secundario.',
           style: texto.bodyMedium,
         ),
         const EncabezadoSeccion('Quién responde', arriba: 16),
@@ -129,7 +128,7 @@ class _Orden extends ConsumerWidget {
                   ? 'Sin contacto secundario'
                   : nombre(secundario),
               detalle: secundario == null
-                  ? 'Si nadie atiende, no habrá a quién más avisar.'
+                  ? 'Nadie más recibe el aviso.'
                   : 'Contacto secundario · a los ${aviso.esperaMinutos} min',
               alCambiar: puedeCambiar && secundario != null
                   ? () => _elegir(context, ref, PapelAviso.secundario)
@@ -175,11 +174,11 @@ class _Orden extends ConsumerWidget {
             icono: Ico.clock,
             contenido: TextSpan(
               children: [
-                const TextSpan(text: 'Ejemplo: si llega una alerta a las '),
+                const TextSpan(text: 'Ej.: alerta a las '),
                 TextSpan(text: '10:42', style: estiloMono(tamano: 15.5)),
                 TextSpan(
                   text:
-                      ' y nadie la atiende, avisamos a '
+                      ' sin atender → '
                       '${secundario.familiar.nombrePila} a las ',
                 ),
                 TextSpan(
@@ -196,7 +195,7 @@ class _Orden extends ConsumerWidget {
           const Aviso(
             tono: TonoAviso.neutral,
             icono: Ico.info,
-            texto: 'Este tiempo se usará cuando tengas un contacto secundario.',
+            texto: 'Se usa cuando haya un contacto secundario.',
           ),
       ],
     );
@@ -336,9 +335,9 @@ class _ElegirContacto extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               esPrincipal
-                  ? 'Recibe cada alerta y es quien debe atenderla primero.'
-                  : 'Le avisamos si nadie marca la alerta en '
-                        '${aviso.esperaMinutos} minutos.',
+                  ? 'Atiende cada alerta primero.'
+                  : 'Le avisamos si nadie la marca en '
+                        '${aviso.esperaMinutos} min.',
               style: texto.bodyMedium,
             ),
             const SizedBox(height: 16),

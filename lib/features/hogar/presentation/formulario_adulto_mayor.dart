@@ -105,7 +105,6 @@ class CamposAdultoMayor extends StatelessWidget {
           controlador: f.direccion,
           error: f.errores['direccion'],
           marcador: 'Calle, número y distrito',
-          ayuda: 'Ej.: Jr. Los Pinos 482, San Miguel, Lima',
           habilitado: habilitado,
         ),
         const EtiquetaCampo('¿Con quién vive?'),
@@ -114,7 +113,6 @@ class CamposAdultoMayor extends StatelessWidget {
             valor: c,
             seleccion: f.convivencia,
             titulo: c.titulo,
-            subtitulo: c.detalle,
             error: f.errores.containsKey('convivencia'),
             alElegir: habilitado
                 ? (v) {
