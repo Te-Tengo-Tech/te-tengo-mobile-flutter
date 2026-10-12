@@ -41,7 +41,7 @@ The files under `docs/references/` are Spanish source documents from the thesis.
   - body text ≥ 16, touch targets ≥ 44 px;
   - AA contrast (AAA on alert data);
   - honor `MediaQuery.disableAnimations`.
-- **Typography:** Atkinson Hyperlegible Next everywhere; Atkinson Hyperlegible Mono (`fuenteMono`) for times and data.
+- **Typography:** Poppins everywhere (the brand kit; `fuente`); times and data use tabular figures (`estiloMono`, `estiloCifras`), no second family.
 - **Multi-tenancy:** the session token carries `hogar_id`, and the backend filters by it. **The app never sends a household id**, except in `POST /api/sesiones/hogar` when switching households.
 - **Errors:** backend errors arrive as `ProblemaApi` with a stable `codigo` (RFC 9457). Show `detalle`; branch on `codigo`.
 - **Roles:**

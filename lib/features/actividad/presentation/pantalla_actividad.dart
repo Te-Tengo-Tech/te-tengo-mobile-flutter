@@ -235,10 +235,7 @@ class HojaActividad extends ConsumerWidget {
               valorRico: TextSpan(
                 children: [
                   TextSpan(text: '${fechaNumerica(a.ocurridaEn)} · '),
-                  TextSpan(
-                    text: hora(a.ocurridaEn),
-                    style: const TextStyle(fontFamily: fuenteMono),
-                  ),
+                  TextSpan(text: hora(a.ocurridaEn), style: estiloCifras),
                 ],
               ),
             ),

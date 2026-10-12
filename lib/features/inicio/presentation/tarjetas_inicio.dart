@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
@@ -115,15 +114,13 @@ class _Tile extends StatelessWidget {
                     height: 40,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: coral
-                          ? Colores.coral.withValues(alpha: 0.16)
-                          : c.moradoSuave,
+                      color: coral ? c.coralSuave : c.moradoSuave,
                       shape: BoxShape.circle,
                     ),
                     child: Icono(
                       icono,
                       tamano: 22,
-                      color: coral ? Colores.coral : c.moradoTinta,
+                      color: coral ? c.coralTinta : c.moradoTinta,
                     ),
                   ),
                   const SizedBox(height: 10),

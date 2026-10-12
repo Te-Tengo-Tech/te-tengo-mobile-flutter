@@ -402,7 +402,7 @@ class _Imagen extends StatelessWidget {
                             TextSpan(
                               text:
                                   '0:${s.clamp(0, 59).toString().padLeft(2, '0')}',
-                              style: const TextStyle(fontFamily: fuenteMono),
+                              style: estiloCifras,
                             ),
                           ],
                         ),

@@ -24,6 +24,8 @@ class Paleta extends ThemeExtension<Paleta> {
     required this.linea2,
     required this.moradoSuave,
     required this.moradoTinta,
+    required this.coralSuave,
+    required this.coralTinta,
     required this.caidaSuave,
     required this.caidaTinta,
     required this.inestableSuave,
@@ -74,6 +76,12 @@ class Paleta extends ThemeExtension<Paleta> {
   final Color linea2;
   final Color moradoSuave;
   final Color moradoTinta;
+
+  /// Tinted circle behind a coral icon, and the selected tab (`--coral-soft`).
+  final Color coralSuave;
+
+  /// Coral for text and icons on [coralSuave], cream or a card (`--coral-ink`).
+  final Color coralTinta;
   final Color caidaSuave;
   final Color caidaTinta;
   final Color inestableSuave;
@@ -124,6 +132,8 @@ class Paleta extends ThemeExtension<Paleta> {
     linea2: Colores.linea2,
     moradoSuave: Colores.moradoSuave,
     moradoTinta: Colores.moradoTinta,
+    coralSuave: Colores.coralSuave,
+    coralTinta: Colores.coralTinta,
     caidaSuave: Colores.caidaSuave,
     caidaTinta: Colores.caidaTinta,
     inestableSuave: Colores.inestableSuave,
@@ -143,9 +153,10 @@ class Paleta extends ThemeExtension<Paleta> {
     barraClip: Colores.tinta,
     errorTexto: Color(0xFF6E1A10),
     marcador: Color(0xFF77708A),
+    // `--shadow-1`: a 1 px lilac border and a very soft violet shadow.
     sombra: [
-      BoxShadow(color: Color(0x0D000000), blurRadius: 2, offset: Offset(0, 1)),
-      BoxShadow(color: Color(0x0D000000), blurRadius: 14, offset: Offset(0, 4)),
+      BoxShadow(color: Colores.linea, spreadRadius: 1),
+      BoxShadow(color: Color(0x0F4B2E83), blurRadius: 20, offset: Offset(0, 6)),
     ],
   );
 
@@ -161,6 +172,8 @@ class Paleta extends ThemeExtension<Paleta> {
     linea2: Color(0xFF4C4459),
     moradoSuave: Color(0xFF2F2547),
     moradoTinta: Color(0xFFCDBBF5),
+    coralSuave: Color(0xFF3D2329),
+    coralTinta: Color(0xFFFFAB9E),
     caidaSuave: Color(0xFF3B1D1A),
     caidaTinta: Color(0xFFFF9E90),
     inestableSuave: Color(0xFF3A2F14),
@@ -194,6 +207,7 @@ class Paleta extends ThemeExtension<Paleta> {
     linea2: const Color(0xFF4F4566),
     moradoSuave: const Color(0xFFECE4F7),
     moradoTinta: const Color(0xFF36196B),
+    coralTinta: const Color(0xFF86291B),
     caidaTinta: const Color(0xFF841C12),
     inestableTinta: const Color(0xFF4F3500),
     calmaTinta: const Color(0xFF0B4529),
@@ -217,6 +231,7 @@ class Paleta extends ThemeExtension<Paleta> {
     linea2: const Color(0xFFBDB5CE),
     moradoSuave: const Color(0xFF2E2448),
     moradoTinta: const Color(0xFFE4D9FF),
+    coralTinta: const Color(0xFFFFC6BD),
     caidaTinta: const Color(0xFFFFB6AA),
     inestableTinta: const Color(0xFFFFD98A),
     calmaTinta: const Color(0xFFA9EDC8),
@@ -248,6 +263,7 @@ class Paleta extends ThemeExtension<Paleta> {
     required Color linea2,
     required Color moradoSuave,
     required Color moradoTinta,
+    required Color coralTinta,
     required Color caidaTinta,
     required Color inestableTinta,
     required Color calmaTinta,
@@ -275,6 +291,8 @@ class Paleta extends ThemeExtension<Paleta> {
     linea2: linea2,
     moradoSuave: moradoSuave,
     moradoTinta: moradoTinta,
+    coralSuave: coralSuave,
+    coralTinta: coralTinta,
     caidaSuave: caidaSuave,
     caidaTinta: caidaTinta,
     inestableSuave: inestableSuave,

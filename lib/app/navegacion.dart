@@ -58,14 +58,15 @@ class ShellPestanas extends ConsumerWidget {
         data: NavigationBarThemeData(
           backgroundColor: context.colores.barra,
           surfaceTintColor: Colors.transparent,
-          indicatorColor: context.colores.moradoSuave,
+          // The selected tab is the coral accent of the brand kit (`.tab.sel`).
+          indicatorColor: context.colores.coralSuave,
           height: 72,
           labelTextStyle: WidgetStateProperty.resolveWith(
             (estados) => estiloTexto(
               13,
               700,
               color: estados.contains(WidgetState.selected)
-                  ? context.colores.moradoTinta
+                  ? context.colores.coralTinta
                   : context.colores.tinta3,
             ),
           ),
@@ -88,7 +89,7 @@ class ShellPestanas extends ConsumerWidget {
                   icon: _icono(i, context.colores.tinta3, alertasActivas),
                   selectedIcon: _icono(
                     i,
-                    context.colores.moradoTinta,
+                    context.colores.coralTinta,
                     alertasActivas,
                   ),
                 ),

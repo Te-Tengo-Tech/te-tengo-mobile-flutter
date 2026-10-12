@@ -5,12 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
 import '../data/actualizacion_controller.dart';
 import '../../../core/ui/ayuda.dart';
+import '../../../core/ui/marca.dart';
 
 /// «Permite instalar la actualización» (screen 363): the first time Android needs its «Instalar
 /// apps desconocidas» permission, explained in three steps before its own settings open

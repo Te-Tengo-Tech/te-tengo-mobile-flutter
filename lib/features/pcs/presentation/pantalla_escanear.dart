@@ -450,7 +450,7 @@ class _Explicar extends StatelessWidget {
           height: 64,
           alignment: Alignment.center,
           decoration: const BoxDecoration(
-            color: Color(0x33E8765A),
+            color: Color(0x33FF8F7E),
             shape: BoxShape.circle,
           ),
           child: const Icono(Ico.cam, tamano: 32, color: Colores.durazno),

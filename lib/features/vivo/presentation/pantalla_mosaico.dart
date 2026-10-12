@@ -1249,7 +1249,7 @@ class _Etiqueta extends StatelessWidget {
                     text:
                         '${(s ~/ 60).toString().padLeft(2, '0')}:'
                         '${(s % 60).toString().padLeft(2, '0')}',
-                    style: const TextStyle(fontFamily: fuenteMono),
+                    style: estiloCifras,
                   ),
               ],
             ),

@@ -198,7 +198,7 @@ class _Detalle extends ConsumerWidget {
                       text: hora(
                         ultimaMarcada.atendidaEn ?? ultimaMarcada.ocurridaEn,
                       ),
-                      style: const TextStyle(fontFamily: fuenteMono),
+                      style: estiloCifras,
                     ),
                   ],
                 ),
@@ -224,7 +224,7 @@ class _Detalle extends ConsumerWidget {
                     ),
                     TextSpan(
                       text: hora(ultimoAcceso.inicio),
-                      style: const TextStyle(fontFamily: fuenteMono),
+                      style: estiloCifras,
                     ),
                     TextSpan(
                       text:

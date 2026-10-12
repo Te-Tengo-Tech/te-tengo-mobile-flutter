@@ -28,6 +28,7 @@ import '../../legal/presentation/pantallas_legales.dart';
 import '../../pcs/data/pcs_repositorio.dart';
 import '../data/movimientos_repositorio.dart';
 import '../domain/movimientos.dart';
+import '../../../app/tema/tema.dart';
 
 /// Version of the movements consent text this app shows and records (CA-35.2). It must match the
 /// API's `versionTextoVigente` (`TT_MOVIMIENTOS_VERSION_TEXTO`); a consent keeps the version it was
@@ -472,12 +473,7 @@ class TarjetaConstanciaMovimientos extends StatelessWidget {
               valorRico: TextSpan(
                 children: [
                   TextSpan(text: '${fechaNumerica(c.otorgadoEn)} · '),
-                  TextSpan(
-                    text: hora(c.otorgadoEn),
-                    style: const TextStyle(
-                      fontFamily: 'AtkinsonHyperlegibleMono',
-                    ),
-                  ),
+                  TextSpan(text: hora(c.otorgadoEn), style: estiloCifras),
                 ],
               ),
             ),

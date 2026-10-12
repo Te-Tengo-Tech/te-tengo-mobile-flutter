@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../app/tema/colores.dart';
 import '../../app/tema/paleta.dart';
@@ -240,25 +239,6 @@ class _EnApp extends StatelessWidget {
           ),
         ),
       ),
-    ),
-  );
-}
-
-/// App icon (`LOGO`): purple square with radius 28/120 and the symbol.
-class IconoApp extends StatelessWidget {
-  const IconoApp({super.key, this.tamano = 44});
-
-  final double tamano;
-
-  @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    child: SvgPicture.string(
-      '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">'
-      '<rect width="120" height="120" rx="28" fill="#4A2A85"/>'
-      '${svgSimbolo(oscuro: true).replaceAll(RegExp(r'</?svg[^>]*>'), '')}'
-      '</svg>',
-      width: tamano,
-      height: tamano,
     ),
   );
 }
