@@ -1,13 +1,13 @@
-# App icon from the brand («La T que sostiene», docs/references and assets/icono/*.svg).
-# Regenerate with: dart run flutter_launcher_icons
+# App icon from the brand kit (two embracing figures, 05-prototipos/marca/icono-app.svg; sources in
+# assets/icono/*.svg). Regenerate with: dart run flutter_launcher_icons
 flutter_launcher_icons:
   image_path: "assets/icono/legado.png"
   android: true
   ios: true
   image_path_ios: "assets/icono/ios.png"
   remove_alpha_ios: true
-  # Android 8+: purple background layer and the symbol inside the 72 dp visible area.
-  adaptive_icon_background: "#4A2A85"
+  # Android 8+: violet background layer and the symbol inside the 72 dp visible area.
+  adaptive_icon_background: "#4B2E83"
   adaptive_icon_foreground: "assets/icono/adaptativo-frente.png"
   # Android 13+ themed icons.
   adaptive_icon_monochrome: "assets/icono/adaptativo-monocromo.png"
