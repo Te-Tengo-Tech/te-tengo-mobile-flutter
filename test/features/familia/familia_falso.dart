@@ -9,6 +9,8 @@ const carmen = Familiar(
   nombre: 'Carmen Huamán',
   correo: 'carmen.huaman@gmail.com',
   rol: Rol.titular,
+  telefono: '981 220 417',
+  parentesco: 'Hija',
 );
 
 const luis = Familiar(
@@ -16,6 +18,8 @@ const luis = Familiar(
   nombre: 'Luis Huamán',
   correo: 'luis.huaman.r@gmail.com',
   rol: Rol.invitado,
+  telefono: '994 318 052',
+  parentesco: 'Hijo',
 );
 
 class FamiliaRepositorioFalso implements FamiliaRepositorio {
