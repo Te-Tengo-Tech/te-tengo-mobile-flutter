@@ -14,6 +14,7 @@ import 'package:te_tengo/features/movimientos/data/movimientos_repositorio.dart'
 import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
 import 'package:te_tengo/features/repeticion/data/repeticiones_repositorio.dart';
 import 'package:te_tengo/features/pcs/presentation/escaner_qr.dart';
+import 'package:te_tengo/features/perfil/domain/perfil.dart';
 import 'package:te_tengo/features/historial/domain/resumen_semanal.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
@@ -30,6 +31,7 @@ import '../features/familia/familia_falso.dart';
 import '../features/hogar/hogar_falso.dart';
 import '../features/movimientos/movimientos_falso.dart';
 import '../features/pcs/escaner_falso.dart';
+import '../features/perfil/perfil_falso.dart';
 import '../features/pcs/pcs_falso.dart';
 import '../features/repeticion/repeticiones_falso.dart';
 import '../features/vivo/vivo_falso.dart';
@@ -120,15 +122,35 @@ final pantallasNuevas = [
     sesion: sesionInvitado,
   ),
   const Pantalla('preferencias', Rutas.preferencias),
+  const Pantalla(
+    'tu perfil (invitado)',
+    Rutas.tuPerfil,
+    sesion: sesionInvitado,
+  ),
+  const Pantalla('cambiar contraseña', Rutas.cambiarContrasena),
+  const Pantalla(
+    'persona cuidada (invitado)',
+    Rutas.personaCuidada,
+    sesion: sesionInvitado,
+  ),
   const Pantalla('ordenar las cámaras', Rutas.ordenarCamaras),
   const Pantalla('ver todas', Rutas.verTodas),
-  Pantalla('familiar', Rutas.familiar('u-luis')),
   Pantalla('tu perfil en la familia', Rutas.familiar('u-carmen')),
   Pantalla(
     'familiar (invitado)',
     Rutas.familiar('u-carmen'),
     sesion: sesionInvitado,
   ),
+];
+
+/// «Ajustes», «Tu perfil», «Persona cuidada», «Familia» and a member's detail, also captured in
+/// dark mode.
+final pantallasPerfilesOscuras = [
+  const Pantalla('ajustes', Rutas.ajustes),
+  const Pantalla('tu perfil', Rutas.tuPerfil),
+  const Pantalla('persona cuidada', Rutas.personaCuidada),
+  const Pantalla('familia', Rutas.familia),
+  Pantalla('familiar', Rutas.familiar('u-luis')),
 ];
 
 final pantallasPrincipales = [
@@ -149,6 +171,8 @@ final pantallasPrincipales = [
   const Pantalla('ajustes del invitado', Rutas.ajustes, sesion: sesionInvitado),
   const Pantalla('notificaciones', Rutas.notificaciones),
   const Pantalla('persona cuidada', Rutas.personaCuidada),
+  const Pantalla('tu perfil', Rutas.tuPerfil),
+  Pantalla('familiar', Rutas.familiar('u-luis')),
   const Pantalla('privacidad', Rutas.privacidad),
 ];
 
@@ -193,6 +217,17 @@ Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
     appDePrueba(
       ubicacion: p.ubicacion,
       sesion: p.sesion,
+      perfil: PerfilRepositorioFalso(
+        p.sesion == sesionInvitado
+            ? const Perfil(
+                id: 'u-luis',
+                nombre: 'Luis Huamán',
+                correo: 'luis.huaman.r@gmail.com',
+                telefono: '994 318 052',
+                parentesco: 'Hijo',
+              )
+            : perfilCarmen(),
+      ),
       overrides: [
         hogarRepositorioProvider.overrideWithValue(HogarRepositorioFalso()),
         pcsRepositorioProvider.overrideWithValue(

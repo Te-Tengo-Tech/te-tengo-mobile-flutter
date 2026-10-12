@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'colores.dart';
 import 'paleta.dart';
 
-const fuente = 'AtkinsonHyperlegibleNext';
+/// Poppins, the typeface of the brand kit, for the whole interface (DESIGN.md, Typography): Bold
+/// in headings, SemiBold in buttons and row titles, Regular in the body.
+const fuente = 'Poppins';
 
-/// Monospaced font for times and tabular data (10:42).
-const fuenteMono = 'AtkinsonHyperlegibleMono';
-
-/// Atkinson text at [tamano] and weight [peso]. Pass the ink of the current theme
-/// (`context.colores.tinta`) or a color for a fixed surface (an alert flood).
+/// Poppins text at [tamano] and weight [peso] (400, 500, 600 or 700; heavier asks are drawn
+/// Bold, the heaviest weight bundled). Pass the ink of the current theme (`context.colores.tinta`)
+/// or a color for a fixed surface (an alert flood).
 TextStyle estiloTexto(
   double tamano,
   double peso, {
@@ -19,26 +19,28 @@ TextStyle estiloTexto(
   fontSize: tamano,
   color: color,
   fontWeight: _pesoFijo(peso),
-  fontVariations: [FontVariation('wght', peso)],
 );
 
 FontWeight _pesoFijo(double peso) => switch (peso) {
-  >= 800 => FontWeight.w800,
   >= 700 => FontWeight.w700,
   >= 600 => FontWeight.w600,
+  >= 500 => FontWeight.w500,
   _ => FontWeight.w400,
 };
 
-/// Times and data (`.mono`).
+/// Times and data (`.mono`): Poppins with tabular figures, so «10:42» does not jump; no second
+/// family (DESIGN.md).
 TextStyle estiloMono({double tamano = 16, double peso = 600, Color? color}) =>
     TextStyle(
-      fontFamily: fuenteMono,
+      fontFamily: fuente,
       fontSize: tamano,
       color: color,
       fontWeight: _pesoFijo(peso),
-      fontVariations: [FontVariation('wght', peso)],
       fontFeatures: const [FontFeature.tabularFigures()],
     );
+
+/// Tabular figures for a time inside other text (`.mono`), with the font of the surrounding text.
+const estiloCifras = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
 
 /// App theme: calm neutral base; semantic color appears only when something needs attention.
 /// [oscuro] gives the dark theme of the prototype (`.screen.dark`); the app follows the phone's

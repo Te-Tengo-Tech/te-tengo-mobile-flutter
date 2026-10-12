@@ -1,15 +1,19 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/router.dart';
 import '../../../app/rutas.dart';
+import '../../../core/foto.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../pcs/data/pcs_repositorio.dart';
+import '../../perfil/data/perfil_repositorio.dart';
 import '../data/widget_sistema.dart';
 import '../domain/estado_widget.dart';
 
@@ -44,6 +48,9 @@ class _ActualizadorWidgetState extends ConsumerState<ActualizadorWidget> {
   StreamSubscription<Uri?>? _toques;
   EstadoWidget? _mostrado;
 
+  /// The object path of the photo on the widget ('' for none, null before the first one).
+  String? _fotoMostrada;
+
   @override
   void initState() {
     super.initState();
@@ -76,6 +83,27 @@ class _ActualizadorWidgetState extends ConsumerState<ActualizadorWidget> {
     );
   }
 
+  /// Downloads the older adult's photo once per picture (its path changes with every new one) and
+  /// hands it to the widget; a failed download keeps what the widget had.
+  Future<void> _mostrarFoto(Foto? foto) async {
+    final ruta = foto?.ruta ?? '';
+    if (ruta == _fotoMostrada) return;
+    _fotoMostrada = ruta;
+    final sistema = ref.read(widgetDelSistemaProvider);
+    if (foto == null) return sistema.mostrarFoto(null);
+    try {
+      final r = await ref
+          .read(clienteAlmacenamientoProvider)
+          .get<List<int>>(
+            foto.url,
+            options: Options(responseType: ResponseType.bytes),
+          );
+      await sistema.mostrarFoto(Uint8List.fromList(r.data!));
+    } on Object {
+      _fotoMostrada = null;
+    }
+  }
+
   @override
   void dispose() {
     unawaited(_toques?.cancel());
@@ -87,12 +115,19 @@ class _ActualizadorWidgetState extends ConsumerState<ActualizadorWidget> {
     if (!ref.read(widgetDelSistemaProvider).disponible) return widget.child;
     final sesion = ref.watch(sesionControllerProvider);
     EstadoWidget? estado;
+    Foto? foto;
+    var conFoto = false;
     if (sesion == null) {
       estado = EstadoWidget.sinSesion;
+      conFoto = true;
     } else if (sesion.tieneHogar) {
       final alerta = ref.watch(alertaActivaProvider);
       final camaras = ref.watch(camarasEnCasaProvider).value;
       final hogar = ref.watch(hogarProvider).value;
+      if (hogar != null) {
+        foto = hogar.adultoMayor.foto;
+        conFoto = true;
+      }
       if (alerta.hasValue && camaras != null && hogar != null) {
         estado = estadoDelHogar(
           alerta: alerta.value,
@@ -106,6 +141,12 @@ class _ActualizadorWidgetState extends ConsumerState<ActualizadorWidget> {
       final nuevo = estado;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _mostrar(nuevo);
+      });
+    }
+    if (conFoto) {
+      final nueva = foto;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_mostrarFoto(nueva));
       });
     }
     return widget.child;

@@ -44,7 +44,7 @@ void main() {
     await abrir(tester, Rutas.familia);
     expect(find.text('Reciben las alertas de Rosa.'), findsOneWidget);
     expect(find.text('Carmen Huamán (tú)'), findsOneWidget);
-    expect(find.text('titular de la cuenta'), findsOneWidget);
+    expect(find.text('Hija · titular'), findsOneWidget);
     expect(find.text('Principal'), findsOneWidget);
     expect(find.text('Luis Huamán'), findsOneWidget);
     expect(find.text('Secundario'), findsOneWidget);

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/red/problema_api.dart';
@@ -403,10 +402,10 @@ class _Permiso extends StatelessWidget {
           alignment: Alignment.center,
           // Coral is the brand accent, never an alert (DESIGN.md).
           decoration: BoxDecoration(
-            color: Colores.coral.withValues(alpha: 0.16),
+            color: context.colores.coralSuave,
             shape: BoxShape.circle,
           ),
-          child: Icono(icono, tamano: 22, color: Colores.coral),
+          child: Icono(icono, tamano: 22, color: context.colores.coralTinta),
         ),
         const SizedBox(width: 14),
         Expanded(

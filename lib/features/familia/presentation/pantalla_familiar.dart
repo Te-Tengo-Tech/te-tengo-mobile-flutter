@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/tema.dart';
+import '../../../core/dispositivo/llamada.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
+import '../../../core/ui/botones.dart';
 import '../../../core/ui/dialogo.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
@@ -16,6 +18,7 @@ import '../../../core/ui/piezas.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../camaras/domain/camara.dart';
+import '../../perfil/data/fotos.dart';
 import '../../vivo/data/registro_accesos.dart';
 import '../data/familia_repositorio.dart';
 import '../domain/familiar.dart';
@@ -126,7 +129,8 @@ class _Detalle extends ConsumerWidget {
           child: Avatar(
             Avatar.inicialesDe(f.nombre),
             tono: tonoDe(indice),
-            tamano: 80,
+            tamano: 96,
+            foto: ref.watch(fotoDeUsuarioProvider(f.usuarioId)) ?? f.foto,
           ),
         ),
         const SizedBox(height: 12),
@@ -138,9 +142,9 @@ class _Detalle extends ConsumerWidget {
             style: texto.titleLarge,
           ),
         ),
-        if (f.esTitular)
+        if (f.parentesco != null || f.esTitular)
           Text(
-            'Titular de la cuenta',
+            f.parentesco == null ? 'Titular de la cuenta' : resumenMiembro(f)!,
             textAlign: TextAlign.center,
             style: texto.bodyMedium,
           ),
@@ -149,6 +153,20 @@ class _Detalle extends ConsumerWidget {
         const EncabezadoSeccion('Contacto', arriba: 20),
         ListaTarjeta(
           children: [
+            if (f.telefono case final telefono?)
+              FilaLista(
+                inicio: const IconoFila(Ico.phone),
+                titulo: telefono,
+                subtitulo: 'Teléfono',
+                fin: yo
+                    ? null
+                    : Boton(
+                        'Llamar',
+                        estilo: EstiloBoton.secundario,
+                        pequeno: true,
+                        alPresionar: () => ref.read(llamarProvider)(telefono),
+                      ),
+              ),
             FilaLista(
               inicio: const IconoFila(Ico.mail),
               titulo: f.correo,
@@ -198,7 +216,7 @@ class _Detalle extends ConsumerWidget {
                       text: hora(
                         ultimaMarcada.atendidaEn ?? ultimaMarcada.ocurridaEn,
                       ),
-                      style: const TextStyle(fontFamily: fuenteMono),
+                      style: estiloCifras,
                     ),
                   ],
                 ),
@@ -224,7 +242,7 @@ class _Detalle extends ConsumerWidget {
                     ),
                     TextSpan(
                       text: hora(ultimoAcceso.inicio),
-                      style: const TextStyle(fontFamily: fuenteMono),
+                      style: estiloCifras,
                     ),
                     TextSpan(
                       text:

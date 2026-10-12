@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/rutas.dart';
+import 'package:te_tengo/core/dispositivo/llamada.dart';
 import 'package:te_tengo/core/reloj.dart';
 import 'package:te_tengo/core/sesion/sesion.dart';
 import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
@@ -34,11 +35,14 @@ void main() {
     vivo = VistaEnVivoRepositorioFalso();
   });
 
+  final llamadas = <String?>[];
+
   Future<void> abrir(
     WidgetTester tester, {
     Sesion sesion = sesionTitular,
     String ubicacion = Rutas.familia,
   }) async {
+    llamadas.clear();
     usarTelefono(tester);
     await tester.pumpWidget(
       appDePrueba(
@@ -53,6 +57,7 @@ void main() {
             CamarasRepositorioFalso(),
           ),
           relojProvider.overrideWithValue(() => DateTime(2026, 9, 23, 10, 42)),
+          llamarProvider.overrideWithValue((t) async => llamadas.add(t)),
         ],
       ),
     );
@@ -156,7 +161,7 @@ void main() {
     await abrir(tester, ubicacion: Rutas.familiar('u-carmen'));
     expect(find.text('Tu perfil en la familia'), findsOneWidget);
     expect(find.text('Carmen Huamán (tú)'), findsOneWidget);
-    expect(find.text('Titular de la cuenta'), findsOneWidget);
+    expect(find.text('Hija · titular'), findsOneWidget);
     expect(find.text('Recibe cada alerta primero'), findsOneWidget);
     expect(find.text('Aún no abrió la vista en vivo'), findsOneWidget);
     await verHasta(
@@ -203,5 +208,51 @@ void main() {
     );
     expect(find.text('Hacer contacto principal'), findsNothing);
     expect(find.text('Retirar acceso'), findsNothing);
+  });
+
+  group('parentesco y teléfono de «Tu perfil» (pantallas 68 y 76)', () {
+    testWidgets('la lista dice «Hija · titular» y «Hijo»', (tester) async {
+      await abrir(tester);
+      expect(find.text('Hija · titular'), findsOneWidget);
+      expect(find.text('Hijo'), findsOneWidget);
+    });
+
+    testWidgets('el detalle muestra el teléfono y «Llamar» lo marca', (
+      tester,
+    ) async {
+      await abrir(tester, ubicacion: Rutas.familiar('u-luis'));
+      expect(find.text('Hijo'), findsOneWidget);
+      expect(find.text('994 318 052'), findsOneWidget);
+      expect(find.text('Teléfono'), findsOneWidget);
+      await tocar(tester, find.text('Llamar'));
+      expect(llamadas, ['994 318 052']);
+    });
+
+    testWidgets('en el propio detalle no hay «Llamar»', (tester) async {
+      await abrir(tester, ubicacion: Rutas.familiar('u-carmen'));
+      expect(find.text('Hija · titular'), findsOneWidget);
+      expect(find.text('981 220 417'), findsOneWidget);
+      expect(find.text('Llamar'), findsNothing);
+    });
+
+    testWidgets(
+      'sin parentesco ni teléfono (servidor anterior) queda como antes',
+      (tester) async {
+        familia.familiares = [
+          const Familiar(
+            usuarioId: 'u-carmen',
+            nombre: 'Carmen Huamán',
+            correo: 'carmen.huaman@gmail.com',
+            rol: Rol.titular,
+          ),
+          luis,
+        ];
+        await abrir(tester);
+        expect(find.text('titular de la cuenta'), findsOneWidget);
+        await tocar(tester, find.text('Carmen Huamán (tú)'));
+        expect(find.text('Titular de la cuenta'), findsOneWidget);
+        expect(find.text('Teléfono'), findsNothing);
+      },
+    );
   });
 }

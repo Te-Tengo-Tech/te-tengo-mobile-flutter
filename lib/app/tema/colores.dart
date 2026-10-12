@@ -1,30 +1,31 @@
 import 'package:flutter/painting.dart';
 
-/// Design color tokens (docs/references/DESIGN.md and the `:root` of the prototype).
+/// Design color tokens of the Te Tengo brand kit (docs/references/DESIGN.md and the `:root` of the
+/// prototype): cream background, violet for action and brand, coral for the accent.
 ///
 /// Rule: red and amber are reserved for real events, and status never depends on color alone (always
 /// with an icon and text).
 abstract final class Colores {
-  static const fondo = Color(0xFFEEF0F4);
-  static const fondo2 = Color(0xFFE4E6EC);
+  static const fondo = Color(0xFFFFF7F1);
+  static const fondo2 = Color(0xFFF7F2F5);
   static const tarjeta = Color(0xFFFFFFFF);
-  static const tinta = Color(0xFF221A38);
-  static const tinta2 = Color(0xFF4F4766);
-  static const tinta3 = Color(0xFF655D7A);
-  static const linea = Color(0xFFD9D7E1);
-  static const linea2 = Color(0xFFC7C3D3);
+  static const tinta = Color(0xFF2B1D4E);
+  static const tinta2 = Color(0xFF5A4F70);
+  static const tinta3 = Color(0xFF6E6585);
+  static const linea = Color(0xFFEFE7EE);
+  static const linea2 = Color(0xFFDED4E2);
 
   /// Brand and primary action outside alerts.
-  static const morado = Color(0xFF4A2A85);
-  static const moradoPresionado = Color(0xFF3A1F6C);
-  static const moradoSuave = Color(0xFFECE7F6);
-  static const moradoTinta = Color(0xFF3B2270);
+  static const morado = Color(0xFF4B2E83);
+  static const moradoPresionado = Color(0xFF3B2268);
+  static const moradoSuave = Color(0xFFF1EBF8);
+  static const moradoTinta = Color(0xFF4B2E83);
 
   /// Fall alert (high severity).
-  static const caida = Color(0xFFBF2A1B);
-  static const caidaProfundo = Color(0xFF951D11);
-  static const caidaSuave = Color(0xFFFBE8E5);
-  static const caidaTinta = Color(0xFF9C2012);
+  static const caida = Color(0xFFD63B2F);
+  static const caidaProfundo = Color(0xFFB8301F);
+  static const caidaSuave = Color(0xFFFDEBE8);
+  static const caidaTinta = Color(0xFFA12A1F);
 
   /// Unstable movement (medium severity).
   static const inestable = Color(0xFFF1B42F);
@@ -34,7 +35,7 @@ abstract final class Colores {
 
   /// Normal state, camera online, recovery.
   static const calma = Color(0xFF1C7A4C);
-  static const calmaSuave = Color(0xFFE2F2E9);
+  static const calmaSuave = Color(0xFFE6F5EC);
   static const calmaTinta = Color(0xFF145C39);
 
   /// Non-urgent notices (permissions, connectivity).
@@ -44,10 +45,13 @@ abstract final class Colores {
 
   /// Paused camera.
   static const pausa = Color(0xFF4E5B74);
-  static const pausaSuave = Color(0xFFE6E9F0);
+  static const pausaSuave = Color(0xFFECEEF3);
 
-  /// Brand only: never used for a state or an alert.
-  static const coral = Color(0xFFE8765A);
+  /// Brand accent (icons, fills, the selected tab): never used for a state or an alert. Text on
+  /// coral is ink (6.8:1), never white (2.2:1); coral text uses [coralTinta].
+  static const coral = Color(0xFFFF8F7E);
+  static const coralSuave = Color(0xFFFFEDE8);
+  static const coralTinta = Color(0xFFA8402F);
   static const durazno = Color(0xFFFFB59C);
 
   /// Dark background of the live view.

@@ -6,7 +6,6 @@ import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/dispositivo/llamada.dart';
 import '../../../core/sesion/sesion_controller.dart';
-import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../hogar/data/hogar_repositorio.dart';
@@ -16,6 +15,7 @@ import '../domain/versiones.dart';
 import '../../../core/ui/ayuda.dart';
 import 'pantalla_acerca_de.dart';
 import 'situacion.dart';
+import '../../../core/ui/marca.dart';
 
 /// «Actualiza Te Tengo para seguir recibiendo alertas» (screens 375, 377, 378, 394 and 398): the
 /// installed version is below `versionMinima` (CA-43.8). It blocks politely: the platform's path

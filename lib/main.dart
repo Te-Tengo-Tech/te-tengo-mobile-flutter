@@ -12,6 +12,7 @@ import 'core/sesion/almacen_sesion.dart';
 import 'core/web/navegador.dart';
 import 'features/ajustes/data/apariencia.dart';
 import 'features/ajustes/data/contraste.dart';
+import 'features/ajustes/data/tamano_letra.dart';
 import 'features/widget/data/widget_desde_push.dart';
 
 Future<void> main() async {
@@ -35,10 +36,11 @@ Future<void> main() async {
   // is the app's for its whole life.
   final almacen = AlmacenSesionSeguro();
   final cache = crearCacheDispositivo();
-  final (_, apariencia, contraste) = await (
+  final (_, apariencia, contraste, letra) = await (
     almacen.cargar(),
     cargarApariencia(cache),
     cargarContraste(cache),
+    cargarTamanoLetra(cache),
   ).wait;
   runApp(
     ProviderScope(
@@ -49,6 +51,7 @@ Future<void> main() async {
         cacheLocalProvider.overrideWithValue(cache),
         aparienciaInicialProvider.overrideWithValue(apariencia),
         contrasteInicialProvider.overrideWithValue(contraste),
+        tamanoLetraInicialProvider.overrideWithValue(letra),
       ],
       child: const TeTengoApp(),
     ),

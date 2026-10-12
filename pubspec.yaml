@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.6.0+12
+version: 0.6.1+12
 
 environment:
   sdk: ^3.12.2
@@ -56,6 +56,7 @@ dependencies:
   home_widget: ^0.10.0
   package_info_plus: ^10.2.2
   in_app_update: ^5.0.0
+  image_picker: ^1.2.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -80,14 +81,18 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # Atkinson Hyperlegible (SIL Open Font License, assets/fonts/OFL.txt): the design typeface.
+  # Poppins (SIL Open Font License, assets/fonts/OFL.txt): the typeface of the Te Tengo brand kit.
   fonts:
-    - family: AtkinsonHyperlegibleNext
+    - family: Poppins
       fonts:
-        - asset: assets/fonts/AtkinsonHyperlegibleNext.ttf
-    - family: AtkinsonHyperlegibleMono
-      fonts:
-        - asset: assets/fonts/AtkinsonHyperlegibleMono.ttf
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   # assets:

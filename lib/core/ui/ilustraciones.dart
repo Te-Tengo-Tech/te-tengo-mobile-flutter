@@ -188,13 +188,13 @@ enum IlustracionVacio { semana, ojo, filtro, calendario }
 
 String _svgVacio(IlustracionVacio tipo) => switch (tipo) {
   IlustracionVacio.semana =>
-    '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" fill="#E2F2E9"/><path d="M28 74a32 32 0 0 1 64 0Z" fill="#fff"/><path d="M60 30v8M36 40l6 6M84 40l-6 6" stroke="#1C7A4C" stroke-width="4" stroke-linecap="round"/><path d="M22 80h76" stroke="#1C7A4C" stroke-width="4" stroke-linecap="round"/><path d="M40 90h40" stroke="#1C7A4C" stroke-width="4" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" fill="#E6F5EC"/><path d="M28 74a32 32 0 0 1 64 0Z" fill="#fff"/><path d="M60 30v8M36 40l6 6M84 40l-6 6" stroke="#1C7A4C" stroke-width="4" stroke-linecap="round"/><path d="M22 80h76" stroke="#1C7A4C" stroke-width="4" stroke-linecap="round"/><path d="M40 90h40" stroke="#1C7A4C" stroke-width="4" stroke-linecap="round"/></svg>',
   IlustracionVacio.ojo =>
-    '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" fill="#ECE7F6"/><path d="M24 60s13-22 36-22 36 22 36 22-13 22-36 22-36-22-36-22Z" fill="#fff" stroke="#4A2A85" stroke-width="4" stroke-linejoin="round"/><circle cx="60" cy="60" r="10" fill="none" stroke="#4A2A85" stroke-width="4"/><path d="M40 92h40" stroke="#4A2A85" stroke-width="4" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" fill="#F1EBF8"/><path d="M24 60s13-22 36-22 36 22 36 22-13 22-36 22-36-22-36-22Z" fill="#fff" stroke="#4B2E83" stroke-width="4" stroke-linejoin="round"/><circle cx="60" cy="60" r="10" fill="none" stroke="#4B2E83" stroke-width="4"/><path d="M40 92h40" stroke="#4B2E83" stroke-width="4" stroke-linecap="round"/></svg>',
   IlustracionVacio.filtro =>
-    '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" fill="#ECE7F6"/><path d="M34 44h52M42 60h36M52 76h16" stroke="#4A2A85" stroke-width="6" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" fill="#F1EBF8"/><path d="M34 44h52M42 60h36M52 76h16" stroke="#4B2E83" stroke-width="6" stroke-linecap="round"/></svg>',
   IlustracionVacio.calendario =>
-    '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" fill="#ECE7F6"/><rect x="30" y="36" width="60" height="52" rx="10" fill="#fff"/><path d="M30 50h60" stroke="#4A2A85" stroke-width="4"/><path d="M42 30v12M78 30v12" stroke="#4A2A85" stroke-width="4" stroke-linecap="round"/><path d="M48 68l8 8 16-16" stroke="#1C7A4C" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" fill="#F1EBF8"/><rect x="30" y="36" width="60" height="52" rx="10" fill="#fff"/><path d="M30 50h60" stroke="#4B2E83" stroke-width="4"/><path d="M42 30v12M78 30v12" stroke="#4B2E83" stroke-width="4" stroke-linecap="round"/><path d="M48 68l8 8 16-16" stroke="#1C7A4C" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 
 class IlustracionEstadoVacio extends StatelessWidget {

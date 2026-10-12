@@ -67,6 +67,10 @@ abstract final class Rutas {
   static const actividad = '/ajustes/actividad';
   static const invitar = '/familia/invitar';
   static const personaCuidada = '/ajustes/persona';
+
+  /// «Tu perfil» and «Cambiar contraseña» (screens 102 and 103).
+  static const tuPerfil = '/ajustes/perfil';
+  static const cambiarContrasena = '/ajustes/perfil/contrasena';
   static const notificaciones = '/ajustes/notificaciones';
 
   /// «Preferencias» of this phone: theme and contrast.

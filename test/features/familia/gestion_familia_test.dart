@@ -178,6 +178,7 @@ void main() {
       await abrir(tester, Rutas.familia);
       await tocar(tester, find.text('Luis Huamán'));
       expect(find.text('luis.huaman.r@gmail.com'), findsOneWidget);
+      await verHasta(tester, find.text('Hacer contacto principal'));
       expect(find.text('Hacer contacto principal'), findsOneWidget);
       expect(find.text('Hacer contacto secundario'), findsNothing);
       await tocar(tester, find.text('Retirar acceso'));
@@ -214,6 +215,10 @@ void main() {
     testWidgets('el titular no puede retirarse a sí mismo', (tester) async {
       await abrir(tester, Rutas.familia);
       await tocar(tester, find.text('Carmen Huamán (tú)'));
+      await verHasta(
+        tester,
+        find.text('Para dejar de ser principal, elige a otro contacto.'),
+      );
       expect(
         find.text('Para dejar de ser principal, elige a otro contacto.'),
         findsOneWidget,

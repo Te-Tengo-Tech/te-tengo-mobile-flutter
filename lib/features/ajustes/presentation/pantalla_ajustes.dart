@@ -27,6 +27,7 @@ import '../../hogar/data/hogar_repositorio.dart';
 import '../../sesion/presentation/cerrar_sesion.dart';
 import '../../widget/data/widget_sistema.dart';
 import '../../widget/presentation/pasos_widget.dart';
+import '../../perfil/data/fotos.dart';
 import 'pantalla_preferencias.dart';
 
 /// `78 años · Vive solo(a)` (the age only when the backend sends it).
@@ -40,7 +41,8 @@ String resumenAdultoMayor(AdultoMayor a) => [
   },
 ].where((t) => t.isNotEmpty).join(' · ');
 
-/// Ajustes tab (screens 79 and 94). An invited member sees what only the owner can change with
+/// Ajustes tab (screens 100, 85 and 167): «Persona cuidada», «Monitoreo», «Este celular» and
+/// «Cuenta». An invited member sees what only the owner can change with
 /// the lock and «Solo ver» (CA-08.4).
 class PantallaAjustes extends ConsumerWidget {
   const PantallaAjustes({super.key});
@@ -85,12 +87,14 @@ class PantallaAjustes extends ConsumerWidget {
           const SizedBox(height: 16),
         ],
         if (hogar != null) ...[
+          const EncabezadoSeccion('Persona cuidada', arriba: 4),
           ListaTarjeta(
             children: [
               FilaLista(
                 inicio: Avatar(
                   Avatar.inicialesDe(hogar.adultoMayor.nombre),
                   tono: TonoAvatar.rosa,
+                  foto: ref.watch(fotoAdultoMayorProvider),
                 ),
                 titulo: hogar.adultoMayor.nombre,
                 subtitulo: resumenAdultoMayor(hogar.adultoMayor),
@@ -100,8 +104,8 @@ class PantallaAjustes extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
         ],
+        EncabezadoSeccion('Monitoreo', arriba: hogar == null ? 4 : 28),
         ListaTarjeta(
           children: [
             FilaLista(
@@ -124,36 +128,6 @@ class PantallaAjustes extends ConsumerWidget {
                 fin: soloVer,
                 chevron: titular,
                 alTocar: () => context.push(Rutas.ordenAviso),
-              ),
-            FilaLista(
-              inicio: const IconoFila(Ico.bell),
-              titulo: 'Notificaciones',
-              subtitulo: switch (ref.watch(notificacionesActivasProvider)) {
-                AsyncData(value: true) => 'Activadas',
-                AsyncData(value: false) => 'Desactivadas',
-                _ => null,
-              },
-              alTocar: () => context.push(Rutas.notificaciones),
-            ),
-            // This phone's settings, so the invited member changes them too.
-            FilaLista(
-              inicio: const IconoFila(Ico.sun),
-              titulo: 'Preferencias',
-              subtitulo: resumenPreferencias(ref),
-              alTocar: () => context.push(Rutas.preferencias),
-            ),
-            // This phone's app and its updates (US-43, screen 379).
-            const FilaAcercaDe(),
-            // The home-screen widget (US-44): Android and iOS, not the web.
-            if (ref.watch(widgetDelSistemaProvider).disponible)
-              FilaPlegable(
-                icono: Ico.grid,
-                titulo: 'Agregar el widget',
-                resumen: hogar == null
-                    ? null
-                    : '${hogar.adultoMayor.nombrePila} y «Ver en vivo» en tu '
-                          'pantalla de inicio',
-                child: const PasosWidget(),
               ),
             FilaLista(
               inicio: const IconoFila(Ico.shield),
@@ -179,14 +153,53 @@ class PantallaAjustes extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const EncabezadoSeccion('Este celular'),
+        // This phone's settings, so the invited member changes them too.
         ListaTarjeta(
           children: [
             FilaLista(
-              inicio: const IconoFila(Ico.user),
+              inicio: const IconoFila(Ico.bell),
+              titulo: 'Notificaciones',
+              subtitulo: switch (ref.watch(notificacionesActivasProvider)) {
+                AsyncData(value: true) => 'Activadas',
+                AsyncData(value: false) => 'Desactivadas',
+                _ => null,
+              },
+              alTocar: () => context.push(Rutas.notificaciones),
+            ),
+            FilaLista(
+              inicio: const IconoFila(Ico.sun),
+              titulo: 'Preferencias',
+              subtitulo: resumenPreferencias(ref),
+              alTocar: () => context.push(Rutas.preferencias),
+            ),
+            // This phone's app and its updates (US-43, screen 379).
+            const FilaAcercaDe(),
+            // The home-screen widget (US-44): Android and iOS, not the web.
+            if (ref.watch(widgetDelSistemaProvider).disponible)
+              FilaPlegable(
+                icono: Ico.grid,
+                titulo: 'Agregar el widget',
+                resumen: hogar == null
+                    ? null
+                    : '${hogar.adultoMayor.nombrePila} y «Ver en vivo» en tu '
+                          'pantalla de inicio',
+                child: const PasosWidget(),
+              ),
+          ],
+        ),
+        const EncabezadoSeccion('Cuenta'),
+        ListaTarjeta(
+          children: [
+            FilaLista(
+              inicio: Avatar(
+                Avatar.inicialesDe(sesion?.usuario.nombre ?? ''),
+                foto: ref.watch(fotoDeUsuarioProvider(sesion?.usuario.id)),
+              ),
               titulo:
                   'Tu cuenta · ${titular ? 'Titular' : 'Familiar invitado'}',
               subtitulo: sesion?.usuario.correo,
+              alTocar: () => context.push(Rutas.tuPerfil),
             ),
             FilaLista(
               inicio: const IconoFila(Ico.logout, peligro: true),

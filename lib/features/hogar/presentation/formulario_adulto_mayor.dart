@@ -9,17 +9,23 @@ class FormularioAdultoMayor {
     : nombre = TextEditingController(text: actual?.nombre),
       edad = TextEditingController(text: actual?.edad?.toString()),
       direccion = TextEditingController(text: actual?.direccion),
+      telefono = TextEditingController(text: actual?.telefono),
       convivencia = actual?.convivencia,
-      _telefono = actual?.telefono;
+      _actual = actual;
 
   final TextEditingController nombre;
   final TextEditingController edad;
   final TextEditingController direccion;
+
+  /// «Teléfono de Rosa»: only the profile screen shows it; the setup step keeps it as it is.
+  final TextEditingController telefono;
   Convivencia? convivencia;
   Map<String, String> errores = {};
 
-  /// Kept as it is: the form has no phone field (docs/BLOCKERS.md).
-  final String? _telefono;
+  final AdultoMayor? _actual;
+
+  /// The phone the prototype accepts: digits and spaces, an optional leading `+`.
+  static final telefonoValido = RegExp(r'^\+?[\d ]{7,15}$');
 
   /// Age range of the prototype's profile form (2 or 3 digits, 50 to 120 years).
   static const edadMinima = 50;
@@ -40,6 +46,9 @@ class FormularioAdultoMayor {
       if (direccion.text.trim().isEmpty)
         'direccion': 'Escribe la dirección de la vivienda.',
       if (convivencia == null) 'convivencia': 'Elige una opción.',
+      if (telefono.text.trim().isNotEmpty &&
+          !telefonoValido.hasMatch(telefono.text.trim()))
+        'telefono': 'Revisa el teléfono: solo números.',
     };
     return errores.isEmpty;
   }
@@ -54,13 +63,16 @@ class FormularioAdultoMayor {
     edad: int.tryParse(edad.text.trim()),
     direccion: direccion.text.trim(),
     convivencia: convivencia,
-    telefono: _telefono,
+    telefono: telefono.text.trim().isEmpty ? null : telefono.text.trim(),
+    foto: _actual?.foto,
+    admiteFoto: _actual?.admiteFoto ?? false,
   );
 
   void dispose() {
     nombre.dispose();
     edad.dispose();
     direccion.dispose();
+    telefono.dispose();
   }
 }
 
@@ -71,11 +83,15 @@ class CamposAdultoMayor extends StatelessWidget {
     required this.formulario,
     required this.alCambiar,
     this.habilitado = true,
+    this.conTelefono = false,
   });
 
   final FormularioAdultoMayor formulario;
   final VoidCallback alCambiar;
   final bool habilitado;
+
+  /// «Teléfono de Rosa» (screen 105), which «Llamar a Rosa» dials.
+  final bool conTelefono;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +116,19 @@ class CamposAdultoMayor extends StatelessWidget {
           longitudMaxima: 3,
           accionTeclado: TextInputAction.next,
         ),
+        if (conTelefono)
+          CampoTexto(
+            etiqueta: 'Teléfono de ${_pila(f.nombre.text)}',
+            controlador: f.telefono,
+            tipo: TipoCampo.telefono,
+            error: f.errores['telefono'],
+            ayuda: habilitado
+                ? 'Lo usa «Llamar a ${_pila(f.nombre.text)}».'
+                : null,
+            habilitado: habilitado,
+            longitudMaxima: 20,
+            accionTeclado: TextInputAction.next,
+          ),
         CampoTexto(
           etiqueta: 'Dirección de la vivienda',
           controlador: f.direccion,
@@ -128,3 +157,5 @@ class CamposAdultoMayor extends StatelessWidget {
     );
   }
 }
+
+String _pila(String nombre) => nombre.trim().split(RegExp(r'\s+')).first;
