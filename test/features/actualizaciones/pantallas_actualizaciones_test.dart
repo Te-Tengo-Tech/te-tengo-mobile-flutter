@@ -285,6 +285,7 @@ void main() {
       );
       await verHasta(tester, find.text('Acerca de Te Tengo'));
       expect(texto('Versión 0.5.0 · hay una nueva'), findsOneWidget);
+      await verHasta(tester, find.text('Te Tengo 0.5.0'));
       expect(find.text('Te Tengo 0.5.0'), findsOneWidget);
       await tocar(tester, find.text('Acerca de Te Tengo'));
       expect(find.text('Acerca de'), findsOneWidget);

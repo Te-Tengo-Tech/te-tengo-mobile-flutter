@@ -4,7 +4,7 @@ import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/features/actividad/domain/actividad.dart';
 import 'package:te_tengo/features/actividad/presentation/pantalla_actividad.dart';
 import 'package:te_tengo/features/pcs/domain/pc.dart';
-import 'package:te_tengo/features/actualizaciones/presentation/ayuda.dart';
+import 'package:te_tengo/core/ui/ayuda.dart';
 
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 
@@ -96,7 +96,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.byType(AyudaActualizacion), findsOneWidget);
+      expect(find.byType(AyudaInfo), findsOneWidget);
       expect(find.text('Se actualizará sola.'), findsNothing);
     });
 

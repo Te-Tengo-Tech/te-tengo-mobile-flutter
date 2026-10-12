@@ -142,6 +142,8 @@ class PantallaAjustes extends ConsumerWidget {
               subtitulo: resumenPreferencias(ref),
               alTocar: () => context.push(Rutas.preferencias),
             ),
+            // This phone's app and its updates (US-43, screen 379).
+            const FilaAcercaDe(),
             // The home-screen widget (US-44): Android and iOS, not the web.
             if (ref.watch(widgetDelSistemaProvider).disponible)
               FilaPlegable(
@@ -177,9 +179,6 @@ class PantallaAjustes extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        // This phone's app and its updates (US-43).
-        const ListaTarjeta(children: [FilaAcercaDe()]),
         const SizedBox(height: 16),
         ListaTarjeta(
           children: [

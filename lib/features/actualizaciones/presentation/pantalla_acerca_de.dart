@@ -18,7 +18,7 @@ import '../data/actualizacion_controller.dart';
 import '../data/interrupcion.dart';
 import '../domain/estado_actualizacion.dart';
 import '../domain/versiones.dart';
-import 'ayuda.dart';
+import '../../../core/ui/ayuda.dart';
 import 'barra_actualizacion.dart';
 import 'situacion.dart';
 
@@ -85,9 +85,9 @@ class PantallaAcercaDe extends ConsumerWidget {
           if (info != null) ...[
             EncabezadoSeccion(
               'Actualizaciones',
-              accion: AyudaActualizacion(
+              accion: AyudaInfo(
                 texto: comoSeActualiza(info.canal),
-                sobre: 'actualizaciones',
+                tema: 'actualizaciones',
               ),
             ),
             const _PanelActualizaciones(),
@@ -95,9 +95,9 @@ class PantallaAcercaDe extends ConsumerWidget {
           if (pcs.isNotEmpty) ...[
             const EncabezadoSeccion(
               'PCs de la casa',
-              accion: AyudaActualizacion(
+              accion: AyudaInfo(
                 texto: 'Cada PC actualiza Te Tengo Captura por su cuenta.',
-                sobre: 'las PCs',
+                tema: 'las PCs',
               ),
             ),
             _PcsDeLaCasa(pcs: pcs, versiones: estado.versiones),
@@ -345,7 +345,7 @@ class TarjetaSituacion extends ConsumerWidget {
                   ),
                 ),
                 if (s.ayuda case final a?)
-                  AyudaActualizacion(texto: a, sobre: 'la descarga'),
+                  AyudaInfo(texto: a, tema: 'la descarga'),
               ],
             ),
             if (s.conPista) ...[

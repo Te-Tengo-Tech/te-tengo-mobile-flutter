@@ -9,7 +9,7 @@ import '../../../core/ui/iconos.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../data/actualizacion_controller.dart';
 import '../domain/versiones.dart';
-import 'ayuda.dart';
+import '../../../core/ui/ayuda.dart';
 import 'situacion.dart';
 
 /// The update bar (`upd-bar`, screens 355, 359, 361, 362, 368 to 373 and 376): one slim bar above
@@ -66,7 +66,7 @@ class BarraActualizacion extends ConsumerWidget {
     final accion = _accion(ref, situacion);
     final ayuda = situacion.ayuda == null
         ? null
-        : AyudaActualizacion(texto: situacion.ayuda!, sobre: 'la descarga');
+        : AyudaInfo(texto: situacion.ayuda!, tema: 'la descarga');
     return Semantics(
       container: true,
       liveRegion: true,

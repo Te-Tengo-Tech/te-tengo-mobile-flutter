@@ -8,7 +8,7 @@ import '../../../core/ui/iconos.dart';
 import '../../pcs/domain/pc.dart';
 import '../data/actualizacion_controller.dart';
 import '../domain/versiones.dart';
-import 'ayuda.dart';
+import '../../../core/ui/ayuda.dart';
 
 /// The PC runs an older Te Tengo Captura than the published one for its system (CA-43.7).
 bool pcConVersionAnterior(Pc pc, Versiones? versiones) =>
@@ -69,11 +69,11 @@ class AvisoVersionPc extends ConsumerWidget {
             TextSpan(text: 'Pide a quien está en la casa que la actualice. '),
             WidgetSpan(
               alignment: PlaceholderAlignment.middle,
-              child: AyudaActualizacion(
+              child: AyudaInfo(
                 texto:
                     'En la PC aparece «Hay una versión nueva»: que elijan '
                     '«Descargar». Se instala sola y la detección sigue.',
-                sobre: 'cómo actualizar la PC',
+                tema: 'cómo actualizar la PC',
               ),
             ),
           ],

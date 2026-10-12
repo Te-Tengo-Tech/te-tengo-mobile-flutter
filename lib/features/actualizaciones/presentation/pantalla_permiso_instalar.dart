@@ -10,7 +10,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
 import '../data/actualizacion_controller.dart';
-import 'ayuda.dart';
+import '../../../core/ui/ayuda.dart';
 
 /// «Permite instalar la actualización» (screen 363): the first time Android needs its «Instalar
 /// apps desconocidas» permission, explained in three steps before its own settings open
@@ -143,12 +143,12 @@ class _PantallaPermisoInstalarState
                     style: texto.bodyMedium,
                   ),
                 ),
-                const AyudaActualizacion(
+                const AyudaInfo(
                   texto:
                       'Te Tengo no viene de una tienda, así que Android pide '
                       'permiso para instalar sus versiones nuevas. Solo acepta '
                       'las firmadas por Te Tengo.',
-                  sobre: 'el permiso de Android',
+                  tema: 'el permiso de Android',
                 ),
               ],
             ),

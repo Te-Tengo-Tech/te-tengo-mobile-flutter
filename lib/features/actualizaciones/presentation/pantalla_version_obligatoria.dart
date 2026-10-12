@@ -13,7 +13,7 @@ import '../../hogar/data/hogar_repositorio.dart';
 import '../data/actualizacion_controller.dart';
 import '../domain/estado_actualizacion.dart';
 import '../domain/versiones.dart';
-import 'ayuda.dart';
+import '../../../core/ui/ayuda.dart';
 import 'pantalla_acerca_de.dart';
 import 'situacion.dart';
 
@@ -67,11 +67,11 @@ class PantallaVersionObligatoria extends ConsumerWidget {
                     style: estiloTexto(16, 400, color: c.tinta2),
                   ),
                 ),
-                const AyudaActualizacion(
+                const AyudaInfo(
                   texto:
                       'Esta versión ya no recibe las alertas de forma segura. '
                       'Quienes ya actualizaron las siguen recibiendo.',
-                  sobre: 'por qué actualizar',
+                  tema: 'por qué actualizar',
                 ),
               ],
             ),

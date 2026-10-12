@@ -69,9 +69,7 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
       // and covers the app below the minimum one.
       builder: (context, hijo) => AnfitrionAvisos(
         child: ActualizadorWidget(
-          child: GuardiaActualizaciones(
-            child: hijo ?? const SizedBox.shrink(),
-          ),
+          child: GuardiaActualizaciones(child: hijo ?? const SizedBox.shrink()),
         ),
       ),
     );

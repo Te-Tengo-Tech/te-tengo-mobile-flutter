@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/cache/cache_local.dart';
 import 'package:te_tengo/core/dispositivo/conectividad.dart';
 import 'package:te_tengo/core/red/problema_api.dart';
@@ -333,7 +334,7 @@ void main() {
       expect(esRutaProtegida('/alerta/a-1'), isTrue);
       expect(esRutaProtegida('/alertas/h1'), isTrue);
       expect(esRutaProtegida('/vivo'), isTrue);
-      expect(esRutaProtegida('/vivo/todas'), isTrue);
+      expect(esRutaProtegida(Rutas.verTodas), isTrue);
       expect(esRutaProtegida('/inicio'), isFalse);
       expect(esRutaProtegida('/ajustes/acerca-de'), isFalse);
     });
