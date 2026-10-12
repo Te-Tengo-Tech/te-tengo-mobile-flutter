@@ -192,6 +192,13 @@ class Actividad {
           'se vio qué pasó${o.isEmpty ? '' : ' ${enHabitacion(o)}'}'
           '${detalle.isEmpty ? '' : ' ($detalle)'}',
         );
+      case 'PC_ACTUALIZADA':
+        // «Sala-Rosa se actualizó a 0.5.0» (screen 389, US-43).
+        return '${pc ?? o} se actualizó a ${despues ?? ''}'.trim();
+      case 'ACTUALIZACION_AUTOMATICA_ACTIVADA':
+        return segun('se activó la actualización automática');
+      case 'ACTUALIZACION_AUTOMATICA_DESACTIVADA':
+        return segun('se desactivó la actualización automática');
       default:
         return switch (actor) {
           TipoActor.familiar => familiar('hizo un cambio en la configuración'),
@@ -233,12 +240,18 @@ class Actividad {
   (String, String)? get momentoYDuracion =>
       tipo == 'REPETICION_VISTA' ? (_momento ?? '—', _visto ?? '—') : null;
 
-  /// «Quién»: the member, «Alguien en la PC» or «Te Tengo».
-  String get quien => switch (actor) {
-    TipoActor.familiar => usuario ?? '—',
-    TipoActor.pc => 'Alguien en la PC',
-    TipoActor.sistema => 'Te Tengo',
-  };
+  /// A new version of Te Tengo Captura installed on a PC (US-43): drawn with the update icon.
+  bool get esActualizacion => tipo == 'PC_ACTUALIZADA';
+
+  /// «Quién»: the member, «Alguien en la PC», «Te Tengo», or «Te Tengo Captura» for an update
+  /// (screen 390).
+  String get quien => esActualizacion
+      ? (objeto ?? 'Te Tengo Captura')
+      : switch (actor) {
+          TipoActor.familiar => usuario ?? '—',
+          TipoActor.pc => 'Alguien en la PC',
+          TipoActor.sistema => 'Te Tengo',
+        };
 
   /// «Desde»: «Celular de Carmen», «PC Sala-Rosa» or «Automático».
   String get desde => switch (actor) {

@@ -430,7 +430,17 @@ jobs:
         run: |
           timeout 40m flutter build appbundle --release \
             --build-name="$NAME" --build-number="$CODE" \
+            --android-project-arg=tt.googlePlay=true \
             --dart-define=TT_API_URL="$API_URL"
+      # US-43: Google Play restricts REQUEST_INSTALL_PACKAGES; only the sideloaded APK may ask for it
+      # (android/app/src/sideload). Play updates the app itself (in-app updates).
+      - name: The AAB does not ask to install packages
+        run: |
+          if unzip -p build/app/outputs/bundle/release/app-release.aab base/manifest/AndroidManifest.xml \
+            | grep -aq REQUEST_INSTALL_PACKAGES; then
+            echo "::error title=Install permission in the AAB::The bundle for Google Play declares REQUEST_INSTALL_PACKAGES; it must only be in the sideloaded APK (android/app/build.gradle.kts, tt.googlePlay)."
+            exit 1
+          fi
       - name: Remove the signing material
         if: always()
         run: rm -f android/key.properties android/app/upload-keystore.jks android/app/google-services.json

@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
 import '../features/actividad/presentation/pantalla_actividad.dart';
+import '../features/actualizaciones/presentation/barra_actualizacion.dart';
+import '../features/actualizaciones/presentation/rutas_actualizaciones.dart';
 import '../features/familia/presentation/pantalla_familiar.dart';
 import '../features/ajustes/presentation/pantalla_notificaciones.dart';
 import '../features/ajustes/presentation/pantalla_preferencias.dart';
@@ -251,6 +253,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             BarraSinInternet(),
             FranjaAlertaActiva(),
             EnvioReportesPendientes(),
+            BarraActualizacion(),
           ],
         ),
         branches: [
@@ -323,6 +326,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>
             PantallaFamiliar(usuarioId: state.pathParameters['id']!),
       ),
+      ...rutasActualizaciones,
       GoRoute(
         path: Rutas.actividad,
         builder: (context, state) => const PantallaActividad(),

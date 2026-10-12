@@ -166,6 +166,8 @@ abstract final class Rutas {
   static String? redirigir(Sesion? sesion, String ubicacion) {
     if (_bajo(ubicacion, arranque) ||
         _bajo(ubicacion, instalar) ||
+        // The APK's install permission, also from the minimum-version screen without a session.
+        _bajo(ubicacion, '/actualizacion') ||
         _bajo(ubicacion, terminos) ||
         _bajo(ubicacion, politica)) {
       return null;

@@ -56,6 +56,7 @@ jobs:
       contents: read
     outputs:
       tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
       commit: ${{ steps.release.outputs.commit }}
     env:
       VERSION: ${{ inputs.version }}
@@ -102,6 +103,7 @@ jobs:
           commit=$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)
           {
             echo "tag=$tag"
+            echo "version=$version"
             echo "commit=$commit"
           } >> "$GITHUB_OUTPUT"
           {
@@ -137,7 +139,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          sparse-checkout: .github/scripts
+          sparse-checkout: |
+            .github/scripts
+            NOVEDADES.md
+          sparse-checkout-cone-mode: false
       - name: Download the release's PWA and check its SHA-256
         env:
           GH_TOKEN: ${{ github.token }}
@@ -153,6 +158,16 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: .github/scripts/deploy_pwa.sh "$RUNNER_TEMP/pwa" main https://app.tetengo.reqsai.tech
+      # US-43: right after the channel is live, so the apps are never told about a version that is not.
+      - name: PWA version for the apps
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_BUCKET: ${{ vars.DESCARGAS_R2_BUCKET || 'te-tengo-descargas' }}
+          DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
+          VERSION_APP: ${{ needs.preparar.outputs.version }}
+          URL_APP: https://app.tetengo.reqsai.tech/
+        run: .github/scripts/publicar_version.sh pwa "$VERSION_APP" "$URL_APP"
 
   rollback-apk:
     name: Rollback · APK
@@ -181,7 +196,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          sparse-checkout: .github/scripts
+          sparse-checkout: |
+            .github/scripts
+            NOVEDADES.md
+          sparse-checkout-cone-mode: false
       - name: Download the release's APK and check its SHA-256
         env:
           GH_TOKEN: ${{ github.token }}
@@ -194,3 +212,13 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: .github/scripts/upload_apk.sh "$RUNNER_TEMP/apk" ""
+      # US-43: right after the channel is live, so the apps are never told about a version that is not.
+      - name: APK version for the apps
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_BUCKET: ${{ vars.DESCARGAS_R2_BUCKET || 'te-tengo-descargas' }}
+          DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
+          VERSION_APP: ${{ needs.preparar.outputs.version }}
+          URL_APP: ${{ vars.DESCARGAS_BASE_URL }}/te-tengo.apk
+        run: .github/scripts/publicar_version.sh apk "$VERSION_APP" "$URL_APP" "$RUNNER_TEMP/apk/te-tengo.apk"

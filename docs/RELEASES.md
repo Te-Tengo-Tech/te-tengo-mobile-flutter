@@ -203,6 +203,12 @@ Other organization variables (`ENABLE_API_*`, `ENABLE_LANDING_*`, `ENABLE_DESKTO
 
 **When a switch is on and its configuration is missing, the run fails** with an error that names each missing secret or variable: a signing secret or a build variable in the first job, before any build; a deploy secret (Cloudflare, Google Play, App Store Connect) in the staging or produccion job that needs it, as its first step. A release is never silently left out. Turn a channel on only after its one-time setup is done, and **before** pushing the release branch: a channel turned on after the candidate was built makes produccion fail (see above).
 
+## Versions for the apps (US-43)
+Each produccion job, right after its channel is live, publishes that channel's version with `.github/scripts/publicar_version.sh`: `versiones/pwa.json`, `versiones/apk.json` (with the APK's SHA-256 and size), `versiones/play.json` or `versiones/ios.json` in the R2 bucket of the downloads. The API's `GET /api/versiones` reads them within 5 minutes (ADR 0012 of te-tengo-general-api) and the app offers the update (docs/APP_UPDATES.md); nothing is set by hand. `rollback.yml` republishes `pwa.json` and `apk.json` with the older version.
+- **Notes:** the «Qué cambió» lines are the `- ` lines of the version's section in `NOVEDADES.md` (Spanish, for the family), written on the release branch before merging.
+- **Minimum version** (CA-43.8) is the API's setting (`TT_VERSION_MINIMA_APK`, `_PLAY`, `_IOS`, `_PWA`).
+- **Install permission:** the AAB is built with `--android-project-arg=tt.googlePlay=true` and the `AAB` job fails if its manifest declares `REQUEST_INSTALL_PACKAGES`; the sideloaded APK is built with `tt.googlePlay=false` (docs/APP_UPDATES.md).
+
 ## Secrets and variables
 Secrets live where only the jobs that need them can read them (*Settings → Environments*, or *Settings → Secrets and variables → Actions* for repository secrets). Each workflow step reads only the secrets it uses, as step environment variables.
 
@@ -228,7 +234,8 @@ Until the environments hold them, repository secrets of the same names still wor
 | `CLOUDFLARE_ACCOUNT_ID` | secret | The Cloudflare account ID (dashboard, *Account home*, or `wrangler whoami`) |
 | `TT_API_URL` | variable; a secret of the same name also works | HTTPS URL of the production API, compiled into every build (`--dart-define=TT_API_URL=…`) |
 | `TT_FIREBASE_WEB_*`, `TT_FCM_VAPID_KEY` | variables | Firebase web config and web push key of the PWA; public values ([WEB_PWA.md](WEB_PWA.md#firebase-web-config-and-vapid-key)) |
-| `DESCARGAS_BASE_URL` | variable | Public URL of the R2 bucket, e.g. `https://pub-<id>.r2.dev` (for the smoke check and the links in the summary) |
+| `DESCARGAS_BASE_URL` | variable | Public URL of the R2 bucket, e.g. `https://pub-<id>.r2.dev` (for the smoke check, the links in the summary and the versions for the apps) |
+| `IOS_TIENDA_URL` | variable, optional | The TestFlight public link or the App Store page the iPhone app opens to update (`versiones/ios.json`); unset, the iPhone version is not announced |
 | `ANDROID_*`, `GOOGLE_SERVICES_JSON`, `PLAY_SERVICE_ACCOUNT_JSON` | secrets | See [RELEASE_ANDROID.md](RELEASE_ANDROID.md#secrets-and-variables-settings--secrets-and-variables--actions) |
 | `IOS_DIST_CERT_P12_BASE64` | secret | `base64 -i distribution.p12`: the **Apple Distribution** certificate with its private key |
 | `IOS_DIST_CERT_PASSWORD` | secret | Password chosen when exporting the `.p12` |

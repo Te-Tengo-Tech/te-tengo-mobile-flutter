@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The downloaded APK of a new version (US-43): getCacheDir()/actualizaciones/, the folder the
+     app writes it to (path_provider's temporary directory). Shared with the Android installer only,
+     through a content:// URI and a temporary read grant. -->
+<paths>
+    <cache-path name="actualizaciones" path="actualizaciones/" />
+</paths>

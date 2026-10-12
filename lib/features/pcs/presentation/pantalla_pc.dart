@@ -20,6 +20,7 @@ import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/pcs_repositorio.dart';
 import '../domain/camaras_en_casa.dart';
+import '../../actualizaciones/presentation/version_pc.dart';
 import '../domain/pc.dart';
 import 'navegacion_pc.dart';
 import 'piezas_pc.dart';
@@ -112,6 +113,7 @@ class _Detalle extends ConsumerWidget {
             ],
           ),
         ),
+        AvisoVersionPc(pc: pc),
         if (pc.sinConexion) ...[
           const EncabezadoSeccion('Qué revisar'),
           const QueRevisarPc(),

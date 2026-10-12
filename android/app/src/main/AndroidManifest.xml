@@ -74,6 +74,18 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="alertas_caida" />
+        <!-- US-43: shares the downloaded APK of a new version with the Android installer
+             (res/xml/actualizaciones.xml). The install permission itself is only in the APK builds
+             (src/sideload/AndroidManifest.xml, build.gradle.kts). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.actualizaciones"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/actualizaciones" />
+        </provider>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../actividad/data/actividad_repositorio.dart';
 import '../../actividad/presentation/pantalla_actividad.dart';
+import '../../actualizaciones/presentation/fila_acerca_de.dart';
 import '../../../app/rutas.dart';
 import '../../../core/reloj.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
@@ -141,6 +142,8 @@ class PantallaAjustes extends ConsumerWidget {
               subtitulo: resumenPreferencias(ref),
               alTocar: () => context.push(Rutas.preferencias),
             ),
+            // This phone's app and its updates (US-43, screen 379).
+            const FilaAcercaDe(),
             // The home-screen widget (US-44): Android and iOS, not the web.
             if (ref.watch(widgetDelSistemaProvider).disponible)
               FilaPlegable(
@@ -195,11 +198,7 @@ class PantallaAjustes extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 20),
-        Text(
-          'Te Tengo 1.0',
-          textAlign: TextAlign.center,
-          style: texto.bodySmall,
-        ),
+        const PieVersion(),
       ],
     );
   }
