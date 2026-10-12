@@ -49,13 +49,17 @@ points in [BLOCKERS.md](BLOCKERS.md).
 
 ## Design system
 - **Colors:** use `context.colores` (the `Paleta` of the current theme) for anything that changes
-  in dark mode; `Colores` keeps the fixed ones (severity floods, brand, the live view's night).
-  The app follows the phone's theme by default; Ajustes › «Apariencia» (`aparienciaProvider`,
-  `features/ajustes/data/apariencia.dart`) can keep this device light or dark. It is a device
-  setting, not an account one: stored under the `dispositivo|apariencia` key of the local cache,
-  which `vaciar()` keeps on sign-out, and read in `main()` before the first frame (with the session,
-  on the same database the app then uses), so `MaterialApp.themeMode` starts with it and there is no
-  flash of the other theme. The alert flood keeps the light theme.
+  in dark mode or with more contrast; `Colores` keeps the fixed ones (severity floods, brand, the
+  live view's night). The app follows the phone's theme by default; Ajustes › «Preferencias»
+  (`aparienciaProvider`, `features/ajustes/data/apariencia.dart`) can keep this device light or
+  dark, and «Aumentar el contraste» (`contrasteProvider`, `contraste.dart`) switches to the
+  high-contrast palettes `Paleta.claraContraste` and `Paleta.oscuraContraste` (the phone's own
+  setting does too, through `MaterialApp.highContrastTheme`). Shared widgets take the border and
+  divider widths and the card outline from the palette (`anchoBorde`, `anchoDivisor`, `sombraDe`).
+  Both are device settings, not account ones: stored under the `dispositivo|apariencia` and
+  `dispositivo|contraste` keys of the local cache, which `vaciar()` keeps on sign-out, and read in
+  `main()` before the first frame (with the session, on the same database the app then uses), so the
+  first frame already has the right theme. The alert flood keeps the light theme.
 - **Progressive disclosure:** a screen shows first what decides the action; secondary detail goes
   in a `FilaPlegable` (a row in a list) or a `VerMas` (inside a card). Nothing is removed.
 - **Large text:** every screen must work with the system text at 200 % (`test/calidad/`).

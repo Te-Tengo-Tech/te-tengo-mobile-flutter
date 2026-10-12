@@ -7,6 +7,7 @@ import '../core/sesion/sesion_controller.dart';
 import '../features/actividad/presentation/pantalla_actividad.dart';
 import '../features/familia/presentation/pantalla_familiar.dart';
 import '../features/ajustes/presentation/pantalla_notificaciones.dart';
+import '../features/ajustes/presentation/pantalla_preferencias.dart';
 import '../features/familia/presentation/gestion_familia.dart';
 import '../features/familia/presentation/pantallas_invitacion.dart';
 import '../features/vivo/presentation/pantalla_accesos.dart';
@@ -349,6 +350,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Rutas.notificaciones,
         builder: (context, state) => const PantallaNotificaciones(),
+      ),
+      GoRoute(
+        path: Rutas.preferencias,
+        builder: (context, state) => const PantallaPreferencias(),
       ),
       GoRoute(
         path: Rutas.accesos,

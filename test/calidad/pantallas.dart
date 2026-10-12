@@ -119,6 +119,7 @@ final pantallasNuevas = [
     Rutas.actividad,
     sesion: sesionInvitado,
   ),
+  const Pantalla('preferencias', Rutas.preferencias),
   Pantalla('familiar', Rutas.familiar('u-luis')),
   Pantalla('tu perfil en la familia', Rutas.familiar('u-carmen')),
   Pantalla(

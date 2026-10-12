@@ -52,10 +52,13 @@ class Boton extends StatelessWidget {
         Colors.white,
         null,
       ),
+      // More contrast outlines it in its own purple (`.screen.hc .btn-secondary`).
       EstiloBoton.secundario => (
         context.colores.tarjeta,
         context.colores.moradoTinta,
-        context.colores.linea2,
+        context.colores.contraste
+            ? context.colores.moradoTinta
+            : context.colores.linea2,
       ),
       EstiloBoton.fantasma => (
         Colors.transparent,
@@ -124,7 +127,7 @@ class Boton extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             side: borde == null
                 ? BorderSide.none
-                : BorderSide(color: borde, width: 1.5),
+                : BorderSide(color: borde, width: context.colores.anchoBorde),
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(

@@ -65,6 +65,9 @@ abstract final class Rutas {
   static const invitar = '/familia/invitar';
   static const personaCuidada = '/ajustes/persona';
   static const notificaciones = '/ajustes/notificaciones';
+
+  /// «Preferencias» of this phone: theme and contrast.
+  static const preferencias = '/ajustes/preferencias';
   static const privacidad = '/ajustes/privacidad';
   static const consentimiento = '/ajustes/consentimiento';
   static const constancia = '/ajustes/constancia';

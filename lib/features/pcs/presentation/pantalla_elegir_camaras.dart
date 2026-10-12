@@ -768,7 +768,7 @@ class _TarjetaWebcam extends StatelessWidget {
           border: e.estado == EstadoVisible.desconectada
               ? Border.all(color: context.colores.aviso, width: 1.5)
               : null,
-          boxShadow: sombraTarjeta,
+          boxShadow: sombraDe(context),
         ),
         clipBehavior: Clip.antiAlias,
         child: Material(

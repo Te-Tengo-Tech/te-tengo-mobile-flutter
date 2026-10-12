@@ -71,7 +71,16 @@ enum Ico {
   report,
   atras10,
   adelante10,
-  puntos;
+  puntos,
+  // Several cameras at once, favourites, the widget, contrast and «?» help (docs `5100fc7`).
+  grid,
+  star,
+  starOn,
+  grip,
+  portrait,
+  landscape,
+  contrast,
+  help;
 
   String get _trazo => _trazos[this]!;
 }
@@ -198,6 +207,24 @@ const _trazos = <Ico, String>{
       '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/>',
   Ico.puntos:
       '<circle cx="5.5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
+  // Several cameras at once, favourites, the widget, contrast and «?» help (prototype `P.grid` to
+  // `P.help`).
+  Ico.grid:
+      '<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/>',
+  Ico.star:
+      '<path d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.6l-5.1 2.7 1-5.7-4.1-4 5.7-.8Z"/>',
+  Ico.starOn:
+      '<path d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.6l-5.1 2.7 1-5.7-4.1-4 5.7-.8Z" fill="currentColor"/>',
+  Ico.grip:
+      '<circle cx="9" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.5" fill="currentColor" stroke="none"/>',
+  Ico.portrait:
+      '<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 17.5h2"/>',
+  Ico.landscape:
+      '<rect x="3" y="7" width="18" height="10" rx="2.5"/><path d="M17.5 11v2"/>',
+  Ico.contrast:
+      '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17Z" fill="currentColor"/>',
+  Ico.help:
+      '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.85.85c0 1.7-2.45 2.2-2.45 3.75"/><circle cx="12" cy="17" r="1.1" fill="currentColor" stroke="none"/>',
 };
 
 /// Prototype icon: 24×24 stroke drawing in the current color. Decorative unless [etiqueta] is set.

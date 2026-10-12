@@ -23,8 +23,7 @@ import '../../familia/domain/familiar.dart';
 import '../../hogar/domain/hogar.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../sesion/presentation/cerrar_sesion.dart';
-import '../data/apariencia.dart';
-import 'hoja_apariencia.dart';
+import 'pantalla_preferencias.dart';
 
 /// `78 años · Vive solo(a)` (the age only when the backend sends it).
 String resumenAdultoMayor(AdultoMayor a) => [
@@ -132,12 +131,12 @@ class PantallaAjustes extends ConsumerWidget {
               },
               alTocar: () => context.push(Rutas.notificaciones),
             ),
-            // This phone's setting, so the invited member changes it too.
+            // This phone's settings, so the invited member changes them too.
             FilaLista(
               inicio: const IconoFila(Ico.sun),
-              titulo: 'Apariencia',
-              subtitulo: ref.watch(aparienciaProvider).texto,
-              alTocar: () => elegirApariencia(context),
+              titulo: 'Preferencias',
+              subtitulo: resumenPreferencias(ref),
+              alTocar: () => context.push(Rutas.preferencias),
             ),
             FilaLista(
               inicio: const IconoFila(Ico.shield),
