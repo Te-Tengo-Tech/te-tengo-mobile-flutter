@@ -3,6 +3,7 @@ package tech.tetengo.te_tengo
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.view.View
@@ -41,6 +42,15 @@ abstract class WidgetTeTengo(private val diseno: Int) : HomeWidgetProvider() {
             v.setTextViewText(R.id.actualizado, datos.getString("tt_actualizado", "") ?: "")
         }
         v.setTextViewText(R.id.iniciales, datos.getString("tt_iniciales", "") ?: "")
+        // The round photo the app rendered (`tt_foto`, a PNG path); the initials without it.
+        val retrato = datos.getString("tt_foto", null)
+            ?.let { runCatching { BitmapFactory.decodeFile(it) }.getOrNull() }
+        if (retrato != null) {
+            v.setImageViewBitmap(R.id.retrato, retrato)
+            v.setViewVisibility(R.id.retrato, View.VISIBLE)
+        } else {
+            v.setViewVisibility(R.id.retrato, View.GONE)
+        }
 
         val fondo = when (tono) {
             "caida" -> R.drawable.widget_fondo_caida

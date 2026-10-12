@@ -166,7 +166,12 @@ class TarjetaAdultoMayor extends StatelessWidget {
         children: [
           Row(
             children: [
-              Avatar(Avatar.inicialesDe(adulto.nombre), tono: TonoAvatar.rosa),
+              Avatar(
+                Avatar.inicialesDe(adulto.nombre),
+                tono: TonoAvatar.rosa,
+                tamano: 56,
+                foto: adulto.foto,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(

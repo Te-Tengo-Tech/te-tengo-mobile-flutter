@@ -20,6 +20,7 @@ import '../../hogar/data/hogar_repositorio.dart';
 import '../../pcs/data/pcs_repositorio.dart';
 import '../data/actividad_repositorio.dart';
 import '../domain/actividad.dart';
+import '../../perfil/data/fotos.dart';
 
 /// «Hoy», «Ayer» or «08/10/2026» (`dayLbl`).
 String etiquetaDia(DateTime dia, DateTime hoy) => mismoDia(dia, hoy)
@@ -176,6 +177,7 @@ class FilaActividad extends ConsumerWidget {
         TipoActor.familiar => Avatar(
           Avatar.inicialesDe(a.usuario ?? '?'),
           tono: tonoDe(i < 0 ? 0 : i),
+          foto: ref.watch(fotoDeUsuarioProvider(a.usuarioId)),
         ),
         TipoActor.pc => const IconoFila(Ico.pc),
         TipoActor.sistema => const IconoFila(Ico.shield),
