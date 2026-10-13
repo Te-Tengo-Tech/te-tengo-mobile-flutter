@@ -18,6 +18,10 @@ enum TipoErrorCodigo {
   /// `423 VINCULACION_BLOQUEADA`: 5 wrong codes in a row (CA-28.6).
   bloqueado,
 
+  /// `409 PC_YA_VINCULADA`: the PC showing the code is already linked, here or to another
+  /// household («Esta PC ya está vinculada»).
+  yaVinculada,
+
   /// `403 SOLO_TITULAR`: an invited member (CA-28.5).
   soloTitular,
   sinConexion,
@@ -53,6 +57,10 @@ class ErrorDeCodigo {
       TipoErrorCodigo.bloqueado,
       'Demasiados intentos',
       bloqueadaHasta: fechaDesdeJson(e.extras['bloqueadaHasta']),
+    ),
+    'PC_YA_VINCULADA' => const ErrorDeCodigo(
+      TipoErrorCodigo.yaVinculada,
+      'Esta PC ya está vinculada',
     ),
     'SOLO_TITULAR' => ErrorDeCodigo(TipoErrorCodigo.soloTitular, e.detalle),
     ProblemaApi.sinConexion => const ErrorDeCodigo(
