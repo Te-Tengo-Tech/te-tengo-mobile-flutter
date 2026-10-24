@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
+import 'package:te_tengo/features/alertas/domain/alerta.dart';
 import 'package:te_tengo/features/alertas/presentation/pantalla_alerta.dart';
 
 import '../../apoyo/app_de_prueba.dart';
@@ -94,6 +95,41 @@ void main() {
       await tester.tap(find.text('Rosa sigue en el suelo'));
       await tester.pumpAndSettle();
       expect(find.text('Rosa se cayó y sigue en el suelo'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'deslizar el aviso de la caída confirmada solo lo oculta: la alerta sigue activa',
+    (tester) async {
+      final alertas = AlertasRepositorioFalso([caidaSala()]);
+      final push = NotificacionesPushFalsas();
+      await abrirConAlertas(
+        tester,
+        ubicacion: Rutas.inicio,
+        alertas: alertas,
+        push: push,
+      );
+      await tester.tap(find.byTooltip('Cerrar la alerta y volver al inicio'));
+      await tester.pumpAndSettle();
+      alertas.alertas = [caidaSala(confirmada: true)];
+      push.recibir(
+        const MensajePush(tipo: TipoPush.caidaConfirmada, alertaId: 'a-1'),
+      );
+      await tester.pumpAndSettle();
+      await tester.drag(
+        find.text('Rosa sigue en el suelo'),
+        const Offset(0, -200),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Rosa sigue en el suelo'), findsNothing);
+      // Nothing was marked: the alert stays active and Inicio still leads to it.
+      expect(alertas.marcadas, isEmpty);
+      expect(alertas.alertas.single.estado, EstadoAlerta.activa);
+      expect(find.text('Caída confirmada en la Sala'), findsOneWidget);
+      await tester.tap(find.text('Caída confirmada en la Sala'));
+      await tester.pumpAndSettle();
+      expect(find.text('Rosa se cayó y sigue en el suelo'), findsOneWidget);
+      expect(find.text('Marcar alerta'), findsWidgets);
     },
   );
 }
