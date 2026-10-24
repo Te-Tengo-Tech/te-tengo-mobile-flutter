@@ -4,6 +4,9 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **Swipe a floating notice away:** toasts and in-app notifications close with a sideways swipe (either way) or a swipe up, besides their timeout; a tap still runs the notice's action. Screen readers get the system dismiss action and «Cerrar aviso» (new copy, docs/BLOCKERS.md). The swipe cancels the timeout and only closes the notice it started on, never one that replaced it. Hiding an alert's notice («Rosa sigue en el suelo», escalations) marks nothing: the alert stays active on its screen and on Inicio.
+
 ### Fixed
 - The weekly branch cleanup listed each branch's pull requests with `gh api -f`, which sends a POST to the create-pull-request endpoint, so every lookup failed with 422 and the open-PR and `do-not-delete` protections were never checked. It now lists with `--method GET`, and a branch whose PRs cannot be read is left alone.
 
