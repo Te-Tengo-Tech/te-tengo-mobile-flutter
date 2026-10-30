@@ -434,7 +434,7 @@ class _NoDisponible extends StatelessWidget {
     ),
     child: Column(
       children: [
-        Icono(motivo.icono, tamano: 36, color: context.colores.tinta2),
+        Icono(motivo.icono, tamano: 36, color: context.colores.icono),
         const SizedBox(height: 10),
         Text(
           motivo.titulo,

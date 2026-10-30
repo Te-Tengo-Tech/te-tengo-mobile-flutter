@@ -745,11 +745,7 @@ class _TarjetaWebcam extends StatelessWidget {
       fin: titular
           ? RotatedBox(
               quarterTurns: abierta ? 2 : 0,
-              child: Icono(
-                Ico.chevD,
-                tamano: 22,
-                color: context.colores.tinta3,
-              ),
+              child: Icono(Ico.chevD, tamano: 22, color: context.colores.icono),
             )
           : null,
       alTocar: alTocar,

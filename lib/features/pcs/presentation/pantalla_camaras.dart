@@ -456,7 +456,7 @@ class FilaAtencion extends StatelessWidget {
               color: context.colores.fondo2,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icono(icono!, tamano: 22, color: context.colores.tinta3),
+            child: Icono(icono!, tamano: 22, color: context.colores.icono),
           ),
         const SizedBox(width: 14),
         Expanded(
