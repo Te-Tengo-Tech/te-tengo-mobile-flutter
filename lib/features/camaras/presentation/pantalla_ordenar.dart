@@ -185,7 +185,7 @@ class _Fila extends StatelessWidget {
                   child: SizedBox.square(
                     dimension: 44,
                     child: Center(
-                      child: Icono(Ico.grip, tamano: 22, color: c.tinta3),
+                      child: Icono(Ico.grip, tamano: 22, color: c.icono),
                     ),
                   ),
                 ),
@@ -256,7 +256,7 @@ class _BotonMover extends StatelessWidget {
                   child: Icono(
                     icono,
                     tamano: 20,
-                    color: activo ? c.moradoTinta : c.tinta3,
+                    color: activo ? c.icono : c.tinta3,
                   ),
                 ),
               ),
