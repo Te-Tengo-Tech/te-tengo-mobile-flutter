@@ -79,7 +79,7 @@ class EtiquetaSoloVer extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icono(Ico.lock, tamano: 15, color: context.colores.tinta3),
+      Icono(Ico.lock, tamano: 15, color: context.colores.icono),
       const SizedBox(width: 4),
       Text(
         'Solo ver',
