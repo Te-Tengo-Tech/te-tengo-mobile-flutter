@@ -408,7 +408,7 @@ AppBar _barraCerrar(BuildContext context, String titulo) => AppBar(
   automaticallyImplyLeading: false,
   leading: IconButton(
     tooltip: 'Cerrar',
-    icon: const Icono(Ico.x),
+    icon: Icono(Ico.x, color: context.colores.icono),
     onPressed: () => context.go(Rutas.iniciarSesion),
   ),
   title: Text(titulo),

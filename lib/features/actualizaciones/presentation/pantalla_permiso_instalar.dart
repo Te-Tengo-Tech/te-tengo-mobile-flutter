@@ -82,7 +82,7 @@ class _PantallaPermisoInstalarState
         appBar: AppBar(
           leading: IconButton(
             tooltip: 'Cerrar',
-            icon: Icono(Ico.x, color: c.tinta),
+            icon: Icono(Ico.x, color: c.icono),
             onPressed: _ahoraNo,
           ),
           title: const Text('Instalar la actualización'),
