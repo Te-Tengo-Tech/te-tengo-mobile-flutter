@@ -101,7 +101,7 @@ class ClipNoDisponible extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icono(icono, tamano: 32, color: context.colores.tinta3),
+          Icono(icono, tamano: 32, color: context.colores.icono),
           const SizedBox(height: 8),
           Text(titulo, textAlign: TextAlign.center, style: texto.titleMedium),
           const SizedBox(height: 8),
@@ -534,7 +534,7 @@ class PuntosDelCuerpo extends ConsumerWidget {
                 Icono(
                   Ico.body,
                   tamano: 20,
-                  color: habilitado ? c.tinta : c.tinta3,
+                  color: habilitado ? c.icono : c.tinta3,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
