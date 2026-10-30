@@ -323,6 +323,11 @@ class Paleta extends ThemeExtension<Paleta> {
   /// Track of a switch that is off.
   Color get pistaApagada => interruptorApagado ?? linea2;
 
+  /// The one color of every icon that is not a state or sits on a photo or a flood: rows, tiles,
+  /// chevrons, toolbars, the tab bar and help. Severity, connectivity and success icons keep
+  /// their state color, and icons over video or the alert flood keep their own foreground.
+  Color get icono => moradoTinta;
+
   @override
   Paleta copyWith() => this;
 
