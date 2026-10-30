@@ -201,7 +201,7 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
           DropdownButtonFormField<DateTime>(
             initialValue: _dia,
             isExpanded: true,
-            icon: Icono(Ico.chevD, color: context.colores.tinta2),
+            icon: Icono(Ico.chevD, color: context.colores.icono),
             borderRadius: BorderRadius.circular(16),
             style: estiloTexto(17, 400, color: context.colores.tinta),
             items: [
