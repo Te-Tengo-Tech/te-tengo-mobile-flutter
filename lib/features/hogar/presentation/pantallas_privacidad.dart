@@ -77,7 +77,7 @@ class _Privacidad extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Icono(Ico.lock, tamano: 28, color: context.colores.pausa),
+                    Icono(Ico.lock, tamano: 28, color: context.colores.icono),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
