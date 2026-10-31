@@ -49,12 +49,12 @@ class Aviso extends StatelessWidget {
       ),
       TonoAviso.info => (
         context.colores.moradoSuave,
-        context.colores.moradoTinta,
+        context.colores.icono,
         context.colores.moradoTinta,
       ),
       TonoAviso.neutral => (
         context.colores.fondo2,
-        context.colores.tinta2,
+        context.colores.icono,
         context.colores.tinta2,
       ),
     };

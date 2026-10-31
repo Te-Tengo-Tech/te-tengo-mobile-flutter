@@ -43,7 +43,7 @@ Future<bool> confirmar(
                     tamano: 28,
                     color: peligro
                         ? context.colores.caidaTinta
-                        : context.colores.moradoTinta,
+                        : context.colores.icono,
                   ),
                 ),
               ),

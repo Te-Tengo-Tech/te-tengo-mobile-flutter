@@ -323,6 +323,57 @@ class Paleta extends ThemeExtension<Paleta> {
   /// Track of a switch that is off.
   Color get pistaApagada => interruptorApagado ?? linea2;
 
+  /// The one color of every icon that is not a state or sits on a photo or a flood: rows, tiles,
+  /// chevrons, toolbars, the tab bar and help. Severity, connectivity and success icons keep
+  /// their state color, and icons over video or the alert flood keep their own foreground.
+  Color get icono => moradoTinta;
+
+  /// The palette for what sits on a card filled with [fondo] (a band color): ink, lines, tints
+  /// and the state colors all become [texto], so every piece reads on the fill.
+  Paleta sobreColor(Color fondo, Color texto) {
+    Color mezcla(double t) =>
+        Color.alphaBlend(texto.withValues(alpha: t), fondo);
+    return Paleta(
+      oscura: oscura,
+      fondo: fondo,
+      fondo2: mezcla(.16),
+      tarjeta: fondo,
+      tinta: texto,
+      tinta2: texto,
+      tinta3: texto,
+      linea: mezcla(.38),
+      linea2: mezcla(.5),
+      moradoSuave: mezcla(.16),
+      moradoTinta: texto,
+      coralSuave: mezcla(.16),
+      coralTinta: texto,
+      caidaSuave: mezcla(.16),
+      caidaTinta: texto,
+      inestableSuave: mezcla(.16),
+      inestableTinta: texto,
+      calmaSuave: mezcla(.16),
+      calmaTinta: texto,
+      aviso: texto,
+      avisoSuave: mezcla(.16),
+      avisoTinta: texto,
+      pausa: texto,
+      pausaSuave: mezcla(.16),
+      botonPrimario: texto,
+      inversa: texto,
+      sobreInversa: fondo,
+      hoja: fondo,
+      barra: fondo,
+      barraClip: barraClip,
+      errorTexto: texto,
+      marcador: texto,
+      sombra: sombra,
+      contraste: contraste,
+      anchoBorde: anchoBorde,
+      anchoDivisor: anchoDivisor,
+      interruptorApagado: mezcla(.5),
+    );
+  }
+
   @override
   Paleta copyWith() => this;
 

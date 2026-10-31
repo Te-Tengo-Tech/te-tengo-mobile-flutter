@@ -1564,7 +1564,7 @@ class _HojaMover extends StatelessWidget {
                   child: Icono(
                     icono,
                     tamano: 22,
-                    color: valor == null ? c.tinta3 : c.moradoTinta,
+                    color: valor == null ? c.tinta3 : c.icono,
                   ),
                 ),
                 const SizedBox(width: 12),

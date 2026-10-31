@@ -102,7 +102,7 @@ class PantallaFamilia extends ConsumerWidget {
                       'min de espera',
             fin: titular
                 ? null
-                : Icono(Ico.lock, tamano: 22, color: context.colores.tinta3),
+                : Icono(Ico.lock, tamano: 22, color: context.colores.icono),
             alTocar: () => context.push(Rutas.ordenAviso),
           ),
         ],

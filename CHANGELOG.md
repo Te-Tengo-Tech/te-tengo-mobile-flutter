@@ -4,6 +4,10 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- **One color for every icon:** rows, tiles, chevrons, toolbars, the tab bar, help «?», dialogs and notices use a single token (`Paleta.icono`, the brand violet). Severity, connectivity and success icons keep their state color, and icons over video or the alert flood keep their own foreground. The selected tab is no longer coral: it shows with its pill and its label.
+- **Banded cards are filled with the color of their band:** the alert card, Inicio's status card and the consent records are red, green, amber, brown, slate or violet all over, not only their top band. What is inside reads on the fill (white on all but amber, which takes ink, all at 4.5:1 or better); severity tags and buttons invert on it. The striped (paused) and dashed (disconnected) top bands are now solid: the state still shows with its icon and text.
+
 ### Added
 - **Swipe a floating notice away:** toasts and in-app notifications close with a sideways swipe (either way) or a swipe up, besides their timeout; a tap still runs the notice's action. Screen readers get the system dismiss action and «Cerrar aviso» (new copy, docs/BLOCKERS.md). The swipe cancels the timeout and only closes the notice it started on, never one that replaced it. Hiding an alert's notice («Rosa sigue en el suelo», escalations) marks nothing: the alert stays active on its screen and on Inicio.
 

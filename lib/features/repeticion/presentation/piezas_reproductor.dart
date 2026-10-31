@@ -186,7 +186,7 @@ class EscenarioApagado extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icono(icono, tamano: 30, color: c.moradoTinta),
+                    Icono(icono, tamano: 30, color: c.icono),
                     const SizedBox(height: 8),
                     Flexible(
                       child: Text(
@@ -276,7 +276,7 @@ class EscenarioMovimientos extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icono(mensaje.$1, tamano: 26, color: c.tinta2),
+                          Icono(mensaje.$1, tamano: 26, color: c.icono),
                           const SizedBox(height: 6),
                           Text(
                             mensaje.$2,
@@ -644,7 +644,7 @@ class ControlesReproductor extends StatelessWidget {
         return Icono(
           sentido < 0 ? Ico.prev : Ico.next,
           tamano: 22,
-          color: c.moradoTinta,
+          color: c.icono,
         );
       }
       return Stack(
@@ -653,11 +653,11 @@ class ControlesReproductor extends StatelessWidget {
           Icono(
             sentido < 0 ? Ico.atras10 : Ico.adelante10,
             tamano: 26,
-            color: c.moradoTinta,
+            color: c.icono,
           ),
           Padding(
             padding: const EdgeInsets.only(top: 2),
-            child: Text('10', style: estiloTexto(9, 800, color: c.moradoTinta)),
+            child: Text('10', style: estiloTexto(9, 800, color: c.icono)),
           ),
         ],
       );

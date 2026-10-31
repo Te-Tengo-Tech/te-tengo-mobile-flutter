@@ -123,11 +123,7 @@ class PantallaNotificaciones extends ConsumerWidget {
                 titulo: 'Avisar al secundario a los $espera min',
                 fin: titular
                     ? null
-                    : Icono(
-                        Ico.lock,
-                        tamano: 22,
-                        color: context.colores.tinta3,
-                      ),
+                    : Icono(Ico.lock, tamano: 22, color: context.colores.icono),
                 alTocar: () => context.push(Rutas.ordenAviso),
               ),
             ],

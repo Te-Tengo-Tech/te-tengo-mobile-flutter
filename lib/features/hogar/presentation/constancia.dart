@@ -27,46 +27,52 @@ class TarjetaConstancia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = consentimiento;
-    final texto = Theme.of(context).textTheme;
-    return TarjetaBanda(
+    return TarjetaBanda.construir(
       banda: Banda.calma,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icono(Ico.shield, tamano: 26, color: context.colores.calmaTinta),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Constancia de consentimiento',
-                  style: texto.titleMedium,
+      builder: (context) {
+        final texto = Theme.of(context).textTheme;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icono(
+                  Ico.shield,
+                  tamano: 26,
+                  color: context.colores.calmaTinta,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          DatosTarjeta([
-            FilaDato(clave: 'Otorgado por', valor: c.otorgadoPor),
-            FilaDato(clave: 'Registrado por', valor: c.registradoPor),
-            FilaDato(clave: 'Fecha', valor: fechaConAnio(c.otorgadoEn)),
-            FilaDato(clave: 'Hora', valor: hora(c.otorgadoEn), mono: true),
-          ]),
-          const SizedBox(height: 8),
-          Text(
-            'Constancia exigida por la Ley N.° 29733.',
-            style: texto.bodySmall,
-          ),
-          const SizedBox(height: 4),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Enlace(
-              enlace,
-              alTocar: () => context.push(Rutas.documentoConsentimiento),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Constancia de consentimiento',
+                    style: texto.titleMedium,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
+            const SizedBox(height: 8),
+            DatosTarjeta([
+              FilaDato(clave: 'Otorgado por', valor: c.otorgadoPor),
+              FilaDato(clave: 'Registrado por', valor: c.registradoPor),
+              FilaDato(clave: 'Fecha', valor: fechaConAnio(c.otorgadoEn)),
+              FilaDato(clave: 'Hora', valor: hora(c.otorgadoEn), mono: true),
+            ]),
+            const SizedBox(height: 8),
+            Text(
+              'Constancia exigida por la Ley N.° 29733.',
+              style: texto.bodySmall,
+            ),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Enlace(
+                enlace,
+                alTocar: () => context.push(Rutas.documentoConsentimiento),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

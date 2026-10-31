@@ -38,7 +38,7 @@ class VistaResumenSemanal extends ConsumerWidget {
           children: [
             IconButton(
               tooltip: 'Semana anterior',
-              icon: Icono(Ico.chevL, color: context.colores.tinta),
+              icon: Icono(Ico.chevL, color: context.colores.icono),
               onPressed: () => control.mover(-1),
             ),
             Expanded(
@@ -68,7 +68,7 @@ class VistaResumenSemanal extends ConsumerWidget {
                 Ico.chevR,
                 color: desplazamiento >= 0
                     ? context.colores.linea2
-                    : context.colores.tinta,
+                    : context.colores.icono,
               ),
               onPressed: desplazamiento >= 0 ? null : () => control.mover(1),
             ),

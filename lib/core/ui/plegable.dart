@@ -101,7 +101,7 @@ class _FilaPlegableState extends State<FilaPlegable> {
                       tamano: 24,
                       color: widget.destacada
                           ? Colors.white
-                          : context.colores.moradoTinta,
+                          : context.colores.icono,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -132,7 +132,7 @@ class _FilaPlegableState extends State<FilaPlegable> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                _Chevron(abierta: _abierta, color: context.colores.tinta3),
+                _Chevron(abierta: _abierta, color: context.colores.icono),
               ],
             ),
           ),
@@ -215,7 +215,7 @@ class _VerMasState extends State<VerMas> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                _Chevron(abierta: _abierto, color: context.colores.moradoTinta),
+                _Chevron(abierta: _abierto, color: context.colores.icono),
               ],
             ),
           ),

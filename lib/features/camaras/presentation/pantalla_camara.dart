@@ -180,7 +180,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
               IconButton(
                 tooltip: 'Ajustes de la cámara',
                 onPressed: _abrirAjustes,
-                icon: Icono(Ico.puntos, color: context.colores.tinta),
+                icon: Icono(Ico.puntos, color: context.colores.icono),
               ),
           ],
         ),

@@ -114,7 +114,7 @@ class _CampoTextoState extends State<CampoTexto> {
                         onPressed: () => setState(() => _oculta = !_oculta),
                         icon: Icono(
                           _oculta ? Ico.eye : Ico.eyeOff,
-                          color: context.colores.tinta,
+                          color: context.colores.icono,
                         ),
                       )
                     : null,

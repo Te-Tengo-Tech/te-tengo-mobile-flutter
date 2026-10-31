@@ -481,7 +481,7 @@ class _LineaRica extends StatelessWidget {
     children: [
       Padding(
         padding: const EdgeInsets.only(top: 2),
-        child: Icono(icono, tamano: 20, color: context.colores.tinta2),
+        child: Icono(icono, tamano: 20, color: context.colores.icono),
       ),
       const SizedBox(width: 10),
       Expanded(

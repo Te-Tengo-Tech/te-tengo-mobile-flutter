@@ -66,7 +66,7 @@ class IconoPc extends StatelessWidget {
     final (fondo, color, icono, punteado) = switch (estado) {
       EstadoPc.enLinea => (c.calmaSuave, c.calmaTinta, Ico.pc, false),
       EstadoPc.sinConexion => (c.avisoSuave, c.aviso, Ico.wifiOff, true),
-      EstadoPc.faltanCamaras => (c.moradoSuave, c.moradoTinta, Ico.pc, true),
+      EstadoPc.faltanCamaras => (c.moradoSuave, c.icono, Ico.pc, true),
     };
     return ExcludeSemantics(
       child: CustomPaint(
@@ -195,11 +195,7 @@ class HeroePc extends StatelessWidget {
         color: fondo ?? context.colores.moradoSuave,
         shape: BoxShape.circle,
       ),
-      child: Icono(
-        icono,
-        tamano: 32,
-        color: color ?? context.colores.moradoTinta,
-      ),
+      child: Icono(icono, tamano: 32, color: color ?? context.colores.icono),
     ),
   );
 }

@@ -84,9 +84,7 @@ class _AyudaInfoState extends State<AyudaInfo> {
   @override
   Widget build(BuildContext context) {
     final c = context.colores;
-    final color = widget.sobreOscuro
-        ? Colors.white
-        : (c.contraste ? c.tinta : c.tinta2);
+    final color = widget.sobreOscuro ? Colors.white : c.icono;
     return TapRegion(
       groupId: _grupo,
       onTapOutside: (_) => _cerrar(),

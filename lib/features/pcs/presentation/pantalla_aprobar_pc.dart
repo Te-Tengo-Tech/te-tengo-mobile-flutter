@@ -227,7 +227,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
             ? null
             : IconButton(
                 tooltip: 'Cerrar',
-                icon: const Icono(Ico.x),
+                icon: Icono(Ico.x, color: context.colores.icono),
                 onPressed: () => context.go(
                   widget.enConfiguracion ? Rutas.configCamara : Rutas.inicio,
                 ),
@@ -410,10 +410,10 @@ class _Permiso extends StatelessWidget {
           alignment: Alignment.center,
           // Coral is the brand accent, never an alert (DESIGN.md).
           decoration: BoxDecoration(
-            color: context.colores.coralSuave,
+            color: context.colores.moradoSuave,
             shape: BoxShape.circle,
           ),
-          child: Icono(icono, tamano: 22, color: context.colores.coralTinta),
+          child: Icono(icono, tamano: 22, color: context.colores.icono),
         ),
         const SizedBox(width: 14),
         Expanded(
