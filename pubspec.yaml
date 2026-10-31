@@ -81,6 +81,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # The welcome photo (Pexels license; credits in assets/imagenes/CREDITOS.md).
+  assets:
+    - assets/imagenes/bienvenida.webp
+
   # Poppins (SIL Open Font License, assets/fonts/OFL.txt): the typeface of the Te Tengo brand kit.
   fonts:
     - family: Poppins

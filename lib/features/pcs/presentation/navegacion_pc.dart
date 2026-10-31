@@ -33,11 +33,8 @@ void salirA(BuildContext context, String destino) {
 }
 
 /// «Esta PC ya está vinculada» (`409 PC_YA_VINCULADA`): the toast, then back to «Agregar PC», or to
-/// «Cámaras y PCs» (step 3 in setup) when the pairing was opened from the PC's QR.
-void avisarPcYaVinculada(
-  BuildContext context, {
-  required bool enConfiguracion,
-}) {
+/// «Cámaras y PCs» when the pairing was opened from the PC's QR.
+void avisarPcYaVinculada(BuildContext context) {
   mostrarToast(
     context,
     titulo: 'Esta PC ya está vinculada',
@@ -45,5 +42,5 @@ void avisarPcYaVinculada(
     icono: Ico.pc,
     tono: TonoAviso.advertencia,
   );
-  salirA(context, enConfiguracion ? Rutas.configCamara : Rutas.pcs);
+  salirA(context, Rutas.pcs);
 }

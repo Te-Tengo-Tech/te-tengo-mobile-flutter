@@ -23,9 +23,7 @@ import 'navegacion_pc.dart';
 /// (CA-28.2). Wrong codes (CA-28.6), expired or used ones (CA-28.3) and the 15-minute block are
 /// told in place; a valid one opens the approval screen.
 class PantallaEscribirCodigo extends ConsumerStatefulWidget {
-  const PantallaEscribirCodigo({super.key, this.enConfiguracion = false});
-
-  final bool enConfiguracion;
+  const PantallaEscribirCodigo({super.key});
 
   @override
   ConsumerState<PantallaEscribirCodigo> createState() =>
@@ -56,10 +54,9 @@ class _PantallaEscribirCodigoState
   Future<void> _continuar() async {
     if (_letras.length != largoDelCodigo || _bloqueado || _consultando) return;
     final codigo = formatoCodigo(_letras);
-    final config = widget.enConfiguracion;
     // An invited member cannot look a code up: the approval screen tells them who can (CA-28.5).
     if (!ref.read(esTitularProvider)) {
-      context.pushReplacement(Rutas.aprobarPc(codigo, config: config));
+      context.pushReplacement(Rutas.aprobarPc(codigo));
       return;
     }
     setState(() {
@@ -70,18 +67,18 @@ class _PantallaEscribirCodigoState
       final consulta = await ref.read(pcsRepositorioProvider).consultar(codigo);
       if (!mounted) return;
       context.pushReplacement(
-        Rutas.aprobarPc(consulta.codigo, config: config),
+        Rutas.aprobarPc(consulta.codigo),
         extra: consulta,
       );
     } on ProblemaApi catch (e) {
       if (!mounted) return;
       final error = ErrorDeCodigo.desde(e);
       if (error.tipo == TipoErrorCodigo.soloTitular) {
-        context.pushReplacement(Rutas.aprobarPc(codigo, config: config));
+        context.pushReplacement(Rutas.aprobarPc(codigo));
         return;
       }
       if (error.tipo == TipoErrorCodigo.yaVinculada) {
-        avisarPcYaVinculada(context, enConfiguracion: config);
+        avisarPcYaVinculada(context);
         return;
       }
       setState(() {
@@ -182,9 +179,7 @@ class _PantallaEscribirCodigoState
               'Escanear el código QR',
               icono: Ico.scan,
               estilo: EstiloBoton.fantasma,
-              alPresionar: () => context.pushReplacement(
-                Rutas.enPaso(Rutas.escanear, config: widget.enConfiguracion),
-              ),
+              alPresionar: () => context.pushReplacement(Rutas.escanear),
             ),
           ],
         ],

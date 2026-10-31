@@ -18,7 +18,7 @@ import '../../familia/domain/familiar.dart';
 import '../../inicio/presentation/pantalla_inicio.dart';
 import '../../instalar/presentation/instalar_app.dart';
 import '../data/preferencias.dart';
-import 'pantalla_avisos_setup.dart';
+import 'permiso_avisos.dart';
 
 /// Screen 96: whether this phone may show notifications and what it is told about.
 class PantallaNotificaciones extends ConsumerWidget {

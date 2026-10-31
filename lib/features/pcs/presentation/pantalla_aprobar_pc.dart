@@ -28,19 +28,13 @@ import 'piezas_pc.dart';
 /// to do, before «Aprobar» or «No reconozco esta PC» (CA-28.4). Only the owner approves (CA-28.5).
 /// The PC's QR opens it directly (`/vincular?codigo=…`).
 class PantallaAprobarPc extends ConsumerStatefulWidget {
-  const PantallaAprobarPc({
-    super.key,
-    required this.codigo,
-    this.consulta,
-    this.enConfiguracion = false,
-  });
+  const PantallaAprobarPc({super.key, required this.codigo, this.consulta});
 
   /// As scanned or typed; shown as `KQWT-MXHD`.
   final String codigo;
 
   /// Already looked up by the scanner or the code screen.
   final ConsultaPc? consulta;
-  final bool enConfiguracion;
 
   @override
   ConsumerState<PantallaAprobarPc> createState() => _PantallaAprobarPcState();
@@ -90,7 +84,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
       if (!mounted) return;
       final error = ErrorDeCodigo.desde(e);
       if (error.tipo == TipoErrorCodigo.yaVinculada) {
-        avisarPcYaVinculada(context, enConfiguracion: widget.enConfiguracion);
+        avisarPcYaVinculada(context);
         return;
       }
       setState(() => _errorConsulta = error);
@@ -123,10 +117,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
           context.pushReplacement(
             Uri(
               path: Rutas.escanear,
-              queryParameters: {
-                'vencido': '1',
-                if (widget.enConfiguracion) 'config': '1',
-              },
+              queryParameters: {'vencido': '1'},
             ).toString(),
           );
         case TipoErrorCodigo.sinConexion:
@@ -134,7 +125,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
         case TipoErrorCodigo.soloTitular:
           setState(() => _errorConsulta = error);
         case TipoErrorCodigo.yaVinculada:
-          avisarPcYaVinculada(context, enConfiguracion: widget.enConfiguracion);
+          avisarPcYaVinculada(context);
         default:
           setState(() => _problema = e);
       }
@@ -143,13 +134,9 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
     }
   }
 
-  /// In setup, back to step 3, which now shows the linked PC; otherwise «PC vinculada».
+  /// «PC vinculada», on top of the screen the pairing started from.
   void _alVincular(Pc pc) {
     final hayOrigen = cerrarVinculacion(context);
-    if (widget.enConfiguracion) {
-      if (!hayOrigen) context.go(Rutas.configCamara);
-      return;
-    }
     if (hayOrigen) {
       unawaited(context.push(Rutas.pcVinculada(pc.id)));
     } else {
@@ -172,7 +159,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
     await _avisarRechazo();
     if (!mounted) return;
     if (!cerrarVinculacion(context)) {
-      context.go(widget.enConfiguracion ? Rutas.configCamara : Rutas.inicio);
+      context.go(Rutas.inicio);
     }
   }
 
@@ -213,9 +200,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
     ),
   );
 
-  void _otroCodigo(String ruta) => context.pushReplacement(
-    Rutas.enPaso(ruta, config: widget.enConfiguracion),
-  );
+  void _otroCodigo(String ruta) => context.pushReplacement(ruta);
 
   @override
   Widget build(BuildContext context) {
@@ -228,9 +213,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
             : IconButton(
                 tooltip: 'Cerrar',
                 icon: Icono(Ico.x, color: context.colores.icono),
-                onPressed: () => context.go(
-                  widget.enConfiguracion ? Rutas.configCamara : Rutas.inicio,
-                ),
+                onPressed: () => context.go(Rutas.inicio),
               ),
       ),
       body: _cuerpo(context),

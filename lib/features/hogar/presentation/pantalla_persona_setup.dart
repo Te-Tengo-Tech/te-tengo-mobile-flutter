@@ -13,7 +13,7 @@ import '../data/hogar_repositorio.dart';
 import 'formulario_adulto_mayor.dart';
 import 'pantalla_persona_cuidada.dart' show AvisoUnaSolaPersona;
 
-/// US-04, screens 14 and 15 (setup step 1 of 5): register the older adult. The household is created
+/// US-04, screens 14 and 15 (setup step 1 of 2): register the older adult. The household is created
 /// with `POST /api/hogar` and its session is stored (CA-04.1); empty fields are highlighted (CA-04.3).
 class PantallaPersonaSetup extends ConsumerStatefulWidget {
   const PantallaPersonaSetup({super.key});

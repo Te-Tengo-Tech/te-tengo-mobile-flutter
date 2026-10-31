@@ -50,13 +50,7 @@ class _Aviso {
 /// «Escanear el código QR» (screens 122 to 127 and 139): the phone's camera reads the QR that Te
 /// Tengo Captura shows (CA-28.1). «Escribir el código» is always at hand (CA-28.2).
 class PantallaEscanear extends ConsumerStatefulWidget {
-  const PantallaEscanear({
-    super.key,
-    this.enConfiguracion = false,
-    this.codigoVencido = false,
-  });
-
-  final bool enConfiguracion;
+  const PantallaEscanear({super.key, this.codigoVencido = false});
 
   /// Back from the approval screen because the code expired meanwhile (screen 139).
   final bool codigoVencido;
@@ -150,9 +144,8 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
         ),
       );
     }
-    final config = widget.enConfiguracion;
     if (!ref.read(esTitularProvider)) {
-      context.pushReplacement(Rutas.aprobarPc(codigo, config: config));
+      context.pushReplacement(Rutas.aprobarPc(codigo));
       return;
     }
     setState(() {
@@ -163,18 +156,18 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
       final consulta = await ref.read(pcsRepositorioProvider).consultar(codigo);
       if (!mounted) return;
       context.pushReplacement(
-        Rutas.aprobarPc(consulta.codigo, config: config),
+        Rutas.aprobarPc(consulta.codigo),
         extra: consulta,
       );
     } on ProblemaApi catch (e) {
       if (!mounted) return;
       final error = ErrorDeCodigo.desde(e);
       if (error.tipo == TipoErrorCodigo.soloTitular) {
-        context.pushReplacement(Rutas.aprobarPc(codigo, config: config));
+        context.pushReplacement(Rutas.aprobarPc(codigo));
         return;
       }
       if (error.tipo == TipoErrorCodigo.yaVinculada) {
-        avisarPcYaVinculada(context, enConfiguracion: config);
+        avisarPcYaVinculada(context);
         return;
       }
       setState(() => _estado = _Estado.escaneando);
@@ -199,9 +192,7 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
     }
   }
 
-  void _escribir() => context.pushReplacement(
-    Rutas.enPaso(Rutas.escribirCodigo, config: widget.enConfiguracion),
-  );
+  void _escribir() => context.pushReplacement(Rutas.escribirCodigo);
 
   @override
   void dispose() {
