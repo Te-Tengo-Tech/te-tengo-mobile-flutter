@@ -53,14 +53,9 @@ const _otra = '__otra';
 /// (CA-29.1 to CA-29.7). One camera per room on any PC (CA-29.3), never in a bathroom; the invited
 /// member sees it read-only (CA-29.9).
 class PantallaElegirCamaras extends ConsumerStatefulWidget {
-  const PantallaElegirCamaras({
-    super.key,
-    required this.pcId,
-    this.enConfiguracion = false,
-  });
+  const PantallaElegirCamaras({super.key, required this.pcId});
 
   final String pcId;
-  final bool enConfiguracion;
 
   @override
   ConsumerState<PantallaElegirCamaras> createState() =>
@@ -221,9 +216,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
     }
   }
 
-  void _terminar() => widget.enConfiguracion
-      ? context.go(Rutas.configFamilia)
-      : salirA(context, Rutas.pcs);
+  void _terminar() => salirA(context, Rutas.pcs);
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +226,6 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
     final ambientes = ref.watch(ambientesProvider);
     final hogar = ref.watch(hogarProvider);
     final titular = ref.watch(esTitularProvider);
-    final escala = MediaQuery.textScalerOf(context);
     Future<void> recargar() async => ref
       ..invalidate(pcsProvider)
       ..invalidate(camarasDetectadasProvider(widget.pcId))
@@ -242,13 +234,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
     return RefrescoPcs(
       pcId: widget.pcId,
       child: Scaffold(
-        appBar: widget.enConfiguracion
-            ? CabeceraConfiguracion(
-                paso: 3,
-                titulo: 'PC de la casa',
-                escala: escala,
-              )
-            : AppBar(title: Text(pc?.nombre ?? 'Elige las cámaras')),
+        appBar: AppBar(title: Text(pc?.nombre ?? 'Elige las cámaras')),
         body: switch ((pcs, webcams, ambientes, hogar)) {
           (AsyncError(:final error), _, _, _) ||
           (_, AsyncError(:final error), _, _) ||
@@ -301,7 +287,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
     final enUso = lista.where((w) => w.enUso).length;
     final n = lista.length;
     return ListView(
-      padding: EdgeInsets.fromLTRB(20, widget.enConfiguracion ? 0 : 4, 20, 28),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
         Semantics(
           header: true,
@@ -326,9 +312,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
                 ? Boton(
                     'Registrar consentimiento',
                     pequeno: true,
-                    alPresionar: () => widget.enConfiguracion
-                        ? context.go(Rutas.configConsentimiento)
-                        : context.push(Rutas.consentimiento),
+                    alPresionar: () => context.push(Rutas.consentimiento),
                   )
                 : null,
           ),
@@ -407,10 +391,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
         ],
         if (titular) ...[
           const SizedBox(height: 20),
-          Boton(
-            widget.enConfiguracion ? 'Continuar' : 'Listo',
-            alPresionar: _terminar,
-          ),
+          Boton('Listo', alPresionar: _terminar),
         ],
       ],
     );

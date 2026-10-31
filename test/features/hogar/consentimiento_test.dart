@@ -58,7 +58,7 @@ void main() {
     'CA-05.4: el formulario indica la vista en vivo en cualquier momento',
     (tester) async {
       await abrir(tester, Rutas.configConsentimiento);
-      expect(find.text('Paso 2 de 5'), findsOneWidget);
+      expect(find.text('Paso 2 de 2'), findsOneWidget);
       // The live-view clause goes first and open; the others are folded.
       expect(
         find.textContaining('La familia vinculada puede verla en vivo'),
@@ -87,24 +87,44 @@ void main() {
   });
 
   testWidgets(
-    'CA-05.1 y CA-05.3: registra el consentimiento y muestra la constancia con fecha y hora',
+    'CA-05.1 y CA-05.3: en la configuración registra el consentimiento y «Todo listo» '
+    'muestra la constancia con fecha y hora',
     (tester) async {
       await abrir(tester, Rutas.configConsentimiento);
       await tocar(tester, find.textContaining('Rosa fue informada y acepta'));
       await tocar(tester, find.text('Leí el resumen y el documento completo.'));
       await tocar(tester, find.text('Registrar consentimiento'));
       expect(repo.consentimientos, ['Rosa Huamán']);
-      expect(find.text('Consentimiento registrado'), findsOneWidget);
+      expect(find.text('Todo listo. Ya estás cerca de Rosa.'), findsOneWidget);
+      expect(find.text('Las cámaras ya detectan caídas.'), findsOneWidget);
       expect(find.text('Constancia de consentimiento'), findsOneWidget);
       expect(find.text('23 sep 2026'), findsOneWidget);
       expect(find.text('09:14'), findsOneWidget);
+      await verHasta(
+        tester,
+        find.text('Constancia exigida por la Ley N.° 29733.'),
+      );
       expect(
         find.text('Constancia exigida por la Ley N.° 29733.'),
         findsOneWidget,
       );
-      pcs.pcs = [];
-      await tocar(tester, find.text('Continuar con la PC de la casa'));
-      expect(find.text('Vincula la PC de la casa'), findsOneWidget);
+      // Not a missing item any more.
+      expect(find.text('Falta el consentimiento'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'CA-05.1 y CA-05.3: desde el inicio muestra «Consentimiento registrado» con la constancia',
+    (tester) async {
+      await abrir(tester, Rutas.inicio);
+      await tocar(tester, find.text('Registrar consentimiento'));
+      await tocar(tester, find.textContaining('Rosa fue informada y acepta'));
+      await tocar(tester, find.text('Leí el resumen y el documento completo.'));
+      await tocar(tester, find.text('Registrar consentimiento'));
+      expect(repo.consentimientos, ['Rosa Huamán']);
+      expect(find.text('Consentimiento registrado'), findsOneWidget);
+      expect(find.text('Constancia de consentimiento'), findsOneWidget);
+      expect(find.text('Volver al inicio'), findsOneWidget);
     },
   );
 
@@ -121,12 +141,18 @@ void main() {
     'CA-05.2: sin consentimiento la cámara no envía video y se pide completarlo',
     (tester) async {
       await abrir(tester, Rutas.configConsentimiento);
+      await verHasta(tester, find.text('Ahora no'));
       await tocar(tester, find.text('Ahora no'));
-      // Screen 25: the PC is linked, and its cameras send nothing yet.
-      expect(find.text('La PC Sala-Rosa está vinculada'), findsOneWidget);
-      expect(find.text('Falta el consentimiento de Rosa'), findsOneWidget);
-      expect(find.textContaining('Detenida', findRichText: true), findsWidgets);
-      await tocar(tester, find.text('Completar el consentimiento'));
+      // Consent stays free: «Todo listo» says it is missing and nothing was recorded.
+      expect(repo.consentimientos, isEmpty);
+      expect(find.text('Todo listo. Ya estás cerca de Rosa.'), findsOneWidget);
+      expect(find.text('Constancia de consentimiento'), findsNothing);
+      await verHasta(tester, find.text('Falta el consentimiento'));
+      expect(find.text('Regístralo desde Inicio'), findsOneWidget);
+      await verHasta(tester, find.text('Ir al inicio'));
+      await tocar(tester, find.text('Ir al inicio'));
+      expect(find.text('Detección detenida'), findsOneWidget);
+      await tocar(tester, find.text('Registrar consentimiento'));
       expect(
         find.text(
           'Lo acepta Rosa o su representante. Sin él, no detectamos caídas.',

@@ -113,3 +113,7 @@ Screens 313 to 354 of the mobile prototype (docs `05-prototipos/app-movil`, comm
 - [x] **T44 US-41 (CA-41.4) Favourites and «Ordenar»:** screens 313, 328 to 332, 338, 339 and 342; the order of this phone in «Cámaras», Inicio and the room picker.
 - [x] **T45 US-41 «Ver todas»:** screens 314 to 327, 333 to 337, 340, 341 and 343; one access log entry per opening (contract §4).
 - [x] **T46 US-44 Home-screen widget:** screens 344 to 348; Android 4×2 and 2×2, iOS WidgetKit, not on the web.
+
+## Shorter onboarding and the welcome photo (owner request, 2026-10-31)
+- [x] **T47 Onboarding in two steps** ([ONBOARDING.md](ONBOARDING.md)): «Persona cuidada» (Paso 1 de 2) and «Consentimiento» (Paso 2 de 2), then «Todo listo» with the consent certificate, the notification permission (explained first) and what was left for later. The PC, the family and the notifications are no longer steps; the pairing screens lost their setup mode (`config=1`).
+- [x] **T48 Welcome photo:** screen 01's photo (Pexels, `assets/imagenes/CREDITOS.md`) as a 4:3 WebP with rounded corners and «Una hija abraza a su madre» for screen readers.

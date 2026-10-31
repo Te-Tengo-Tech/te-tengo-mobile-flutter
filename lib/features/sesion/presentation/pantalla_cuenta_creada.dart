@@ -9,7 +9,8 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
 
-/// Screen 05: the account is ready and the four setup steps follow (CA-01.1).
+/// Screen 05: the account is ready and the two setup steps follow (CA-01.1, docs/ONBOARDING.md).
+/// The PC, the family and the notifications are not steps: «Todo listo» and Inicio offer them.
 class PantallaCuentaCreada extends ConsumerWidget {
   const PantallaCuentaCreada({super.key});
 
@@ -46,7 +47,7 @@ class PantallaCuentaCreada extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          '5 pasos más:',
+                          '2 pasos más:',
                           style: texto.bodyLarge?.copyWith(
                             color: context.colores.tinta2,
                           ),
@@ -55,9 +56,6 @@ class PantallaCuentaCreada extends ConsumerWidget {
                         const PasosNumerados([
                           ('Datos de la persona', null),
                           ('Consentimiento informado', null),
-                          ('Vincular la PC de la casa', null),
-                          ('Invitar a un familiar', null),
-                          ('Activar los avisos', null),
                         ]),
                       ],
                     ),

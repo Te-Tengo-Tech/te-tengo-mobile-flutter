@@ -6,7 +6,6 @@ import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
-import '../../../core/ui/ilustraciones.dart';
 import '../../../core/ui/marca.dart';
 import '../../instalar/presentation/instalar_app.dart';
 
@@ -36,7 +35,7 @@ class PantallaBienvenida extends StatelessWidget {
                     // Web app on an iPhone tab: install it before signing in, because the
                     // home-screen app does not share Safari's session.
                     const AvisoInstalarApp(separacion: 20),
-                    const _Ilustracion(),
+                    const FotoBienvenida(),
                     const SizedBox(height: 20),
                     Text(
                       'Cuida a tu familiar aunque no estés en casa.',
@@ -76,20 +75,30 @@ class PantallaBienvenida extends StatelessWidget {
   }
 }
 
-class _Ilustracion extends StatelessWidget {
-  const _Ilustracion();
+/// The welcome photo (`.hero-ph`): a daughter embracing her mother, rounded, 4:3, cropped as in
+/// the prototype. Pexels photo by Danik Prihodko, free under the Pexels license
+/// (`assets/imagenes/CREDITOS.md`). It shows no project person and is not a camera view.
+class FotoBienvenida extends StatelessWidget {
+  const FotoBienvenida({super.key});
+
+  static const archivo = 'assets/imagenes/bienvenida.webp';
+  static const descripcion = 'Una hija abraza a su madre';
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(18),
+    borderRadius: BorderRadius.circular(24),
     child: AspectRatio(
-      aspectRatio: 16 / 11,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          const Habitacion(nombre: 'Sala'),
-          Positioned(top: 10, left: 10, child: EtiquetaClip.escudo()),
-        ],
+      aspectRatio: 4 / 3,
+      child: ColoredBox(
+        // Shown while the photo decodes, in light and dark mode.
+        color: context.colores.fondo2,
+        child: Image.asset(
+          archivo,
+          fit: BoxFit.cover,
+          semanticLabel: descripcion,
+          gaplessPlayback: true,
+          errorBuilder: (context, error, stack) => const SizedBox.expand(),
+        ),
       ),
     ),
   );

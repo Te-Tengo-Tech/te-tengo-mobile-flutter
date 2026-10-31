@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/dispositivo/llamada.dart';
@@ -62,11 +63,9 @@ final pantallasOscurasYGrandes = [
     Rutas.alerta('a-1'),
     inestable: true,
   ),
-  const Pantalla('paso 1 persona', Rutas.configPersona),
+  const Pantalla('cuenta creada', Rutas.cuentaCreada, sesion: sesionSinHogar),
+  const Pantalla('paso 1 persona', Rutas.configPersona, sesion: sesionSinHogar),
   const Pantalla('paso 2 consentimiento', Rutas.configConsentimiento),
-  const Pantalla('paso 3 cámara', Rutas.configCamara),
-  const Pantalla('paso 4 familia', Rutas.configFamilia),
-  const Pantalla('paso 5 avisos', Rutas.configAvisos),
   const Pantalla('todo listo', Rutas.configListo),
   const Pantalla('términos de uso', Rutas.terminos),
   const Pantalla('política de privacidad', Rutas.politica),
@@ -88,7 +87,7 @@ final pantallasNuevas = [
     sesion: sesionInvitado,
   ),
   Pantalla('PC vinculada', Rutas.pcVinculada('pc-sala')),
-  Pantalla('elige las cámaras', Rutas.elegirCamaras('pc-sala', config: true)),
+  Pantalla('elige las cámaras', Rutas.elegirCamaras('pc-sala')),
   Pantalla(
     'elige las cámaras (invitado)',
     Rutas.elegirCamaras('pc-sala'),
@@ -272,5 +271,22 @@ Future<void> abrirPantalla(WidgetTester tester, Pantalla p) async {
       ],
     ),
   );
+  await tester.pumpAndSettle();
+  await decodificarFotos(tester);
+}
+
+/// Decodes the bundled photos on screen (the welcome photo), which needs real async work, so the
+/// screenshots and the contrast checks see them instead of their placeholder.
+Future<void> decodificarFotos(WidgetTester tester) async {
+  final fotos = [
+    for (final e in find.byType(Image).evaluate())
+      if ((e.widget as Image).image is AssetImage) e,
+  ];
+  if (fotos.isEmpty) return;
+  await tester.runAsync(() async {
+    for (final e in fotos) {
+      await precacheImage((e.widget as Image).image, e);
+    }
+  });
   await tester.pumpAndSettle();
 }

@@ -512,59 +512,13 @@ void main() {
     });
   });
 
-  group('Paso 3 de la configuración', () {
-    testWidgets('sin PC, pide vincularla y permite hacerlo después', (
-      tester,
-    ) async {
-      await abrir(tester, Rutas.configCamara);
-      expect(find.text('Paso 3 de 5'), findsOneWidget);
-      expect(find.text('Vincula la PC de la casa'), findsOneWidget);
-      await verHasta(
-        tester,
-        find.text('Sin una PC vinculada no detectamos caídas.'),
-      );
-      await tocar(tester, find.text('Hacerlo después'));
-      expect(find.text('Paso 4 de 5'), findsOneWidget);
-    });
-
-    testWidgets('aprobar dentro del paso vuelve al paso con la PC vinculada', (
-      tester,
-    ) async {
-      await abrir(tester, Rutas.configCamara);
-      await tocar(tester, find.text('Escribir el código'));
-      await tester.enterText(campoCodigo(), 'KQWTMXHD');
-      await tocar(tester, find.text('Continuar'));
-      await tocar(tester, find.text('Aprobar'));
-      expect(find.text('Paso 3 de 5'), findsOneWidget);
-      expect(find.text('La PC Sala-Rosa está vinculada'), findsOneWidget);
-      await tocar(tester, find.text('Hacerlo después'));
-      expect(find.text('Paso 4 de 5'), findsOneWidget);
-    });
-
-    testWidgets('con las cámaras elegidas, continúa al paso 4', (tester) async {
-      pcs = PcsRepositorioFalso();
-      await abrir(tester, Rutas.configCamara);
-      expect(find.text('Sus cámaras ya están elegidas.'), findsOneWidget);
-      expect(find.text('Sala'), findsOneWidget);
-      await tocar(tester, find.text('Continuar'));
-      expect(find.text('Paso 4 de 5'), findsOneWidget);
-    });
-  });
-
   test('sin sesión, el enlace del QR pide entrar primero', () {
     expect(Rutas.redirigir(null, Rutas.vincular), Rutas.bienvenida);
   });
 
   test('las rutas de la vinculación se arman con el código', () {
     expect(Rutas.aprobarPc('KQWT-MXHD'), '/vincular?codigo=KQWT-MXHD');
-    expect(
-      Rutas.aprobarPc('KQWT-MXHD', config: true),
-      '/vincular?codigo=KQWT-MXHD&config=1',
-    );
-    expect(
-      Rutas.elegirCamaras('pc-1', config: true),
-      '/pcs/pc-1/camaras?config=1',
-    );
+    expect(Rutas.elegirCamaras('pc-1'), '/pcs/pc-1/camaras');
   });
 
   testWidgets('la configuración guarda que ya se explicó la cámara', (

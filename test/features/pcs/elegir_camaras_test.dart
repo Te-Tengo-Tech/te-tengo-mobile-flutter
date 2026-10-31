@@ -371,13 +371,6 @@ void main() {
     },
   );
 
-  testWidgets('en la configuración, «Continuar» va al paso 4', (tester) async {
-    await abrir(tester, Rutas.elegirCamaras('pc-sala', config: true));
-    expect(find.text('Paso 3 de 5'), findsOneWidget);
-    await tocar(tester, find.text('Continuar'));
-    expect(find.text('Paso 4 de 5'), findsOneWidget);
-  });
-
   group('Vista previa', () {
     testWidgets(
       'CA-29.7: muestra unos segundos, se cierra sola y se registra',

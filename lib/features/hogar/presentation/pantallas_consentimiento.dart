@@ -29,7 +29,7 @@ enum _Otorgante { directo, representante }
 class PantallaConsentimiento extends ConsumerStatefulWidget {
   const PantallaConsentimiento({super.key, this.enConfiguracion = false});
 
-  /// Step 2 of 5 of the setup; otherwise opened from Inicio or Ajustes.
+  /// Step 2 of 2 of the setup, then «Todo listo»; otherwise opened from Inicio or Ajustes.
   final bool enConfiguracion;
 
   @override
@@ -73,7 +73,8 @@ class _PantallaConsentimientoState
         ..invalidate(camarasProvider);
       if (!mounted) return;
       if (widget.enConfiguracion) {
-        context.go(Rutas.configConstancia);
+        // «Todo listo» shows the certificate and asks for the notifications.
+        context.go(Rutas.configListo);
       } else {
         context.pushReplacement(Rutas.constancia);
       }
@@ -91,9 +92,10 @@ class _PantallaConsentimientoState
     }
   }
 
+  /// Consent is freely given: it can be left for later from Inicio (CA-05.2 then stops detection).
   void _ahoraNo() {
     if (widget.enConfiguracion) {
-      context.go(Rutas.configCamara);
+      context.go(Rutas.configListo);
     } else {
       context.pop();
     }
@@ -230,14 +232,10 @@ class ResumenConsentimiento extends StatelessWidget {
   );
 }
 
-/// Screen 18: consent recorded, with its certificate (CA-05.1, CA-05.3).
+/// Screen 18: consent recorded, with its certificate (CA-05.1, CA-05.3), when registered from
+/// Inicio or Ajustes; in setup, «Todo listo» shows the same certificate.
 class PantallaConsentimientoRegistrado extends ConsumerWidget {
-  const PantallaConsentimientoRegistrado({
-    super.key,
-    this.enConfiguracion = false,
-  });
-
-  final bool enConfiguracion;
+  const PantallaConsentimientoRegistrado({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -282,16 +280,10 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               if (h.consentimiento case final c?)
                 TarjetaConstancia(consentimiento: c),
               const SizedBox(height: 20),
-              if (enConfiguracion)
-                Boton(
-                  'Continuar con la PC de la casa',
-                  alPresionar: () => context.go(Rutas.configCamara),
-                )
-              else
-                Boton(
-                  'Volver al inicio',
-                  alPresionar: () => _volverAlInicio(context, ref),
-                ),
+              Boton(
+                'Volver al inicio',
+                alPresionar: () => _volverAlInicio(context, ref),
+              ),
             ],
           ),
         ),

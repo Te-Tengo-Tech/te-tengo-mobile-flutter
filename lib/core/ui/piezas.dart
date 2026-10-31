@@ -207,7 +207,7 @@ void mostrarToast(
   AvisoFlotante(titulo: titulo, texto: texto, icono: icono, tono: tono),
 );
 
-/// Setup header (`setupHead`): back button and title, then «Paso N de 5» above the progress bar.
+/// Setup header (`setupHead`): back button and title, then «Paso N de 2» above the progress bar.
 ///
 /// Pass the screen's [escala] (`MediaQuery.textScalerOf`) so the header grows with large text
 /// instead of clipping the step line.
@@ -220,8 +220,9 @@ class CabeceraConfiguracion extends StatelessWidget
     this.escala = TextScaler.noScaling,
   });
 
-  /// Steps of the setup: person, consent, camera, family and notifications.
-  static const pasos = 5;
+  /// Steps of the setup: the person and the consent (docs/ONBOARDING.md). The PC, the family and
+  /// the notifications are offered by «Todo listo» and Inicio instead.
+  static const pasos = 2;
 
   final int paso;
   final String titulo;

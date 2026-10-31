@@ -24,14 +24,10 @@ class PantallaNombreHabitacion extends ConsumerStatefulWidget {
     super.key,
     required this.camaraId,
     required this.nombreActual,
-    this.enConfiguracion = false,
   });
 
   final String camaraId;
   final String nombreActual;
-
-  /// Step 3 of 5 of the setup.
-  final bool enConfiguracion;
 
   /// Suggestions from the design.
   static const sugerencias = [
@@ -149,20 +145,9 @@ class _PantallaNombreHabitacionState
     ref.watch(ambientesProvider);
     final ocupadas = {for (final a in _ocupadas) a.nombre.toLowerCase()};
     return Scaffold(
-      appBar: widget.enConfiguracion
-          ? CabeceraConfiguracion(
-              paso: 3,
-              titulo: 'Cámara',
-              escala: MediaQuery.textScalerOf(context),
-            )
-          : AppBar(title: const Text('Nombre de la habitación')),
+      appBar: AppBar(title: const Text('Nombre de la habitación')),
       body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          widget.enConfiguracion ? 0 : 4,
-          20,
-          28,
-        ),
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
           if (_problema != null) ...[
             MensajeProblema(_problema!),

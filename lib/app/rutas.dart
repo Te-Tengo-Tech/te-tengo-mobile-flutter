@@ -24,14 +24,12 @@ abstract final class Rutas {
   /// Web app on an iPhone browser tab: how to add it to the home screen (docs/WEB_PWA.md).
   static const instalar = '/instalar';
 
-  // Onboarding (a session without a household reaches only the first two).
+  // Onboarding, two steps (docs/ONBOARDING.md): the person (step 1, which creates the household),
+  // the consent (step 2), then «Todo listo», which asks for the notifications. A session without a
+  // household reaches only the first two routes.
   static const cuentaCreada = '/cuenta-creada';
   static const configPersona = '/configuracion/persona';
   static const configConsentimiento = '/configuracion/consentimiento';
-  static const configConstancia = '/configuracion/constancia';
-  static const configCamara = '/configuracion/camara';
-  static const configFamilia = '/configuracion/familia';
-  static const configAvisos = '/configuracion/avisos';
   static const configListo = '/configuracion/listo';
 
   // Tabs.
@@ -106,22 +104,16 @@ abstract final class Rutas {
     queryParameters: {if (guardado) 'guardado': '1'},
   ).toString();
 
-  // Linking a PC (US-28) and choosing its cameras (US-29). `config=1` keeps them inside setup
-  // step 3. The PC's QR opens `/vincular?codigo=…` (contract §9), on the web too (docs/WEB_PWA.md).
+  // Linking a PC (US-28) and choosing its cameras (US-29), from Inicio or Ajustes › «Cámaras y PCs»
+  // (no longer a setup step). The PC's QR opens `/vincular?codigo=…` (contract §9), on the web too
+  // (docs/WEB_PWA.md).
   static const vincular = '/vincular';
   static const escanear = '/vincular/escanear';
   static const escribirCodigo = '/vincular/codigo';
 
   /// The approval screen of a code (CA-28.4), also the PC QR's link.
-  static String aprobarPc(String codigo, {bool config = false}) => Uri(
-    path: vincular,
-    queryParameters: {'codigo': codigo, if (config) 'config': '1'},
-  ).toString();
-
-  /// [ruta] with `config=1` when it runs inside setup step 3.
-  static String enPaso(String ruta, {required bool config}) => config
-      ? Uri(path: ruta, queryParameters: {'config': '1'}).toString()
-      : ruta;
+  static String aprobarPc(String codigo) =>
+      Uri(path: vincular, queryParameters: {'codigo': codigo}).toString();
 
   /// «Cámaras» (Ajustes › «Cámaras y PCs»): the household's cameras by room and its PCs (US-30).
   static const pcs = '/pcs';
@@ -130,8 +122,7 @@ abstract final class Rutas {
   static const ordenarCamaras = '/pcs/ordenar';
   static String pc(String id) => '/pcs/$id';
   static String pcVinculada(String id) => '/pcs/$id/vinculada';
-  static String elegirCamaras(String id, {bool config = false}) =>
-      enPaso('/pcs/$id/camaras', config: config);
+  static String elegirCamaras(String id) => '/pcs/$id/camaras';
 
   /// Reachable without a session.
   static const _publicas = [

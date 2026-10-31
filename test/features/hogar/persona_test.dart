@@ -64,7 +64,7 @@ void main() {
       'CA-04.1: registra al adulto mayor y asocia el hogar a la cuenta',
       (tester) async {
         await abrir(tester, Rutas.configPersona, sesionSinHogar);
-        expect(find.text('Paso 1 de 5'), findsOneWidget);
+        expect(find.text('Paso 1 de 2'), findsOneWidget);
         await tester.enterText(campo('Nombre y apellido'), 'Rosa Huamán');
         await tester.enterText(campo('Edad'), '78');
         await tester.enterText(
@@ -80,6 +80,7 @@ void main() {
         expect(creado.convivencia, Convivencia.solo);
         expect(almacen.actual?.hogarId, 'h-1');
         expect(find.text('Consentimiento'), findsOneWidget);
+        expect(find.text('Paso 2 de 2'), findsOneWidget);
       },
     );
 
