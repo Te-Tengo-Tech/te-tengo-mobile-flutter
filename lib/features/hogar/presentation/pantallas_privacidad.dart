@@ -70,39 +70,42 @@ class _Privacidad extends ConsumerWidget {
             enlace: 'Ver el documento aceptado',
           )
         else
-          TarjetaBanda(
+          TarjetaBanda.construir(
             banda: Banda.pausa,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Icono(Ico.lock, tamano: 28, color: context.colores.icono),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Sin consentimiento',
-                        style: texto.titleLarge,
+            builder: (context) {
+              final texto = Theme.of(context).textTheme;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icono(Ico.lock, tamano: 28, color: context.colores.icono),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Sin consentimiento',
+                          style: texto.titleLarge,
+                        ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    consentimiento != null
+                        ? 'Revocado. Grabaciones eliminadas.'
+                        : 'Aún no se registra. La cámara no envía video.',
+                    style: texto.bodyMedium,
+                  ),
+                  if (titular) ...[
+                    const SizedBox(height: 16),
+                    Boton(
+                      'Registrar consentimiento',
+                      alPresionar: () => context.push(Rutas.consentimiento),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  consentimiento != null
-                      ? 'Revocado. Grabaciones eliminadas.'
-                      : 'Aún no se registra. La cámara no envía video.',
-                  style: texto.bodyMedium,
-                ),
-                if (titular) ...[
-                  const SizedBox(height: 16),
-                  Boton(
-                    'Registrar consentimiento',
-                    alPresionar: () => context.push(Rutas.consentimiento),
-                  ),
                 ],
-              ],
-            ),
+              );
+            },
           ),
         // US-35, US-37: the separate consent to store movements and their cloud retention.
         const EncabezadoSeccion('Movimientos'),

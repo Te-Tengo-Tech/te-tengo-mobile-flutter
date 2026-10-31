@@ -158,55 +158,57 @@ class TarjetaAdultoMayor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final texto = Theme.of(context).textTheme;
-    return TarjetaBanda(
+    return TarjetaBanda.construir(
       banda: estado.banda,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Avatar(
-                Avatar.inicialesDe(adulto.nombre),
-                tono: TonoAvatar.rosa,
-                tamano: 56,
-                foto: adulto.foto,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  adulto.edad == null
-                      ? adulto.nombre
-                      : '${adulto.nombre}, ${adulto.edad} años',
-                  style: texto.titleMedium?.copyWith(fontSize: 17),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Semantics(
-            container: true,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (context) {
+        final texto = Theme.of(context).textTheme;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
               children: [
-                Icono(estado.icono, tamano: 28, color: estado.color),
+                Avatar(
+                  Avatar.inicialesDe(adulto.nombre),
+                  tono: TonoAvatar.rosa,
+                  tamano: 56,
+                  foto: adulto.foto,
+                ),
                 const SizedBox(width: 14),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(estado.titulo, style: texto.titleLarge),
-                      const SizedBox(height: 8),
-                      Text(estado.texto, style: texto.bodyMedium),
-                    ],
+                  child: Text(
+                    adulto.edad == null
+                        ? adulto.nombre
+                        : '${adulto.nombre}, ${adulto.edad} años',
+                    style: texto.titleMedium?.copyWith(fontSize: 17),
                   ),
                 ),
               ],
             ),
-          ),
-          if (accion != null) ...[const SizedBox(height: 12), accion!],
-        ],
-      ),
+            const SizedBox(height: 16),
+            Semantics(
+              container: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icono(estado.icono, tamano: 28, color: context.colores.tinta),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(estado.titulo, style: texto.titleLarge),
+                        const SizedBox(height: 8),
+                        Text(estado.texto, style: texto.bodyMedium),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (accion != null) ...[const SizedBox(height: 12), accion!],
+          ],
+        );
+      },
     );
   }
 }

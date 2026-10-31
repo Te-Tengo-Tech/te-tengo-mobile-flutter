@@ -439,59 +439,65 @@ class TarjetaConstanciaMovimientos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final texto = Theme.of(context).textTheme;
     final c = constancia;
-    return TarjetaBanda(
+    return TarjetaBanda.construir(
       banda: Banda.calma,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icono(Ico.shield, tamano: 26, color: context.colores.calmaTinta),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Permiso para guardar movimientos',
-                  style: texto.titleMedium,
+      builder: (context) {
+        final texto = Theme.of(context).textTheme;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icono(
+                  Ico.shield,
+                  tamano: 26,
+                  color: context.colores.calmaTinta,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Permiso para guardar movimientos',
+                    style: texto.titleMedium,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            DatosTarjeta([
+              FilaDato(
+                clave: 'Otorgado por',
+                valor: c.representante
+                    ? '${c.otorgadoPor} (representante)'
+                    : c.otorgadoPor,
+              ),
+              FilaDato(clave: 'Registrado por', valor: c.registradoPor),
+              FilaDato(
+                clave: 'Fecha',
+                valor: '',
+                valorRico: TextSpan(
+                  children: [
+                    TextSpan(text: '${fechaNumerica(c.otorgadoEn)} · '),
+                    TextSpan(text: hora(c.otorgadoEn), style: estiloCifras),
+                  ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          DatosTarjeta([
-            FilaDato(
-              clave: 'Otorgado por',
-              valor: c.representante
-                  ? '${c.otorgadoPor} (representante)'
-                  : c.otorgadoPor,
+              FilaDato(clave: 'Versión del texto', valor: c.versionTexto),
+            ]),
+            const SizedBox(height: 8),
+            Text(
+              'Constancia exigida por la Ley N.° 29733 para datos sensibles.',
+              style: texto.bodySmall,
             ),
-            FilaDato(clave: 'Registrado por', valor: c.registradoPor),
-            FilaDato(
-              clave: 'Fecha',
-              valor: '',
-              valorRico: TextSpan(
-                children: [
-                  TextSpan(text: '${fechaNumerica(c.otorgadoEn)} · '),
-                  TextSpan(text: hora(c.otorgadoEn), style: estiloCifras),
-                ],
-              ),
+            const SizedBox(height: 4),
+            Boton(
+              'Leer el documento aceptado',
+              estilo: EstiloBoton.fantasma,
+              alPresionar: () => context.push(Rutas.documentoMovimientos),
             ),
-            FilaDato(clave: 'Versión del texto', valor: c.versionTexto),
-          ]),
-          const SizedBox(height: 8),
-          Text(
-            'Constancia exigida por la Ley N.° 29733 para datos sensibles.',
-            style: texto.bodySmall,
-          ),
-          const SizedBox(height: 4),
-          Boton(
-            'Leer el documento aceptado',
-            estilo: EstiloBoton.fantasma,
-            alPresionar: () => context.push(Rutas.documentoMovimientos),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
