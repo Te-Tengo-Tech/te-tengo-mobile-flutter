@@ -4,6 +4,7 @@ import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../core/ui/tarjeta.dart';
 import '../domain/alerta.dart';
 
 /// Severity tag (`.sev`): «Caída» red with the fall icon, «Inestable» amber with the diamond. They
@@ -16,11 +17,24 @@ class EtiquetaTipo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final caida = tipo == TipoAlerta.caida;
-    final color = caida ? Colors.white : Colores.tinta;
+    // On a card filled with a state color the tag is inverted: the text color of the card as its
+    // fill, and its own severity as ink (amber on ink over an amber card).
+    final banda = SobreBanda.of(context);
+    final color = banda == null
+        ? (caida ? Colors.white : Colores.tinta)
+        : caida
+        ? Colores.caidaTinta
+        : banda == Banda.inestable
+        ? Colores.inestable
+        : Colores.inestableTinta;
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 4, 10, 4),
       decoration: BoxDecoration(
-        color: caida ? Colores.caida : Colores.inestable,
+        color: banda != null
+            ? banda.texto
+            : caida
+            ? Colores.caida
+            : Colores.inestable,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

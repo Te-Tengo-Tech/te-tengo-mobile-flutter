@@ -4,10 +4,41 @@ import '../../app/tema/colores.dart';
 import '../../app/tema/paleta.dart';
 import 'lista.dart';
 
-/// Colors of the top band of a card (`.band`).
+/// Colors of the fill of a card (`.band`).
 enum Banda { calma, caida, inestable, morado, pausa, aviso }
 
-/// White card (`.card`) with an optional 8 px band in the color of the state.
+/// The color of a [Banda] and the one of what is written on it: white on all but amber, which
+/// takes ink. All pairs reach 4.5:1.
+extension ColoresDeBanda on Banda {
+  Color get fondo => switch (this) {
+    Banda.calma => Colores.calma,
+    Banda.caida => Colores.caida,
+    Banda.inestable => Colores.inestable,
+    Banda.pausa => Colores.pausa,
+    Banda.aviso => Colores.aviso,
+    Banda.morado => Colores.morado,
+  };
+
+  Color get texto => this == Banda.inestable ? Colores.tinta : Colors.white;
+}
+
+/// Tells what sits inside a [TarjetaBanda] that it is on a filled card, for the pieces that draw
+/// their own colors (severity tags, buttons).
+class SobreBanda extends InheritedWidget {
+  const SobreBanda({super.key, required this.banda, required super.child});
+
+  final Banda banda;
+
+  static Banda? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SobreBanda>()?.banda;
+
+  @override
+  bool updateShouldNotify(SobreBanda old) => old.banda != banda;
+}
+
+/// Card (`.card`) filled with the color of the state when it has a [banda]: the whole card is red
+/// for a fall, green when calm, amber when unstable. What is inside reads on that fill: ink,
+/// lines, icons, tags and buttons take the foreground color through the theme.
 class TarjetaBanda extends StatelessWidget {
   const TarjetaBanda({
     super.key,
@@ -15,90 +46,93 @@ class TarjetaBanda extends StatelessWidget {
     required this.child,
     this.relleno = const EdgeInsets.all(18),
     this.borde = false,
-  });
+  }) : builder = null;
+
+  /// A card whose content is built inside its own theme, for content that reads the theme (text
+  /// styles, state colors) and so must see the foreground of the fill.
+  const TarjetaBanda.construir({
+    super.key,
+    this.banda,
+    required WidgetBuilder this.builder,
+    this.relleno = const EdgeInsets.all(18),
+    this.borde = false,
+  }) : child = null;
 
   final Banda? banda;
-  final Widget child;
+  final Widget? child;
+  final WidgetBuilder? builder;
   final EdgeInsets relleno;
   final bool borde;
 
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      color: context.colores.tarjeta,
-      borderRadius: BorderRadius.circular(22),
-      border: borde
-          ? Border.all(
-              color: context.colores.linea,
-              width: context.colores.anchoBorde,
-            )
-          : null,
-      boxShadow: borde ? null : sombraDe(context),
-    ),
-    clipBehavior: Clip.antiAlias,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (banda != null)
-          SizedBox(
-            height: 8,
-            child: CustomPaint(painter: _PintorBanda(banda!, context.colores)),
-          ),
-        Padding(padding: relleno, child: child),
-      ],
-    ),
-  );
-}
-
-class _PintorBanda extends CustomPainter {
-  const _PintorBanda(this.banda, this.paleta);
-
-  final Banda banda;
-  final Paleta paleta;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    switch (banda) {
-      case Banda.pausa:
-        // Striped, as the paused camera (`repeating-linear-gradient(135deg, ...)`).
-        canvas.drawRect(rect, Paint()..color = paleta.pausa);
-        final claro = Paint()..color = const Color(0xFF8C97AD);
-        canvas.save();
-        canvas.clipRect(rect);
-        for (var x = -size.height; x < size.width + size.height; x += 12) {
-          final trazo = Path()
-            ..moveTo(x, 0)
-            ..lineTo(x + 6, 0)
-            ..lineTo(x + 6 + size.height, size.height)
-            ..lineTo(x + size.height, size.height)
-            ..close();
-          canvas.drawPath(trazo, claro);
-        }
-        canvas.restore();
-      case Banda.aviso:
-        // Dashed, as a disconnected camera.
-        final p = Paint()..color = paleta.aviso;
-        for (var x = 0.0; x < size.width; x += 16) {
-          canvas.drawRect(Rect.fromLTWH(x, 0, 10, size.height), p);
-        }
-      default:
-        canvas.drawRect(
-          rect,
-          Paint()
-            ..color = switch (banda) {
-              Banda.calma => Colores.calma,
-              Banda.caida => Colores.caida,
-              Banda.inestable => Colores.inestable,
-              _ => Colores.morado,
-            },
-        );
-    }
+  Widget build(BuildContext context) {
+    final b = banda;
+    final contenido = Padding(
+      padding: relleno,
+      child: builder == null ? child : Builder(builder: builder!),
+    );
+    return Container(
+      decoration: BoxDecoration(
+        color: b?.fondo ?? context.colores.tarjeta,
+        borderRadius: BorderRadius.circular(22),
+        border: borde
+            ? Border.all(
+                color: b == null ? context.colores.linea : b.fondo,
+                width: context.colores.anchoBorde,
+              )
+            : null,
+        boxShadow: borde ? null : sombraDe(context),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: b == null
+          ? contenido
+          : SobreBanda(
+              banda: b,
+              child: Theme(data: _temaSobre(context, b), child: contenido),
+            ),
+    );
   }
 
-  @override
-  bool shouldRepaint(_PintorBanda old) =>
-      old.banda != banda || old.paleta != paleta;
+  static ThemeData _temaSobre(BuildContext context, Banda b) {
+    final base = Theme.of(context);
+    final paleta = context.colores.sobreColor(b.fondo, b.texto);
+    final texto = b.texto;
+    return base.copyWith(
+      extensions: [
+        ...base.extensions.values.where((e) => e is! Paleta),
+        paleta,
+      ],
+      iconTheme: IconThemeData(color: texto),
+      textTheme: base.textTheme.apply(bodyColor: texto, displayColor: texto),
+      colorScheme: base.colorScheme.copyWith(
+        onSurface: texto,
+        onSurfaceVariant: texto,
+        outline: paleta.linea2,
+        outlineVariant: paleta.linea,
+      ),
+      dividerTheme: base.dividerTheme.copyWith(color: paleta.linea),
+      textButtonTheme: TextButtonThemeData(
+        style: base.textButtonTheme.style?.copyWith(
+          foregroundColor: WidgetStatePropertyAll(texto),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: base.filledButtonTheme.style?.copyWith(
+          backgroundColor: WidgetStatePropertyAll(texto),
+          foregroundColor: WidgetStatePropertyAll(b.fondo),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: base.outlinedButtonTheme.style?.copyWith(
+          backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+          foregroundColor: WidgetStatePropertyAll(texto),
+          side: WidgetStatePropertyAll(
+            BorderSide(color: texto, width: paleta.anchoBorde),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Key-value row of a card (`.kv`).

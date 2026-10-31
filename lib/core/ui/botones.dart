@@ -4,6 +4,7 @@ import '../../app/tema/colores.dart';
 import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
+import 'tarjeta.dart';
 
 /// Button styles of the prototype (`.btn-*`).
 enum EstiloBoton {
@@ -46,7 +47,22 @@ class Boton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sobre = SobreBanda.of(context);
     final (fondo, texto, borde) = switch (estilo) {
+      // On a card filled with a state color the buttons are the color of its text, with the fill
+      // as ink; the ghost one is outlined.
+      EstiloBoton.primario ||
+      EstiloBoton.tinta when sobre != null => (sobre.texto, sobre.fondo, null),
+      EstiloBoton.secundario when sobre != null => (
+        Colors.transparent,
+        sobre.texto,
+        sobre.texto,
+      ),
+      EstiloBoton.fantasma when sobre != null => (
+        Colors.transparent,
+        sobre.texto,
+        null,
+      ),
       EstiloBoton.primario => (
         context.colores.botonPrimario,
         Colors.white,
