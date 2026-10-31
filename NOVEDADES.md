@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+## [0.8.0]
+
+- Los textos de consentimiento y la política de privacidad dicen que los clips y movimientos de la nube ahora se guardan en Microsoft Azure.
+
 ## [0.7.0]
 
 - Ahora Te Tengo te avisa cuando una PC se restablece o se desinstala.
