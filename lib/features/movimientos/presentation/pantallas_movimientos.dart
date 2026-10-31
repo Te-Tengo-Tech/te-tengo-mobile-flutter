@@ -37,7 +37,9 @@ import '../../../app/tema/tema.dart';
 /// - `1`: the prototype's text.
 /// - `2`: «Dónde» names the cloud store (Cloudflare R2) and the cross-border flow of the change
 ///   request (2.6); pending legal review (docs/BLOCKERS.md).
-const versionTextoMovimientos = '2';
+/// - `3`: «Dónde» names the new cloud store, Microsoft Azure (Azure Blob Storage, region Chile
+///   Central), after the move from Cloudflare R2; the rest of the text is version 2's.
+const versionTextoMovimientos = '3';
 
 /// The sections of the movements consent (`movSec`): icon, title, summary and the full text, shared
 /// by the screen and its document (CA-35.1), in the text [version] (the current one by default).
@@ -61,12 +63,20 @@ List<(Ico, String, String, String)> seccionesMovimientos(
     Ico.cloud,
     'Dónde',
     'PC y, si quieres, nube',
-    version == '1'
-        ? 'En la PC de la casa y, si lo eliges, en la nube (servidores fuera '
-              'del Perú).'
-        : 'En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con '
-              'servidores fuera del Perú. Guardarlos ahí es un flujo '
-              'transfronterizo de datos personales.',
+    switch (version) {
+      '1' =>
+        'En la PC de la casa y, si lo eliges, en la nube (servidores fuera '
+            'del Perú).',
+      '2' =>
+        'En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con '
+            'servidores fuera del Perú. Guardarlos ahí es un flujo '
+            'transfronterizo de datos personales.',
+      _ =>
+        'En la PC de la casa y, si lo eliges, en la nube: Microsoft Azure '
+            '(Azure Blob Storage, región Chile Central), con servidores fuera '
+            'del Perú. Guardarlos ahí es un flujo transfronterizo de datos '
+            'personales.',
+    },
   ),
   (
     Ico.clock,

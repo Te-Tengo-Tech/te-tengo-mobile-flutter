@@ -11,10 +11,15 @@ final constanciaRosa = ConstanciaMovimientos(
 );
 
 class MovimientosRepositorioFalso implements MovimientosRepositorio {
-  MovimientosRepositorioFalso({this.vigente = false, this.retencion});
+  MovimientosRepositorioFalso({
+    this.vigente = false,
+    this.retencion,
+    this.constanciaInicial,
+  });
 
   bool vigente;
   int? retencion;
+  ConstanciaMovimientos? constanciaInicial;
   DateTime? datosDesde = DateTime(2026, 8, 24);
   EliminacionMovimientos? eliminacion;
   final registros = <(String, bool, String)>[];
@@ -25,7 +30,7 @@ class MovimientosRepositorioFalso implements MovimientosRepositorio {
 
   ConsentimientoMovimientos get _actual => ConsentimientoMovimientos(
     vigente: vigente,
-    versionTextoVigente: '2',
+    versionTextoVigente: '3',
     constancia: registros.isNotEmpty
         ? ConstanciaMovimientos(
             otorgadoEn: DateTime(2026, 9, 23, 10, 42),
@@ -35,7 +40,7 @@ class MovimientosRepositorioFalso implements MovimientosRepositorio {
             versionTexto: registros.last.$3,
           )
         : vigente
-        ? constanciaRosa
+        ? constanciaInicial ?? constanciaRosa
         : null,
     eliminacion: eliminacion,
   );
