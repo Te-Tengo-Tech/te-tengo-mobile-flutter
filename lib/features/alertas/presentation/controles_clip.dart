@@ -59,7 +59,7 @@ class ControlesClip extends StatelessWidget {
         child: Icono(
           icono,
           tamano: 20,
-          color: Colores.tinta,
+          color: Colores.moradoTinta,
           etiqueta: etiqueta,
         ),
       );

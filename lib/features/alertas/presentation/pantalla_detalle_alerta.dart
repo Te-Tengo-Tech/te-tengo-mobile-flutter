@@ -136,60 +136,62 @@ class TarjetaDetalle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final a = alerta;
-    final texto = Theme.of(context).textTheme;
     final falsa = a.estado == EstadoAlerta.falsaAlarma;
-    return TarjetaBanda(
+    return TarjetaBanda.construir(
       banda: falsa
           ? Banda.pausa
           : a.esCaida
           ? Banda.caida
           : Banda.inestable,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
-            children: [EtiquetaTipo(a.tipo), SelloEstado(a)],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '${a.tipo.nombre} ${enHabitacion(a.habitacion)}',
-            style: texto.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          Text.rich(
-            conHora(
-              '${mayusculaInicial(fechaLarga(a.ocurridaEn))} · ',
-              hora(a.ocurridaEn),
+      builder: (context) {
+        final texto = Theme.of(context).textTheme;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [EtiquetaTipo(a.tipo), SelloEstado(a)],
             ),
-            style: texto.bodyMedium,
-          ),
-          if (!a.activa) ...[
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 18),
-              child: Divider(height: 1),
-            ),
+            const SizedBox(height: 12),
             Text(
-              falsa ? 'Marcada como falsa alarma' : 'Marcada como atendida',
-              style: texto.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              '${a.tipo.nombre} ${enHabitacion(a.habitacion)}',
+              style: texto.titleLarge,
             ),
-            if (a.atendidaEn != null)
-              Text.rich(
-                conHora(
-                  'por ${a.atendidaPor ?? ''} a las ',
-                  hora(a.atendidaEn!),
-                ),
-                style: texto.bodyMedium,
+            const SizedBox(height: 8),
+            Text.rich(
+              conHora(
+                '${mayusculaInicial(fechaLarga(a.ocurridaEn))} · ',
+                hora(a.ocurridaEn),
               ),
+              style: texto.bodyMedium,
+            ),
+            if (!a.activa) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 18),
+                child: Divider(height: 1),
+              ),
+              Text(
+                falsa ? 'Marcada como falsa alarma' : 'Marcada como atendida',
+                style: texto.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              if (a.atendidaEn != null)
+                Text.rich(
+                  conHora(
+                    'por ${a.atendidaPor ?? ''} a las ',
+                    hora(a.atendidaEn!),
+                  ),
+                  style: texto.bodyMedium,
+                ),
+            ],
           ],
-        ],
-      ),
+        );
+      },
     );
   }
 }

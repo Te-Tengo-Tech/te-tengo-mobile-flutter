@@ -113,7 +113,8 @@ void main() {
     for (final texto in [consentimiento, politica]) {
       expect(texto, isNot(contains('envía video a Te Tengo')));
       expect(texto, contains('PC de la casa'));
-      expect(texto, contains('Cloudflare R2'));
+      expect(texto, contains('Microsoft Azure'));
+      expect(texto, isNot(contains('Cloudflare R2')));
       expect(texto, contains('flujo transfronterizo'));
     }
     expect(

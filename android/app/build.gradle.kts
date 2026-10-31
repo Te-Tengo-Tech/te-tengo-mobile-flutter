@@ -99,5 +99,5 @@ flutter {
 
 dependencies {
     // FileProvider, which hands the downloaded APK to the Android installer (US-43).
-    implementation("androidx.core:core:1.13.1")
+    implementation("androidx.core:core:1.19.1")
 }

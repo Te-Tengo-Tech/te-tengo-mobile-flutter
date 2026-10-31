@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/tema/colores.dart';
@@ -50,7 +51,16 @@ class AvisosFlotantes extends Notifier<AvisoFlotante?> {
   void mostrar(AvisoFlotante aviso) => state = aviso;
 
   void cerrar() => state = null;
+
+  /// Closes [aviso] only if it is still the one shown: a swipe or a timeout can end after
+  /// another notice took its place.
+  void cerrarSi(AvisoFlotante aviso) {
+    if (identical(state, aviso)) state = null;
+  }
 }
+
+/// Screen reader action that hides a floating notice, next to the system's dismiss action.
+const accionCerrarAviso = CustomSemanticsAction(label: 'Cerrar aviso');
 
 final avisoFlotanteProvider = NotifierProvider<AvisosFlotantes, AvisoFlotante?>(
   AvisosFlotantes.new,
@@ -82,7 +92,7 @@ class _AnfitrionAvisosState extends ConsumerState<AnfitrionAvisos> {
       if (aviso != null) {
         _reloj = Timer(
           aviso.duracion,
-          () => ref.read(avisoFlotanteProvider.notifier).cerrar(),
+          () => ref.read(avisoFlotanteProvider.notifier).cerrarSi(aviso),
         );
       }
     });
@@ -113,17 +123,13 @@ class _AnfitrionAvisosState extends ConsumerState<AnfitrionAvisos> {
               ),
               child: aviso == null
                   ? const SizedBox.shrink()
-                  : Padding(
+                  : _Deslizable(
                       key: ValueKey(aviso),
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
-                      child: aviso.tipo == TipoFlotante.toast
-                          ? _Toast(aviso)
-                          : _EnApp(
-                              aviso,
-                              alCerrar: () => ref
-                                  .read(avisoFlotanteProvider.notifier)
-                                  .cerrar(),
-                            ),
+                      aviso: aviso,
+                      sinAnimacion: sinAnimacion,
+                      alCerrar: () => ref
+                          .read(avisoFlotanteProvider.notifier)
+                          .cerrarSi(aviso),
                     ),
             ),
           ),
@@ -133,10 +139,54 @@ class _AnfitrionAvisosState extends ConsumerState<AnfitrionAvisos> {
   }
 }
 
-class _Toast extends StatelessWidget {
-  const _Toast(this.aviso);
+/// A notice the user can swipe away: sideways in both directions, or up towards the status
+/// bar it came from. Hiding it only hides the notice: an alert behind it stays as it was
+/// (open on its screen and on Inicio), and the timeout is cancelled when the notice goes.
+class _Deslizable extends StatelessWidget {
+  const _Deslizable({
+    super.key,
+    required this.aviso,
+    required this.sinAnimacion,
+    required this.alCerrar,
+  });
 
   final AvisoFlotante aviso;
+  final bool sinAnimacion;
+  final VoidCallback alCerrar;
+
+  @override
+  Widget build(BuildContext context) {
+    final movimiento = sinAnimacion
+        ? Duration.zero
+        : const Duration(milliseconds: 200);
+    // No resize: the notice floats over the app, so it leaves the tree right after the swipe.
+    return Dismissible(
+      key: ObjectKey(aviso),
+      direction: DismissDirection.up,
+      resizeDuration: null,
+      movementDuration: movimiento,
+      onDismissed: (_) => alCerrar(),
+      child: Dismissible(
+        key: ObjectKey(aviso),
+        resizeDuration: null,
+        movementDuration: movimiento,
+        onDismissed: (_) => alCerrar(),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+          child: aviso.tipo == TipoFlotante.toast
+              ? _Toast(aviso, alCerrar: alCerrar)
+              : _EnApp(aviso, alCerrar: alCerrar),
+        ),
+      ),
+    );
+  }
+}
+
+class _Toast extends StatelessWidget {
+  const _Toast(this.aviso, {required this.alCerrar});
+
+  final AvisoFlotante aviso;
+  final VoidCallback alCerrar;
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +201,8 @@ class _Toast extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       container: true,
+      onDismiss: alCerrar,
+      customSemanticsActions: {accionCerrarAviso: alCerrar},
       child: Material(
         color: p.inversa,
         borderRadius: BorderRadius.circular(18),
@@ -197,6 +249,8 @@ class _EnApp extends StatelessWidget {
     liveRegion: true,
     container: true,
     button: aviso.alTocar != null,
+    onDismiss: alCerrar,
+    customSemanticsActions: {accionCerrarAviso: alCerrar},
     child: Material(
       color: context.colores.hoja,
       borderRadius: BorderRadius.circular(22),

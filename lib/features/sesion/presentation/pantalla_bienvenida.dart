@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/botones.dart';
@@ -142,7 +141,7 @@ class _Vineta extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 1),
-          child: Icono(icono, tamano: 22, color: Colores.morado),
+          child: Icono(icono, tamano: 22, color: context.colores.icono),
         ),
         const SizedBox(width: 12),
         Expanded(

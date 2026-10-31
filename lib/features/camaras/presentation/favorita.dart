@@ -63,7 +63,7 @@ class BotonFavorita extends ConsumerWidget {
         ref.read(ordenCamarasProvider.notifier).favorita(camaraId, !favorita);
     final icono = favorita
         ? const EstrellaFavorita()
-        : Icono(Ico.star, tamano: 22, color: c.tinta2);
+        : Icono(Ico.star, tamano: 22, color: c.icono);
     return Semantics(
       button: true,
       toggled: favorita,

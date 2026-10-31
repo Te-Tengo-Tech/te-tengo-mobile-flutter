@@ -210,7 +210,7 @@ class _VersionNueva extends ConsumerWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: Icono(Ico.refresh, tamano: 22, color: c.moradoTinta),
+                child: Icono(Ico.refresh, tamano: 22, color: c.icono),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -313,9 +313,7 @@ class TarjetaSituacion extends ConsumerWidget {
                   child: Icono(
                     s.icono,
                     tamano: 22,
-                    color: s.tono == TonoAviso.advertencia
-                        ? c.aviso
-                        : c.moradoTinta,
+                    color: s.tono == TonoAviso.advertencia ? c.aviso : c.icono,
                   ),
                 ),
                 const SizedBox(width: 10),

@@ -149,7 +149,7 @@ class FilaLista extends StatelessWidget {
             if (fin != null && !finDebajo) ...[const SizedBox(width: 8), fin!],
             if (mostrarChevron) ...[
               const SizedBox(width: 8),
-              Icono(Ico.chevR, tamano: 22, color: context.colores.tinta3),
+              Icono(Ico.chevR, tamano: 22, color: context.colores.icono),
             ],
           ],
         ),
@@ -179,7 +179,7 @@ class IconoFila extends StatelessWidget {
     child: Icono(
       icono,
       tamano: 24,
-      color: peligro ? context.colores.caidaTinta : context.colores.moradoTinta,
+      color: peligro ? context.colores.caidaTinta : context.colores.icono,
     ),
   );
 }

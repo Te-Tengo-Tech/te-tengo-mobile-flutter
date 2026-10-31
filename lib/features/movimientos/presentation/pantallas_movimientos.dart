@@ -37,7 +37,9 @@ import '../../../app/tema/tema.dart';
 /// - `1`: the prototype's text.
 /// - `2`: «Dónde» names the cloud store (Cloudflare R2) and the cross-border flow of the change
 ///   request (2.6); pending legal review (docs/BLOCKERS.md).
-const versionTextoMovimientos = '2';
+/// - `3`: «Dónde» names the new cloud store, Microsoft Azure (Azure Blob Storage, region Chile
+///   Central), after the move from Cloudflare R2; the rest of the text is version 2's.
+const versionTextoMovimientos = '3';
 
 /// The sections of the movements consent (`movSec`): icon, title, summary and the full text, shared
 /// by the screen and its document (CA-35.1), in the text [version] (the current one by default).
@@ -61,12 +63,20 @@ List<(Ico, String, String, String)> seccionesMovimientos(
     Ico.cloud,
     'Dónde',
     'PC y, si quieres, nube',
-    version == '1'
-        ? 'En la PC de la casa y, si lo eliges, en la nube (servidores fuera '
-              'del Perú).'
-        : 'En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con '
-              'servidores fuera del Perú. Guardarlos ahí es un flujo '
-              'transfronterizo de datos personales.',
+    switch (version) {
+      '1' =>
+        'En la PC de la casa y, si lo eliges, en la nube (servidores fuera '
+            'del Perú).',
+      '2' =>
+        'En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con '
+            'servidores fuera del Perú. Guardarlos ahí es un flujo '
+            'transfronterizo de datos personales.',
+      _ =>
+        'En la PC de la casa y, si lo eliges, en la nube: Microsoft Azure '
+            '(Azure Blob Storage, región Chile Central), con servidores fuera '
+            'del Perú. Guardarlos ahí es un flujo transfronterizo de datos '
+            'personales.',
+    },
   ),
   (
     Ico.clock,
@@ -439,59 +449,65 @@ class TarjetaConstanciaMovimientos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final texto = Theme.of(context).textTheme;
     final c = constancia;
-    return TarjetaBanda(
+    return TarjetaBanda.construir(
       banda: Banda.calma,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icono(Ico.shield, tamano: 26, color: context.colores.calmaTinta),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Permiso para guardar movimientos',
-                  style: texto.titleMedium,
+      builder: (context) {
+        final texto = Theme.of(context).textTheme;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icono(
+                  Ico.shield,
+                  tamano: 26,
+                  color: context.colores.calmaTinta,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Permiso para guardar movimientos',
+                    style: texto.titleMedium,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            DatosTarjeta([
+              FilaDato(
+                clave: 'Otorgado por',
+                valor: c.representante
+                    ? '${c.otorgadoPor} (representante)'
+                    : c.otorgadoPor,
+              ),
+              FilaDato(clave: 'Registrado por', valor: c.registradoPor),
+              FilaDato(
+                clave: 'Fecha',
+                valor: '',
+                valorRico: TextSpan(
+                  children: [
+                    TextSpan(text: '${fechaNumerica(c.otorgadoEn)} · '),
+                    TextSpan(text: hora(c.otorgadoEn), style: estiloCifras),
+                  ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          DatosTarjeta([
-            FilaDato(
-              clave: 'Otorgado por',
-              valor: c.representante
-                  ? '${c.otorgadoPor} (representante)'
-                  : c.otorgadoPor,
+              FilaDato(clave: 'Versión del texto', valor: c.versionTexto),
+            ]),
+            const SizedBox(height: 8),
+            Text(
+              'Constancia exigida por la Ley N.° 29733 para datos sensibles.',
+              style: texto.bodySmall,
             ),
-            FilaDato(clave: 'Registrado por', valor: c.registradoPor),
-            FilaDato(
-              clave: 'Fecha',
-              valor: '',
-              valorRico: TextSpan(
-                children: [
-                  TextSpan(text: '${fechaNumerica(c.otorgadoEn)} · '),
-                  TextSpan(text: hora(c.otorgadoEn), style: estiloCifras),
-                ],
-              ),
+            const SizedBox(height: 4),
+            Boton(
+              'Leer el documento aceptado',
+              estilo: EstiloBoton.fantasma,
+              alPresionar: () => context.push(Rutas.documentoMovimientos),
             ),
-            FilaDato(clave: 'Versión del texto', valor: c.versionTexto),
-          ]),
-          const SizedBox(height: 8),
-          Text(
-            'Constancia exigida por la Ley N.° 29733 para datos sensibles.',
-            style: texto.bodySmall,
-          ),
-          const SizedBox(height: 4),
-          Boton(
-            'Leer el documento aceptado',
-            estilo: EstiloBoton.fantasma,
-            alPresionar: () => context.push(Rutas.documentoMovimientos),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }

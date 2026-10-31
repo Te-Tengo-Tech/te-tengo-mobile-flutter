@@ -35,7 +35,6 @@ class TarjetasInicio extends StatelessWidget {
   Widget build(BuildContext context) {
     final camarasTile = _Tile(
       icono: Ico.cam,
-      coral: true,
       titulo: 'Cámaras',
       linea: lineaTarjetaCamaras(camaras, conConsentimiento: conConsentimiento),
       pie: camaras.length < 2 ? null : PuntosHabitaciones(camaras),
@@ -77,13 +76,11 @@ class _Tile extends StatelessWidget {
     required this.titulo,
     required this.linea,
     required this.alTocar,
-    this.coral = false,
     this.pie,
     this.cabeza,
   });
 
   final Ico icono;
-  final bool coral;
   final String titulo;
   final String linea;
   final Widget? pie;
@@ -114,14 +111,10 @@ class _Tile extends StatelessWidget {
                     height: 40,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: coral ? c.coralSuave : c.moradoSuave,
+                      color: c.moradoSuave,
                       shape: BoxShape.circle,
                     ),
-                    child: Icono(
-                      icono,
-                      tamano: 22,
-                      color: coral ? c.coralTinta : c.moradoTinta,
-                    ),
+                    child: Icono(icono, tamano: 22, color: c.icono),
                   ),
                   const SizedBox(height: 10),
                   Text(titulo, style: estiloTexto(17, 700, color: c.tinta)),
