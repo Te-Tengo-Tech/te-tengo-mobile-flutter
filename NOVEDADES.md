@@ -8,6 +8,12 @@
 
 ## [Unreleased]
 
+## [0.9.0]
+
+- Crear tu cuenta es más corto: solo 2 pasos, los datos de tu familiar y su consentimiento.
+- Al terminar te pedimos activar las notificaciones. La PC y otros familiares se agregan después desde Inicio, Familia o Ajustes.
+- La pantalla de bienvenida ahora tiene una foto.
+
 ## [0.8.0]
 
 - Los textos de consentimiento y la política de privacidad dicen que los clips y movimientos de la nube ahora se guardan en Microsoft Azure.

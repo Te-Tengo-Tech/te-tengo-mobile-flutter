@@ -10,7 +10,6 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
-import '../../../core/ui/piezas.dart';
 import '../../camaras/presentation/fila_camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/pcs_repositorio.dart';
@@ -22,30 +21,18 @@ import 'refresco_pcs.dart';
 /// step is choosing its cameras from the phone (US-29); without consent the cameras send nothing
 /// (CA-28.1).
 class PantallaPcVinculada extends ConsumerWidget {
-  const PantallaPcVinculada({
-    super.key,
-    required this.pcId,
-    this.enConfiguracion = false,
-  });
+  const PantallaPcVinculada({super.key, required this.pcId});
 
   final String pcId;
-  final bool enConfiguracion;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pcs = ref.watch(pcsProvider);
     final hogar = ref.watch(hogarProvider);
     final pc = pcs.value?.where((p) => p.id == pcId).firstOrNull;
-    final escala = MediaQuery.textScalerOf(context);
     return RefrescoPcs(
       child: Scaffold(
-        appBar: enConfiguracion
-            ? CabeceraConfiguracion(
-                paso: 3,
-                titulo: 'PC de la casa',
-                escala: escala,
-              )
-            : AppBar(),
+        appBar: AppBar(),
         body: switch ((pcs, hogar)) {
           (AsyncError(:final error), _) ||
           (_, AsyncError(:final error)) => ErrorDePantalla(
@@ -59,11 +46,9 @@ class PantallaPcVinculada extends ConsumerWidget {
             final ahora = ref.watch(relojProvider)();
             final elegidas = pc.camaras.isNotEmpty;
             final nombre = h.adultoMayor.nombrePila;
-            void seguir() => enConfiguracion
-                ? context.go(Rutas.configFamilia)
-                : salirA(context, Rutas.pcs);
+            void seguir() => salirA(context, Rutas.pcs);
             return ListView(
-              padding: EdgeInsets.fromLTRB(20, enConfiguracion ? 0 : 4, 20, 28),
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
               children: [
                 HeroePc(
                   icono: Ico.check,
@@ -96,9 +81,8 @@ class PantallaPcVinculada extends ConsumerWidget {
                         ? Boton(
                             'Completar el consentimiento',
                             pequeno: true,
-                            alPresionar: () => enConfiguracion
-                                ? context.go(Rutas.configConsentimiento)
-                                : context.push(Rutas.consentimiento),
+                            alPresionar: () =>
+                                context.push(Rutas.consentimiento),
                           )
                         : null,
                   ),
@@ -119,18 +103,13 @@ class PantallaPcVinculada extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 if (elegidas)
-                  Boton(
-                    enConfiguracion ? 'Continuar' : 'Listo',
-                    alPresionar: seguir,
-                  )
+                  Boton('Listo', alPresionar: seguir)
                 else ...[
                   Boton(
                     'Elegir las cámaras',
                     icono: Ico.cam,
                     alPresionar: ref.watch(esTitularProvider)
-                        ? () => context.push(
-                            Rutas.elegirCamaras(pc.id, config: enConfiguracion),
-                          )
+                        ? () => context.push(Rutas.elegirCamaras(pc.id))
                         : null,
                   ),
                   const SizedBox(height: 8),

@@ -7,6 +7,7 @@ import 'package:te_tengo/core/red/problema_api.dart';
 import 'package:te_tengo/core/sesion/almacen_sesion.dart';
 import 'package:te_tengo/core/ui/formulario.dart';
 import 'package:te_tengo/features/sesion/data/cuentas_repositorio.dart';
+import 'package:te_tengo/features/sesion/presentation/pantalla_bienvenida.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -53,6 +54,34 @@ void main() {
     expect(find.text('Tu nombre y apellido'), findsOneWidget);
   });
 
+  testWidgets('la bienvenida muestra la foto con su descripción', (
+    tester,
+  ) async {
+    usarTelefono(tester);
+    await tester.pumpWidget(appDePrueba(ubicacion: Rutas.bienvenida));
+    await tester.pumpAndSettle();
+    final foto = tester.widget<Image>(
+      find.descendant(
+        of: find.byType(FotoBienvenida),
+        matching: find.byType(Image),
+      ),
+    );
+    expect(foto.semanticLabel, 'Una hija abraza a su madre');
+    expect((foto.image as AssetImage).assetName, FotoBienvenida.archivo);
+    expect(find.bySemanticsLabel('Una hija abraza a su madre'), findsOneWidget);
+    // Above the headline, as in the prototype.
+    expect(
+      tester.getBottomLeft(find.byType(FotoBienvenida)).dy,
+      lessThan(
+        tester
+            .getTopLeft(
+              find.text('Cuida a tu familiar aunque no estés en casa.'),
+            )
+            .dy,
+      ),
+    );
+  });
+
   testWidgets(
     'CA-01.1: crea la cuenta, inicia sesión y muestra la confirmación',
     (tester) async {
@@ -71,10 +100,18 @@ void main() {
       });
       expect(repo.inicios.single['correo'], 'carmen.huaman@gmail.com');
       expect(find.text('Tu cuenta está lista, Carmen.'), findsOneWidget);
-      expect(find.text('Vincular la PC de la casa'), findsOneWidget);
+      // Two setup steps only (docs/ONBOARDING.md); the PC, the family and the notifications
+      // are not steps.
+      expect(find.text('2 pasos más:'), findsOneWidget);
+      expect(find.text('Datos de la persona'), findsOneWidget);
+      expect(find.text('Consentimiento informado'), findsOneWidget);
+      expect(find.text('Vincular la PC de la casa'), findsNothing);
+      expect(find.text('Invitar a un familiar'), findsNothing);
+      expect(find.text('Activar los avisos'), findsNothing);
       await tester.tap(find.text('Empezar'));
       await tester.pumpAndSettle();
       expect(find.text('Persona cuidada'), findsOneWidget);
+      expect(find.text('Paso 1 de 2'), findsOneWidget);
     },
   );
 

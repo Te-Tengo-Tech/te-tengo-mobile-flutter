@@ -4,6 +4,15 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-31
+
+### Changed
+- **Onboarding in two steps** (docs/ONBOARDING.md): after «Tu cuenta está lista» («2 pasos más:») come «Persona cuidada» (Paso 1 de 2, `POST /api/hogar`) and «Consentimiento» (Paso 2 de 2); then «Todo listo» shows the consent certificate (CA-05.1, CA-05.3), asks for the notifications after explaining them (CA-16.2) and lists what is left: «Sin PC vinculada», «Sin contacto secundario», or «Falta el consentimiento» after «Ahora no». Linking the PC, inviting a family member and the notifications are no longer setup steps; they stay on Inicio («Agregar PC», «Activar notificaciones»), Ajustes › «Cámaras y PCs» and Familia. The consent form, its two boxes and its record are unchanged, and the movements consent (text version 3) stays separate in Ajustes › Privacidad.
+- The pairing screens (link a PC, scan, type the code, approve, choose the cameras, room name) lost their setup mode (`config=1`, «Paso 3 de 5»); the routes `/configuracion/constancia`, `/configuracion/camara`, `/configuracion/familia` and `/configuracion/avisos` are gone.
+
+### Added
+- **Welcome photo:** the prototype's photo of a daughter embracing her mother above «Cuida a tu familiar aunque no estés en casa.», 4:3 with rounded corners, labelled «Una hija abraza a su madre» for screen readers (`assets/imagenes/bienvenida.webp`, 640 × 480, 29 KB; Pexels photo by Danik Prihodko under the Pexels license, credited in `assets/imagenes/CREDITOS.md`).
+
 ## [0.8.0] - 2026-10-31
 
 ### Changed
