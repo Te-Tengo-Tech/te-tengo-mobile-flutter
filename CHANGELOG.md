@@ -5,6 +5,7 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Changed
+- **Consent texts name Microsoft Azure as the cloud store:** the movements consent is text version `3` («Dónde»: «… en la nube: Microsoft Azure (Azure Blob Storage, región Chile Central), con servidores fuera del Perú. …»), sent as `versionTexto` and matching the API's `versionTextoVigente` `3`; a consent given with version `2` (Cloudflare R2) or `1` keeps showing its own text. The monitoring consent («Qué guardamos») and the privacy policy («Dónde se guardan») name Azure instead of Cloudflare R2; everything else is unchanged
 - **One color for every icon:** rows, tiles, chevrons, toolbars, the tab bar, help «?», dialogs and notices use a single token (`Paleta.icono`, the brand violet). Severity, connectivity and success icons keep their state color, and icons over video or the alert flood keep their own foreground. The selected tab is no longer coral: it shows with its pill and its label.
 - **Banded cards are filled with the color of their band:** the alert card, Inicio's status card and the consent records are red, green, amber, brown, slate or violet all over, not only their top band. What is inside reads on the fill (white on all but amber, which takes ink, all at 4.5:1 or better); severity tags and buttons invert on it. The striped (paused) and dashed (disconnected) top bands are now solid: the state still shows with its icon and text.
 

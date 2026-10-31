@@ -22,7 +22,8 @@ class SeccionConsentimiento {
 ///
 /// Video is analysed on the household PC (docs `04-arquitectura/decision-procesamiento-en-pc.md`).
 /// The prototype's words are kept; the sentences it does not have, and the ones naming
-/// Cloudflare R2 and the cross-border flow, are pending legal review (docs/BLOCKERS.md).
+/// Microsoft Azure (Azure Blob Storage, Chile Central; Cloudflare R2 until 2026-10-31) and the
+/// cross-border flow, are pending legal review (docs/BLOCKERS.md).
 const seccionesConsentimiento = [
   SeccionConsentimiento(
     icono: Ico.eye,
@@ -56,9 +57,10 @@ const seccionesConsentimiento = [
     resumen: 'Clip de cada alerta, 30 días',
     texto:
         'Solo el clip de cada alerta, 30 días; luego se borra. Se guarda en '
-        'Cloudflare R2, con servidores fuera del Perú: es un flujo '
-        'transfronterizo de datos personales. Sus movimientos (puntos del '
-        'cuerpo, sin imagen) solo se guardan con un permiso aparte.',
+        'Microsoft Azure (Azure Blob Storage, región Chile Central), con '
+        'servidores fuera del Perú: es un flujo transfronterizo de datos '
+        'personales. Sus movimientos (puntos del cuerpo, sin imagen) solo se '
+        'guardan con un permiso aparte.',
   ),
   SeccionConsentimiento(
     icono: Ico.shield,
@@ -163,9 +165,9 @@ const seccionesPolitica = <SeccionDocumento>[
   (
     'Dónde se guardan',
     [
-      'Los clips y los movimientos de la nube se guardan en Cloudflare R2, con '
-          'servidores fuera del Perú: es un flujo transfronterizo de datos '
-          'personales.',
+      'Los clips y los movimientos de la nube se guardan en Microsoft Azure '
+          '(Azure Blob Storage, región Chile Central), con servidores fuera '
+          'del Perú: es un flujo transfronterizo de datos personales.',
     ],
   ),
   (

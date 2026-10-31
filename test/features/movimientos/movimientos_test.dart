@@ -110,9 +110,9 @@ void main() {
       await tocar(tester, find.text('Dónde'));
       expect(
         find.text(
-          'En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con '
-          'servidores fuera del Perú. Guardarlos ahí es un flujo transfronterizo '
-          'de datos personales.',
+          'En la PC de la casa y, si lo eliges, en la nube: Microsoft Azure '
+          '(Azure Blob Storage, región Chile Central), con servidores fuera del '
+          'Perú. Guardarlos ahí es un flujo transfronterizo de datos personales.',
         ),
         findsOneWidget,
       );
@@ -126,7 +126,7 @@ void main() {
       expect(movimientos.registros, isEmpty);
       await marcarPermiso(tester);
       await tocar(tester, find.text('Registrar el permiso'));
-      expect(movimientos.registros, [('Rosa Huamán', false, '2')]);
+      expect(movimientos.registros, [('Rosa Huamán', false, '3')]);
       expect(find.text('Permiso registrado'), findsOneWidget);
       expect(find.text('Permiso para guardar movimientos'), findsOneWidget);
       expect(find.text('Carmen Huamán'), findsOneWidget);
@@ -153,7 +153,7 @@ void main() {
         'Jorge Huamán',
       );
       await tocar(tester, find.text('Registrar el permiso'));
-      expect(movimientos.registros, [('Jorge Huamán', true, '2')]);
+      expect(movimientos.registros, [('Jorge Huamán', true, '3')]);
       expect(find.text('Jorge Huamán (representante)'), findsOneWidget);
     });
 
@@ -199,14 +199,35 @@ void main() {
     });
 
     testWidgets(
-      'el texto vigente nombra la nube y el flujo transfronterizo (versión 2)',
+      'el texto vigente nombra Azure y el flujo transfronterizo (versión 3)',
       (tester) async {
         await abrir(tester, Rutas.documentoMovimientos);
-        await verHasta(tester, find.textContaining('Cloudflare R2'));
+        await verHasta(tester, find.textContaining('Microsoft Azure'));
+        expect(find.textContaining('Cloudflare R2'), findsNothing);
         expect(
           find.textContaining('flujo transfronterizo de datos personales'),
           findsOneWidget,
         );
+        await verHasta(tester, find.text('Versión del texto: 3.'));
+      },
+    );
+
+    testWidgets(
+      'un permiso de la versión 2 conserva su texto (Cloudflare R2)',
+      (tester) async {
+        movimientos = MovimientosRepositorioFalso(
+          vigente: true,
+          constanciaInicial: ConstanciaMovimientos(
+            otorgadoEn: DateTime(2026, 10, 12, 9),
+            otorgadoPor: 'Rosa Huamán',
+            representante: false,
+            registradoPor: 'Carmen Huamán',
+            versionTexto: '2',
+          ),
+        );
+        await abrir(tester, Rutas.documentoMovimientos);
+        await verHasta(tester, find.textContaining('Cloudflare R2'));
+        expect(find.textContaining('Microsoft Azure'), findsNothing);
         await verHasta(tester, find.text('Versión del texto: 2.'));
       },
     );
