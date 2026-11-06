@@ -56,9 +56,9 @@ void main() {
     expect(find.byType(PantallaPolitica), findsOneWidget);
     await verHasta(tester, find.text('Tus derechos'));
     expect(find.textContaining('privacidad@tetengo.pe'), findsOneWidget);
-    await tester.pageBack();
+    await volver(tester);
     await tester.pumpAndSettle();
-    await tester.pageBack();
+    await volver(tester);
     await tester.pumpAndSettle();
     await tocar(tester, find.text('Privacidad'));
     expect(find.byType(PantallaPolitica), findsOneWidget);
@@ -94,11 +94,11 @@ void main() {
     expect(find.byType(PantallaDocumentoConsentimiento), findsOneWidget);
     await verHasta(tester, find.text('Constancia'));
     expect(find.text('Otorgado por'), findsOneWidget);
-    await tester.pageBack();
+    await volver(tester);
     await tester.pumpAndSettle();
     await tocar(tester, find.text('Política de privacidad'));
     expect(find.byType(PantallaPolitica), findsOneWidget);
-    await tester.pageBack();
+    await volver(tester);
     await tester.pumpAndSettle();
     await tocar(tester, find.text('Términos de uso'));
     expect(find.byType(PantallaTerminos), findsOneWidget);

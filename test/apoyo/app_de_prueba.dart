@@ -13,6 +13,7 @@ import 'package:te_tengo/core/ui/avisos_flotantes.dart';
 import 'package:te_tengo/core/ui/ayuda.dart';
 import 'package:te_tengo/features/perfil/data/perfil_repositorio.dart';
 import 'package:te_tengo/features/widget/data/widget_sistema.dart';
+import 'package:te_tengo/l10n/l10n.dart';
 
 import 'package:te_tengo/core/dispositivo/conectividad.dart';
 import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
@@ -44,6 +45,9 @@ Widget pantallaDePrueba(
   ],
   child: MaterialApp(
     theme: temaTeTengo(),
+    localizationsDelegates: delegadosDeTextos,
+    supportedLocales: idiomasDeLaApp,
+    localeListResolutionCallback: resolverIdioma,
     home: pantalla,
     builder: (context, hijo) => AnfitrionAvisos(child: hijo!),
   ),
@@ -99,6 +103,14 @@ void usarTelefono(WidgetTester tester) {
   tester.view.physicalSize = const Size(1170, 2532);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
+}
+
+/// Taps the app bar's back button, whose tooltip is in the app's language («Atrás» in Spanish;
+/// `tester.pageBack()` only looks for «Back»).
+Future<void> volver(WidgetTester tester) async {
+  final contexto = tester.element(find.byType(BackButton).last);
+  final tooltip = MaterialLocalizations.of(contexto).backButtonTooltip;
+  await tester.tap(find.byTooltip(tooltip).last);
 }
 
 /// Scrolls [finder] into view (building lazy list items) and taps it.

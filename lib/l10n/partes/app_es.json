@@ -1,0 +1,6 @@
+{
+  "appTitulo": "Te Tengo",
+  "@appTitulo": {"description": "App name (brand, never translated)."},
+  "comunEnumerarY": "y",
+  "@comunEnumerarY": {"description": "Last separator of a list: «Sala, Cocina y Pasillo»."}
+}
