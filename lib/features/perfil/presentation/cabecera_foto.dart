@@ -14,6 +14,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/web/entorno.dart';
+import '../../../l10n/l10n.dart';
 import '../data/fotos.dart';
 import '../data/selector_foto.dart';
 import '../domain/perfil.dart';
@@ -47,6 +48,10 @@ class CabeceraFoto extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estado = ref.watch(cambioFotoProvider(de));
     final problema = estado.problema;
+    final l = context.l10n;
+    final porcentaje = estado.avance == null
+        ? null
+        : (estado.avance! * 100).round();
     return Padding(
       padding: const EdgeInsets.only(top: 4, bottom: 20),
       child: Column(
@@ -63,11 +68,11 @@ class CabeceraFoto extends ConsumerWidget {
               if (estado.ocupado)
                 Semantics(
                   label: estado.quitando
-                      ? 'Quitando la foto'
-                      : 'Subiendo la foto',
-                  value: estado.avance == null
+                      ? l.perfilQuitandoFoto
+                      : l.perfilSubiendoFoto,
+                  value: porcentaje == null
                       ? null
-                      : '${(estado.avance! * 100).round()} %',
+                      : l.perfilPorcentaje(porcentaje),
                   child: SizedBox.square(
                     dimension: 106,
                     child: CircularProgressIndicator(
@@ -83,16 +88,16 @@ class CabeceraFoto extends ConsumerWidget {
           if (puedeCambiar) ...[
             const SizedBox(height: 12),
             Boton(
-              'Cambiar foto',
+              l.perfilCambiarFoto,
               icono: Ico.cam,
               estilo: EstiloBoton.secundario,
               pequeno: true,
               cargando: estado.ocupado,
               textoCargando: estado.quitando
-                  ? 'Quitando…'
-                  : estado.avance == null
-                  ? 'Subiendo…'
-                  : 'Subiendo… ${(estado.avance! * 100).round()} %',
+                  ? l.perfilQuitando
+                  : porcentaje == null
+                  ? l.perfilSubiendo
+                  : l.perfilSubiendoPorcentaje(porcentaje),
               alPresionar: () => cambiarFoto(
                 context,
                 ref,
@@ -107,12 +112,12 @@ class CabeceraFoto extends ConsumerWidget {
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.warn,
-              titulo: 'No se pudo cambiar la foto',
+              titulo: l.perfilNoSeCambioFoto,
               texto: problema.detalle,
               accion: estado.pendiente == null
                   ? null
                   : Boton(
-                      'Volver a intentarlo',
+                      l.perfilVolverIntentar,
                       estilo: EstiloBoton.tinta,
                       pequeno: true,
                       alPresionar: () => _subir(
@@ -151,8 +156,8 @@ Future<void> cambiarFoto(
     if (await cambio.quitar() && context.mounted) {
       mostrarToast(
         context,
-        titulo: 'Foto quitada',
-        texto: 'Se verán las iniciales.',
+        titulo: context.l10n.perfilFotoQuitada,
+        texto: context.l10n.perfilSeVeranIniciales,
         icono: Ico.trash,
       );
     }
@@ -173,8 +178,8 @@ Future<void> cambiarFoto(
     if (context.mounted) {
       mostrarToast(
         context,
-        titulo: 'No pudimos abrir esa foto',
-        texto: 'Elige otra.',
+        titulo: context.l10n.perfilNoPudimosAbrir,
+        texto: context.l10n.perfilEligeOtra,
         icono: Ico.warn,
         tono: TonoAviso.advertencia,
       );
@@ -196,8 +201,8 @@ Future<void> _subir(
   if (await subir() && context.mounted) {
     mostrarToast(
       context,
-      titulo: 'Foto actualizada',
-      texto: 'La verá toda la familia.',
+      titulo: context.l10n.perfilFotoActualizada,
+      texto: context.l10n.perfilLaVeraFamilia,
     );
   }
 }
@@ -211,13 +216,12 @@ Future<void> _sinPermiso(
 ) async {
   final camara = e.origen == OrigenFoto.camara;
   final enNavegador = ref.read(entornoNavegadorProvider).esWeb;
+  final l = context.l10n;
   if (!e.bloqueado || enNavegador) {
     mostrarToast(
       context,
-      titulo: camara
-          ? 'Sin permiso para usar la cámara'
-          : 'Sin permiso para ver tus fotos',
-      texto: 'Puedes elegir otra opción.',
+      titulo: camara ? l.perfilSinPermisoCamara : l.perfilSinPermisoFotos,
+      texto: l.perfilOtraOpcion,
       icono: Ico.warn,
       tono: TonoAviso.advertencia,
     );
@@ -226,12 +230,10 @@ Future<void> _sinPermiso(
   final abrir = await confirmar(
     context,
     icono: camara ? Ico.cam : Ico.download,
-    titulo: camara
-        ? 'La cámara del celular está bloqueada'
-        : 'Tus fotos están bloqueadas para Te Tengo',
-    texto: 'Permítelo en los ajustes del celular y vuelve a intentarlo.',
-    aceptar: 'Abrir los ajustes del celular',
-    cancelar: 'Ahora no',
+    titulo: camara ? l.perfilCamaraBloqueada : l.perfilFotosBloqueadas,
+    texto: l.perfilPermitelo,
+    aceptar: l.perfilAbrirAjustes,
+    cancelar: l.perfilAhoraNo,
   );
   if (abrir) unawaited(openAppSettings());
 }
@@ -247,6 +249,7 @@ class HojaFoto extends StatelessWidget {
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
     final pila = nombre.trim().split(RegExp(r'\s+')).first;
+    final l = context.l10n;
     FilaLista fila(AccionFoto a, Ico icono, String titulo) => FilaLista(
       inicio: IconoFila(icono, peligro: a == AccionFoto.quitar),
       titulo: titulo,
@@ -261,18 +264,18 @@ class HojaFoto extends StatelessWidget {
         children: [
           Semantics(
             header: true,
-            child: Text('Foto de $pila', style: texto.titleLarge),
+            child: Text(l.perfilFotoDe(pila), style: texto.titleLarge),
           ),
           const SizedBox(height: 8),
-          Text('La ve toda la familia.', style: texto.bodyMedium),
+          Text(l.perfilLaVeFamilia, style: texto.bodyMedium),
           const SizedBox(height: 16),
           ListaTarjeta(
             borde: true,
             children: [
-              fila(AccionFoto.tomar, Ico.cam, 'Tomar una foto'),
-              fila(AccionFoto.galeria, Ico.download, 'Elegir de la galería'),
+              fila(AccionFoto.tomar, Ico.cam, l.perfilTomarFoto),
+              fila(AccionFoto.galeria, Ico.download, l.perfilElegirGaleria),
               if (tieneFoto)
-                fila(AccionFoto.quitar, Ico.trash, 'Quitar la foto'),
+                fila(AccionFoto.quitar, Ico.trash, l.perfilQuitarFoto),
             ],
           ),
         ],

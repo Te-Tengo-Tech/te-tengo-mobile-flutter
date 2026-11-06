@@ -7,6 +7,7 @@ import '../../../app/tema/tema.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/marca.dart';
+import '../../../l10n/l10n.dart';
 import '../../instalar/presentation/instalar_app.dart';
 
 /// Welcome (screen 01).
@@ -16,6 +17,7 @@ class PantallaBienvenida extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -37,30 +39,27 @@ class PantallaBienvenida extends StatelessWidget {
                     const AvisoInstalarApp(separacion: 20),
                     const FotoBienvenida(),
                     const SizedBox(height: 20),
-                    Text(
-                      'Cuida a tu familiar aunque no estés en casa.',
-                      style: texto.headlineMedium,
-                    ),
+                    Text(l.sesionBienvenidaTitulo, style: texto.headlineMedium),
                     const SizedBox(height: 12),
                     Text(
-                      'Detecta caídas y te avisa al instante.',
+                      l.sesionBienvenidaTexto,
                       style: texto.bodyLarge?.copyWith(
                         color: context.colores.tinta2,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const _Vineta(Ico.user, 'Sin pulseras ni botones'),
-                    const _Vineta(Ico.video, 'En vivo, con su permiso'),
-                    const _Vineta(Ico.shield, 'Solo postura, nunca rostros'),
+                    _Vineta(Ico.user, l.sesionVinetaSinPulseras),
+                    _Vineta(Ico.video, l.sesionVinetaEnVivo),
+                    _Vineta(Ico.shield, l.sesionVinetaPostura),
                     const Spacer(),
                     const SizedBox(height: 18),
                     Boton(
-                      'Crear cuenta',
+                      l.sesionCrearCuenta,
                       alPresionar: () => context.push(Rutas.registro),
                     ),
                     const SizedBox(height: 12),
                     Boton(
-                      'Ya tengo una cuenta',
+                      l.sesionYaTengoCuenta,
                       estilo: EstiloBoton.secundario,
                       alPresionar: () => context.push(Rutas.iniciarSesion),
                     ),
@@ -82,7 +81,6 @@ class FotoBienvenida extends StatelessWidget {
   const FotoBienvenida({super.key});
 
   static const archivo = 'assets/imagenes/bienvenida.webp';
-  static const descripcion = 'Una hija abraza a su madre';
 
   @override
   Widget build(BuildContext context) => ClipRRect(
@@ -95,7 +93,7 @@ class FotoBienvenida extends StatelessWidget {
         child: Image.asset(
           archivo,
           fit: BoxFit.cover,
-          semanticLabel: descripcion,
+          semanticLabel: context.l10n.sesionFotoDescripcion,
           gaplessPlayback: true,
           errorBuilder: (context, error, stack) => const SizedBox.expand(),
         ),
@@ -108,10 +106,8 @@ class FotoBienvenida extends StatelessWidget {
 class EtiquetaClip extends StatelessWidget {
   const EtiquetaClip({super.key, required this.texto, this.icono});
 
-  factory EtiquetaClip.escudo() => const EtiquetaClip(
-    texto: 'Solo postura, nunca rostros',
-    icono: Ico.shield,
-  );
+  factory EtiquetaClip.escudo(AppLocalizations l) =>
+      EtiquetaClip(texto: l.sesionVinetaPostura, icono: Ico.shield);
 
   final String texto;
   final Ico? icono;

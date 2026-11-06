@@ -32,7 +32,7 @@ The files under `docs/references/` are Spanish source documents from the thesis.
   - `flutter_webrtc` for the live view over WebRTC (WHEP), on Android, iOS and the web.
 
 ## Rules
-- **UI language:** all user-facing text is **Spanish (Peru)**, copied from the prototype or DESIGN.md. Never show story IDs or prototype labels. Code identifiers follow the domain language (Spanish, matching the API); comments, docs and commits are **English**.
+- **UI language:** the default is **Spanish (Peru)**, copied from the prototype or DESIGN.md; the app is also in **English** when the phone prefers it. Every user-facing text goes in `lib/l10n/app_es.arb` and `app_en.arb` (never a literal in a widget), read with `context.l10n`, with dates and times through `context.formato` ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#languages)). Never show story IDs or prototype labels. Code identifiers follow the domain language (Spanish, matching the API); comments, docs and commits are **English**.
 - **Design:**
   - Colors come from `context.colores` (`Paleta`, light and dark) or `Colores` (fixed: severity floods, brand), never hard-coded. The app follows the phone's light or dark theme unless this device chose «Claro» or «Oscuro» in Ajustes › «Apariencia».
   - Red (`caida`) and amber (`inestable`, `aviso`) are reserved for real events.

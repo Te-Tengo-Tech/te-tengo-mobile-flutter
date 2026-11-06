@@ -1,4 +1,4 @@
-import '../../../core/formato.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/domain/camara.dart';
 import 'pc.dart';
 
@@ -58,50 +58,50 @@ List<CamaraEnCasa> camarasEnCasa(
 /// The home card's line (`camTileLine`): «4 de 4 funcionan», «Funciona · Sala», «Sin cámaras»,
 /// «Detenidas».
 String lineaTarjetaCamaras(
+  AppLocalizations l,
   List<CamaraEnCasa> camaras, {
   required bool conConsentimiento,
 }) {
   final n = camaras.length;
-  if (n == 0) return 'Sin cámaras';
-  if (!conConsentimiento) return 'Detenidas';
+  if (n == 0) return l.pcsLineaSinCamaras;
+  if (!conConsentimiento) return l.pcsDetenidas;
   if (n == 1) {
     final c = camaras.single;
-    return c.funciona ? 'Funciona · ${c.habitacion}' : c.estado.texto;
+    return c.funciona ? l.pcsLineaFunciona(c.habitacion) : c.estado.texto(l);
   }
   final ok = camaras.where((c) => c.funciona).length;
-  return '$ok de $n funciona${ok == 1 ? '' : 'n'}';
+  return l.pcsLineaFuncionan(ok, n);
 }
 
 /// The Cámaras page's summary (`camSummary`): «4 cámaras · todas funcionan bien».
 ({bool ok, String cuantas, String estado}) resumenCamaras(
+  AppLocalizations l,
   List<CamaraEnCasa> camaras, {
   required bool conConsentimiento,
 }) {
   final n = camaras.length;
   final ok = camaras.where((c) => c.funciona).length;
-  final cuantas = contar(n, 'cámara', 'cámaras');
+  final cuantas = l.pcsNCamaras(n);
   if (n == 0) {
-    return (ok: false, cuantas: 'Aún no hay cámaras elegidas', estado: '');
+    return (ok: false, cuantas: l.pcsResumenSinCamaras, estado: '');
   }
   if (!conConsentimiento) {
-    return (ok: false, cuantas: cuantas, estado: 'detenidas');
+    return (ok: false, cuantas: cuantas, estado: l.pcsResumenDetenidas);
   }
   if (ok == n) {
     return (
       ok: true,
       cuantas: cuantas,
-      estado: n == 1 ? 'funciona bien' : 'todas funcionan bien',
+      estado: n == 1 ? l.pcsResumenFuncionaBien : l.pcsResumenTodasBien,
     );
   }
   return (
     ok: false,
     cuantas: cuantas,
     estado: n == 1
-        ? 'no funciona ahora'
+        ? l.pcsResumenNoFunciona
         : ok == 0
-        ? 'ninguna funciona ahora'
-        : ok == 1
-        ? '1 funciona bien'
-        : '$ok funcionan bien',
+        ? l.pcsResumenNingunaFunciona
+        : l.pcsResumenAlgunasBien(ok),
   );
 }

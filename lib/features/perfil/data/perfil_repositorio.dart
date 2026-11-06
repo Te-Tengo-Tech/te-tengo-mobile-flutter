@@ -7,6 +7,7 @@ import '../../../core/foto.dart';
 import '../../../core/red/cliente_api.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/perfil.dart';
 
 /// The member's own profile and the photos (contract §13).
@@ -119,7 +120,7 @@ class PerfilRepositorioApi implements PerfilRepositorio {
     } on DioException catch (e) {
       throw ProblemaApi(
         codigo: e.response == null ? ProblemaApi.sinConexion : 'SUBIDA_FALLIDA',
-        detalle: 'No se pudo subir la foto. Vuelve a intentarlo.',
+        detalle: textosDelSistema().perfilErrorSubir,
         estado: e.response?.statusCode,
       );
     }

@@ -6,6 +6,7 @@ import '../../../app/rutas.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/dialogo.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import 'pantalla_iniciar_sesion.dart';
 
@@ -13,15 +14,14 @@ import 'pantalla_iniciar_sesion.dart';
 /// email filled in (CA-02.4).
 Future<void> cerrarSesion(BuildContext context, WidgetRef ref) async {
   final nombre = ref.read(nombreAdultoMayorProvider);
+  final l = context.l10n;
   final si = await confirmar(
     context,
     icono: Ico.logout,
-    titulo: '¿Cerrar sesión?',
-    texto: nombre == null
-        ? 'Dejarás de recibir las alertas en este celular.'
-        : 'Dejarás de recibir sus alertas en este celular.',
-    aceptar: 'Cerrar sesión',
-    cancelar: 'Cancelar',
+    titulo: l.sesionCerrarTitulo,
+    texto: nombre == null ? l.sesionCerrarTexto : l.sesionCerrarTextoSus,
+    aceptar: l.sesionCerrar,
+    cancelar: l.sesionCancelar,
   );
   if (!si || !context.mounted) return;
   final correo = ref.read(sesionControllerProvider)?.usuario.correo ?? '';

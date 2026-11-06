@@ -6,8 +6,6 @@
 /// handlers, the home-screen widget) uses [textosDelSistema].
 library;
 
-import 'dart:ui' show Locale, PlatformDispatcher;
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -38,9 +36,13 @@ Locale resolverIdioma(List<Locale>? preferidos, [Iterable<Locale>? _]) {
   return idiomasDeLaApp.first;
 }
 
-/// The texts in the phone's language, for code that runs without a [BuildContext].
-AppLocalizations textosDelSistema() =>
-    lookupAppLocalizations(resolverIdioma(PlatformDispatcher.instance.locales));
+/// The texts in the phone's language, for code that runs without a [BuildContext] (also in a
+/// background isolate). Reads the binding's dispatcher, which is the phone's own outside tests.
+AppLocalizations textosDelSistema() => lookupAppLocalizations(
+  resolverIdioma(
+    WidgetsFlutterBinding.ensureInitialized().platformDispatcher.locales,
+  ),
+);
 
 extension TextosDelContexto on BuildContext {
   /// The app's texts in the current language.

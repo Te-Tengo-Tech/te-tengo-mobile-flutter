@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/tema/tema.dart';
 import 'package:te_tengo/core/ui/ayuda.dart';
+import 'package:te_tengo/l10n/l10n.dart';
 
 const _texto = 'Nadie puede borrar ni cambiar este registro.';
 
 Widget _pantalla({bool largo = false}) => MaterialApp(
+  localizationsDelegates: delegadosDeTextos,
+  supportedLocales: idiomasDeLaApp,
   theme: temaTeTengo(),
   home: Scaffold(
     appBar: AppBar(
@@ -97,6 +100,8 @@ void main() {
   testWidgets('desplazar la pantalla la cierra', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: delegadosDeTextos,
+        supportedLocales: idiomasDeLaApp,
         theme: temaTeTengo(),
         home: Scaffold(
           body: ListView(

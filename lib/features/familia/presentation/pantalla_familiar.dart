@@ -15,6 +15,7 @@ import '../../../core/ui/dialogo.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../camaras/domain/camara.dart';
@@ -50,7 +51,13 @@ class PantallaFamiliar extends ConsumerWidget {
     final miembros = ref.watch(miembrosProvider);
     final yo = ref.watch(sesionControllerProvider)?.usuario.id == usuarioId;
     return Scaffold(
-      appBar: AppBar(title: Text(yo ? 'Tu perfil en la familia' : 'Familiar')),
+      appBar: AppBar(
+        title: Text(
+          yo
+              ? context.l10n.familiaTuPerfilTitulo
+              : context.l10n.familiaFamiliarTitulo,
+        ),
+      ),
       body: switch (miembros) {
         AsyncData(value: final lista) => () {
           final i = lista.indexWhere((m) => m.familiar.usuarioId == usuarioId);
@@ -82,6 +89,8 @@ class _Detalle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final f = miembro.familiar;
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
+    final formato = context.formato;
     final titular = ref.watch(esTitularProvider);
     final espera =
         ref.watch(avisoProvider).value?.esperaMinutos ??
@@ -99,8 +108,8 @@ class _Detalle extends ConsumerWidget {
       if (miembro.papel != PapelAviso.principal)
         FilaLista(
           inicio: const IconoFila(Ico.swap),
-          titulo: 'Hacer contacto principal',
-          subtitulo: 'Recibirá cada alerta primero',
+          titulo: l.familiaHacerPrincipal,
+          subtitulo: l.familiaHacerPrincipalDetalle,
           chevron: false,
           alTocar: () => _cambiarPapel(context, ref, PapelAviso.principal),
         ),
@@ -108,15 +117,15 @@ class _Detalle extends ConsumerWidget {
       if (miembro.papel == PapelAviso.familiar)
         FilaLista(
           inicio: const IconoFila(Ico.users),
-          titulo: 'Hacer contacto secundario',
-          subtitulo: 'Recibe la alerta si nadie atiende en $espera min',
+          titulo: l.familiaHacerSecundario,
+          subtitulo: l.familiaHacerSecundarioDetalle(espera),
           chevron: false,
           alTocar: () => _cambiarPapel(context, ref, PapelAviso.secundario),
         ),
       if (!yo && miembro.papel != PapelAviso.principal)
         FilaLista(
           inicio: const IconoFila(Ico.trash, peligro: true),
-          titulo: 'Retirar acceso',
+          titulo: l.familiaRetirarAcceso,
           peligro: true,
           chevron: false,
           alTocar: () => _retirar(context, ref),
@@ -137,31 +146,33 @@ class _Detalle extends ConsumerWidget {
         Semantics(
           header: true,
           child: Text(
-            yo ? '${f.nombre} (tú)' : f.nombre,
+            yo ? l.familiaNombreTu(f.nombre) : f.nombre,
             textAlign: TextAlign.center,
             style: texto.titleLarge,
           ),
         ),
         if (f.parentesco != null || f.esTitular)
           Text(
-            f.parentesco == null ? 'Titular de la cuenta' : resumenMiembro(f)!,
+            f.parentesco == null
+                ? l.familiaTitularCuenta
+                : resumenMiembro(l, f)!,
             textAlign: TextAlign.center,
             style: texto.bodyMedium,
           ),
         const SizedBox(height: 8),
         Center(child: EtiquetaPapel(miembro.papel)),
-        const EncabezadoSeccion('Contacto', arriba: 20),
+        EncabezadoSeccion(l.familiaContacto, arriba: 20),
         ListaTarjeta(
           children: [
             if (f.telefono case final telefono?)
               FilaLista(
                 inicio: const IconoFila(Ico.phone),
                 titulo: telefono,
-                subtitulo: 'Teléfono',
+                subtitulo: l.familiaTelefono,
                 fin: yo
                     ? null
                     : Boton(
-                        'Llamar',
+                        l.familiaLlamar,
                         estilo: EstiloBoton.secundario,
                         pequeno: true,
                         alPresionar: () => ref.read(llamarProvider)(telefono),
@@ -170,11 +181,11 @@ class _Detalle extends ConsumerWidget {
             FilaLista(
               inicio: const IconoFila(Ico.mail),
               titulo: f.correo,
-              subtitulo: 'Correo',
+              subtitulo: l.familiaCorreo,
             ),
           ],
         ),
-        const EncabezadoSeccion('En las alertas'),
+        EncabezadoSeccion(l.familiaEnLasAlertas),
         ListaTarjeta(
           children: [
             FilaLista(
@@ -183,37 +194,40 @@ class _Detalle extends ConsumerWidget {
                 PapelAviso.secundario => Ico.clock,
                 PapelAviso.familiar => Ico.users,
               }),
-              titulo: miembro.papel.etiqueta,
+              titulo: miembro.papel.etiqueta(l),
               subtitulo: switch (miembro.papel) {
-                PapelAviso.principal => 'Recibe cada alerta primero',
-                PapelAviso.secundario =>
-                  'Le avisamos si nadie atiende en $espera min',
-                PapelAviso.familiar => 'Se entera de todo, sin escalamiento',
+                PapelAviso.principal => l.familiaPapelPrincipalDetalle,
+                PapelAviso.secundario => l.familiaPapelSecundarioDetalle(
+                  espera,
+                ),
+                PapelAviso.familiar => l.familiaPapelFamiliarDetalle,
               },
             ),
           ],
         ),
-        const EncabezadoSeccion('Actividad'),
+        EncabezadoSeccion(l.familiaActividad),
         ListaTarjeta(
           children: [
             if (ultimaMarcada != null)
               FilaLista(
                 inicio: const IconoFila(Ico.check),
-                titulo: contar(
-                  marcadas!.length,
-                  'alerta marcada',
-                  'alertas marcadas',
-                ),
+                titulo: l.familiaAlertasMarcadas(marcadas!.length),
                 subtituloRico: TextSpan(
                   children: [
                     TextSpan(
-                      text:
-                          'Última: ${ultimaMarcada.tipo == TipoAlerta.caida ? 'Caída' : 'Inestable'} '
-                          '${enHabitacion(ultimaMarcada.habitacion)} · '
-                          '${fechaCorta(ultimaMarcada.atendidaEn ?? ultimaMarcada.ocurridaEn)} · ',
+                      text: l.familiaUltimaMarcada(
+                        ultimaMarcada.tipo == TipoAlerta.caida
+                            ? 'caida'
+                            : 'inestable',
+                        ultimaMarcada.habitacion,
+                        conArticulo(ultimaMarcada.habitacion),
+                        formato.fechaCorta(
+                          ultimaMarcada.atendidaEn ?? ultimaMarcada.ocurridaEn,
+                        ),
+                      ),
                     ),
                     TextSpan(
-                      text: hora(
+                      text: formato.hora(
                         ultimaMarcada.atendidaEn ?? ultimaMarcada.ocurridaEn,
                       ),
                       style: estiloCifras,
@@ -224,38 +238,39 @@ class _Detalle extends ConsumerWidget {
                     context.push(Rutas.detalleAlerta(ultimaMarcada.id)),
               )
             else
-              const FilaLista(
-                inicio: IconoFila(Ico.check),
-                titulo: 'Aún no marcó alertas',
+              FilaLista(
+                inicio: const IconoFila(Ico.check),
+                titulo: l.familiaSinMarcadas,
               ),
             if (ultimoAcceso != null)
               FilaLista(
                 inicio: const IconoFila(Ico.eye),
-                titulo:
-                    '${contar(accesos.length, 'acceso', 'accesos')} a la '
-                    'cámara',
+                titulo: l.familiaAccesosCamara(accesos.length),
                 subtituloRico: TextSpan(
                   children: [
                     TextSpan(
-                      text:
-                          'Último: ${mismoDia(ultimoAcceso.inicio, hoy) ? 'hoy' : fechaCorta(ultimoAcceso.inicio)} ',
+                      text: l.familiaUltimoAcceso(
+                        mismoDia(ultimoAcceso.inicio, hoy)
+                            ? l.familiaHoy
+                            : formato.fechaCorta(ultimoAcceso.inicio),
+                      ),
                     ),
                     TextSpan(
-                      text: hora(ultimoAcceso.inicio),
+                      text: formato.hora(ultimoAcceso.inicio),
                       style: estiloCifras,
                     ),
                     TextSpan(
                       text:
-                          ' · ${duracion(Duration(seconds: ultimoAcceso.duracionSegundos))}',
+                          ' · ${formato.duracion(Duration(seconds: ultimoAcceso.duracionSegundos))}',
                     ),
                   ],
                 ),
                 alTocar: () => context.push(Rutas.accesos),
               )
             else
-              const FilaLista(
-                inicio: IconoFila(Ico.eye),
-                titulo: 'Aún no abrió la vista en vivo',
+              FilaLista(
+                inicio: const IconoFila(Ico.eye),
+                titulo: l.familiaSinAccesos,
               ),
           ],
         ),
@@ -266,20 +281,19 @@ class _Detalle extends ConsumerWidget {
               tono: TonoAviso.neutral,
               icono: Ico.info,
               texto: yo
-                  ? 'Para dejar de ser principal, elige a otro contacto.'
-                  : 'Para retirar su acceso, primero elige a otro contacto '
-                        'principal.',
+                  ? l.familiaAvisoDejarPrincipal
+                  : l.familiaAvisoRetirarPrincipal,
             ),
           ],
           if (opciones.isNotEmpty) ...[
-            const EncabezadoSeccion('Opciones'),
+            EncabezadoSeccion(l.familiaOpciones),
             ListaTarjeta(children: opciones),
           ],
         ] else ...[
           const SizedBox(height: 20),
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'cambiar el papel de un familiar o retirar su acceso',
+            accion: l.familiaSoloLecturaPapel,
           ),
         ],
       ],
@@ -292,6 +306,7 @@ class _Detalle extends ConsumerWidget {
     PapelAviso papel,
   ) async {
     final f = miembro.familiar;
+    final l = context.l10n;
     final actual = await ref.read(avisoProvider.future);
     final nuevo = papel == PapelAviso.principal
         // The old principal takes the place the new one leaves (secondary or none).
@@ -309,10 +324,11 @@ class _Detalle extends ConsumerWidget {
       if (!context.mounted) return;
       mostrarToast(
         context,
-        titulo:
-            '${f.nombrePila} ahora es contacto '
-            '${papel == PapelAviso.principal ? 'principal' : 'secundario'}',
-        texto: 'El orden de aviso se actualizó.',
+        titulo: l.familiaAhoraEsContacto(
+          f.nombrePila,
+          papel == PapelAviso.principal ? 'principal' : 'secundario',
+        ),
+        texto: l.familiaOrdenActualizado,
         icono: Ico.users,
       );
     } on ProblemaApi catch (e) {
@@ -323,15 +339,16 @@ class _Detalle extends ConsumerWidget {
   Future<void> _retirar(BuildContext context, WidgetRef ref) async {
     final f = miembro.familiar;
     final secundario = miembro.papel == PapelAviso.secundario;
+    final l = context.l10n;
     final si = await confirmar(
       context,
       icono: Ico.trash,
-      titulo: '¿Retirar el acceso de ${f.nombre}?',
-      texto:
-          'Dejará de recibir alertas y de ver el historial.'
-          '${secundario ? ' Te quedarás sin contacto secundario.' : ''}',
-      aceptar: 'Retirar acceso',
-      cancelar: 'Cancelar',
+      titulo: l.familiaRetirarTitulo(f.nombre),
+      texto: secundario
+          ? l.familiaRetirarTextoSecundario
+          : l.familiaRetirarTexto,
+      aceptar: l.familiaRetirarAcceso,
+      cancelar: l.familiaCancelar,
       peligro: true,
     );
     if (!si || !context.mounted) return;
@@ -341,8 +358,8 @@ class _Detalle extends ConsumerWidget {
       final router = GoRouter.of(context);
       mostrarToast(
         context,
-        titulo: '${f.nombrePila} ya no recibe alertas',
-        texto: secundario ? 'Te quedaste sin contacto secundario.' : null,
+        titulo: l.familiaYaNoRecibe(f.nombrePila),
+        texto: secundario ? l.familiaQuedasteSinSecundario : null,
       );
       if (router.canPop()) router.pop();
       ref

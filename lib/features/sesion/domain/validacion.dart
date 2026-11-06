@@ -1,29 +1,28 @@
 /// Client-side checks with the prototype messages; the backend validates again (`400 VALIDACION`).
+/// The hint under new-password fields is `AppLocalizations.sesionAyudaContrasena`.
 library;
+
+import '../../../l10n/l10n.dart';
 
 final _correo = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
 
-/// Email: empty or incomplete.
-String? validarCorreo(
-  String correo, {
-  String vacio = 'Escribe tu correo electrónico.',
-}) {
-  if (correo.isEmpty) return vacio;
-  if (!_correo.hasMatch(correo)) return 'Revisa el correo: parece incompleto.';
+/// Email: empty ([vacio], «Escribe tu correo electrónico.» by default) or incomplete.
+String? validarCorreo(AppLocalizations l, String correo, {String? vacio}) {
+  if (correo.isEmpty) return vacio ?? l.sesionErrorCorreoVacio;
+  if (!_correo.hasMatch(correo)) return l.sesionErrorCorreoIncompleto;
   return null;
 }
 
-/// New password: at least 8 characters and a number.
+/// New password: at least 8 characters and a number. An empty one is only reported as empty
+/// when [exigida].
 String? validarContrasenaNueva(
+  AppLocalizations l,
   String clave, {
-  String? vacio = 'Crea una contraseña.',
+  bool exigida = true,
 }) {
-  if (clave.isEmpty && vacio != null) return vacio;
+  if (clave.isEmpty && exigida) return l.sesionErrorClaveVacia;
   if (clave.length < 8 || !clave.contains(RegExp(r'\d'))) {
-    return 'Usa al menos 8 caracteres y un número.';
+    return l.sesionErrorClaveCorta;
   }
   return null;
 }
-
-/// Hint under new-password fields.
-const ayudaContrasena = '8 caracteres o más, con un número.';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/ui/formulario.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/hogar.dart';
 
 /// State of the older adult form, shared by the setup step and the profile screen.
@@ -31,24 +32,24 @@ class FormularioAdultoMayor {
   static const edadMinima = 50;
   static const edadMaxima = 120;
 
-  /// Client check with the prototype messages (CA-04.3). Returns true when complete.
-  bool validar() {
+  /// Client check with the prototype messages (CA-04.3), in the language of [l]. Returns true when
+  /// complete.
+  bool validar(AppLocalizations l) {
     final textoEdad = edad.text.trim();
     final anios = int.tryParse(textoEdad);
     errores = {
-      if (nombre.text.trim().isEmpty) 'nombre': 'Escribe su nombre y apellido.',
+      if (nombre.text.trim().isEmpty) 'nombre': l.hogarErrorNombre,
       if (textoEdad.isEmpty)
-        'edad': 'Escribe su edad.'
+        'edad': l.hogarErrorEdadVacia
       else if (!RegExp(r'^\d{2,3}$').hasMatch(textoEdad) ||
           anios! < edadMinima ||
           anios > edadMaxima)
-        'edad': 'Escribe una edad válida, en años.',
-      if (direccion.text.trim().isEmpty)
-        'direccion': 'Escribe la dirección de la vivienda.',
-      if (convivencia == null) 'convivencia': 'Elige una opción.',
+        'edad': l.hogarErrorEdadInvalida,
+      if (direccion.text.trim().isEmpty) 'direccion': l.hogarErrorDireccion,
+      if (convivencia == null) 'convivencia': l.hogarErrorConvivencia,
       if (telefono.text.trim().isNotEmpty &&
           !telefonoValido.hasMatch(telefono.text.trim()))
-        'telefono': 'Revisa el teléfono: solo números.',
+        'telefono': l.hogarErrorTelefono,
     };
     return errores.isEmpty;
   }
@@ -96,19 +97,20 @@ class CamposAdultoMayor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final f = formulario;
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         CampoTexto(
-          etiqueta: 'Nombre y apellido',
+          etiqueta: l.hogarCampoNombre,
           controlador: f.nombre,
           error: f.errores['nombre'],
-          marcador: 'Ej.: Rosa Huamán',
+          marcador: l.hogarCampoNombreEjemplo,
           habilitado: habilitado,
           accionTeclado: TextInputAction.next,
         ),
         CampoTexto(
-          etiqueta: 'Edad',
+          etiqueta: l.hogarCampoEdad,
           controlador: f.edad,
           tipo: TipoCampo.numero,
           error: f.errores['edad'],
@@ -118,30 +120,30 @@ class CamposAdultoMayor extends StatelessWidget {
         ),
         if (conTelefono)
           CampoTexto(
-            etiqueta: 'Teléfono de ${_pila(f.nombre.text)}',
+            etiqueta: l.hogarCampoTelefono(_pila(f.nombre.text)),
             controlador: f.telefono,
             tipo: TipoCampo.telefono,
             error: f.errores['telefono'],
             ayuda: habilitado
-                ? 'Lo usa «Llamar a ${_pila(f.nombre.text)}».'
+                ? l.hogarCampoTelefonoAyuda(_pila(f.nombre.text))
                 : null,
             habilitado: habilitado,
             longitudMaxima: 20,
             accionTeclado: TextInputAction.next,
           ),
         CampoTexto(
-          etiqueta: 'Dirección de la vivienda',
+          etiqueta: l.hogarCampoDireccion,
           controlador: f.direccion,
           error: f.errores['direccion'],
-          marcador: 'Calle, número y distrito',
+          marcador: l.hogarCampoDireccionEjemplo,
           habilitado: habilitado,
         ),
-        const EtiquetaCampo('¿Con quién vive?'),
+        EtiquetaCampo(l.hogarConQuienVive),
         for (final c in Convivencia.values)
           OpcionRadio<Convivencia>(
             valor: c,
             seleccion: f.convivencia,
-            titulo: c.titulo,
+            titulo: c.titulo(l),
             error: f.errores.containsKey('convivencia'),
             alElegir: habilitado
                 ? (v) {

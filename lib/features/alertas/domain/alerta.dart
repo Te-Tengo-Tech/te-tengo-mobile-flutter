@@ -1,4 +1,5 @@
 import '../../../core/formato.dart';
+import '../../../l10n/app_localizations.dart';
 
 enum TipoAlerta {
   caida('CAIDA'),
@@ -12,7 +13,8 @@ enum TipoAlerta {
       values.where((t) => t.codigo == v).firstOrNull ?? caida;
 
   /// «Caída», «Movimiento inestable» (`typeName`).
-  String get nombre => this == caida ? 'Caída' : 'Movimiento inestable';
+  String nombre(AppLocalizations l) =>
+      this == caida ? l.alertaTipoCaida : l.alertaTipoInestable;
 }
 
 enum EstadoAlerta {

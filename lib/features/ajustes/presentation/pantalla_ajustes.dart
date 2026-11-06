@@ -14,7 +14,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/plegable.dart';
 import '../../../core/ui/piezas.dart';
-import '../../../core/formato.dart';
+import '../../../l10n/l10n.dart';
 import '../../../core/ui/aviso.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
@@ -31,12 +31,12 @@ import '../../perfil/data/fotos.dart';
 import 'pantalla_preferencias.dart';
 
 /// `78 años · Vive solo(a)` (the age only when the backend sends it).
-String resumenAdultoMayor(AdultoMayor a) => [
-  if (a.edad != null) '${a.edad} años',
+String resumenAdultoMayor(AppLocalizations l, AdultoMayor a) => [
+  if (a.edad case final edad?) l.ajustesEdad(edad),
   switch (a.convivencia) {
-    Convivencia.solo => 'Vive solo(a)',
-    Convivencia.conFamiliar => 'Vive contigo',
-    Convivencia.conCuidador => 'Vive con otro cuidador',
+    Convivencia.solo => l.ajustesViveSolo,
+    Convivencia.conFamiliar => l.ajustesViveContigo,
+    Convivencia.conCuidador => l.ajustesViveConCuidador,
     null => '',
   },
 ].where((t) => t.isNotEmpty).join(' · ');
@@ -67,6 +67,7 @@ class PantallaAjustes extends ConsumerWidget {
     final espera =
         aviso?.esperaMinutos ?? ConfiguracionAviso.esperaPredeterminada;
     final consentimiento = hogar?.consentimiento;
+    final l = context.l10n;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
       children: [
@@ -74,20 +75,20 @@ class PantallaAjustes extends ConsumerWidget {
           padding: const EdgeInsets.only(bottom: 14),
           child: Semantics(
             header: true,
-            child: Text('Ajustes', style: texto.headlineMedium),
+            child: Text(l.ajustesTitulo, style: texto.headlineMedium),
           ),
         ),
         if (!titular) ...[
           Aviso(
             tono: TonoAviso.info,
             icono: Ico.users,
-            titulo: 'Eres familiar invitado',
-            texto: 'Lo que tiene candado solo lo cambia $duena.',
+            titulo: l.ajustesInvitadoTitulo,
+            texto: l.ajustesInvitadoTexto(duena),
           ),
           const SizedBox(height: 16),
         ],
         if (hogar != null) ...[
-          const EncabezadoSeccion('Persona cuidada', arriba: 4),
+          EncabezadoSeccion(l.ajustesPersonaCuidada, arriba: 4),
           ListaTarjeta(
             children: [
               FilaLista(
@@ -97,7 +98,7 @@ class PantallaAjustes extends ConsumerWidget {
                   foto: ref.watch(fotoAdultoMayorProvider),
                 ),
                 titulo: hogar.adultoMayor.nombre,
-                subtitulo: resumenAdultoMayor(hogar.adultoMayor),
+                subtitulo: resumenAdultoMayor(l, hogar.adultoMayor),
                 fin: soloVer,
                 chevron: titular,
                 alTocar: () => context.push(Rutas.personaCuidada),
@@ -105,13 +106,14 @@ class PantallaAjustes extends ConsumerWidget {
             ],
           ),
         ],
-        EncabezadoSeccion('Monitoreo', arriba: hogar == null ? 4 : 28),
+        EncabezadoSeccion(l.ajustesMonitoreo, arriba: hogar == null ? 4 : 28),
         ListaTarjeta(
           children: [
             FilaLista(
               inicio: const IconoFila(Ico.cam),
-              titulo: 'Cámaras y PCs',
+              titulo: l.ajustesCamarasYPcs,
               subtitulo: _resumenCamaras(
+                l,
                 ref.watch(pcsProvider).value,
                 ref.watch(camarasProvider).value,
               ),
@@ -120,30 +122,36 @@ class PantallaAjustes extends ConsumerWidget {
             if (principal != null)
               FilaLista(
                 inicio: const IconoFila(Ico.swap),
-                titulo: 'Orden de aviso y espera',
-                subtitulo:
-                    '$principal'
-                    '${secundario == null ? ' · sin secundario' : ' → $secundario'}'
-                    ' · $espera min',
+                titulo: l.ajustesOrdenAviso,
+                subtitulo: secundario == null
+                    ? l.ajustesOrdenSinSecundario(principal, espera)
+                    : l.ajustesOrdenConSecundario(
+                        principal,
+                        secundario,
+                        espera,
+                      ),
                 fin: soloVer,
                 chevron: titular,
                 alTocar: () => context.push(Rutas.ordenAviso),
               ),
             FilaLista(
               inicio: const IconoFila(Ico.shield),
-              titulo: 'Privacidad y consentimiento',
+              titulo: l.ajustesPrivacidad,
               subtitulo: consentimiento != null && consentimiento.vigente
-                  ? 'Vigente · ${fechaConAnio(consentimiento.otorgadoEn)}'
-                  : 'Sin consentimiento',
+                  ? l.ajustesConsentimientoVigente(
+                      l.formato.fechaConAnio(consentimiento.otorgadoEn),
+                    )
+                  : l.ajustesSinConsentimiento,
               fin: soloVer,
               chevron: titular,
               alTocar: () => context.push(Rutas.privacidad),
             ),
             FilaLista(
               inicio: const IconoFila(Ico.list),
-              titulo: 'Actividad',
+              titulo: l.ajustesActividad,
               subtitulo: switch (ref.watch(ultimaActividadProvider)) {
                 AsyncData(value: final a) => resumenUltimoCambio(
+                  l,
                   a,
                   ref.watch(relojProvider)(),
                 ),
@@ -153,24 +161,24 @@ class PantallaAjustes extends ConsumerWidget {
             ),
           ],
         ),
-        const EncabezadoSeccion('Este celular'),
+        EncabezadoSeccion(l.ajustesEsteCelular),
         // This phone's settings, so the invited member changes them too.
         ListaTarjeta(
           children: [
             FilaLista(
               inicio: const IconoFila(Ico.bell),
-              titulo: 'Notificaciones',
+              titulo: l.ajustesNotificaciones,
               subtitulo: switch (ref.watch(notificacionesActivasProvider)) {
-                AsyncData(value: true) => 'Activadas',
-                AsyncData(value: false) => 'Desactivadas',
+                AsyncData(value: true) => l.ajustesActivadas,
+                AsyncData(value: false) => l.ajustesDesactivadas,
                 _ => null,
               },
               alTocar: () => context.push(Rutas.notificaciones),
             ),
             FilaLista(
               inicio: const IconoFila(Ico.sun),
-              titulo: 'Preferencias',
-              subtitulo: resumenPreferencias(ref),
+              titulo: l.ajustesPreferencias,
+              subtitulo: resumenPreferencias(l, ref),
               alTocar: () => context.push(Rutas.preferencias),
             ),
             // This phone's app and its updates (US-43, screen 379).
@@ -179,16 +187,15 @@ class PantallaAjustes extends ConsumerWidget {
             if (ref.watch(widgetDelSistemaProvider).disponible)
               FilaPlegable(
                 icono: Ico.grid,
-                titulo: 'Agregar el widget',
+                titulo: l.ajustesAgregarWidget,
                 resumen: hogar == null
                     ? null
-                    : '${hogar.adultoMayor.nombrePila} y «Ver en vivo» en tu '
-                          'pantalla de inicio',
+                    : l.ajustesWidgetResumen(hogar.adultoMayor.nombrePila),
                 child: const PasosWidget(),
               ),
           ],
         ),
-        const EncabezadoSeccion('Cuenta'),
+        EncabezadoSeccion(l.ajustesCuenta),
         ListaTarjeta(
           children: [
             FilaLista(
@@ -196,14 +203,15 @@ class PantallaAjustes extends ConsumerWidget {
                 Avatar.inicialesDe(sesion?.usuario.nombre ?? ''),
                 foto: ref.watch(fotoDeUsuarioProvider(sesion?.usuario.id)),
               ),
-              titulo:
-                  'Tu cuenta · ${titular ? 'Titular' : 'Familiar invitado'}',
+              titulo: titular
+                  ? l.ajustesTuCuentaTitular
+                  : l.ajustesTuCuentaInvitado,
               subtitulo: sesion?.usuario.correo,
               alTocar: () => context.push(Rutas.tuPerfil),
             ),
             FilaLista(
               inicio: const IconoFila(Ico.logout, peligro: true),
-              titulo: 'Cerrar sesión',
+              titulo: l.ajustesCerrarSesion,
               peligro: true,
               chevron: false,
               alTocar: () => cerrarSesion(context, ref),
@@ -218,13 +226,17 @@ class PantallaAjustes extends ConsumerWidget {
 }
 
 /// «4 cámaras · 2 PCs», «Cocina-Rosa sin conexión» or «Aún no hay una PC vinculada» (screen 167).
-String? _resumenCamaras(List<Pc>? pcs, List<Camara>? camaras) {
+String? _resumenCamaras(
+  AppLocalizations l,
+  List<Pc>? pcs,
+  List<Camara>? camaras,
+) {
   if (pcs == null) {
-    return camaras == null ? null : contar(camaras.length, 'cámara', 'cámaras');
+    return camaras == null ? null : l.ajustesCamaras(camaras.length);
   }
-  if (pcs.isEmpty) return 'Aún no hay una PC vinculada';
+  if (pcs.isEmpty) return l.ajustesSinPc;
   final sinConexion = pcs.where((p) => p.sinConexion).firstOrNull;
-  if (sinConexion != null) return '${sinConexion.nombre} sin conexión';
+  if (sinConexion != null) return l.ajustesPcSinConexion(sinConexion.nombre);
   final n = camaras?.length ?? pcs.fold<int>(0, (t, p) => t + p.camaras.length);
-  return '${contar(n, 'cámara', 'cámaras')} · ${contar(pcs.length, 'PC', 'PCs')}';
+  return '${l.ajustesCamaras(n)} · ${l.ajustesPcs(pcs.length)}';
 }

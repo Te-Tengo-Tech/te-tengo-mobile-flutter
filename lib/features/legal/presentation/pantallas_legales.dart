@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/tarjeta.dart';
+import '../../../l10n/l10n.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import 'textos_legales.dart';
 
@@ -71,12 +71,12 @@ class PantallaTerminos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => PantallaDocumento(
-    titulo: 'Términos de uso',
-    secciones: seccionesTerminos,
+    titulo: context.l10n.legalTerminosTitulo,
+    secciones: seccionesTerminos(context.l10n),
     pie: Align(
       alignment: Alignment.centerLeft,
       child: Enlace(
-        'Ver la política de privacidad',
+        context.l10n.legalVerPolitica,
         alTocar: () => context.push(Rutas.politica),
       ),
     ),
@@ -88,9 +88,9 @@ class PantallaPolitica extends StatelessWidget {
   const PantallaPolitica({super.key});
 
   @override
-  Widget build(BuildContext context) => const PantallaDocumento(
-    titulo: 'Política de privacidad',
-    secciones: seccionesPolitica,
+  Widget build(BuildContext context) => PantallaDocumento(
+    titulo: context.l10n.legalPoliticaTitulo,
+    secciones: seccionesPolitica(context.l10n),
   );
 }
 
@@ -101,19 +101,20 @@ class PantallaDocumentoConsentimiento extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final formato = context.formato;
     final hogar = ref.watch(hogarProvider).value;
-    final nombre = hogar?.adultoMayor.nombrePila ?? 'la persona cuidada';
+    final nombre =
+        hogar?.adultoMayor.nombrePila ?? l.consentimientoPersonaGenerica;
     final c = hogar != null && hogar.conConsentimiento
         ? hogar.consentimiento
         : null;
     return PantallaDocumento(
-      titulo: 'Consentimiento',
-      introduccion:
-          'Lo acepta $nombre o su representante legal antes de que la cámara '
-          'envíe video.',
+      titulo: l.consentimientoTitulo,
+      introduccion: l.consentimientoDocumentoIntro(nombre),
       secciones: [
-        for (final s in seccionesConsentimiento) (s.titulo, [s.texto]),
-        seccionRegistroConsentimiento,
+        for (final s in seccionesConsentimiento(l)) (s.titulo, [s.texto]),
+        seccionRegistroConsentimiento(l),
       ],
       pie: c == null
           ? null
@@ -122,17 +123,27 @@ class PantallaDocumentoConsentimiento extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Constancia',
+                    l.consentimientoConstancia,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
                   DatosTarjeta([
-                    FilaDato(clave: 'Otorgado por', valor: c.otorgadoPor),
-                    FilaDato(clave: 'Registrado por', valor: c.registradoPor),
-                    FilaDato(clave: 'Fecha', valor: fechaConAnio(c.otorgadoEn)),
+                    // The values are the record as the backend stored it.
                     FilaDato(
-                      clave: 'Hora',
-                      valor: hora(c.otorgadoEn),
+                      clave: l.consentimientoOtorgadoPor,
+                      valor: c.otorgadoPor,
+                    ),
+                    FilaDato(
+                      clave: l.consentimientoRegistradoPor,
+                      valor: c.registradoPor,
+                    ),
+                    FilaDato(
+                      clave: l.consentimientoFecha,
+                      valor: formato.fechaConAnio(c.otorgadoEn),
+                    ),
+                    FilaDato(
+                      clave: l.consentimientoHora,
+                      valor: formato.hora(c.otorgadoEn),
                       mono: true,
                     ),
                   ]),

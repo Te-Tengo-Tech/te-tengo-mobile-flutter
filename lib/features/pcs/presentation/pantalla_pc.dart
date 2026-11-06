@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -14,6 +13,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/ui/tarjeta.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/presentation/fila_camara.dart';
 import '../../familia/data/familia_repositorio.dart';
@@ -42,7 +42,7 @@ class PantallaPc extends ConsumerWidget {
     final pc = pcs.value?.where((p) => p.id == pcId).firstOrNull;
     return RefrescoPcs(
       child: Scaffold(
-        appBar: AppBar(title: Text(pc?.nombre ?? 'PC')),
+        appBar: AppBar(title: Text(pc?.nombre ?? context.l10n.pcsPc)),
         body: switch ((pcs, hogar)) {
           (AsyncError(:final error), _) ||
           (_, AsyncError(:final error)) => ErrorDePantalla(
@@ -79,6 +79,7 @@ class _Detalle extends ConsumerWidget {
     ], conConsentimiento: conConsentimiento);
     final senal = pc.ultimaSenal;
     final por = pc.vinculadaPor;
+    final l = context.l10n;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
@@ -92,20 +93,23 @@ class _Detalle extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(18, 0, 18, 6),
                 child: DatosTarjeta([
                   if (pc.sistemaOperativo case final so?)
-                    FilaDato(clave: 'Sistema', valor: so),
+                    FilaDato(clave: l.pcsSistema, valor: so),
                   if (pc.programa case final programa?)
-                    FilaDato(clave: 'Programa', valor: programa),
+                    FilaDato(clave: l.pcsPrograma, valor: programa),
                   if (pc.vinculadaEn case final en?)
                     FilaDato(
-                      clave: 'Vinculada',
-                      valor:
-                          '${fechaNumerica(en)}'
-                          '${por == null ? '' : ' por ${por.nombre.split(' ').first}'}',
+                      clave: l.pcsVinculada,
+                      valor: por == null
+                          ? l.formato.fechaNumerica(en)
+                          : l.pcsVinculadaPor(
+                              l.formato.fechaNumerica(en),
+                              por.nombre.split(' ').first,
+                            ),
                     ),
                   if (senal != null)
                     FilaDato(
-                      clave: 'Última señal',
-                      valor: hora(senal),
+                      clave: l.pcsUltimaSenal,
+                      valor: l.formato.hora(senal),
                       mono: true,
                     ),
                 ]),
@@ -115,18 +119,18 @@ class _Detalle extends ConsumerWidget {
         ),
         AvisoVersionPc(pc: pc),
         if (pc.sinConexion) ...[
-          const EncabezadoSeccion('Qué revisar'),
+          EncabezadoSeccion(l.pcsQueRevisar),
           const QueRevisarPc(),
         ],
-        const EncabezadoSeccion('Cámaras de esta PC'),
+        EncabezadoSeccion(l.pcsCamarasDeEstaPc),
         if (camaras.isEmpty)
           Aviso(
             tono: TonoAviso.info,
             icono: Ico.cam,
-            titulo: 'Falta elegir las cámaras',
+            titulo: l.pcsFaltaElegirCamaras,
             accion: titular && !pc.sinConexion
                 ? Boton(
-                    'Elegir las cámaras',
+                    l.pcsElegirCamaras,
                     pequeno: true,
                     alPresionar: () => context.push(Rutas.elegirCamaras(pc.id)),
                   )
@@ -144,24 +148,20 @@ class _Detalle extends ConsumerWidget {
               if (titular && !pc.sinConexion)
                 FilaLista(
                   inicio: const IconoFila(Ico.cam),
-                  titulo: 'Elegir las cámaras',
+                  titulo: l.pcsElegirCamaras,
                   subtitulo: pc.camarasSinUsar > 0
-                      ? contar(
-                          pc.camarasSinUsar,
-                          'cámara sin usar',
-                          'cámaras sin usar',
-                        )
-                      : 'Usa otra cámara o deja de usar una',
+                      ? l.pcsNCamarasSinUsar(pc.camarasSinUsar)
+                      : l.pcsUsaOtraCamara,
                   alTocar: () => context.push(Rutas.elegirCamaras(pc.id)),
                 ),
             ],
           ),
         if (titular) ...[
-          const EncabezadoSeccion('Quitar'),
-          Text('Deja de detectar caídas con esta PC.', style: texto.bodyMedium),
+          EncabezadoSeccion(l.pcsQuitar),
+          Text(l.pcsQuitarExplicacion, style: texto.bodyMedium),
           const SizedBox(height: 12),
           Boton(
-            'Quitar esta PC',
+            l.pcsQuitarEstaPc,
             icono: Ico.trash,
             estilo: EstiloBoton.peligroContorno,
             alPresionar: () => quitarPc(context, ref, pc),
@@ -170,7 +170,7 @@ class _Detalle extends ConsumerWidget {
           const SizedBox(height: 20),
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'elegir las cámaras o quitar esta PC',
+            accion: l.pcsAccionElegirOQuitar,
           ),
         ],
       ],
@@ -182,15 +182,16 @@ class _Detalle extends ConsumerWidget {
 /// (CA-31.4); then the app stops showing it and its cameras at once (CA-31.1, CA-31.2).
 Future<void> quitarPc(BuildContext context, WidgetRef ref, Pc pc) async {
   final habitaciones = [for (final c in pc.camaras) c.nombreHabitacion];
+  final l = context.l10n;
   final si = await confirmar(
     context,
     icono: Ico.pc,
-    titulo: '¿Quitar la PC ${pc.nombre}?',
-    texto:
-        '${habitaciones.isEmpty ? '' : 'Dejaremos de detectar caídas en ${enumerar(habitaciones)}. '}'
-        'La PC volverá a mostrar su QR.',
-    aceptar: 'Quitar la PC',
-    cancelar: 'Cancelar',
+    titulo: l.pcsQuitarPregunta(pc.nombre),
+    texto: habitaciones.isEmpty
+        ? l.pcsQuitarTexto
+        : l.pcsQuitarTextoHabitaciones(l.formato.enumerar(habitaciones)),
+    aceptar: l.pcsQuitarLaPc,
+    cancelar: l.pcsCancelar,
     peligro: true,
   );
   if (!si || !context.mounted) return;
@@ -202,10 +203,10 @@ Future<void> quitarPc(BuildContext context, WidgetRef ref, Pc pc) async {
         mostrarToast(
           context,
           titulo: e.codigo == ProblemaApi.sinConexion
-              ? 'Sin internet'
+              ? l.pcsSinInternet
               : e.detalle,
           texto: e.codigo == ProblemaApi.sinConexion
-              ? 'Revisa tu conexión y vuelve a intentarlo.'
+              ? l.pcsRevisaConexion
               : null,
           icono: Ico.warn,
           tono: TonoAviso.advertencia,
@@ -222,8 +223,8 @@ Future<void> quitarPc(BuildContext context, WidgetRef ref, Pc pc) async {
   if (!context.mounted) return;
   mostrarToast(
     context,
-    titulo: 'Quitamos la PC ${pc.nombre}',
-    texto: pc.sinConexion ? 'Dejará de capturar en cuanto se conecte.' : null,
+    titulo: l.pcsQuitamos(pc.nombre),
+    texto: pc.sinConexion ? l.pcsDejaraDeCapturar : null,
     icono: Ico.pc,
   );
   salirA(context, Rutas.pcs);

@@ -5,6 +5,7 @@ import '../../app/tema/colores.dart';
 import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
+import '../../l10n/l10n.dart';
 
 /// Kind of text field.
 enum TipoCampo { texto, correo, contrasena, numero, telefono }
@@ -109,8 +110,8 @@ class _CampoTextoState extends State<CampoTexto> {
                 suffixIcon: esClave
                     ? IconButton(
                         tooltip: _oculta
-                            ? 'Mostrar contraseña'
-                            : 'Ocultar contraseña',
+                            ? context.l10n.comunMostrarContrasena
+                            : context.l10n.comunOcultarContrasena,
                         onPressed: () => setState(() => _oculta = !_oculta),
                         icon: Icono(
                           _oculta ? Ico.eye : Ico.eyeOff,

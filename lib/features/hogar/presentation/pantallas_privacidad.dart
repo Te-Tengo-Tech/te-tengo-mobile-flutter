@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -18,6 +17,7 @@ import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/ui/plegable.dart';
 import '../../../core/ui/tarjeta.dart';
+import '../../../l10n/l10n.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../camaras/data/camaras_repositorio.dart';
@@ -38,7 +38,7 @@ class PantallaPrivacidad extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hogar = ref.watch(hogarProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Privacidad')),
+      appBar: AppBar(title: Text(context.l10n.privacidadTitulo)),
       body: hogar.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorDePantalla(
@@ -59,6 +59,7 @@ class _Privacidad extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final titular = ref.watch(esTitularProvider);
     final consentimiento = hogar.consentimiento;
     return ListView(
@@ -67,7 +68,7 @@ class _Privacidad extends ConsumerWidget {
         if (hogar.conConsentimiento && consentimiento != null)
           TarjetaConstancia(
             consentimiento: consentimiento,
-            enlace: 'Ver el documento aceptado',
+            enlace: l.privacidadVerDocumento,
           )
         else
           TarjetaBanda.construir(
@@ -83,7 +84,7 @@ class _Privacidad extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Sin consentimiento',
+                          l.privacidadSinConsentimiento,
                           style: texto.titleLarge,
                         ),
                       ),
@@ -92,14 +93,14 @@ class _Privacidad extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     consentimiento != null
-                        ? 'Revocado. Grabaciones eliminadas.'
-                        : 'Aún no se registra. La cámara no envía video.',
+                        ? l.privacidadRevocadoEliminadas
+                        : l.privacidadAunNoRegistra,
                     style: texto.bodyMedium,
                   ),
                   if (titular) ...[
                     const SizedBox(height: 16),
                     Boton(
-                      'Registrar consentimiento',
+                      l.consentimientoRegistrar,
                       alPresionar: () => context.push(Rutas.consentimiento),
                     ),
                   ],
@@ -108,65 +109,81 @@ class _Privacidad extends ConsumerWidget {
             },
           ),
         // US-35, US-37: the separate consent to store movements and their cloud retention.
-        const EncabezadoSeccion('Movimientos'),
+        EncabezadoSeccion(l.privacidadMovimientos),
         ListaTarjeta(
           children: [
             FilaLista(
               inicio: const IconoFila(Ico.body),
-              titulo: 'Guardar movimientos',
+              titulo: l.privacidadGuardarMovimientos,
               subtitulo: switch (ref.watch(consentimientoMovimientosProvider)) {
                 AsyncData(value: final m) =>
                   m.vigente && m.constancia != null
-                      ? 'Vigente desde el ${fechaConAnio(m.constancia!.otorgadoEn)}'
-                      : 'No autorizado',
+                      ? l.privacidadVigenteDesde(
+                          context.formato.fechaConAnio(
+                            m.constancia!.otorgadoEn,
+                          ),
+                        )
+                      : l.privacidadNoAutorizado,
                 _ => null,
               },
               alTocar: () => context.push(Rutas.movimientos),
             ),
             FilaLista(
               inicio: const IconoFila(Ico.cloud),
-              titulo: 'Movimientos en la nube',
+              titulo: l.privacidadMovimientosNube,
               subtitulo: switch (ref.watch(movimientosEnLaNubeProvider)) {
                 AsyncData(value: final n) =>
                   n.consentimientoVigente
-                      ? resumenNube(n.retencionDias)
-                      : 'Desactivado · falta el permiso',
+                      ? resumenNube(l, n.retencionDias)
+                      : l.privacidadNubeDesactivada,
                 _ => null,
               },
               alTocar: () => context.push(Rutas.nube),
             ),
           ],
         ),
-        const EncabezadoSeccion('Sus datos'),
+        EncabezadoSeccion(l.privacidadSusDatos),
         ListaTarjeta(
           children: [
             // The prototype's fold: video is analysed on the household PC and never stored in the
             // cloud (docs 04-arquitectura/decision-procesamiento-en-pc.md).
-            const FilaPlegable(
+            FilaPlegable(
               icono: Ico.shield,
-              titulo: 'Cómo los cuidamos',
-              resumen: 'Sin video en la nube · clips 30 días',
+              titulo: l.privacidadComoCuidamos,
+              resumen: l.privacidadComoCuidamosResumen,
               child: DatosTarjeta([
-                FilaDato(clave: 'Video', valor: 'En la PC, nunca en la nube'),
-                FilaDato(clave: 'Clips', valor: '30 días'),
-                FilaDato(clave: 'En vivo', valor: 'No se graba'),
-                FilaDato(clave: 'Rostros', valor: 'No se reconocen'),
+                FilaDato(
+                  clave: l.privacidadDatoVideo,
+                  valor: l.privacidadDatoVideoValor,
+                ),
+                FilaDato(
+                  clave: l.privacidadDatoClips,
+                  valor: l.privacidadDatoClipsValor,
+                ),
+                FilaDato(
+                  clave: l.privacidadDatoEnVivo,
+                  valor: l.privacidadDatoEnVivoValor,
+                ),
+                FilaDato(
+                  clave: l.privacidadDatoRostros,
+                  valor: l.privacidadDatoRostrosValor,
+                ),
               ]),
             ),
             FilaLista(
               inicio: const IconoFila(Ico.eye),
-              titulo: 'Registro de accesos',
-              subtitulo: 'Quién miró, cuándo y cuánto',
+              titulo: l.privacidadRegistroAccesos,
+              subtitulo: l.privacidadRegistroAccesosSub,
               alTocar: () => context.push(Rutas.accesos),
             ),
           ],
         ),
         const SizedBox(height: 16),
         Text.rich(
-          const TextSpan(
+          TextSpan(
             children: [
-              TextSpan(text: 'Derechos (Ley N.° 29733): '),
-              TextSpan(
+              TextSpan(text: l.privacidadDerechos),
+              const TextSpan(
                 text: 'privacidad@tetengo.pe',
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
@@ -179,33 +196,30 @@ class _Privacidad extends ConsumerWidget {
           children: [
             FilaLista(
               inicio: const IconoFila(Ico.doc),
-              titulo: 'Política de privacidad',
+              titulo: l.legalPoliticaTitulo,
               alTocar: () => context.push(Rutas.politica),
             ),
             FilaLista(
               inicio: const IconoFila(Ico.doc),
-              titulo: 'Términos de uso',
+              titulo: l.legalTerminosTitulo,
               alTocar: () => context.push(Rutas.terminos),
             ),
           ],
         ),
         if (hogar.conConsentimiento) ...[
-          const EncabezadoSeccion('Revocar'),
+          EncabezadoSeccion(l.privacidadRevocar),
           if (titular) ...[
-            Text(
-              'Detiene la cámara y borra las grabaciones.',
-              style: texto.bodyMedium,
-            ),
+            Text(l.privacidadRevocarTexto, style: texto.bodyMedium),
             const SizedBox(height: 12),
             Boton(
-              'Revocar consentimiento',
+              l.privacidadRevocarBoton,
               estilo: EstiloBoton.peligroContorno,
               alPresionar: () => _revocar(context, ref),
             ),
           ] else
             AvisoSoloLectura(
               titular: ref.watch(nombreTitularProvider) ?? '',
-              accion: 'revocar el consentimiento',
+              accion: l.privacidadSoloLecturaRevocar,
             ),
         ],
       ],
@@ -213,24 +227,23 @@ class _Privacidad extends ConsumerWidget {
   }
 
   Future<void> _revocar(BuildContext context, WidgetRef ref) async {
+    final l = context.l10n;
     final si = await confirmar(
       context,
       icono: Ico.warn,
       peligro: true,
-      titulo: '¿Revocar el consentimiento?',
-      texto:
-          'Se detiene la captura, no habrá más alertas y se borran las '
-          'grabaciones. No se puede deshacer.',
-      aceptar: 'Sí, revocar y eliminar',
-      cancelar: 'Cancelar, mantenerlo',
+      titulo: l.privacidadRevocarDialogoTitulo,
+      texto: l.privacidadRevocarDialogoTexto,
+      aceptar: l.privacidadRevocarDialogoAceptar,
+      cancelar: l.privacidadRevocarDialogoCancelar,
     );
     if (!context.mounted) return;
     if (!si) {
       // CA-09.2: the consent and the capture stay active.
       mostrarToast(
         context,
-        titulo: 'Tu consentimiento sigue vigente',
-        texto: 'La cámara sigue detectando caídas.',
+        titulo: l.privacidadSigueVigente,
+        texto: l.privacidadSigueDetectando,
         icono: Ico.shield,
       );
       return;
@@ -397,6 +410,8 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
   Widget build(BuildContext context) {
     final r = ref.watch(revocacionProvider);
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
+    final formato = context.formato;
     final correo = ref.watch(sesionControllerProvider)?.usuario.correo ?? '';
     final terminada = r?.terminada ?? false;
     final detenida = r?.capturaDetenida ?? ref.watch(relojProvider)();
@@ -429,16 +444,16 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
                       liveRegion: true,
                       child: Text(
                         terminada
-                            ? 'Consentimiento revocado'
-                            : 'Revocando el consentimiento',
+                            ? l.privacidadRevocadoTitulo
+                            : l.privacidadRevocandoTitulo,
                         style: texto.headlineMedium,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       terminada
-                          ? 'Te enviamos la constancia a $correo.'
-                          : 'No cierres la app.',
+                          ? l.privacidadConstanciaEnviada(correo)
+                          : l.privacidadNoCierres,
                       style: texto.bodyLarge?.copyWith(
                         color: context.colores.tinta2,
                       ),
@@ -449,33 +464,39 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
                         children: [
                           _Paso(
                             hecho: true,
-                            titulo: 'Captura detenida',
-                            detalle: conHora('A las ', hora(detenida)),
+                            titulo: l.privacidadCapturaDetenida,
+                            detalle: _conHora(
+                              l.privacidadALasHora(formato.hora(detenida)),
+                              formato.hora(detenida),
+                            ),
                           ),
                           _Paso(
                             hecho: terminada,
                             enCurso: !terminada,
                             titulo: terminada
-                                ? 'Grabaciones eliminadas'
-                                : 'Eliminando las grabaciones…',
+                                ? l.privacidadGrabacionesEliminadas
+                                : l.privacidadEliminandoGrabaciones,
                             // Without a known count, no line rather than a wrong «0 clips».
                             detalle: clips == null
                                 ? null
                                 : terminada
-                                ? conHora(
-                                    '$clips clip${clips == 1 ? '' : 's'} · ',
-                                    hora(r!.eliminadasEn!),
+                                ? _conHora(
+                                    l.privacidadClipsHora(
+                                      l.privacidadClips(clips),
+                                      formato.hora(r!.eliminadasEn!),
+                                    ),
+                                    formato.hora(r.eliminadasEn!),
                                   )
-                                : TextSpan(
-                                    text: '$clips clip${clips == 1 ? '' : 's'}',
-                                  ),
+                                : TextSpan(text: l.privacidadClips(clips)),
                           ),
                           _Paso(
                             hecho: terminada,
                             numero: 3,
-                            titulo: 'Constancia por correo',
+                            titulo: l.privacidadConstanciaCorreo,
                             detalle: TextSpan(
-                              text: terminada ? 'Enviada' : 'Pendiente',
+                              text: terminada
+                                  ? l.privacidadEnviada
+                                  : l.privacidadPendiente,
                             ),
                           ),
                         ],
@@ -485,7 +506,7 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
                 ),
               ),
               Boton(
-                'Volver al inicio',
+                l.consentimientoVolverInicio,
                 alPresionar: terminada
                     ? () {
                         ref.read(revocacionProvider.notifier).olvidar();
@@ -499,6 +520,17 @@ class _PantallaRevocadoState extends ConsumerState<PantallaRevocado> {
       ),
     );
   }
+}
+
+/// [mensaje] with its time [horaTexto] in the mono font (`conHora`), wherever the language puts it.
+TextSpan _conHora(String mensaje, String horaTexto) {
+  final i = mensaje.indexOf(horaTexto);
+  if (i < 0) return TextSpan(text: mensaje);
+  return conHora(
+    mensaje.substring(0, i),
+    horaTexto,
+    mensaje.substring(i + horaTexto.length),
+  );
 }
 
 class _Paso extends StatelessWidget {

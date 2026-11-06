@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/formato.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../data/camaras_repositorio.dart';
 import '../domain/camara.dart';
 
@@ -16,15 +16,16 @@ class AvisosCamara {
   /// «La cámara de la Sala se desconectó» with what to check; tapping opens the camera.
   void desconectada({required String habitacion, void Function()? abrir}) {
     _ref.invalidate(camarasProvider);
+    final l = textosDelSistema();
     _ref
         .read(avisoFlotanteProvider.notifier)
         .mostrar(
           AvisoFlotante(
             tipo: TipoFlotante.enApp,
-            titulo: 'La cámara ${deHabitacion(habitacion)} se desconectó',
-            texto:
-                'Revisa el cable de la cámara, que la PC esté encendida y el '
-                'internet de la casa.',
+            titulo: l.camaraAvisoDesconectadaTitulo(
+              deHabitacion(habitacion, l),
+            ),
+            texto: l.camaraAvisoDesconectadaTexto,
             alTocar: abrir,
           ),
         );
@@ -33,15 +34,15 @@ class AvisosCamara {
   /// «La cámara de la Sala volvió a estar en línea»: monitoring is back.
   void reconectada({required String habitacion, required DateTime cuando}) {
     _ref.invalidate(camarasProvider);
+    final l = textosDelSistema();
     _ref
         .read(avisoFlotanteProvider.notifier)
         .mostrar(
           AvisoFlotante(
             icono: Ico.wifi,
             tono: TonoAviso.ok,
-            titulo:
-                'La cámara ${deHabitacion(habitacion)} volvió a estar en línea',
-            texto: 'El monitoreo se restableció a las ${hora(cuando)}.',
+            titulo: l.camaraAvisoReconectadaTitulo(deHabitacion(habitacion, l)),
+            texto: l.camaraAvisoReconectadaTexto(l.formato.hora(cuando)),
           ),
         );
   }
@@ -49,6 +50,7 @@ class AvisosCamara {
   /// «La cámara de la Sala se reactivó» when a pause ends by itself (screen 35, CA-22.3).
   void reactivada({required String habitacion, required DateTime cuando}) {
     _ref.invalidate(camarasProvider);
+    final l = textosDelSistema();
     _ref
         .read(avisoFlotanteProvider.notifier)
         .mostrar(
@@ -56,8 +58,8 @@ class AvisosCamara {
             tipo: TipoFlotante.enApp,
             icono: Ico.cam,
             tono: TonoAviso.ok,
-            titulo: 'La cámara ${deHabitacion(habitacion)} se reactivó',
-            texto: 'Terminó la pausa a las ${hora(cuando)}.',
+            titulo: l.camaraAvisoReactivadaTitulo(deHabitacion(habitacion, l)),
+            texto: l.camaraAvisoReactivadaTexto(l.formato.hora(cuando)),
           ),
         );
   }
@@ -69,15 +71,14 @@ class AvisosCamara {
     void Function()? abrir,
   }) {
     _ref.invalidate(camarasProvider);
+    final l = textosDelSistema();
     _ref
         .read(avisoFlotanteProvider.notifier)
         .mostrar(
           AvisoFlotante(
             tipo: TipoFlotante.enApp,
-            titulo: 'La detección no es confiable ${enHabitacion(habitacion)}',
-            texto:
-                'Hace más de 5 minutos que la cámara no ve bien a $nombre. '
-                'Revisa la luz y el encuadre.',
+            titulo: l.camaraAvisoNoConfiableTitulo(enHabitacion(habitacion, l)),
+            texto: l.camaraAvisoNoConfiableTexto(nombre),
             alTocar: abrir,
           ),
         );

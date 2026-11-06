@@ -15,6 +15,7 @@ import '../../../core/ui/ilustraciones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
@@ -29,11 +30,12 @@ import '../../perfil/data/fotos.dart';
 enum FiltroAccesos { todo, vivo, repeticiones }
 
 /// «Hoy», «Ayer» or «lun 21 sep».
-String diaDeAcceso(DateTime dia, DateTime hoy) => mismoDia(dia, hoy)
-    ? 'Hoy'
+String diaDeAcceso(DateTime dia, DateTime hoy, AppLocalizations l) =>
+    mismoDia(dia, hoy)
+    ? l.camaraHoy
     : mismoDia(dia, hoy.subtract(const Duration(days: 1)))
-    ? 'Ayer'
-    : fechaCorta(dia);
+    ? l.camaraAyer
+    : l.formato.fechaCorta(dia);
 
 /// The access log (screens 42, 43, 213, 214): who watched the live view or a preview, or replayed
 /// a moment, when and for how long, newest first (CA-24.2, CA-39.3), or «Aún no hay accesos
@@ -53,8 +55,9 @@ class _PantallaAccesosState extends ConsumerState<PantallaAccesos> {
     final accesos = ref.watch(registroAccesosProvider);
     final hoy = ref.watch(relojProvider)();
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Registro de accesos')),
+      appBar: AppBar(title: Text(l.accesosTitulo)),
       body: RefreshIndicator(
         onRefresh: () {
           // The sources too: replays watched on a PC arrive from elsewhere.
@@ -67,15 +70,12 @@ class _PantallaAccesosState extends ConsumerState<PantallaAccesos> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
           children: [
-            Text(
-              'Quién miró, cuándo y cuánto. Toda la familia lo ve.',
-              style: texto.bodyMedium,
-            ),
+            Text(l.accesosIntro, style: texto.bodyMedium),
             ...switch (accesos) {
-              AsyncData(value: final lista) when lista.isEmpty => const [
+              AsyncData(value: final lista) when lista.isEmpty => [
                 EstadoVacio(
                   ilustracion: IlustracionVacio.ojo,
-                  titulo: 'Aún no hay accesos registrados',
+                  titulo: l.accesosVacio,
                 ),
               ],
               AsyncData(value: final lista) => [
@@ -84,10 +84,10 @@ class _PantallaAccesosState extends ConsumerState<PantallaAccesos> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    for (final (f, t) in const [
-                      (FiltroAccesos.todo, 'Todo'),
-                      (FiltroAccesos.vivo, 'Vista en vivo'),
-                      (FiltroAccesos.repeticiones, 'Repeticiones'),
+                    for (final (f, t) in [
+                      (FiltroAccesos.todo, l.accesosTodo),
+                      (FiltroAccesos.vivo, l.accesosVistaEnVivo),
+                      (FiltroAccesos.repeticiones, l.accesosRepeticiones),
                     ])
                       ChipOpcion(
                         texto: t,
@@ -106,7 +106,7 @@ class _PantallaAccesosState extends ConsumerState<PantallaAccesos> {
                     })
                       a,
                 ])) ...[
-                  EncabezadoDia(diaDeAcceso(dia, hoy)),
+                  EncabezadoDia(diaDeAcceso(dia, hoy, l)),
                   ListaTarjeta(
                     children: [for (final a in grupo) FilaAcceso(a)],
                   ),
@@ -162,9 +162,13 @@ class FilaAcceso extends ConsumerWidget {
         camaras.where((c) => c.id == a.camaraId).firstOrNull ??
         (a.camaraId == null ? camaras.firstOrNull : null);
     final habitacion = a.habitacion ?? camara?.nombreHabitacion ?? '';
+    final l = context.l10n;
+    final f = l.formato;
     final quien = a.enPc
-        ? a.nombre
-        : '${a.nombre.split(' ').first}${yo ? ' (tú)' : ''}';
+        ? nombrePc(a, l)
+        : yo
+        ? l.accesosNombreTu(a.nombre.split(' ').first)
+        : a.nombre.split(' ').first;
     String habitacionDe(String id) =>
         camaras.where((c) => c.id == id).firstOrNull?.nombreHabitacion ?? '';
     final titulo = switch (a.tipo) {
@@ -172,19 +176,25 @@ class FilaAcceso extends ConsumerWidget {
       TipoAcceso.mosaico => switch ([
         for (final id in a.camaraIds) habitacionDe(id),
       ].where((h) => h.isNotEmpty).toList()) {
-        final List<String> vistas when vistas.isNotEmpty =>
-          '$quien vio ${enumerar(vistas)}',
-        _ => 'Varias cámaras',
+        final List<String> vistas when vistas.isNotEmpty => l.accesosVio(
+          quien,
+          f.enumerar(vistas),
+        ),
+        _ => l.accesosVariasCamaras,
       },
       TipoAcceso.vivo =>
-        habitacion.isEmpty ? 'Vista en vivo' : 'Vista en vivo · $habitacion',
+        habitacion.isEmpty
+            ? l.accesosVistaEnVivo
+            : l.accesosVistaEnVivoDe(habitacion),
       TipoAcceso.vistaPrevia => switch (camara?.nombreDispositivo) {
-        final d? => 'Vista previa al elegir cámaras · $d',
-        null => 'Vista previa al elegir cámaras',
+        final d? => l.accesosVistaPreviaDe(d),
+        null => l.accesosVistaPrevia,
       },
-      TipoAcceso.repeticion =>
-        'Repetición · $habitacion, '
-            '${_diaMes(a.momento!)} ${hora(a.momento!)}',
+      TipoAcceso.repeticion => l.accesosRepeticion(
+        habitacion,
+        diaMes(a.momento!, f),
+        f.hora(a.momento!),
+      ),
     };
     final repeticion = a.tipo == TipoAcceso.repeticion;
     final colorEnlace = context.colores.moradoTinta;
@@ -201,12 +211,12 @@ class FilaAcceso extends ConsumerWidget {
         children: [
           TextSpan(
             text: a.tipo == TipoAcceso.mosaico
-                ? 'Varias cámaras · '
+                ? '${l.accesosVariasCamaras} · '
                 : '$quien · ',
           ),
-          TextSpan(text: hora(a.inicio), style: estiloCifras),
+          TextSpan(text: f.hora(a.inicio), style: estiloCifras),
           TextSpan(
-            text: ' · ${duracion(Duration(seconds: a.duracionSegundos))}',
+            text: ' · ${f.duracion(Duration(seconds: a.duracionSegundos))}',
           ),
         ],
       ),
@@ -221,7 +231,7 @@ class FilaAcceso extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'Desde una alerta',
+                  l.accesosDesdeAlerta,
                   style: estiloTexto(13, 800, color: context.colores.tinta2),
                 ),
               ),
@@ -231,7 +241,7 @@ class FilaAcceso extends ConsumerWidget {
               padding: const EdgeInsets.only(top: 6),
               child: ExcludeSemantics(
                 child: Text(
-                  'Abrir de nuevo',
+                  l.accesosAbrirDeNuevo,
                   style: estiloTexto(15, 700, color: colorEnlace).copyWith(
                     decoration: TextDecoration.underline,
                     decorationColor: colorEnlace,
@@ -245,9 +255,6 @@ class FilaAcceso extends ConsumerWidget {
           : null,
     );
   }
-
-  static String _diaMes(DateTime t) =>
-      '${t.day.toString().padLeft(2, '0')}/${t.month.toString().padLeft(2, '0')}';
 }
 
 class _AvatarConInsignia extends StatelessWidget {
@@ -309,14 +316,35 @@ class _AvatarConInsignia extends StatelessWidget {
   }
 }
 
+/// «PC de la casa» or «PC Cocina-Rosa»: who watched a replay on a PC.
+String nombrePc(Acceso a, AppLocalizations l) {
+  final pc = a.pc ?? '';
+  return pc.isEmpty ? l.camaraPcDeLaCasa : l.camaraPcNombre(pc);
+}
+
 /// «Luis · hoy 08:15», «Tú · lun 21 sep 12:06» or «Sin accesos» (the camera's settings).
-String resumenUltimoAcceso(Acceso? a, {String? yo, required DateTime hoy}) {
-  if (a == null) return 'Sin accesos';
+String resumenUltimoAcceso(
+  Acceso? a, {
+  String? yo,
+  required DateTime hoy,
+  required AppLocalizations l,
+}) {
+  if (a == null) return l.accesosSinAccesos;
   final quien = a.enPc
-      ? a.nombre
+      ? nombrePc(a, l)
       : a.usuarioId == yo
-      ? 'Tú'
+      ? l.accesosTu
       : a.nombre.split(' ').first;
-  final dia = mismoDia(a.inicio, hoy) ? 'hoy' : fechaCorta(a.inicio);
-  return '$quien · $dia ${hora(a.inicio)}';
+  final dia = mismoDia(a.inicio, hoy)
+      ? l.accesosHoyMinuscula
+      : l.formato.fechaCorta(a.inicio);
+  return l.accesosResumen(quien, dia, l.formato.hora(a.inicio));
+}
+
+/// `15/09` (`09/15` in English): a day of this year.
+String diaMes(DateTime t, Formato f) {
+  String dos(int n) => n.toString().padLeft(2, '0');
+  return f.idioma == 'en'
+      ? '${dos(t.month)}/${dos(t.day)}'
+      : '${dos(t.day)}/${dos(t.month)}';
 }

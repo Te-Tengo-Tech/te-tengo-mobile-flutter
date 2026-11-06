@@ -4,6 +4,7 @@ import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/features/actividad/domain/actividad.dart';
 import 'package:te_tengo/features/actividad/presentation/pantalla_actividad.dart';
 import 'package:te_tengo/features/pcs/domain/pc.dart';
+import 'package:te_tengo/l10n/l10n.dart';
 import 'package:te_tengo/core/ui/ayuda.dart';
 
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
@@ -142,14 +143,16 @@ void main() {
       despues: '0.5.0',
     );
 
+    final es = lookupAppLocalizations(const Locale('es'));
+
     test('«Sala-Rosa se actualizó a 0.5.0» con su detalle', () {
       expect(
-        actualizada.frase(adultoMayor: 'Rosa'),
+        actualizada.frase(es, adultoMayor: 'Rosa'),
         'Sala-Rosa se actualizó a 0.5.0',
       );
-      expect(actualizada.quien, 'Te Tengo Captura');
-      expect(actualizada.desde, 'PC Sala-Rosa');
-      expect(actualizada.antesYDespues, ('0.4.3', '0.5.0'));
+      expect(actualizada.quien(es), 'Te Tengo Captura');
+      expect(actualizada.desde(es), 'PC Sala-Rosa');
+      expect(actualizada.antesYDespues(es), ('0.4.3', '0.5.0'));
     });
 
     test('actualización automática activada y desactivada', () {
@@ -162,11 +165,13 @@ void main() {
         objeto: 'Actualizar automáticamente',
       );
       expect(
-        de('ACTUALIZACION_AUTOMATICA_ACTIVADA').frase(adultoMayor: 'Rosa'),
+        de('ACTUALIZACION_AUTOMATICA_ACTIVADA').frase(es, adultoMayor: 'Rosa'),
         'Desde la PC Sala-Rosa: se activó la actualización automática',
       );
       expect(
-        de('ACTUALIZACION_AUTOMATICA_DESACTIVADA').frase(adultoMayor: 'Rosa'),
+        de(
+          'ACTUALIZACION_AUTOMATICA_DESACTIVADA',
+        ).frase(es, adultoMayor: 'Rosa'),
         'Desde la PC Sala-Rosa: se desactivó la actualización automática',
       );
     });

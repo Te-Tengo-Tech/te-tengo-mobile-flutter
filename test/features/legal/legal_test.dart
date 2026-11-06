@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/app/rutas.dart';
 import 'package:te_tengo/core/reloj.dart';
@@ -7,14 +8,18 @@ import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/legal/presentation/pantallas_legales.dart';
 import 'package:te_tengo/features/legal/presentation/textos_legales.dart';
+import 'package:te_tengo/l10n/l10n.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
+import '../../apoyo/idioma.dart';
 import '../camaras/repositorio_falso.dart';
 import '../familia/familia_falso.dart';
 import '../hogar/hogar_falso.dart';
 
 void main() {
+  final es = lookupAppLocalizations(const Locale('es'));
+
   Future<void> abrir(
     WidgetTester tester,
     String ubicacion, {
@@ -78,7 +83,7 @@ void main() {
       findsOneWidget,
     );
     // The same text as the folded summary, one section each.
-    for (final s in seccionesConsentimiento) {
+    for (final s in seccionesConsentimiento(es)) {
       await verHasta(tester, find.text(s.texto));
     }
     await verHasta(tester, find.text('Cómo se registra'));
@@ -105,11 +110,11 @@ void main() {
   });
 
   test('los textos dicen que el video se analiza en la PC de la casa', () {
-    final consentimiento = seccionesConsentimiento
-        .map((s) => s.texto)
-        .join(' ');
-    final politica = seccionesPolitica.expand((s) => s.$2).join(' ');
-    final terminos = seccionesTerminos.expand((s) => s.$2).join(' ');
+    final consentimiento = seccionesConsentimiento(
+      es,
+    ).map((s) => s.texto).join(' ');
+    final politica = seccionesPolitica(es).expand((s) => s.$2).join(' ');
+    final terminos = seccionesTerminos(es).expand((s) => s.$2).join(' ');
     for (final texto in [consentimiento, politica]) {
       expect(texto, isNot(contains('envía video a Te Tengo')));
       expect(texto, contains('PC de la casa'));
@@ -126,6 +131,52 @@ void main() {
     expect(terminos, contains('permiso aparte'));
     expect(terminos, contains('la PC de la casa apagada'));
   });
+
+  testWidgets('en inglés, los documentos legales están traducidos', (
+    tester,
+  ) async {
+    usarIngles(tester);
+    await abrir(tester, Rutas.privacidad);
+    expect(find.text('Privacy'), findsOneWidget);
+    await tocar(tester, find.text('View the accepted document'));
+    expect(find.byType(PantallaDocumentoConsentimiento), findsOneWidget);
+    expect(
+      find.text(
+        'Accepted by Rosa or their legal representative before the camera '
+        'sends video.',
+      ),
+      findsOneWidget,
+    );
+    await verHasta(tester, find.text('Record'));
+    expect(find.text('Given by'), findsOneWidget);
+    // The record is shown as the backend stored it.
+    expect(find.text('Rosa Huamán'), findsOneWidget);
+    expect(find.text('Aug 3, 2026'), findsOneWidget);
+    expect(find.text('9:12\u00a0AM'), findsOneWidget);
+    await volver(tester);
+    await tester.pumpAndSettle();
+    await tocar(tester, find.text('Terms of use'));
+    expect(find.text('What Te Tengo is'), findsOneWidget);
+    await verHasta(tester, find.text('View the privacy policy'));
+  });
+
+  test(
+    'cada documento legal tiene las mismas secciones en los dos idiomas',
+    () {
+      final en = lookupAppLocalizations(const Locale('en'));
+      expect(seccionesConsentimiento(en), hasLength(5));
+      for (final f in [seccionesTerminos, seccionesPolitica]) {
+        expect(
+          [for (final s in f(en)) s.$2.length],
+          [for (final s in f(es)) s.$2.length],
+        );
+      }
+      expect(
+        seccionesPolitica(en).last.$2.single,
+        contains('privacidad@tetengo.pe'),
+      );
+    },
+  );
 
   test('las páginas legales se abren con o sin sesión', () {
     expect(Rutas.redirigir(null, Rutas.terminos), isNull);

@@ -1,11 +1,10 @@
 /// Date, time, duration and list formats in the app's languages (`context.formato`).
 ///
 /// Spanish (Peru) keeps the prototype's own formats (`dShort`, `dLong`, `dYear`, `fmtDur`); English
-/// uses `intl`'s patterns for `en`. The backend sends UTC; callers pass local times
-/// (`DateTime.toLocal()`).
+/// follows US usage (`10:42 AM`, `Wed Sep 23`, `Sep 23, 2026`). Written out by hand, with no locale
+/// data to load, so they also work without a `BuildContext` (pushes, the home-screen widget). The
+/// backend sends UTC; callers pass local times (`DateTime.toLocal()`).
 library;
-
-import 'package:intl/intl.dart';
 
 const _diasCortos = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
 const _dias = [
@@ -46,6 +45,31 @@ const _meses = [
   'diciembre',
 ];
 
+const _daysShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const _days = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+const _months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
 String _dos(int n) => n.toString().padLeft(2, '0');
 
 /// The formats of one language: [idioma] is the language code (`es`, `en`); any other is Spanish.
@@ -59,35 +83,42 @@ class Formato {
 
   bool get _en => idioma == 'en';
 
-  /// `10:42` (`10:42 AM` in English).
+  /// `10:42` (`10:42 AM` in English, with a non-breaking space so it never wraps).
   String hora(DateTime t) => _en
-      ? DateFormat('h:mm a', 'en').format(t)
+      ? '${t.hour % 12 == 0 ? 12 : t.hour % 12}:${_dos(t.minute)} ${t.hour < 12 ? 'AM' : 'PM'}'
       : '${_dos(t.hour)}:${_dos(t.minute)}';
+
+  /// `10:41:52` (`10:41:52 AM`).
+  String horaConSegundos(DateTime t) => _en
+      ? '${hora(t).split(' ').first}:${_dos(t.second)}'
+            ' ${t.hour < 12 ? 'AM' : 'PM'}'
+      : '${_dos(t.hour)}:${_dos(t.minute)}:${_dos(t.second)}';
+
+  /// Short weekday (`mié`, `Wed`).
+  String diaSemanaCorto(DateTime t) =>
+      (_en ? _daysShort : _diasCortos)[t.weekday - 1];
 
   /// `mié 23 sep` (`Wed Sep 23`).
   String fechaCorta(DateTime t) => _en
-      ? DateFormat('EEE MMM d', 'en').format(t)
+      ? '${_daysShort[t.weekday - 1]} ${nombreMesCorto(t.month)} ${t.day}'
       : '${_diasCortos[t.weekday - 1]} ${t.day} ${_mesesCortos[t.month - 1]}';
 
   /// `miércoles 23 de septiembre` (`Wednesday, September 23`).
   String fechaLarga(DateTime t) => _en
-      ? DateFormat('EEEE, MMMM d', 'en').format(t)
+      ? '${_days[t.weekday - 1]}, ${_months[t.month - 1]} ${t.day}'
       : '${_dias[t.weekday - 1]} ${t.day} de ${_meses[t.month - 1]}';
 
   /// `23 sep 2026` (`Sep 23, 2026`).
   String fechaConAnio(DateTime t) => _en
-      ? DateFormat('MMM d, y', 'en').format(t)
+      ? '${nombreMesCorto(t.month)} ${t.day}, ${t.year}'
       : '${t.day} ${_mesesCortos[t.month - 1]} ${t.year}';
 
   /// Month name (`septiembre`, `September`).
-  String nombreMes(int mes) => _en
-      ? DateFormat('MMMM', 'en').format(DateTime(2000, mes))
-      : _meses[mes - 1];
+  String nombreMes(int mes) => _en ? _months[mes - 1] : _meses[mes - 1];
 
   /// Short month name (`sep`, `Sep`).
-  String nombreMesCorto(int mes) => _en
-      ? DateFormat('MMM', 'en').format(DateTime(2000, mes))
-      : _mesesCortos[mes - 1];
+  String nombreMesCorto(int mes) =>
+      _en ? _months[mes - 1].substring(0, 3) : _mesesCortos[mes - 1];
 
   /// Days from [desde] to [hasta] (`rng` in the prototype): `21 – 27 septiembre` within a month
   /// (`21 – 27 sep` when [corto]), and `31 ago – 6 sep` when the range crosses a month. English:
@@ -142,40 +173,3 @@ bool mismoDia(DateTime a, DateTime b) =>
 /// Parses an ISO-8601 UTC time from the backend into local time.
 DateTime? fechaDesdeJson(Object? valor) =>
     valor == null ? null : DateTime.parse(valor as String).toLocal();
-
-// Spanish-only helpers kept while every caller moves to `context.formato` (lib/l10n/l10n.dart).
-
-/// `10:42`.
-String hora(DateTime t) => Formato.es.hora(t);
-
-/// `mié 23 sep`.
-String fechaCorta(DateTime t) => Formato.es.fechaCorta(t);
-
-/// `miércoles 23 de septiembre`.
-String fechaLarga(DateTime t) => Formato.es.fechaLarga(t);
-
-/// `23 sep 2026`.
-String fechaConAnio(DateTime t) => Formato.es.fechaConAnio(t);
-
-/// Month name (`septiembre`).
-String nombreMes(int mes) => Formato.es.nombreMes(mes);
-
-/// Short month name (`sep`).
-String nombreMesCorto(int mes) => Formato.es.nombreMesCorto(mes);
-
-/// `21 – 27 septiembre`.
-String rangoDias(DateTime desde, DateTime hasta, {bool corto = false}) =>
-    Formato.es.rangoDias(desde, hasta, corto: corto);
-
-/// `2 min 5 s`, `48 s`.
-String duracion(Duration d) => Formato.es.duracion(d);
-
-/// `Sala, Dormitorio y Pasillo`.
-String enumerar(List<String> partes) => Formato.es.enumerar(partes);
-
-/// `03/08/2026`.
-String fechaNumerica(DateTime t) => Formato.es.fechaNumerica(t);
-
-/// «1 cámara», «4 cámaras».
-String contar(int n, String uno, String varios) =>
-    '$n ${n == 1 ? uno : varios}';

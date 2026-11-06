@@ -11,6 +11,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../sesion/domain/validacion.dart';
 import '../data/familia_repositorio.dart';
@@ -41,15 +42,16 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
     final propio = ref.read(sesionControllerProvider)?.usuario.correo ?? '';
     final familia = ref.read(familiaresProvider).value ?? const [];
     final nombre = ref.read(nombreAdultoMayorProvider) ?? '';
+    final l = context.l10n;
     setState(() {
       _error =
-          validarCorreo(correo, vacio: 'Escribe su correo electrónico.') ??
+          validarCorreo(l, correo, vacio: l.invitarCorreoVacio) ??
           (correo.toLowerCase() == propio.toLowerCase()
-              ? 'Ese es tu propio correo. Invita a otra persona.'
+              ? l.invitarPropioCorreo
               : familia.any(
                   (f) => f.correo.toLowerCase() == correo.toLowerCase(),
                 )
-              ? 'Esa persona ya está en la familia de $nombre.'
+              ? l.invitarYaEnFamilia(nombre)
               : null);
       _problema = null;
     });
@@ -63,8 +65,8 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
       Navigator.of(context).pop();
       mostrarToast(
         context,
-        titulo: 'Invitación enviada',
-        texto: 'Le enviamos un enlace a ${invitacion.correo}.',
+        titulo: l.invitarEnviada,
+        texto: l.invitarEnviadaTexto(invitacion.correo),
         icono: Ico.send,
       );
     } on ProblemaApi catch (e) {
@@ -84,8 +86,9 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Invitar a un familiar')),
+      appBar: AppBar(title: Text(l.familiaInvitar)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
@@ -94,7 +97,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
             const SizedBox(height: 16),
           ],
           CampoTexto(
-            etiqueta: 'Correo electrónico',
+            etiqueta: l.sesionCampoCorreo,
             controlador: _correo,
             tipo: TipoCampo.correo,
             error: _error,
@@ -111,29 +114,21 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Qué podrá hacer', style: texto.titleMedium),
+                Text(l.invitarQuePodra, style: texto.titleMedium),
                 const SizedBox(height: 8),
-                const _Punto(
-                  Ico.check,
-                  Colores.calma,
-                  'Ver alertas, historial y la cámara en vivo',
-                ),
-                const _Punto(
-                  Ico.check,
-                  Colores.calma,
-                  'Marcar alertas y pausar la cámara',
-                ),
+                _Punto(Ico.check, Colores.calma, l.invitarPuntoVer),
+                _Punto(Ico.check, Colores.calma, l.invitarPuntoMarcar),
                 _Punto(
                   Ico.lock,
                   context.colores.tinta3,
-                  'No cambia datos, consentimiento, cámaras ni familia',
+                  l.invitarPuntoNoCambia,
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
           Boton(
-            'Enviar invitación',
+            l.invitarEnviar,
             icono: Ico.send,
             cargando: _enviando,
             alPresionar: _invitar,

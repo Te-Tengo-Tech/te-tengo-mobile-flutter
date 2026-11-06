@@ -8,6 +8,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../data/camaras_repositorio.dart';
 import '../domain/camara.dart';
 
@@ -30,10 +31,13 @@ Future<void> reanudarCamara(
     await ref.read(camarasRepositorioProvider).reanudar(camara.id);
     ref.invalidate(camarasProvider);
     if (!context.mounted) return;
+    final l = context.l10n;
     mostrarToast(
       context,
-      titulo: 'Cámara ${deHabitacion(camara.nombreHabitacion)} reactivada',
-      texto: 'La detección y la vista en vivo vuelven a estar disponibles.',
+      titulo: l.camaraReactivadaTitulo(
+        deHabitacion(camara.nombreHabitacion, l),
+      ),
+      texto: l.camaraReactivadaTexto,
       icono: Ico.cam,
     );
   } on ProblemaApi catch (e) {
@@ -75,13 +79,15 @@ class _HojaPausaState extends ConsumerState<_HojaPausa> {
       if (!mounted) return;
       Navigator.of(context).pop();
       final fin = pausada.pausadaHasta;
+      final l = context.l10n;
       mostrarToast(
         context,
-        titulo: 'Cámara ${deHabitacion(c.nombreHabitacion)} en pausa',
+        titulo: l.camaraEnPausaTitulo(deHabitacion(c.nombreHabitacion, l)),
         texto: fin == null
             ? null
-            : 'Se reactivará sola a las '
-                  '${finDePausa(fin, ref.read(relojProvider)())}.',
+            : l.camaraSeReactivaraALas(
+                finDePausa(fin, ref.read(relojProvider)(), l),
+              ),
         icono: Ico.pause,
       );
     } on ProblemaApi catch (e) {
@@ -94,6 +100,7 @@ class _HojaPausaState extends ConsumerState<_HojaPausa> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final ahora = ref.watch(relojProvider)();
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
@@ -105,23 +112,21 @@ class _HojaPausaState extends ConsumerState<_HojaPausa> {
             Semantics(
               header: true,
               child: Text(
-                'Pausar la cámara '
-                '${deHabitacion(widget.camara.nombreHabitacion)}',
+                l.camaraPausarTitulo(
+                  deHabitacion(widget.camara.nombreHabitacion, l),
+                ),
                 style: texto.titleLarge,
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Sin detección ni vista en vivo. Se reactiva sola.',
-              style: texto.bodyMedium,
-            ),
+            Text(l.camaraPausarTexto, style: texto.bodyMedium),
             const SizedBox(height: 16),
             for (final d in DuracionPausa.values)
               OpcionRadio(
                 valor: d,
                 seleccion: _duracion,
-                titulo: d.texto,
-                subtitulo: d.fin(ahora),
+                titulo: d.texto(l),
+                subtitulo: d.fin(ahora, l),
                 alElegir: (v) => setState(() => _duracion = v),
               ),
             if (_problema != null) ...[
@@ -130,7 +135,7 @@ class _HojaPausaState extends ConsumerState<_HojaPausa> {
             ],
             const SizedBox(height: 4),
             Boton(
-              'Pausar',
+              l.camaraPausar,
               icono: Ico.pause,
               cargando: _guardando,
               alPresionar: _pausar,

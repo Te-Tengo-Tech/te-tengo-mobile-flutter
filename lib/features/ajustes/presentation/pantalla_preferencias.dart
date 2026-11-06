@@ -6,19 +6,27 @@ import '../../../app/tema/paleta.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../data/apariencia.dart';
 import '../data/contraste.dart';
 import '../data/tamano_letra.dart';
 
 /// The «Preferencias» row's subtitle (`prefLbl`): «Tema automático · letra estándar», «Tema oscuro ·
 /// letra grande · más contraste».
-String resumenPreferencias(WidgetRef ref) {
-  final tema = 'Tema ${ref.watch(aparienciaProvider).texto.toLowerCase()}';
-  final letra = 'letra ${ref.watch(tamanoLetraProvider).texto.toLowerCase()}';
+String resumenPreferencias(AppLocalizations l, WidgetRef ref) {
+  final tema = switch (ref.watch(aparienciaProvider)) {
+    Apariencia.automatica => l.preferenciasResumenTemaAutomatico,
+    Apariencia.clara => l.preferenciasResumenTemaClaro,
+    Apariencia.oscura => l.preferenciasResumenTemaOscuro,
+  };
+  final letra = switch (ref.watch(tamanoLetraProvider)) {
+    TamanoLetra.estandar => l.preferenciasResumenLetraEstandar,
+    TamanoLetra.grande => l.preferenciasResumenLetraGrande,
+  };
   return [
     tema,
     letra,
-    if (ref.watch(contrasteProvider)) 'más contraste',
+    if (ref.watch(contrasteProvider)) l.preferenciasResumenContraste,
   ].join(' · ');
 }
 
@@ -33,38 +41,39 @@ class PantallaPreferencias extends ConsumerWidget {
     final apariencia = ref.watch(aparienciaProvider);
     final contraste = ref.watch(contrasteProvider);
     final letra = ref.watch(tamanoLetraProvider);
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Preferencias')),
+      appBar: AppBar(title: Text(l.preferenciasTitulo)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          const EncabezadoSeccion('Tema', arriba: 4),
+          EncabezadoSeccion(l.preferenciasTema, arriba: 4),
           for (final a in Apariencia.values)
             OpcionRadio<Apariencia>(
               valor: a,
               seleccion: apariencia,
-              titulo: a.texto,
+              titulo: a.texto(l),
               subtitulo: a == Apariencia.automatica
-                  ? 'Igual que tu celular'
+                  ? l.preferenciasIgualQueCelular
                   : null,
               alElegir: ref.read(aparienciaProvider.notifier).elegir,
             ),
-          const EncabezadoSeccion('Tamaño de letra', arriba: 18),
+          EncabezadoSeccion(l.preferenciasTamanoLetra, arriba: 18),
           for (final t in TamanoLetra.values)
             OpcionRadio<TamanoLetra>(
               valor: t,
               seleccion: letra,
-              titulo: t.texto,
+              titulo: t.texto(l),
               alElegir: ref.read(tamanoLetraProvider.notifier).elegir,
             ),
-          const EncabezadoSeccion('Contraste', arriba: 18),
+          EncabezadoSeccion(l.preferenciasContraste, arriba: 18),
           ListaTarjeta(
             children: [
               MergeSemantics(
                 child: FilaLista(
                   inicio: const IconoFila(Ico.contrast),
-                  titulo: 'Aumentar el contraste',
-                  subtitulo: 'Texto y bordes más marcados',
+                  titulo: l.preferenciasAumentarContraste,
+                  subtitulo: l.preferenciasContrasteTexto,
                   chevron: false,
                   alTocar: () =>
                       ref.read(contrasteProvider.notifier).cambiar(!contraste),
@@ -85,7 +94,7 @@ class PantallaPreferencias extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Las alertas conservan su color.',
+            l.preferenciasAlertasConservanColor,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],

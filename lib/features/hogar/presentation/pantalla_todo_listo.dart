@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../core/dispositivo/permiso_notificaciones.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/marca.dart';
 import '../../../core/web/entorno.dart';
+import '../../../l10n/l10n.dart';
 import '../../ajustes/presentation/permiso_avisos.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../inicio/presentation/pantalla_inicio.dart';
@@ -32,6 +32,7 @@ class PantallaTodoListo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final hogar = ref.watch(hogarProvider).value;
     final pcs = ref.watch(pcsProvider).value;
     final pc = pcs?.firstOrNull;
@@ -52,8 +53,7 @@ class PantallaTodoListo extends ConsumerWidget {
             Semantics(
               header: true,
               child: Text(
-                'Todo listo. Ya estás cerca de '
-                '${hogar?.adultoMayor.nombrePila ?? ''}.',
+                l.onboardingTodoListo(hogar?.adultoMayor.nombrePila ?? ''),
                 style: texto.headlineMedium,
               ),
             ),
@@ -62,8 +62,8 @@ class PantallaTodoListo extends ConsumerWidget {
               Text(
                 // With no camera chosen yet, detection starts once the PC is linked.
                 hayCamaras
-                    ? 'Las cámaras ya detectan caídas.'
-                    : 'Detectarán caídas al vincular la PC.',
+                    ? l.consentimientoCamarasDetectan
+                    : l.consentimientoDetectaranAlVincular,
                 style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
               ),
               const SizedBox(height: 20),
@@ -72,30 +72,24 @@ class PantallaTodoListo extends ConsumerWidget {
             const SizedBox(height: 24),
             Semantics(
               header: true,
-              child: Text(
-                'Que no se te pase ninguna caída',
-                style: texto.titleLarge,
-              ),
+              child: Text(l.onboardingQueNoSePase, style: texto.titleLarge),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Aunque la app esté cerrada o el celular en silencio.',
-              style: texto.bodyMedium,
-            ),
+            Text(l.onboardingAunqueCerrada, style: texto.bodyMedium),
             const SizedBox(height: 16),
             const AvisoInstalarApp(separacion: 16),
             ListaTarjeta(
               children: [
                 FilaLista(
                   inicio: const IconoFila(Ico.bell),
-                  titulo: 'Notificaciones',
-                  subtitulo: 'Para recibir las alertas',
+                  titulo: l.onboardingNotificaciones,
+                  subtitulo: l.onboardingParaRecibir,
                   fin: activas
                       ? const PermisoActivado()
                       : debeInstalar
                       ? null
                       : Boton(
-                          'Permitir',
+                          l.onboardingPermitir,
                           estilo: EstiloBoton.secundario,
                           pequeno: true,
                           alPresionar: () =>
@@ -103,9 +97,9 @@ class PantallaTodoListo extends ConsumerWidget {
                         ),
                 ),
                 if (permiso.ajustesDeSonido)
-                  const FilaSonarEnSilencio(
+                  FilaSonarEnSilencio(
                     icono: true,
-                    subtitulo: 'Las caídas suenan igual',
+                    subtitulo: l.onboardingSuenanIgual,
                   ),
               ],
             ),
@@ -113,10 +107,10 @@ class PantallaTodoListo extends ConsumerWidget {
             ListaTarjeta(
               children: [
                 if (!conConsentimiento)
-                  const FilaLista(
-                    inicio: _IconoResumen(Ico.lock, activo: false),
-                    titulo: 'Falta el consentimiento',
-                    subtitulo: 'Regístralo desde Inicio',
+                  FilaLista(
+                    inicio: const _IconoResumen(Ico.lock, activo: false),
+                    titulo: l.onboardingFaltaConsentimiento,
+                    subtitulo: l.onboardingRegistraloInicio,
                   ),
                 if (pc != null)
                   FilaLista(
@@ -124,34 +118,49 @@ class PantallaTodoListo extends ConsumerWidget {
                       Ico.pc,
                       activo: pc.camaras.isNotEmpty && conConsentimiento,
                     ),
-                    titulo: 'PC ${pc.nombre} vinculada',
+                    titulo: l.onboardingPcVinculada(pc.nombre),
                     subtitulo: pc.camaras.isEmpty
-                        ? 'Falta elegir las cámaras'
-                        : '${pc.camaras.length} cámara'
-                              '${pc.camaras.length == 1 ? '' : 's'}: '
-                              '${enumerar([for (final c in pc.camaras) c.nombreHabitacion])}'
-                              '${conConsentimiento ? '' : ' · sin detectar'}',
+                        ? l.onboardingFaltaElegirCamaras
+                        : _camaras(l, [
+                            for (final c in pc.camaras) c.nombreHabitacion,
+                          ], detectando: conConsentimiento),
                   )
                 else if (pcs != null)
-                  const FilaLista(
-                    inicio: _IconoResumen(Ico.pc, activo: false),
-                    titulo: 'Sin PC vinculada',
-                    subtitulo: 'Agrégala desde Ajustes › Cámaras y PCs',
+                  FilaLista(
+                    inicio: const _IconoResumen(Ico.pc, activo: false),
+                    titulo: l.onboardingSinPc,
+                    subtitulo: l.onboardingAgregaPc,
                   ),
-                const FilaLista(
-                  inicio: _IconoResumen(Ico.users, activo: false),
-                  titulo: 'Sin contacto secundario',
-                  subtitulo: 'Invítalo desde Familia',
+                FilaLista(
+                  inicio: const _IconoResumen(Ico.users, activo: false),
+                  titulo: l.onboardingSinSecundario,
+                  subtitulo: l.onboardingInvitaloFamilia,
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            Boton('Ir al inicio', alPresionar: () => context.go(Rutas.inicio)),
+            Boton(
+              l.onboardingIrInicio,
+              alPresionar: () => context.go(Rutas.inicio),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+/// «2 cámaras: Sala y Cocina», with « · sin detectar» while there is no consent.
+String _camaras(
+  AppLocalizations l,
+  List<String> habitaciones, {
+  required bool detectando,
+}) {
+  final camaras = l.onboardingPcCamaras(
+    habitaciones.length,
+    l.formato.enumerar(habitaciones),
+  );
+  return detectando ? camaras : l.onboardingSinDetectar(camaras);
 }
 
 /// Row icon of the summary: green when done, gray when missing (`.camline`).

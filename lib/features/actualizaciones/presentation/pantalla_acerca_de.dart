@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../../pcs/data/pcs_repositorio.dart';
 import '../../pcs/domain/pc.dart';
 import '../data/actualizacion_controller.dart';
@@ -23,12 +23,11 @@ import 'situacion.dart';
 import '../../../core/ui/marca.dart';
 
 /// How each platform updates, behind the «?» of «Actualizaciones».
-String comoSeActualiza(Canal canal) => switch (canal) {
-  Canal.pwa => 'Se actualiza con internet. Te avisamos para recargarla.',
-  Canal.apk =>
-    'Te avisamos cuando hay una versión nueva. Android te pide confirmar.',
-  Canal.play => 'Google Play la actualiza sola.',
-  Canal.ios => 'Se actualiza desde App Store o TestFlight.',
+String comoSeActualiza(AppLocalizations l, Canal canal) => switch (canal) {
+  Canal.pwa => l.acercaDeComoPwa,
+  Canal.apk => l.acercaDeComoApk,
+  Canal.play => l.acercaDeComoPlay,
+  Canal.ios => l.acercaDeComoIos,
 };
 
 /// Ajustes › «Acerca de Te Tengo» (screens 379 to 385): the version and the platform,
@@ -47,8 +46,9 @@ class PantallaAcercaDe extends ConsumerWidget {
     final pcs = conHogar
         ? ref.watch(pcsProvider).value ?? const <Pc>[]
         : const <Pc>[];
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Acerca de')),
+      appBar: AppBar(title: Text(l.acercaDeTitulo)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
@@ -68,11 +68,11 @@ class PantallaAcercaDe extends ConsumerWidget {
                       ),
                       if (info != null) ...[
                         Text(
-                          'Versión ${info.version}',
+                          l.acercaDeVersion(info.version),
                           style: estiloTexto(16, 400, color: c.tinta2),
                         ),
                         Text(
-                          info.plataforma,
+                          info.plataforma(l),
                           style: estiloTexto(15, 400, color: c.tinta3),
                         ),
                       ],
@@ -84,20 +84,20 @@ class PantallaAcercaDe extends ConsumerWidget {
           ),
           if (info != null) ...[
             EncabezadoSeccion(
-              'Actualizaciones',
+              l.acercaDeActualizaciones,
               accion: AyudaInfo(
-                texto: comoSeActualiza(info.canal),
-                tema: 'actualizaciones',
+                texto: comoSeActualiza(l, info.canal),
+                tema: l.acercaDeActualizacionesTema,
               ),
             ),
             const _PanelActualizaciones(),
           ],
           if (pcs.isNotEmpty) ...[
-            const EncabezadoSeccion(
-              'PCs de la casa',
+            EncabezadoSeccion(
+              l.acercaDePcsDeLaCasa,
               accion: AyudaInfo(
-                texto: 'Cada PC actualiza Te Tengo Captura por su cuenta.',
-                tema: 'las PCs',
+                texto: l.acercaDePcsAyuda,
+                tema: l.acercaDePcsTema,
               ),
             ),
             _PcsDeLaCasa(pcs: pcs, versiones: estado.versiones),
@@ -116,6 +116,7 @@ class _PanelActualizaciones extends ConsumerWidget {
     final estado = ref.watch(actualizacionProvider);
     final controller = ref.read(actualizacionProvider.notifier);
     final c = context.colores;
+    final l = context.l10n;
     if (estado.fase == FaseActualizacion.buscando) {
       return TarjetaActualizacion(
         child: Semantics(
@@ -133,7 +134,7 @@ class _PanelActualizaciones extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Buscando actualizaciones…',
+                  l.actualizacionBuscando,
                   style: estiloTexto(17, 700, color: c.tinta),
                 ),
               ),
@@ -142,7 +143,7 @@ class _PanelActualizaciones extends ConsumerWidget {
         ),
       );
     }
-    final situacion = situacionDe(estado);
+    final situacion = situacionDe(l, estado);
     if (situacion != null && situacion.nueva) {
       return _VersionNueva(estado: estado);
     }
@@ -153,29 +154,29 @@ class _PanelActualizaciones extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (error)
-          const Aviso(
+          Aviso(
             tono: TonoAviso.advertencia,
             icono: Ico.wifiOff,
-            titulo: 'Sin internet',
-            texto: 'No pudimos buscar.',
+            titulo: l.actualizacionSinInternet,
+            texto: l.actualizacionNoPudimosBuscar,
           )
         else if (revisado != null && estado.publicada != null)
           Aviso(
             tono: TonoAviso.ok,
             icono: Ico.check,
-            titulo: 'Tienes la última versión',
+            titulo: l.actualizacionUltimaVersion,
             contenido: TextSpan(
               children: [
-                const TextSpan(text: 'Revisado hoy a las '),
-                TextSpan(text: hora(revisado), style: estiloCifras),
-                const TextSpan(text: '.'),
+                TextSpan(text: l.actualizacionRevisadoAntes),
+                TextSpan(text: l.formato.hora(revisado), style: estiloCifras),
+                TextSpan(text: l.actualizacionRevisadoDespues),
               ],
             ),
           ),
         if (error || (revisado != null && estado.publicada != null))
           const SizedBox(height: 12),
         Boton(
-          'Buscar actualizaciones',
+          l.actualizacionBuscar,
           icono: Ico.refresh,
           estilo: EstiloBoton.secundario,
           alPresionar: () => controller.buscar(MotivoBusqueda.manual),
@@ -198,6 +199,7 @@ class _VersionNueva extends ConsumerWidget {
     final nueva = estado.nueva ?? estado.publicada!;
     final c = context.colores;
     final espera = ref.watch(interrupcionActivaProvider);
+    final l = context.l10n;
     final conTamano =
         (info.canal == Canal.apk || info.canal == Canal.play) &&
         nueva.tamanoBytes != null;
@@ -218,12 +220,12 @@ class _VersionNueva extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Versión ${nueva.version}',
+                      l.acercaDeVersion(nueva.version),
                       style: estiloTexto(17, 700, color: c.tinta),
                     ),
                     if (conTamano)
                       Text(
-                        tamanoLegible(nueva.tamanoBytes!),
+                        tamanoLegible(l, nueva.tamanoBytes!),
                         style: estiloTexto(15, 400, color: c.tinta3),
                       ),
                   ],
@@ -233,20 +235,23 @@ class _VersionNueva extends ConsumerWidget {
           ),
           if (nueva.notas.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text('Qué cambió', style: estiloTexto(16, 700, color: c.tinta)),
+            Text(
+              l.actualizacionQueCambio,
+              style: estiloTexto(16, 700, color: c.tinta),
+            ),
             const SizedBox(height: 6),
             NotasVersion(nueva.notas),
           ],
           if (espera) ...[
             const SizedBox(height: 8),
             Text(
-              'Al cerrar la alerta.',
+              l.actualizacionAlCerrarAlerta,
               style: estiloTexto(15, 400, color: c.tinta3),
             ),
           ],
           const SizedBox(height: 12),
           Boton(
-            textoActualizar(info, largo: true),
+            textoActualizar(l, info, largo: true),
             icono: info.canal == Canal.ios ? Ico.download : Ico.refresh,
             alPresionar: espera
                 ? null
@@ -340,7 +345,10 @@ class TarjetaSituacion extends ConsumerWidget {
                   ),
                 ),
                 if (s.ayuda case final a?)
-                  AyudaInfo(texto: a, tema: 'la descarga'),
+                  AyudaInfo(
+                    texto: a,
+                    tema: context.l10n.actualizacionDescargaTema,
+                  ),
               ],
             ),
             if (s.conPista) ...[
@@ -382,6 +390,7 @@ class _PcsDeLaCasa extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colores;
+    final l = context.l10n;
     EstadoVersionPc estado(Pc pc) => estadoVersionPc(
       versiones,
       versionAgente: pc.versionAgente,
@@ -393,9 +402,9 @@ class _PcsDeLaCasa extends StatelessWidget {
     final alDia = pcs.every((p) => estado(p) == EstadoVersionPc.alDia);
     final ultima = versiones?.captura(pcs.first.sistemaOperativo)?.version;
     final resumen = anteriores > 0
-        ? '${contar(anteriores, 'PC', 'PCs')} con versión anterior'
+        ? l.acercaDePcsAnteriores(anteriores)
         : alDia && ultima != null
-        ? 'Todas al día · Te Tengo Captura $ultima'
+        ? l.acercaDeTodasAlDia(ultima)
         : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -414,12 +423,12 @@ class _PcsDeLaCasa extends StatelessWidget {
                     ? null
                     : TextSpan(
                         children: [
-                          TextSpan(text: 'Captura ${pc.versionAgente}'),
+                          TextSpan(text: l.acercaDeCaptura(pc.versionAgente!)),
                           ...switch (estado(pc)) {
                             EstadoVersionPc.anterior => [
                               const TextSpan(text: ' · '),
                               TextSpan(
-                                text: 'versión anterior',
+                                text: l.actualizacionVersionAnterior,
                                 style: estiloTexto(
                                   15,
                                   700,
@@ -430,7 +439,7 @@ class _PcsDeLaCasa extends StatelessWidget {
                             EstadoVersionPc.alDia => [
                               const TextSpan(text: ' · '),
                               TextSpan(
-                                text: 'al día',
+                                text: l.acercaDeAlDia,
                                 style: estiloTexto(
                                   15,
                                   700,

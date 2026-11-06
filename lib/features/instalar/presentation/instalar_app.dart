@@ -10,6 +10,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/web/entorno.dart';
+import '../../../l10n/l10n.dart';
 
 // The copy of this file is not in the prototype (the web app is not in it): it is marked for team
 // review in docs/BLOCKERS.md.
@@ -32,12 +33,10 @@ class AvisoInstalarApp extends ConsumerWidget {
       child: Aviso(
         tono: TonoAviso.info,
         icono: Ico.bell,
-        titulo: 'Agrega Te Tengo a tu pantalla de inicio',
-        texto:
-            'En el iPhone, las alertas solo llegan si abres Te Tengo desde '
-            'su ícono.',
+        titulo: context.l10n.instalarAvisoTitulo,
+        texto: context.l10n.instalarAvisoTexto,
         accion: Boton(
-          'Ver cómo',
+          context.l10n.instalarVerComo,
           estilo: EstiloBoton.tinta,
           pequeno: true,
           alPresionar: () => context.push(Rutas.instalar),
@@ -54,8 +53,9 @@ class PantallaInstalarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Agregar a la pantalla de inicio')),
+      appBar: AppBar(title: Text(l.instalarTitulo)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
         children: [
@@ -71,34 +71,20 @@ class PantallaInstalarApp extends StatelessWidget {
           const SizedBox(height: 20),
           Semantics(
             header: true,
-            child: Text(
-              'Instala Te Tengo en tu iPhone',
-              style: texto.titleLarge,
-            ),
+            child: Text(l.instalarEncabezado, style: texto.titleLarge),
           ),
           const SizedBox(height: 8),
           Text(
-            'Así te llegarán las alertas de caída aunque tengas la app '
-            'cerrada. Necesitas iOS 16.4 o posterior.',
+            l.instalarIntro,
             style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
           ),
           const SizedBox(height: 12),
-          const PasosNumerados([
-            ('Abre esta página en Safari', null),
-            (
-              'Toca Compartir',
-              'El cuadrado con una flecha hacia arriba, en la barra de Safari '
-                  'o dentro del menú «···».',
-            ),
-            (
-              'Elige «Agregar a inicio»',
-              'Si no lo ves, toca «Ver más» y desliza la lista hacia arriba.',
-            ),
-            ('Toca «Agregar»', null),
-            (
-              'Abre Te Tengo desde su ícono',
-              'Inicia sesión otra vez y toca «Activar notificaciones».',
-            ),
+          PasosNumerados([
+            (l.instalarPaso1, null),
+            (l.instalarPaso2, l.instalarPaso2Detalle),
+            (l.instalarPaso3, l.instalarPaso3Detalle),
+            (l.instalarPaso4, null),
+            (l.instalarPaso5, l.instalarPaso5Detalle),
           ]),
         ],
       ),

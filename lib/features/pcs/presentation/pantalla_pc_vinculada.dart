@@ -10,6 +10,7 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/presentation/fila_camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/pcs_repositorio.dart';
@@ -46,6 +47,7 @@ class PantallaPcVinculada extends ConsumerWidget {
             final ahora = ref.watch(relojProvider)();
             final elegidas = pc.camaras.isNotEmpty;
             final nombre = h.adultoMayor.nombrePila;
+            final l = context.l10n;
             void seguir() => salirA(context, Rutas.pcs);
             return ListView(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
@@ -59,15 +61,13 @@ class PantallaPcVinculada extends ConsumerWidget {
                 Semantics(
                   header: true,
                   child: Text(
-                    'La PC ${pc.nombre} está vinculada',
+                    l.pcsEstaVinculada(pc.nombre),
                     style: texto.headlineMedium,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  elegidas
-                      ? 'Sus cámaras ya están elegidas.'
-                      : 'Ahora elige sus cámaras desde aquí.',
+                  elegidas ? l.pcsCamarasYaElegidas : l.pcsAhoraElige,
                   style: texto.bodyLarge,
                 ),
                 if (!h.conConsentimiento) ...[
@@ -75,11 +75,11 @@ class PantallaPcVinculada extends ConsumerWidget {
                   Aviso(
                     tono: TonoAviso.error,
                     icono: Ico.lock,
-                    titulo: 'Falta el consentimiento de $nombre',
-                    texto: 'Sin él, las cámaras no envían nada.',
+                    titulo: l.pcsFaltaConsentimientoDe(nombre),
+                    texto: l.pcsSinElNoEnvian,
                     accion: ref.watch(esTitularProvider)
                         ? Boton(
-                            'Completar el consentimiento',
+                            l.pcsCompletarConsentimiento,
                             pequeno: true,
                             alPresionar: () =>
                                 context.push(Rutas.consentimiento),
@@ -103,10 +103,10 @@ class PantallaPcVinculada extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 if (elegidas)
-                  Boton('Listo', alPresionar: seguir)
+                  Boton(l.pcsListo, alPresionar: seguir)
                 else ...[
                   Boton(
-                    'Elegir las cámaras',
+                    l.pcsElegirCamaras,
                     icono: Ico.cam,
                     alPresionar: ref.watch(esTitularProvider)
                         ? () => context.push(Rutas.elegirCamaras(pc.id))
@@ -114,13 +114,13 @@ class PantallaPcVinculada extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Boton(
-                    'Hacerlo después',
+                    l.pcsHacerloDespues,
                     estilo: EstiloBoton.fantasma,
                     alPresionar: seguir,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Sin cámaras elegidas no detectamos caídas.',
+                    l.pcsSinCamarasNoDetectamos,
                     textAlign: TextAlign.center,
                     style: texto.bodySmall,
                   ),

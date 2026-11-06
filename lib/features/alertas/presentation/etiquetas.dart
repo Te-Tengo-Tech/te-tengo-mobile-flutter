@@ -5,6 +5,7 @@ import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/tarjeta.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/alerta.dart';
 
 /// Severity tag (`.sev`): «Caída» red with the fall icon, «Inestable» amber with the diamond. They
@@ -43,7 +44,9 @@ class EtiquetaTipo extends StatelessWidget {
           Icono(caida ? Ico.fall : Ico.unsteady, tamano: 16, color: color),
           const SizedBox(width: 6),
           Text(
-            caida ? 'Caída' : 'Inestable',
+            caida
+                ? context.l10n.alertaTipoCaida
+                : context.l10n.alertaEtiquetaInestable,
             style: estiloTexto(14, 800, color: color),
           ),
         ],
@@ -60,27 +63,28 @@ class SelloEstado extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final (texto, color, fondo, icono) = switch (alerta.estado) {
       EstadoAlerta.atendida => (
-        'Atendida',
+        l.alertaSelloAtendida,
         context.colores.calmaTinta,
         null,
         Ico.check,
       ),
       EstadoAlerta.falsaAlarma => (
-        'Falsa alarma',
+        l.alertaSelloFalsaAlarma,
         context.colores.tinta2,
         null,
         null,
       ),
       EstadoAlerta.activa when alerta.esCaida => (
-        'Activa',
+        l.alertaSelloActiva,
         context.colores.caidaTinta,
         context.colores.caidaSuave,
         null,
       ),
       EstadoAlerta.activa => (
-        'Activa',
+        l.alertaSelloActiva,
         context.colores.inestableTinta,
         context.colores.inestableSuave,
         null,

@@ -10,6 +10,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../data/cuentas_repositorio.dart';
 import '../domain/validacion.dart';
 
@@ -44,10 +45,11 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
     final nombre = _nombre.text.trim();
     final correo = _correo.text.trim();
     final clave = _clave.text;
+    final l = context.l10n;
     final errores = <String, String>{
-      if (nombre.isEmpty) 'nombre': 'Escribe tu nombre y apellido.',
-      'correo': ?validarCorreo(correo),
-      'contrasena': ?validarContrasenaNueva(clave),
+      if (nombre.isEmpty) 'nombre': l.sesionErrorNombre,
+      'correo': ?validarCorreo(l, correo),
+      'contrasena': ?validarContrasenaNueva(l, clave),
     };
     setState(() {
       _errores = errores;
@@ -76,7 +78,7 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
         switch (e.codigo) {
           case 'CORREO_EN_USO':
             _correoEnUso = true;
-            _errores = {'correo': 'Este correo ya está registrado.'};
+            _errores = {'correo': l.registroCorreoRegistrado};
           case 'VALIDACION':
             _errores = e.campos;
             _faltanDatos = e.campos.isNotEmpty;
@@ -93,9 +95,10 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final correo = Uri.encodeQueryComponent(_correo.text.trim());
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear cuenta')),
+      appBar: AppBar(title: Text(l.sesionCrearCuenta)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
@@ -103,17 +106,17 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
             Aviso(
               tono: TonoAviso.error,
               icono: Ico.warn,
-              titulo: 'Ese correo ya tiene una cuenta',
+              titulo: l.registroCorreoConCuenta,
               accion: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Enlace(
-                    'Iniciar sesión con este correo',
+                    l.registroIniciarConCorreo,
                     alTocar: () =>
                         context.push('${Rutas.iniciarSesion}?correo=$correo'),
                   ),
                   Enlace(
-                    'Recuperar mi contraseña',
+                    l.registroRecuperarMiContrasena,
                     alTocar: () =>
                         context.push('${Rutas.recuperar}?correo=$correo'),
                   ),
@@ -123,10 +126,10 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
             const SizedBox(height: 16),
           ],
           if (_faltanDatos) ...[
-            const Aviso(
+            Aviso(
               tono: TonoAviso.error,
               icono: Ico.warn,
-              titulo: 'Completa los campos marcados',
+              titulo: l.registroCompletaCampos,
             ),
             const SizedBox(height: 16),
           ],
@@ -138,14 +141,14 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
             child: Column(
               children: [
                 CampoTexto(
-                  etiqueta: 'Tu nombre y apellido',
+                  etiqueta: l.sesionCampoNombre,
                   controlador: _nombre,
                   error: _errores['nombre'],
                   autocompletar: const [AutofillHints.name],
                   accionTeclado: TextInputAction.next,
                 ),
                 CampoTexto(
-                  etiqueta: 'Correo electrónico',
+                  etiqueta: l.sesionCampoCorreo,
                   controlador: _correo,
                   tipo: TipoCampo.correo,
                   error: _errores['correo'],
@@ -153,11 +156,11 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
                   accionTeclado: TextInputAction.next,
                 ),
                 CampoTexto(
-                  etiqueta: 'Contraseña',
+                  etiqueta: l.sesionCampoContrasena,
                   controlador: _clave,
                   tipo: TipoCampo.contrasena,
                   error: _errores['contrasena'],
-                  ayuda: ayudaContrasena,
+                  ayuda: l.sesionAyudaContrasena,
                   autocompletar: const [AutofillHints.newPassword],
                   alEnviar: (_) => _crear(),
                 ),
@@ -165,21 +168,21 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
             ),
           ),
           const SizedBox(height: 8),
-          Boton('Crear cuenta', cargando: _enviando, alPresionar: _crear),
+          Boton(l.sesionCrearCuenta, cargando: _enviando, alPresionar: _crear),
           const SizedBox(height: 16),
           Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text('Aceptas los', style: texto.bodySmall),
+              Text(l.registroAceptasLos, style: texto.bodySmall),
               Enlace(
-                'Términos',
+                l.registroTerminos,
                 tamano: 15,
                 alTocar: () => context.push(Rutas.terminos),
               ),
-              Text('y la', style: texto.bodySmall),
+              Text(l.registroYLa, style: texto.bodySmall),
               Enlace(
-                'Privacidad',
+                l.registroPrivacidad,
                 tamano: 15,
                 alTocar: () => context.push(Rutas.politica),
               ),
@@ -191,9 +194,9 @@ class _PantallaRegistroState extends ConsumerState<PantallaRegistro> {
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text('¿Ya tienes cuenta?', style: texto.bodyMedium),
+              Text(l.registroYaTienesCuenta, style: texto.bodyMedium),
               Enlace(
-                'Inicia sesión',
+                l.sesionIniciaSesion,
                 alTocar: () => context.pushReplacement(Rutas.iniciarSesion),
               ),
             ],

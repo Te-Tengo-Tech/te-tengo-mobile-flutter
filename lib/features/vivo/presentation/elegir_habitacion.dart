@@ -5,10 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/orden_camaras.dart';
 import '../../camaras/domain/camara.dart';
 import '../../camaras/presentation/favorita.dart';
@@ -42,28 +42,29 @@ String _vivo(CamaraEnCasa c) =>
 
 /// Why a room cannot be watched now (`liveWhy`): «En pausa hasta las 11:42», «Sin conexión · la PC
 /// Cocina-Rosa no responde», «Desconectada desde las 10:31», «Detenida · sin consentimiento».
-InlineSpan porQueNoEnVivo(CamaraEnCasa c) {
+InlineSpan porQueNoEnVivo(CamaraEnCasa c, AppLocalizations l) {
   final camara = c.camara;
   return switch (c.estado) {
     EstadoVisible.enPausa => TextSpan(
-      text: 'En pausa hasta las ${hora(camara.pausadaHasta!)}',
+      text: l.camaraEnPausaHastaLas(l.formato.hora(camara.pausadaHasta!)),
     ),
     EstadoVisible.sinConexion => TextSpan(
-      text: 'Sin conexión · la PC ${c.pc?.nombre ?? ''} no responde',
+      text: l.vivoSinConexionPc(c.pc?.nombre ?? ''),
     ),
     EstadoVisible.desconectada => TextSpan(
       children: [
-        const TextSpan(text: 'Desconectada'),
+        TextSpan(text: c.estado.texto(l)),
         if (camara.ultimaSenal case final s?) ...[
-          const TextSpan(text: ' desde las '),
-          TextSpan(text: hora(s), style: estiloMono(tamano: 15, peso: 400)),
+          TextSpan(text: l.vivoDesdeLasPrefijo),
+          TextSpan(
+            text: l.formato.hora(s),
+            style: estiloMono(tamano: 15, peso: 400),
+          ),
         ],
       ],
     ),
-    EstadoVisible.detenida => const TextSpan(
-      text: 'Detenida · sin consentimiento',
-    ),
-    _ => TextSpan(text: c.estado.texto),
+    EstadoVisible.detenida => TextSpan(text: l.vivoDetenidaSinConsentimiento),
+    _ => TextSpan(text: c.estado.texto(l)),
   };
 }
 
@@ -81,6 +82,7 @@ class HojaElegirHabitacion extends ConsumerWidget {
     Widget? estrella(CamaraEnCasa c) =>
         orden.esFavorita(c.camara.id) ? const MarcaFavorita() : null;
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final ordenadas = [
       ...camaras.where((c) => c.vivoDisponible),
       ...camaras.where((c) => !c.vivoDisponible),
@@ -100,13 +102,10 @@ class HojaElegirHabitacion extends ConsumerWidget {
                 Flexible(
                   child: Semantics(
                     header: true,
-                    child: Text(
-                      '¿Qué habitación quieres ver?',
-                      style: texto.titleLarge,
-                    ),
+                    child: Text(l.vivoQueHabitacion, style: texto.titleLarge),
                   ),
                 ),
-                const AyudaInfo(texto: textoPrivacidadVivo, tema: 'privacidad'),
+                AyudaInfo(texto: textoPrivacidadVivo(l), tema: 'privacidad'),
               ],
             ),
             const SizedBox(height: 12),
@@ -117,8 +116,8 @@ class HojaElegirHabitacion extends ConsumerWidget {
                 if (camaras.length > 1)
                   FilaLista(
                     inicio: const IconoFila(Ico.grid),
-                    titulo: 'Ver todas a la vez',
-                    subtitulo: 'Hasta 4 por página',
+                    titulo: l.vivoVerTodasALaVez,
+                    subtitulo: l.vivoHasta4PorPagina,
                     alTocar: () {
                       final router = GoRouter.of(context);
                       Navigator.of(context).pop();
@@ -134,7 +133,7 @@ class HojaElegirHabitacion extends ConsumerWidget {
                       ),
                       titulo: c.habitacion,
                       marcaTitulo: estrella(c),
-                      subtitulo: 'Disponible ahora',
+                      subtitulo: l.vivoDisponibleAhora,
                       alTocar: () {
                         final router = GoRouter.of(context);
                         Navigator.of(context).pop();
@@ -154,7 +153,7 @@ class HojaElegirHabitacion extends ConsumerWidget {
                             400,
                             color: context.colores.tinta3,
                           ),
-                          children: [porQueNoEnVivo(c)],
+                          children: [porQueNoEnVivo(c, l)],
                         ),
                       ),
                     ),

@@ -5,6 +5,7 @@ import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../../perfil/data/fotos.dart';
 import '../data/familia_repositorio.dart';
 import '../domain/familiar.dart';
@@ -31,7 +32,10 @@ class EtiquetaPapel extends StatelessWidget {
         color: fondo,
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(papel.etiqueta, style: estiloTexto(13, 800, color: color)),
+      child: Text(
+        papel.etiqueta(context.l10n),
+        style: estiloTexto(13, 800, color: color),
+      ),
     );
   }
 }
@@ -43,12 +47,13 @@ TonoAvatar tonoDe(int indice) => _tonos[indice % _tonos.length];
 
 /// «Hija · titular», «Hijo», «titular de la cuenta» (`famRow`): the relationship the member wrote
 /// in «Tu perfil», and whether they own the account.
-String? resumenMiembro(Familiar f) => switch ((f.parentesco, f.esTitular)) {
-  (final String p, true) => '$p · titular',
-  (final String p, false) => p,
-  (null, true) => 'titular de la cuenta',
-  (null, false) => null,
-};
+String? resumenMiembro(AppLocalizations l, Familiar f) =>
+    switch ((f.parentesco, f.esTitular)) {
+      (final String p, true) => l.familiaResumenParentescoTitular(p),
+      (final String p, false) => p,
+      (null, true) => l.familiaResumenTitular,
+      (null, false) => null,
+    };
 
 /// Member row of the family list (`famRow`), with their photo.
 class FilaMiembro extends ConsumerWidget {
@@ -74,8 +79,8 @@ class FilaMiembro extends ConsumerWidget {
         tono: tonoDe(indice),
         foto: ref.watch(fotoDeUsuarioProvider(f.usuarioId)) ?? f.foto,
       ),
-      titulo: esYo ? '${f.nombre} (tú)' : f.nombre,
-      subtitulo: resumenMiembro(f),
+      titulo: esYo ? context.l10n.familiaNombreTu(f.nombre) : f.nombre,
+      subtitulo: resumenMiembro(context.l10n, f),
       fin: EtiquetaPapel(miembro.papel),
       alTocar: alTocar,
     );

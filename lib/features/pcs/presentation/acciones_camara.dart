@@ -6,6 +6,7 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/dialogo.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../data/pcs_repositorio.dart';
@@ -29,15 +30,14 @@ Future<bool> dejarDeUsarCamara(
   required String habitacion,
   String? pcId,
 }) async {
+  final l = context.l10n;
   final si = await confirmar(
     context,
     icono: Ico.cam,
-    titulo: '¿Dejar de usar la cámara $dispositivo?',
-    texto:
-        'No detectaremos caídas ${enHabitacion(habitacion)}. Puedes volver a '
-        'elegirla.',
-    aceptar: 'Dejar de usar',
-    cancelar: 'Cancelar',
+    titulo: l.pcsDejarDeUsarTitulo(dispositivo),
+    texto: l.pcsDejarDeUsarTexto(enHabitacion(habitacion, l)),
+    aceptar: l.pcsDejarDeUsar,
+    cancelar: l.pcsCancelar,
     peligro: true,
   );
   if (!si || !context.mounted) return false;
@@ -47,8 +47,8 @@ Future<bool> dejarDeUsarCamara(
     if (context.mounted) {
       mostrarToast(
         context,
-        titulo: 'Dejamos de usar la cámara $dispositivo',
-        texto: 'Ya no detectamos caídas ${enHabitacion(habitacion)}.',
+        titulo: l.pcsDejamosDeUsar(dispositivo),
+        texto: l.pcsYaNoDetectamos(enHabitacion(habitacion, l)),
         icono: Ico.cam,
       );
     }
@@ -58,11 +58,9 @@ Future<bool> dejarDeUsarCamara(
       mostrarToast(
         context,
         titulo: e.codigo == ProblemaApi.sinConexion
-            ? 'Sin internet'
+            ? l.pcsSinInternet
             : e.detalle,
-        texto: e.codigo == ProblemaApi.sinConexion
-            ? 'Revisa tu conexión y vuelve a intentarlo.'
-            : null,
+        texto: e.codigo == ProblemaApi.sinConexion ? l.pcsRevisaConexion : null,
         icono: Ico.warn,
         tono: TonoAviso.advertencia,
       );

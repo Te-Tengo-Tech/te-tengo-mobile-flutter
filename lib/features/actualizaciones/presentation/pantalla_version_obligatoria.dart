@@ -8,6 +8,7 @@ import '../../../core/dispositivo/llamada.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/actualizacion_controller.dart';
 import '../domain/estado_actualizacion.dart';
@@ -37,7 +38,8 @@ class PantallaVersionObligatoria extends ConsumerWidget {
         : null;
     final nombre = adulto?.nombrePila;
     final tienda = info.tienda;
-    final situacion = situacionDe(estado);
+    final l = context.l10n;
+    final situacion = situacionDe(l, estado);
     final enCurso = situacion != null && !situacion.nueva;
     return Scaffold(
       body: SafeArea(
@@ -54,7 +56,7 @@ class PantallaVersionObligatoria extends ConsumerWidget {
             Semantics(
               header: true,
               child: Text(
-                'Actualiza Te Tengo para seguir recibiendo alertas',
+                l.actualizacionObligatoriaTitulo,
                 style: texto.headlineMedium,
               ),
             ),
@@ -63,15 +65,13 @@ class PantallaVersionObligatoria extends ConsumerWidget {
               children: [
                 Flexible(
                   child: Text(
-                    'Tienes la ${info.version}. Toma un minuto.',
+                    l.actualizacionObligatoriaTienes(info.version),
                     style: estiloTexto(16, 400, color: c.tinta2),
                   ),
                 ),
-                const AyudaInfo(
-                  texto:
-                      'Esta versión ya no recibe las alertas de forma segura. '
-                      'Quienes ya actualizaron las siguen recibiendo.',
-                  tema: 'por qué actualizar',
+                AyudaInfo(
+                  texto: l.actualizacionObligatoriaAyuda,
+                  tema: l.actualizacionObligatoriaTema,
                 ),
               ],
             ),
@@ -83,7 +83,9 @@ class PantallaVersionObligatoria extends ConsumerWidget {
             const SizedBox(height: 24),
             if (!enCurso)
               Boton(
-                tienda == null ? textoActualizar(info) : 'Abrir la tienda',
+                tienda == null
+                    ? textoActualizar(l, info)
+                    : l.actualizacionAbrirLaTienda,
                 icono: Ico.download,
                 alPresionar: ref
                     .read(actualizacionProvider.notifier)
@@ -92,7 +94,7 @@ class PantallaVersionObligatoria extends ConsumerWidget {
             if (nombre != null) ...[
               const SizedBox(height: 12),
               Boton(
-                'Llamar a $nombre',
+                l.actualizacionLlamarA(nombre),
                 icono: Ico.phone,
                 estilo: EstiloBoton.secundario,
                 alPresionar: () => ref.read(llamarProvider)(adulto?.telefono),
@@ -101,7 +103,7 @@ class PantallaVersionObligatoria extends ConsumerWidget {
             if (tienda != null) ...[
               const SizedBox(height: 12),
               Text(
-                'Se abre $tienda.',
+                l.actualizacionSeAbre(tienda),
                 style: estiloTexto(15, 400, color: c.tinta3),
               ),
             ],
@@ -130,7 +132,7 @@ class PantallaActualizando extends StatelessWidget {
               const IconoApp(tamano: 72),
               const SizedBox(height: 20),
               Text(
-                'Actualizando…',
+                context.l10n.actualizacionActualizando,
                 style: estiloTexto(18, 800, color: c.tinta),
               ),
               const SizedBox(height: 14),

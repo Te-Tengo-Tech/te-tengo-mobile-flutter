@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -20,6 +19,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/ui/plegable.dart';
+import '../../../l10n/l10n.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../alertas/presentation/etiquetas.dart';
@@ -85,6 +85,9 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
   final _claveAjustes = GlobalKey();
   var _ajustesAbiertos = 0;
 
+  /// The texts, kept for the notice shown after the screen is gone.
+  late AppLocalizations _l;
+
   @override
   void initState() {
     super.initState();
@@ -93,11 +96,18 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l = context.l10n;
+  }
+
+  @override
   void dispose() {
     final r = _reproductor;
     _reproductor = null;
     if (r != null) {
       final habitacion = r.habitacion;
+      final l = _l;
       unawaited(
         r.cerrar().then((dura) {
           if (dura == null) return;
@@ -106,9 +116,11 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
             _contenedor.invalidate(accesosRepeticionesProvider);
             _avisos.mostrar(
               AvisoFlotante(
-                titulo: 'Acceso registrado',
-                texto:
-                    'Repetición ${deHabitacion(habitacion)} · ${duracion(dura)}',
+                titulo: l.accesosRegistrado,
+                texto: l.camaraRepeticionAcceso(
+                  deHabitacion(habitacion, l),
+                  l.formato.duracion(dura),
+                ),
                 icono: Ico.eye,
               ),
             );
@@ -136,6 +148,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
       avisar: (t) {
         if (mounted) mostrarToast(context, titulo: t, icono: Ico.info);
       },
+      textos: context.l10n,
     );
     unawaited(r.iniciar());
     return r;
@@ -174,11 +187,11 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
       camaraId: widget.camaraId,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(camara?.nombreHabitacion ?? 'Cámara'),
+          title: Text(camara?.nombreHabitacion ?? context.l10n.camaraTitulo),
           actions: [
             if (camara != null)
               IconButton(
-                tooltip: 'Ajustes de la cámara',
+                tooltip: context.l10n.camaraAjustes,
                 onPressed: _abrirAjustes,
                 icon: Icono(Ico.puntos, color: context.colores.icono),
               ),
@@ -218,6 +231,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
     final nube = ref.watch(movimientosEnLaNubeProvider);
     final hoy = ref.watch(relojProvider)();
     final titularNombre = ref.watch(nombreTitularProvider) ?? '';
+    final l = context.l10n;
     final enVivo = BotonEnVivo(
       habitacion: camara.nombreHabitacion,
       alTocar: () => context.push(
@@ -241,19 +255,23 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
       r.corte = switch (estado) {
         EstadoVisible.sinConexion when pc?.ultimaSenal != null => (
           desde: pc!.ultimaSenal!,
-          motivo: 'La PC no responde',
+          motivo: l.camaraPcNoRespondeMotivo,
         ),
         EstadoVisible.desconectada when camara.ultimaSenal != null => (
           desde: camara.ultimaSenal!,
-          motivo: 'Cámara desconectada',
+          motivo: l.camaraDesconectadaMotivo,
         ),
         _ => null,
       };
     }
     Widget? accionActivar(String ruta) => titular
-        ? Boton('Activar', pequeno: true, alPresionar: () => context.push(ruta))
+        ? Boton(
+            l.camaraActivar,
+            pequeno: true,
+            alPresionar: () => context.push(ruta),
+          )
         : Text(
-            'Solo $titularNombre puede activarlo',
+            l.camaraSoloTitularActiva(titularNombre),
             style: estiloTexto(14, 600, color: context.colores.tinta2),
           );
     return ListenableBuilder(
@@ -264,11 +282,11 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
         final Widget escenario = switch (nube) {
           _ when !conConsentimiento => EscenarioApagado(
             icono: Ico.lock,
-            texto: 'Detenida: falta el consentimiento',
+            texto: l.camaraDetenidaSinConsentimiento,
             enVivo: enVivo,
             accion: titular
                 ? Boton(
-                    'Registrar consentimiento',
+                    l.camaraRegistrarConsentimiento,
                     pequeno: true,
                     alPresionar: () => context.push(Rutas.consentimiento),
                   )
@@ -279,37 +297,38 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
                   error.codigo == ProblemaApi.sinConexion =>
             EscenarioApagado(
               icono: Ico.wifiOff,
-              texto: 'Sin internet',
+              texto: l.camaraSinInternet,
               enVivo: enVivo,
             ),
           AsyncData(value: final v) when !v.consentimientoVigente =>
             EscenarioApagado(
               icono: Ico.body,
-              texto: 'Para ver lo que pasó, activa Guardar movimientos',
+              texto: l.camaraActivaGuardarMovimientos,
               enVivo: enVivo,
               accion: accionActivar(Rutas.movimientos),
             ),
           AsyncError() => EscenarioApagado(
             icono: Ico.body,
-            texto: 'Para ver lo que pasó, activa Guardar movimientos',
+            texto: l.camaraActivaGuardarMovimientos,
             enVivo: enVivo,
             accion: accionActivar(Rutas.movimientos),
           ),
           AsyncData(value: final v) when v.retencionDias == null =>
             EscenarioApagado(
               icono: Ico.cloud,
-              texto: 'Para ver lo que pasó, activa Movimientos en la nube',
+              texto: l.camaraActivaNube,
               enVivo: enVivo,
               accion: accionActivar(Rutas.nube),
             ),
           _ when r != null && r.iniciado && r.fueraDePlazo => EscenarioApagado(
             icono: Ico.clock,
-            texto:
-                'No hay movimientos del ${_diaMes(r.dia)}. Hay desde el '
-                '${fechaNumerica(r.datosDesde!)}.',
+            texto: l.camaraNoHayMovimientos(
+              diaMes(r.dia, l.formato),
+              l.formato.fechaNumerica(r.datosDesde!),
+            ),
             enVivo: enVivo,
             accion: Boton(
-              'Ver lo último',
+              l.camaraVerLoUltimo,
               pequeno: true,
               estilo: EstiloBoton.secundario,
               alPresionar: () => unawaited(r.verLoUltimo()),
@@ -323,7 +342,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
           ),
           _ => EscenarioApagado(
             icono: Ico.clock,
-            texto: 'Cargando…',
+            texto: l.camaraCargando,
             enVivo: enVivo,
           ),
         };
@@ -345,12 +364,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
             children: [
               _EstadoCamara(estado: estado, camara: camara, pc: pc, hoy: hoy),
               if (datos)
-                const AyudaInfo(
-                  texto:
-                      'Solo puntos del cuerpo, nunca video. Cada repetición '
-                      'queda en el registro de accesos.',
-                  tema: 'privacidad',
-                ),
+                AyudaInfo(texto: l.camaraAyudaPrivacidad, tema: 'privacidad'),
             ],
           ),
           ..._queRevisar(estado, nombre),
@@ -364,8 +378,8 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
               FilaPlegable(
                 key: ValueKey(_ajustesAbiertos),
                 icono: Ico.sliders,
-                titulo: 'Ajustes de la cámara',
-                resumen: 'Pausa, nombre, registro',
+                titulo: l.camaraAjustes,
+                resumen: l.camaraAjustesResumen,
                 abierta: _ajustesAbiertos > 0,
                 child: _ajustes(context, camara, pc, estado, titular, hoy),
               ),
@@ -418,43 +432,41 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
     );
   }
 
-  static String _diaMes(DateTime t) =>
-      '${t.day.toString().padLeft(2, '0')}/${t.month.toString().padLeft(2, '0')}';
-
   /// «Qué revisar» (`camChecks`): what to check in the house.
   List<Widget> _queRevisar(EstadoVisible estado, String nombre) {
+    final l = context.l10n;
     final Widget? lista = switch (estado) {
       EstadoVisible.sinConexion => const QueRevisarPc(),
-      EstadoVisible.desconectada => const ListaTarjeta(
+      EstadoVisible.desconectada => ListaTarjeta(
         borde: true,
         children: [
           FilaLista(
-            inicio: IconoFila(Ico.cam),
-            titulo: 'El cable USB de la cámara',
+            inicio: const IconoFila(Ico.cam),
+            titulo: l.camaraRevisarCable,
           ),
           FilaLista(
-            inicio: IconoFila(Ico.pc),
-            titulo: 'La PC encendida',
-            subtitulo: 'Con Te Tengo Captura abierto',
+            inicio: const IconoFila(Ico.pc),
+            titulo: l.camaraRevisarPc,
+            subtitulo: l.camaraRevisarPcDetalle,
           ),
           FilaLista(
-            inicio: IconoFila(Ico.wifi),
-            titulo: 'El internet de la casa',
+            inicio: const IconoFila(Ico.wifi),
+            titulo: l.camaraRevisarInternet,
           ),
         ],
       ),
       EstadoVisible.noConfiable => ListaTarjeta(
         borde: true,
         children: [
-          const FilaLista(
-            inicio: IconoFila(Ico.sun),
-            titulo: 'La luz',
-            subtitulo: 'De noche, una lámpara pequeña',
+          FilaLista(
+            inicio: const IconoFila(Ico.sun),
+            titulo: l.camaraRevisarLuz,
+            subtitulo: l.camaraRevisarLuzDetalle,
           ),
           FilaLista(
             inicio: const IconoFila(Ico.cam),
-            titulo: 'El encuadre',
-            subtitulo: 'Que se vea a $nombre de cuerpo entero',
+            titulo: l.camaraRevisarEncuadre,
+            subtitulo: l.camaraRevisarEncuadreDetalle(nombre),
           ),
         ],
       ),
@@ -463,7 +475,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
     if (lista == null) return const [];
     return [
       VerMas(
-        etiqueta: 'Qué revisar',
+        etiqueta: l.camaraQueRevisar,
         child: Padding(padding: const EdgeInsets.only(top: 8), child: lista),
       ),
     ];
@@ -479,6 +491,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
     final h = DateTime(hoy.year, hoy.month, hoy.day);
     final ayer = h.subtract(const Duration(days: 1));
     final otro = r.dia != h && r.dia != ayer;
+    final l = context.l10n;
     return [
       const SizedBox(height: 16),
       Wrap(
@@ -486,17 +499,17 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
         runSpacing: 8,
         children: [
           ChipOpcion(
-            texto: 'Hoy',
+            texto: l.camaraHoy,
             elegido: r.dia == h,
             alTocar: () => unawaited(r.elegirDia(h)),
           ),
           ChipOpcion(
-            texto: 'Ayer',
+            texto: l.camaraAyer,
             elegido: r.dia == ayer,
             alTocar: () => unawaited(r.elegirDia(ayer)),
           ),
           ChipOpcion(
-            texto: otro ? fechaCorta(r.dia) : 'Elegir día…',
+            texto: otro ? l.formato.fechaCorta(r.dia) : l.camaraElegirDia,
             icono: Ico.cal,
             elegido: otro,
             alTocar: () => _elegirDia(context, r, hoy),
@@ -510,17 +523,17 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
           runSpacing: 8,
           children: [
             ChipOpcion(
-              texto: '10 min',
+              texto: l.camara10Min,
               elegido: r.largo == ReproductorCamara.diezMinutos,
               alTocar: () => r.cambiarLargo(ReproductorCamara.diezMinutos),
             ),
             ChipOpcion(
-              texto: '1 hora',
+              texto: l.camara1Hora,
               elegido: r.largo == ReproductorCamara.unaHora,
               alTocar: () => r.cambiarLargo(ReproductorCamara.unaHora),
             ),
             ChipOpcion(
-              texto: 'Solo eventos',
+              texto: l.camaraSoloEventos,
               icono: Ico.list,
               elegido: r.soloEventos,
               alTocar: r.alternarSoloEventos,
@@ -556,7 +569,16 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
 
   /// «Eventos · Hoy» (`camEvList`), newest first.
   List<Widget> _eventos(ReproductorCamara r, DateTime hoy) {
-    final etiqueta = etiquetaDiaCamara(r.dia, hoy);
+    final l = context.l10n;
+    final d = DateTime(r.dia.year, r.dia.month, r.dia.day);
+    final h = DateTime(hoy.year, hoy.month, hoy.day);
+    final esHoy = d == h;
+    final esAyer = d == h.subtract(const Duration(days: 1));
+    final etiqueta = esHoy
+        ? l.camaraHoy
+        : esAyer
+        ? l.camaraAyer
+        : l.formato.fechaCorta(d);
     final actual =
         r.seleccionado ??
         r.eventos
@@ -566,7 +588,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
             .firstOrNull
             ?.en;
     return [
-      EncabezadoDia('Eventos · $etiqueta'),
+      EncabezadoDia(l.camaraEventosDe(etiqueta)),
       if (r.eventos.isEmpty)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -576,11 +598,11 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Sin eventos ${switch (etiqueta) {
-                    'Hoy' => 'hoy',
-                    'Ayer' => 'ayer',
-                    _ => 'el $etiqueta',
-                  }}',
+                  esHoy
+                      ? l.camaraSinEventosHoy
+                      : esAyer
+                      ? l.camaraSinEventosAyer
+                      : l.camaraSinEventosEl(etiqueta),
                   style: estiloTexto(16, 600, color: context.colores.tinta2),
                 ),
               ),
@@ -610,8 +632,9 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
         ? r.recientes
         : ref.watch(_ultimasAlertasProvider(camara.id)).value ?? const [];
     if (recientes.isEmpty) return const [];
+    final l = context.l10n;
     return [
-      const EncabezadoDia('Últimos eventos'),
+      EncabezadoDia(l.camaraUltimosEventos),
       ListaTarjeta(
         children: [
           for (final a in recientes.take(4))
@@ -621,7 +644,7 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      _diaMes(a.ocurridaEn),
+                      diaMes(a.ocurridaEn, l.formato),
                       style: estiloMono(
                         tamano: 16,
                         color: context.colores.tinta,
@@ -635,9 +658,9 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
                   ],
                 ),
               ),
-              titulo: a.esCaida ? 'Caída' : 'Inestable',
+              titulo: a.esCaida ? l.camaraCaida : l.camaraInestable,
               subtituloRico: TextSpan(
-                text: hora(a.ocurridaEn),
+                text: l.formato.hora(a.ocurridaEn),
                 style: estiloCifras,
               ),
               fin: SelloEstado(a),
@@ -663,15 +686,17 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
     final habitacion = camara.nombreHabitacion;
     final ultimo = ref.watch(registroAccesosProvider).value?.firstOrNull;
     final instalada = camara.instaladaEn;
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (estado == EstadoVisible.enPausa)
           FilaLista(
             inicio: const IconoFila(Ico.refresh),
-            titulo: 'Reanudar ahora',
-            subtitulo:
-                'En pausa hasta las ${finDePausa(camara.pausadaHasta!, hoy)}',
+            titulo: l.camaraReanudarAhora,
+            subtitulo: l.camaraEnPausaHastaLas(
+              finDePausa(camara.pausadaHasta!, hoy, l),
+            ),
             chevron: false,
             alTocar: () => reanudarCamara(context, ref, camara),
           )
@@ -679,15 +704,15 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
             estado == EstadoVisible.noConfiable)
           FilaLista(
             inicio: const IconoFila(Ico.pause),
-            titulo: 'Pausar',
-            subtitulo: 'Sin detección ni vista en vivo',
+            titulo: l.camaraPausar,
+            subtitulo: l.camaraSinDeteccionNiVivo,
             chevron: false,
             alTocar: () => pausarCamara(context, camara),
           ),
         if (titular)
           FilaLista(
             inicio: const IconoFila(Ico.pin),
-            titulo: 'Nombre: $habitacion',
+            titulo: l.camaraNombreDe(habitacion),
             alTocar: () => context.push(
               Uri(
                 path: Rutas.nombreCamara(camara.id),
@@ -698,36 +723,38 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
         else
           FilaLista(
             inicio: const IconoFila(Ico.pin),
-            titulo: 'Nombre: $habitacion',
+            titulo: l.camaraNombreDe(habitacion),
             fin: const EtiquetaSoloVer(),
           ),
         FilaLista(
           inicio: const IconoFila(Ico.eye),
-          titulo: 'Registro de accesos',
+          titulo: l.accesosTitulo,
           subtitulo: resumenUltimoAcceso(
             ultimo,
             yo: ref.watch(sesionControllerProvider)?.usuario.id,
             hoy: hoy,
+            l: l,
           ),
           alTocar: () => context.push(Rutas.accesos),
         ),
         FilaLista(
           inicio: const IconoFila(Ico.pc),
-          titulo: 'PC ${pc?.nombre ?? 'de la casa'}',
+          titulo: pc == null ? l.camaraPcDeLaCasa : l.camaraPcNombre(pc.nombre),
           subtitulo: [
             ?camara.nombreDispositivo,
-            if (instalada != null) 'desde el ${fechaNumerica(instalada)}',
+            if (instalada != null)
+              l.camaraDesdeElFecha(l.formato.fechaNumerica(instalada)),
           ].join(' · '),
         ),
         FilaLista(
           inicio: const IconoFila(Ico.report),
-          titulo: '¿Hubo una caída y no avisó?',
+          titulo: l.camaraHuboCaida,
           alTocar: () => context.push(Rutas.reportar(habitacion: habitacion)),
         ),
         if (titular && camara.pcId != null)
           FilaLista(
             inicio: const IconoFila(Ico.x, peligro: true),
-            titulo: 'Dejar de usar esta cámara',
+            titulo: l.camaraDejarDeUsar,
             peligro: true,
             chevron: false,
             alTocar: () async {
@@ -735,7 +762,9 @@ class _PantallaCamaraState extends ConsumerState<PantallaCamara> {
                 context,
                 ref,
                 camaraId: camara.id,
-                dispositivo: camara.nombreDispositivo ?? 'de la $habitacion',
+                dispositivo:
+                    camara.nombreDispositivo ??
+                    l.camaraDispositivoDeHabitacion(habitacion),
                 habitacion: habitacion,
                 pcId: camara.pcId,
               );
@@ -780,42 +809,43 @@ class _EstadoCamara extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colores;
+    final l = context.l10n;
     final (texto, icono, fondo, color) = switch (estado) {
       EstadoVisible.enLinea => (
-        'En línea',
+        estado.texto(l),
         Ico.check,
         c.calmaSuave,
         c.calmaTinta,
       ),
       EstadoVisible.enPausa => (
-        'En pausa hasta las ${finDePausa(camara.pausadaHasta!, hoy)}',
+        l.camaraEnPausaHastaLas(finDePausa(camara.pausadaHasta!, hoy, l)),
         Ico.pause,
         c.pausaSuave,
         c.pausa,
       ),
       EstadoVisible.desconectada => (
         camara.ultimaSenal == null
-            ? 'Desconectada'
-            : 'Desconectada desde las ${hora(camara.ultimaSenal!)}',
+            ? estado.texto(l)
+            : l.camaraDesconectadaDesde(l.formato.hora(camara.ultimaSenal!)),
         Ico.plug,
         c.avisoSuave,
         c.avisoTinta,
       ),
       EstadoVisible.sinConexion => (
         pc?.ultimaSenal == null
-            ? 'Sin conexión'
-            : 'Sin conexión desde las ${hora(pc!.ultimaSenal!)}',
+            ? estado.texto(l)
+            : l.camaraSinConexionDesde(l.formato.hora(pc!.ultimaSenal!)),
         Ico.wifiOff,
         c.fondo2,
         c.tinta2,
       ),
       EstadoVisible.noConfiable => (
-        'Detección no confiable',
+        estado.texto(l),
         Ico.eyeOff,
         c.avisoSuave,
         c.avisoTinta,
       ),
-      EstadoVisible.detenida => ('Detenida', Ico.lock, c.fondo2, c.tinta2),
+      EstadoVisible.detenida => (estado.texto(l), Ico.lock, c.fondo2, c.tinta2),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),

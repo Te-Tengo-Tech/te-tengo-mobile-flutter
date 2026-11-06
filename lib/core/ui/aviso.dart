@@ -4,6 +4,7 @@ import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import '../red/problema_api.dart';
 import 'iconos.dart';
+import '../../l10n/l10n.dart';
 
 /// Tones of the prototype `.notice`.
 enum TonoAviso { error, advertencia, ok, info, neutral }
@@ -104,9 +105,11 @@ class Aviso extends StatelessWidget {
   }
 }
 
-/// Text shown for an error: the backend `detalle` for a [ProblemaApi], a generic line otherwise.
-String textoDeError(Object error) =>
-    error is ProblemaApi ? error.detalle : 'Ocurrió un error.';
+/// Text shown for an error: the backend `detalle` for a [ProblemaApi], a generic line otherwise
+/// (in [l]'s language, or the phone's).
+String textoDeError(Object error, [AppLocalizations? l]) => error is ProblemaApi
+    ? error.detalle
+    : (l ?? textosDelSistema()).comunErrorGenerico;
 
 /// Shared widget for `ProblemaApi` messages (RFC 9457): shows `detalle`.
 class MensajeProblema extends StatelessWidget {
@@ -124,7 +127,7 @@ class MensajeProblema extends StatelessWidget {
       tono: TonoAviso.error,
       icono: sinConexion ? Ico.wifiOff : Ico.warn,
       titulo: titulo,
-      texto: textoDeError(error),
+      texto: textoDeError(error, context.l10n),
     );
   }
 }

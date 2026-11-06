@@ -1,5 +1,6 @@
 import '../../../core/foto.dart';
 import '../../../core/sesion/sesion.dart';
+import '../../../l10n/l10n.dart';
 
 /// Member of the household (`GET /api/familiares`). [telefono], [parentesco] and [foto] are what
 /// the member wrote in «Tu perfil» (contract §13); an older backend does not send them.
@@ -102,11 +103,14 @@ class ConfiguracionAviso {
 
 /// Role of a member in the alert order.
 enum PapelAviso {
-  principal('Principal'),
-  secundario('Secundario'),
-  familiar('Recibe alertas');
+  principal,
+  secundario,
+  familiar;
 
-  const PapelAviso(this.etiqueta);
-
-  final String etiqueta;
+  /// «Principal», «Secundario», «Recibe alertas».
+  String etiqueta(AppLocalizations l) => switch (this) {
+    principal => l.familiaPapelPrincipal,
+    secundario => l.familiaPapelSecundario,
+    familiar => l.familiaPapelFamiliar,
+  };
 }

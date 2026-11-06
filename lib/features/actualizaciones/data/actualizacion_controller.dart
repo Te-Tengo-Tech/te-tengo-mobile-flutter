@@ -10,6 +10,7 @@ import '../../../core/dispositivo/conectividad.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/avisos_flotantes.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/estado_actualizacion.dart';
 import '../domain/versiones.dart';
 import 'descarga_apk.dart';
@@ -101,12 +102,13 @@ class ActualizacionController extends Notifier<EstadoActualizacion> {
           desde.isNotEmpty &&
           esAnterior(desde, info.version)) {
         await cache.guardar(claveActualizacionPedida, '');
+        final l = textosDelSistema();
         ref
             .read(avisoFlotanteProvider.notifier)
             .mostrar(
               AvisoFlotante(
-                titulo: 'Te Tengo se actualizó',
-                texto: 'Versión ${info.version}.',
+                titulo: l.actualizacionSeActualizo,
+                texto: l.actualizacionVersionPunto(info.version),
               ),
             );
       }

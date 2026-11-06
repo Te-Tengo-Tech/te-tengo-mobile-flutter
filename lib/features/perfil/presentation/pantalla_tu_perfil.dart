@@ -13,6 +13,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../familia/data/familia_repositorio.dart';
+import '../../../l10n/l10n.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/fotos.dart';
 import '../data/perfil_repositorio.dart';
@@ -33,7 +34,7 @@ class PantallaTuPerfil extends ConsumerWidget {
     final perfil = ref.watch(perfilProvider);
     final sesion = ref.watch(sesionControllerProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Tu perfil')),
+      appBar: AppBar(title: Text(context.l10n.perfilTitulo)),
       body: switch (perfil) {
         AsyncData(value: final p?) => _Formulario(perfil: p),
         // A backend older than the profiles: what the session knows, read-only.
@@ -71,29 +72,32 @@ class _SoloLecturaState extends State<_SoloLectura> {
   }
 
   @override
-  Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
-    children: [
-      CabeceraFoto(
-        de: DuenoFoto.yo,
-        nombre: widget.usuario.nombre,
-        foto: null,
-        puedeCambiar: false,
-      ),
-      CampoTexto(
-        etiqueta: 'Nombre y apellido',
-        controlador: _nombre,
-        habilitado: false,
-      ),
-      CampoTexto(
-        etiqueta: 'Correo electrónico',
-        controlador: _correo,
-        tipo: TipoCampo.correo,
-        habilitado: false,
-        ayuda: 'Con él inicias sesión.',
-      ),
-    ],
-  );
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+      children: [
+        CabeceraFoto(
+          de: DuenoFoto.yo,
+          nombre: widget.usuario.nombre,
+          foto: null,
+          puedeCambiar: false,
+        ),
+        CampoTexto(
+          etiqueta: l.perfilCampoNombre,
+          controlador: _nombre,
+          habilitado: false,
+        ),
+        CampoTexto(
+          etiqueta: l.sesionCampoCorreo,
+          controlador: _correo,
+          tipo: TipoCampo.correo,
+          habilitado: false,
+          ayuda: l.perfilCorreoAyuda,
+        ),
+      ],
+    );
+  }
 }
 
 class _Formulario extends ConsumerStatefulWidget {
@@ -128,12 +132,13 @@ class _FormularioState extends ConsumerState<_Formulario> {
   Future<void> _guardar() async {
     final nombre = _nombre.text.trim().replaceAll(RegExp(r'\s+'), ' ');
     final telefono = _telefono.text.trim();
+    final l = context.l10n;
     setState(() {
       _problema = null;
       _errores = {
-        if (nombre.isEmpty) 'nombre': 'Escribe tu nombre y apellido.',
+        if (nombre.isEmpty) 'nombre': l.sesionErrorNombre,
         if (telefono.isNotEmpty && !telefonoValido.hasMatch(telefono))
-          'telefono': 'Revisa el teléfono: solo números.',
+          'telefono': l.perfilErrorTelefono,
       };
     });
     if (_errores.isNotEmpty) return;
@@ -169,10 +174,8 @@ class _FormularioState extends ConsumerState<_Formulario> {
       if (!mounted) return;
       mostrarToast(
         context,
-        titulo: 'Cambios guardados',
-        texto: anterior != perfil.nombre
-            ? 'Tu familia verá tu nombre nuevo.'
-            : null,
+        titulo: l.perfilCambiosGuardados,
+        texto: anterior != perfil.nombre ? l.perfilNombreNuevo : null,
       );
     } on ProblemaApi catch (e) {
       if (!mounted) return;
@@ -194,6 +197,7 @@ class _FormularioState extends ConsumerState<_Formulario> {
   Widget build(BuildContext context) {
     final p = widget.perfil;
     final adulto = ref.watch(nombreAdultoMayorProvider);
+    final l = context.l10n;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
@@ -209,7 +213,7 @@ class _FormularioState extends ConsumerState<_Formulario> {
           const SizedBox(height: 16),
         ],
         CampoTexto(
-          etiqueta: 'Nombre y apellido',
+          etiqueta: l.perfilCampoNombre,
           controlador: _nombre,
           error: _errores['nombre'],
           autocompletar: const [AutofillHints.name],
@@ -217,7 +221,7 @@ class _FormularioState extends ConsumerState<_Formulario> {
           longitudMaxima: 80,
         ),
         CampoTexto(
-          etiqueta: 'Teléfono',
+          etiqueta: l.perfilCampoTelefono,
           controlador: _telefono,
           tipo: TipoCampo.telefono,
           error: _errores['telefono'],
@@ -226,26 +230,32 @@ class _FormularioState extends ConsumerState<_Formulario> {
           longitudMaxima: 20,
         ),
         CampoTexto(
-          etiqueta: adulto == null ? 'Parentesco' : 'Parentesco con $adulto',
+          etiqueta: adulto == null
+              ? l.perfilParentesco
+              : l.perfilParentescoCon(adulto),
           controlador: _parentesco,
           error: _errores['parentesco'],
-          marcador: 'Ej.: Hija, sobrino, vecina',
+          marcador: l.perfilParentescoMarcador,
           longitudMaxima: 40,
         ),
         CampoTexto(
-          etiqueta: 'Correo electrónico',
+          etiqueta: l.sesionCampoCorreo,
           controlador: _correo,
           tipo: TipoCampo.correo,
           habilitado: false,
-          ayuda: 'Con él inicias sesión.',
+          ayuda: l.perfilCorreoAyuda,
         ),
-        Boton('Guardar cambios', cargando: _enviando, alPresionar: _guardar),
+        Boton(
+          l.perfilGuardarCambios,
+          cargando: _enviando,
+          alPresionar: _guardar,
+        ),
         const SizedBox(height: 20),
         ListaTarjeta(
           children: [
             FilaLista(
               inicio: const IconoFila(Ico.key),
-              titulo: 'Cambiar contraseña',
+              titulo: l.perfilCambiarContrasena,
               alTocar: () => context.push(Rutas.cambiarContrasena),
             ),
           ],
