@@ -405,7 +405,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/ipa" te-tengo.ipa
       - name: Upload to TestFlight
-        uses: apple-actions/upload-testflight-build@958b2fe4969e2ab1824f79f07c270b950f06bb3a # v5.8.0
+        uses: apple-actions/upload-testflight-build@665328adbecbc3ad929d3da710696d928b8a7ba9 # v5.9.0
         with:
           app-path: ${{ runner.temp }}/ipa/te-tengo.ipa
           app-type: ios
