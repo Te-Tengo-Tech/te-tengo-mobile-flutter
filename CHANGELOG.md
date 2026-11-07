@@ -4,6 +4,8 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-07
+
 ### Added
 - **English:** the app follows the phone's language: English on a phone set to English, Spanish (Peru) on any other, as before. Every user-visible text (screens, dialogs, notices, toasts, in-app and push notices built by the app, the home-screen widget, validation messages, onboarding, consent and legal pages, screen-reader labels) moved to `lib/l10n/app_es.arb` (the template) and `app_en.arb`, generated with `flutter gen-l10n` (`flutter_localizations`, `intl`, `l10n.yaml`); counts are ICU plurals. Dates and times go through `Formato` (`context.formato`): Spanish keeps its formats, English uses `10:42 AM`, `Wed Sep 23`, `Sep 23, 2026`. The Spanish texts are unchanged (the Spanish goldens did not move). Material's own texts (back button, pickers) now follow the language too («Atrás»). The English legal and consent texts await a legal review; consent records and everything sent to the API are unchanged (`otorgadoPor` stays «Representante legal de …», room names chosen from the suggestions stay Spanish). Text from the backend (`ProblemaApi.detalle`, «Qué cambió») is shown as received.
 - Tests: ARB key and placeholder parity, the main screens in English (no missing text, no overflow, no Spanish left), and English goldens of the fall alert and Inicio.
