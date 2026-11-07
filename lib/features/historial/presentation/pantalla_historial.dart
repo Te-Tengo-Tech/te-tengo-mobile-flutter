@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ui/chips.dart';
+import '../../../l10n/l10n.dart';
 import '../../reportes/presentation/pantallas_reporte.dart';
 import '../data/historial_provider.dart';
 import '../data/resumen_repositorio.dart';
@@ -53,15 +54,18 @@ class PantallaHistorial extends ConsumerWidget {
               child: Semantics(
                 header: true,
                 child: Text(
-                  'Historial',
+                  context.l10n.historialTitulo,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
             ),
             Segmentado(
-              opciones: const [
-                (SeccionHistorial.alertas, 'Alertas'),
-                (SeccionHistorial.resumen, 'Resumen semanal'),
+              opciones: [
+                (SeccionHistorial.alertas, context.l10n.historialAlertas),
+                (
+                  SeccionHistorial.resumen,
+                  context.l10n.historialResumenSemanal,
+                ),
               ],
               valor: seccion,
               alCambiar: ref.read(seccionHistorialProvider.notifier).elegir,

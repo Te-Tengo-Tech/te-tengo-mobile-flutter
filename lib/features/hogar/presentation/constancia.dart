@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 
 import '../../../app/tema/paleta.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/tarjeta.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/hogar.dart';
 
 /// Consent certificate (DESIGN.md): green band, who granted it, who recorded it, date and time, the
@@ -16,13 +16,13 @@ class TarjetaConstancia extends StatelessWidget {
   const TarjetaConstancia({
     super.key,
     required this.consentimiento,
-    this.enlace = 'Ver la constancia completa',
+    this.enlace,
   });
 
   final Consentimiento consentimiento;
 
-  /// Text of the link to the full document.
-  final String enlace;
+  /// Text of the link to the full document; «Ver la constancia completa» when null.
+  final String? enlace;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +31,8 @@ class TarjetaConstancia extends StatelessWidget {
       banda: Banda.calma,
       builder: (context) {
         final texto = Theme.of(context).textTheme;
+        final l = context.l10n;
+        final formato = context.formato;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -44,7 +46,7 @@ class TarjetaConstancia extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Constancia de consentimiento',
+                    l.consentimientoConstanciaTitulo,
                     style: texto.titleMedium,
                   ),
                 ),
@@ -52,21 +54,32 @@ class TarjetaConstancia extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             DatosTarjeta([
-              FilaDato(clave: 'Otorgado por', valor: c.otorgadoPor),
-              FilaDato(clave: 'Registrado por', valor: c.registradoPor),
-              FilaDato(clave: 'Fecha', valor: fechaConAnio(c.otorgadoEn)),
-              FilaDato(clave: 'Hora', valor: hora(c.otorgadoEn), mono: true),
+              // The values are the record as the backend stored it.
+              FilaDato(
+                clave: l.consentimientoOtorgadoPor,
+                valor: c.otorgadoPor,
+              ),
+              FilaDato(
+                clave: l.consentimientoRegistradoPor,
+                valor: c.registradoPor,
+              ),
+              FilaDato(
+                clave: l.consentimientoFecha,
+                valor: formato.fechaConAnio(c.otorgadoEn),
+              ),
+              FilaDato(
+                clave: l.consentimientoHora,
+                valor: formato.hora(c.otorgadoEn),
+                mono: true,
+              ),
             ]),
             const SizedBox(height: 8),
-            Text(
-              'Constancia exigida por la Ley N.° 29733.',
-              style: texto.bodySmall,
-            ),
+            Text(l.consentimientoConstanciaLey, style: texto.bodySmall),
             const SizedBox(height: 4),
             Align(
               alignment: Alignment.centerLeft,
               child: Enlace(
-                enlace,
+                enlace ?? l.consentimientoVerConstancia,
                 alTocar: () => context.push(Rutas.documentoConsentimiento),
               ),
             ),

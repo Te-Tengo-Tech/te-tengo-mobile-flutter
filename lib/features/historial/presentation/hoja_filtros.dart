@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/chips.dart';
 import '../../../core/ui/formulario.dart';
+import '../../../l10n/l10n.dart';
 import '../../alertas/domain/alerta.dart';
 import '../data/historial_provider.dart';
 import '../domain/filtro_historial.dart';
@@ -29,6 +30,7 @@ class _HojaFiltrosState extends ConsumerState<_HojaFiltros> {
   @override
   Widget build(BuildContext context) {
     final f = _borrador;
+    final l = context.l10n;
     final conteo = ref.watch(conteoFiltroProvider(f)).value;
     Widget grupo<T>(
       String titulo,
@@ -64,33 +66,33 @@ class _HojaFiltrosState extends ConsumerState<_HojaFiltros> {
             Semantics(
               header: true,
               child: Text(
-                'Filtrar alertas',
+                l.historialFiltrarTitulo,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
             grupo<RangoFecha>(
-              'Fecha',
-              [for (final r in RangoFecha.values) (r, r.texto)],
+              l.historialFiltroFecha,
+              [for (final r in RangoFecha.values) (r, r.texto(l))],
               f.rango,
               (v) => f.con(rango: v),
             ),
             grupo<TipoAlerta?>(
-              'Tipo',
-              const [
-                (null, 'Todas'),
-                (TipoAlerta.caida, 'Caída'),
-                (TipoAlerta.movimientoInestable, 'Movimiento inestable'),
+              l.historialFiltroTipo,
+              [
+                (null, l.historialFiltroTodas),
+                (TipoAlerta.caida, l.historialFiltroCaida),
+                (TipoAlerta.movimientoInestable, l.historialFiltroInestable),
               ],
               f.tipo,
               (v) => v == null ? f.con(sinTipo: true) : f.con(tipo: v),
             ),
             grupo<EstadoAlerta?>(
-              'Estado',
-              const [
-                (null, 'Todos'),
-                (EstadoAlerta.activa, 'Activa'),
-                (EstadoAlerta.atendida, 'Atendida'),
-                (EstadoAlerta.falsaAlarma, 'Falsa alarma'),
+              l.historialFiltroEstado,
+              [
+                (null, l.historialFiltroTodos),
+                (EstadoAlerta.activa, l.historialFiltroActiva),
+                (EstadoAlerta.atendida, l.historialFiltroAtendida),
+                (EstadoAlerta.falsaAlarma, l.historialFiltroFalsa),
               ],
               f.estado,
               (v) => v == null ? f.con(sinEstado: true) : f.con(estado: v),
@@ -101,7 +103,7 @@ class _HojaFiltrosState extends ConsumerState<_HojaFiltros> {
                 SizedBox(
                   width: 120,
                   child: Boton(
-                    'Limpiar',
+                    l.historialLimpiar,
                     estilo: EstiloBoton.fantasma,
                     alPresionar: () =>
                         setState(() => _borrador = FiltroHistorial.vacio),
@@ -111,8 +113,8 @@ class _HojaFiltrosState extends ConsumerState<_HojaFiltros> {
                 Expanded(
                   child: Boton(
                     conteo == null
-                        ? 'Ver alertas'
-                        : 'Ver $conteo alerta${conteo == 1 ? '' : 's'}',
+                        ? l.historialVerAlertas
+                        : l.historialVerConteo(conteo),
                     alPresionar: () {
                       ref.read(filtroHistorialProvider.notifier).aplicar(f);
                       Navigator.of(context).pop();

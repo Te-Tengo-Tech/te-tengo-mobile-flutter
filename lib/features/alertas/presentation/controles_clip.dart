@@ -4,15 +4,20 @@ import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import 'reproduccion_clip.dart';
 
 /// `m:ss` of the clip bar.
 String tiempoClip(Duration d) =>
     '${d.inMinutes}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
 
-/// «1×», «0,5×»: the label of a playback speed.
-String etiquetaVelocidad(double v) =>
-    '${v == v.roundToDouble() ? v.toInt() : v.toString().replaceAll('.', ',')}×';
+/// «1×», «0,5×» (`0.5×` in English, [idioma] `en`): the label of a playback speed.
+String etiquetaVelocidad(double v, [String idioma = 'es']) =>
+    '${v == v.roundToDouble()
+        ? v.toInt()
+        : idioma == 'en'
+        ? v.toString()
+        : v.toString().replaceAll('.', ',')}×';
 
 /// Clip bar (`.clip-bar`): play, pause or watch again, -5 s and +5 s, a progress track that can be
 /// dragged or tapped (with the event mark in the middle), the time and the speed (0,5×, 1×, 1,5×
@@ -47,11 +52,13 @@ class ControlesClip extends StatelessWidget {
     builder: (context, _) {
       final r = reproduccion;
       final buscable = r.duracionConocida;
+      final l = context.l10n;
+      final vel = etiquetaVelocidad(r.velocidad, l.localeName);
       final (icono, etiqueta) = r.reproduciendo
-          ? (Ico.pause, 'Pausar clip')
+          ? (Ico.pause, l.clipPausar)
           : r.terminado
-          ? (Ico.refresh, 'Volver a ver el clip')
-          : (Ico.play, 'Reproducir clip');
+          ? (Ico.refresh, l.clipVolverAVer)
+          : (Ico.play, l.clipReproducir);
       final reproducir = _Boton(
         etiqueta: etiqueta,
         claro: true,
@@ -64,22 +71,20 @@ class ControlesClip extends StatelessWidget {
         ),
       );
       final retroceder = _Boton(
-        etiqueta: 'Retroceder 5 segundos',
+        etiqueta: l.clipRetroceder,
         alTocar: buscable ? r.retroceder : null,
         child: Text('−5 s', style: estiloMono(tamano: 14, color: Colors.white)),
       );
       final adelantar = _Boton(
-        etiqueta: 'Adelantar 5 segundos',
+        etiqueta: l.clipAdelantar,
         alTocar: buscable ? r.adelantar : null,
         child: Text('+5 s', style: estiloMono(tamano: 14, color: Colors.white)),
       );
-      final etiquetaVel =
-          'Velocidad ${etiquetaVelocidad(r.velocidad)}. Cambiar la velocidad';
       final velocidad = _Boton(
-        etiqueta: etiquetaVel,
+        etiqueta: l.clipVelocidad(vel),
         alTocar: r.listo ? r.cambiarVelocidad : null,
         child: Text(
-          etiquetaVelocidad(r.velocidad),
+          vel,
           maxLines: 1,
           style: estiloTexto(15, 800, color: Colors.white),
         ),
@@ -88,13 +93,13 @@ class ControlesClip extends StatelessWidget {
       final pantalla = salir == null
           ? null
           : _Boton(
-              etiqueta: 'Salir de pantalla completa',
+              etiqueta: l.clipSalirPantallaCompleta,
               alTocar: salir,
-              child: const Icono(
+              child: Icono(
                 Ico.contract,
                 tamano: 22,
                 color: Colors.white,
-                etiqueta: 'Salir de pantalla completa',
+                etiqueta: l.clipSalirPantallaCompleta,
               ),
             );
       final tiempo = Text(
@@ -244,7 +249,7 @@ class _PistaState extends State<_Pista> {
       explicitChildNodes: true,
       slider: true,
       enabled: activo,
-      label: 'Avance del clip',
+      label: context.l10n.clipAvance,
       value: tiempoClip(r.posicion),
       increasedValue: activo
           ? tiempoClip(r.posicion + ReproduccionClip.salto)
@@ -298,7 +303,7 @@ class _PistaState extends State<_Pista> {
               Align(
                 child: Semantics(
                   container: true,
-                  label: 'Momento del evento',
+                  label: context.l10n.clipMomentoEvento,
                   child: Container(
                     width: 4,
                     height: 16,

@@ -4,17 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
-import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/alerta.dart';
+import 'textos_alerta.dart';
 
 /// «Carmen (principal)», «Luis»: who receives each alert.
-List<String> avisadosDe(List<MiembroFamilia> miembros) => [
+List<String> avisadosDe(AppLocalizations l, List<MiembroFamilia> miembros) => [
   for (final m in miembros)
     m.papel == PapelAviso.principal
-        ? '${m.familiar.nombrePila} (principal)'
+        ? l.alertaAvisadoPrincipal(m.familiar.nombrePila)
         : m.familiar.nombrePila,
 ];
 
@@ -44,6 +44,7 @@ class ItemLinea {
 /// Events of an alert («Registro»): detection, notification, confirmation, recovery, escalation and
 /// who marked it (`timeline`).
 List<ItemLinea> itemsDeAlerta(
+  AppLocalizations l,
   Alerta a, {
   required String nombreAdultoMayor,
   List<String> avisados = const [],
@@ -51,52 +52,45 @@ List<ItemLinea> itemsDeAlerta(
   int esperaMinutos = 5,
 }) {
   final caida = a.esCaida;
-  final avisadosTexto = switch (avisados.length) {
-    0 => 'la familia',
-    1 => avisados.first,
-    _ =>
-      '${avisados.sublist(0, avisados.length - 1).join(', ')} y ${avisados.last}',
-  };
+  final avisadosTexto = avisados.isEmpty
+      ? l.alertaLineaLaFamilia
+      : l.formato.enumerar(avisados);
   final notificada = a.notificadaEn;
   return [
     ItemLinea(
       a.ocurridaEn,
-      '${caida ? 'Caída' : 'Movimiento inestable'} '
-      '${enHabitacion(a.habitacion)}',
+      tipoEnHabitacion(l, a.tipo, a.habitacion),
       caida ? PuntoLinea.caida : PuntoLinea.inestable,
     ),
     // Only what the backend says (`estadoAviso`): «reintentando» only while it does.
     if (notificada == null && a.avisoReintentando)
-      ItemLinea(a.ocurridaEn, 'No se pudo entregar; reintentando')
+      ItemLinea(a.ocurridaEn, l.alertaLineaReintentando)
     else if (notificada == null && a.avisoNoEntregado)
-      ItemLinea(a.ocurridaEn, 'No se pudo entregar')
+      ItemLinea(a.ocurridaEn, l.alertaLineaNoEntregada)
     else if (notificada != null)
       ItemLinea(
         notificada,
-        'Aviso a $avisadosTexto · '
-        '${notificada.difference(a.ocurridaEn).inSeconds} s',
+        l.alertaLineaAviso(
+          avisadosTexto,
+          notificada.difference(a.ocurridaEn).inSeconds,
+        ),
       ),
     if (a.esCaida && a.confirmada)
-      ItemLinea(
-        a.confirmadaEn,
-        'Sigue en el suelo: confirmada',
-        PuntoLinea.caida,
-      ),
+      ItemLinea(a.confirmadaEn, l.alertaLineaConfirmada, PuntoLinea.caida),
     if (a.recuperadaEn case final r?)
-      ItemLinea(r, '$nombreAdultoMayor se levantó', PuntoLinea.ok),
+      ItemLinea(r, l.alertaLineaSeLevanto(nombreAdultoMayor), PuntoLinea.ok),
     if (a.escaladaEn case final e?)
       ItemLinea(
         e,
         secundario != null
-            ? 'Sin respuesta en $esperaMinutos min: aviso a '
-                  '${secundario.split(' ').first} (secundario)'
-            : 'Sin respuesta en $esperaMinutos min y sin secundario',
+            ? l.alertaLineaEscaladaA(esperaMinutos, secundario.split(' ').first)
+            : l.alertaLineaSinSecundario(esperaMinutos),
         PuntoLinea.escalada,
       ),
     if (a.estado == EstadoAlerta.atendida && a.atendidaEn != null)
       ItemLinea(
         a.atendidaEn!,
-        'Atendida por ${(a.atendidaPor ?? '').split(' ').first}',
+        l.alertaLineaAtendidaPor((a.atendidaPor ?? '').split(' ').first),
         PuntoLinea.ok,
       ),
     if (a.estado == EstadoAlerta.atendida &&
@@ -104,14 +98,11 @@ List<ItemLinea> itemsDeAlerta(
         secundario != null &&
         a.atendidaEn != null &&
         a.atendidaEn!.difference(a.ocurridaEn).inMinutes < esperaMinutos)
-      ItemLinea(
-        a.atendidaEn!,
-        'Atendida antes de $esperaMinutos min: sin escalar',
-      ),
+      ItemLinea(a.atendidaEn!, l.alertaLineaAntesDeEscalar(esperaMinutos)),
     if (a.estado == EstadoAlerta.falsaAlarma && a.atendidaEn != null)
       ItemLinea(
         a.atendidaEn!,
-        'Falsa alarma, marcada por ${(a.atendidaPor ?? '').split(' ').first}',
+        l.alertaLineaFalsaAlarma((a.atendidaPor ?? '').split(' ').first),
       ),
   ];
 }
@@ -131,11 +122,12 @@ class LineaDeTiempo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(
-                width: 54,
+                // «10:42 AM» in English needs more room than «10:42».
+                width: context.l10n.localeName == 'en' ? 76 : 54,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 1),
                   child: Text(
-                    hora(items[i].momento),
+                    context.formato.hora(items[i].momento),
                     style: estiloMono(
                       tamano: 14,
                       peso: 400,

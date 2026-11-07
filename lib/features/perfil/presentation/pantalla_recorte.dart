@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/tema/colores.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/botones.dart';
+import '../../../l10n/l10n.dart';
 
 /// Side of the picture the app uploads: the backend keeps 512 × 512 at most (contract §13).
 const ladoFoto = 512;
@@ -128,13 +129,14 @@ class _PantallaRecorteState extends State<PantallaRecorte> {
   @override
   Widget build(BuildContext context) {
     final imagen = _imagen;
+    final l = context.l10n;
     return Scaffold(
       backgroundColor: Colores.noche,
       appBar: AppBar(
         backgroundColor: Colores.noche,
         foregroundColor: Colors.white,
         title: Text(
-          'Ajusta la foto',
+          l.perfilAjustaFoto,
           style: estiloTexto(20, 700, color: Colors.white),
         ),
       ),
@@ -147,7 +149,7 @@ class _PantallaRecorteState extends State<PantallaRecorte> {
               if (_error) {
                 return Center(
                   child: Text(
-                    'No pudimos abrir esa foto. Elige otra.',
+                    l.perfilNoPudimosAbrirEligeOtra,
                     textAlign: TextAlign.center,
                     style: estiloTexto(17, 600, color: Colors.white),
                   ),
@@ -165,7 +167,7 @@ class _PantallaRecorteState extends State<PantallaRecorte> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Mueve y acerca la foto para centrar la cara.',
+                    l.perfilMueveAcerca,
                     textAlign: TextAlign.center,
                     style: estiloTexto(16, 400, color: Colors.white),
                   ),
@@ -203,7 +205,7 @@ class _PantallaRecorteState extends State<PantallaRecorte> {
                   ),
                   const Spacer(),
                   Boton(
-                    'Usar esta foto',
+                    l.perfilUsarFoto,
                     cargando: _recortando,
                     alPresionar: () => _usar(lado, escalaBase),
                   ),

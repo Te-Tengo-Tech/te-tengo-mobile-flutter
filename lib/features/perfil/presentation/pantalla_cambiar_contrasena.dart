@@ -9,6 +9,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../data/perfil_repositorio.dart';
 
 /// «Cambiar contraseña» (from «Tu perfil»): the current one, then the new one twice
@@ -41,14 +42,15 @@ class _PantallaCambiarContrasenaState
   Future<void> _guardar() async {
     final actual = _actual.text;
     final nueva = _nueva.text;
+    final l = context.l10n;
     setState(() {
       _problema = null;
       _errores = {
-        if (actual.isEmpty) 'actual': 'Escribe tu contraseña actual.',
+        if (actual.isEmpty) 'actual': l.perfilErrorActualVacia,
         if (nueva.length < 8 || !RegExp(r'\d').hasMatch(nueva))
-          'nueva': 'Usa al menos 8 caracteres y un número.'
+          'nueva': l.sesionErrorClaveCorta
         else if (nueva != _repetida.text)
-          'repetida': 'Las contraseñas no coinciden.',
+          'repetida': l.sesionErrorNoCoinciden,
       };
     });
     if (_errores.isNotEmpty) return;
@@ -58,13 +60,17 @@ class _PantallaCambiarContrasenaState
           .read(perfilRepositorioProvider)
           .cambiarContrasena(actual: actual, nueva: nueva);
       if (!mounted) return;
-      mostrarToast(context, titulo: 'Contraseña actualizada', icono: Ico.key);
+      mostrarToast(
+        context,
+        titulo: l.sesionContrasenaActualizada,
+        icono: Ico.key,
+      );
       unawaited(Navigator.of(context).maybePop());
     } on ProblemaApi catch (e) {
       if (!mounted) return;
       setState(() {
         if (e.codigo == 'CONTRASENA_ACTUAL_INCORRECTA') {
-          _errores = {'actual': 'No coincide con tu contraseña actual.'};
+          _errores = {'actual': l.perfilActualIncorrecta};
         } else if (e.codigo == 'VALIDACION' && e.campos.isNotEmpty) {
           _errores = {
             for (final c in e.campos.entries) c.key.split('.').last: c.value,
@@ -79,48 +85,51 @@ class _PantallaCambiarContrasenaState
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Cambiar contraseña')),
-    body: AutofillGroup(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
-        children: [
-          if (_problema != null) ...[
-            MensajeProblema(_problema!),
-            const SizedBox(height: 16),
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Scaffold(
+      appBar: AppBar(title: Text(l.perfilCambiarContrasena)),
+      body: AutofillGroup(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+          children: [
+            if (_problema != null) ...[
+              MensajeProblema(_problema!),
+              const SizedBox(height: 16),
+            ],
+            CampoTexto(
+              etiqueta: l.perfilContrasenaActual,
+              controlador: _actual,
+              tipo: TipoCampo.contrasena,
+              error: _errores['actual'],
+              autocompletar: const [AutofillHints.password],
+              accionTeclado: TextInputAction.next,
+            ),
+            CampoTexto(
+              etiqueta: l.sesionNuevaContrasena,
+              controlador: _nueva,
+              tipo: TipoCampo.contrasena,
+              error: _errores['nueva'],
+              ayuda: l.sesionAyudaContrasena,
+              autocompletar: const [AutofillHints.newPassword],
+              accionTeclado: TextInputAction.next,
+            ),
+            CampoTexto(
+              etiqueta: l.perfilRepiteNueva,
+              controlador: _repetida,
+              tipo: TipoCampo.contrasena,
+              error: _errores['repetida'],
+              autocompletar: const [AutofillHints.newPassword],
+              alEnviar: (_) => _guardar(),
+            ),
+            Boton(
+              l.sesionGuardarContrasena,
+              cargando: _enviando,
+              alPresionar: _guardar,
+            ),
           ],
-          CampoTexto(
-            etiqueta: 'Contraseña actual',
-            controlador: _actual,
-            tipo: TipoCampo.contrasena,
-            error: _errores['actual'],
-            autocompletar: const [AutofillHints.password],
-            accionTeclado: TextInputAction.next,
-          ),
-          CampoTexto(
-            etiqueta: 'Nueva contraseña',
-            controlador: _nueva,
-            tipo: TipoCampo.contrasena,
-            error: _errores['nueva'],
-            ayuda: '8 caracteres o más, con un número.',
-            autocompletar: const [AutofillHints.newPassword],
-            accionTeclado: TextInputAction.next,
-          ),
-          CampoTexto(
-            etiqueta: 'Repite la nueva contraseña',
-            controlador: _repetida,
-            tipo: TipoCampo.contrasena,
-            error: _errores['repetida'],
-            autocompletar: const [AutofillHints.newPassword],
-            alEnviar: (_) => _guardar(),
-          ),
-          Boton(
-            'Guardar contraseña',
-            cargando: _enviando,
-            alPresionar: _guardar,
-          ),
-        ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

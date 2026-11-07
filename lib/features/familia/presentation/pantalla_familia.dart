@@ -10,6 +10,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/familia_repositorio.dart';
 import '../domain/familiar.dart';
@@ -27,6 +28,7 @@ class PantallaFamilia extends ConsumerWidget {
     final yo = ref.watch(sesionControllerProvider)?.usuario.id;
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return RefreshIndicator(
       onRefresh: () async {
         ref
@@ -39,10 +41,10 @@ class PantallaFamilia extends ConsumerWidget {
         children: [
           Semantics(
             header: true,
-            child: Text('Familia', style: texto.headlineMedium),
+            child: Text(l.familiaTitulo, style: texto.headlineMedium),
           ),
           const SizedBox(height: 6),
-          Text('Reciben las alertas de $nombre.', style: texto.bodyMedium),
+          Text(l.familiaReciben(nombre), style: texto.bodyMedium),
           const SizedBox(height: 16),
           ...switch (miembros) {
             AsyncData(value: final lista) => _contenido(
@@ -76,6 +78,7 @@ class PantallaFamilia extends ConsumerWidget {
         .where((m) => m.papel == PapelAviso.secundario)
         .firstOrNull;
     final pri = principal?.familiar.nombrePila ?? '';
+    final l = context.l10n;
     return [
       ListaTarjeta(
         children: [
@@ -94,12 +97,15 @@ class PantallaFamilia extends ConsumerWidget {
         children: [
           FilaLista(
             inicio: const IconoFila(Ico.swap),
-            titulo: 'Orden de aviso y tiempo de espera',
+            titulo: l.familiaOrdenFila,
             subtitulo: secundario == null
-                ? '$pri · sin contacto secundario'
-                : '$pri → ${secundario.familiar.nombrePila} · '
-                      '${aviso?.esperaMinutos ?? ConfiguracionAviso.esperaPredeterminada} '
-                      'min de espera',
+                ? l.familiaOrdenSinSecundario(pri)
+                : l.familiaOrdenResumen(
+                    pri,
+                    secundario.familiar.nombrePila,
+                    aviso?.esperaMinutos ??
+                        ConfiguracionAviso.esperaPredeterminada,
+                  ),
             fin: titular
                 ? null
                 : Icono(Ico.lock, tamano: 22, color: context.colores.icono),
@@ -112,21 +118,21 @@ class PantallaFamilia extends ConsumerWidget {
         Aviso(
           tono: TonoAviso.advertencia,
           icono: Ico.warn,
-          titulo: 'No hay contacto secundario',
-          texto: 'Si $pri no atiende a tiempo, nadie más será avisado.',
+          titulo: l.familiaSinSecundarioTitulo,
+          texto: l.familiaSinSecundarioTexto(pri),
         ),
       ],
       const SizedBox(height: 20),
       if (titular)
         Boton(
-          'Invitar a un familiar',
+          l.familiaInvitar,
           icono: Ico.plus,
           alPresionar: () => context.push(Rutas.invitar),
         )
       else
         AvisoSoloLectura(
           titular: titularNombre,
-          accion: 'invitar o retirar familiares y cambiar el orden de aviso',
+          accion: l.familiaSoloLecturaInvitar,
         ),
     ];
   }

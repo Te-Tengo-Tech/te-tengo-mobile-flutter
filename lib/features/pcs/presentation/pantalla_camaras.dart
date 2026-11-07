@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
@@ -14,6 +13,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/ilustraciones.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../../camaras/presentation/favorita.dart';
@@ -55,10 +55,11 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
       ..invalidate(pcsProvider)
       ..invalidate(camarasProvider)
       ..invalidate(hogarProvider);
+    final l = context.l10n;
     return RefrescoPcs(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Cámaras'),
+          title: Text(l.pcsCamaras),
           actions: [
             if (!titular)
               const Padding(
@@ -89,11 +90,11 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
                     Aviso(
                       tono: TonoAviso.error,
                       icono: Ico.lock,
-                      titulo: 'Falta el consentimiento',
-                      texto: 'Sin él no detectamos caídas.',
+                      titulo: l.pcsFaltaConsentimiento,
+                      texto: l.pcsSinElNoDetectamos,
                       accion: titular
                           ? Boton(
-                              'Registrar consentimiento',
+                              l.pcsRegistrarConsentimiento,
                               pequeno: true,
                               alPresionar: () =>
                                   context.push(Rutas.consentimiento),
@@ -139,7 +140,12 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
     final camaras = todas
         .where((c) => filtro == null || c.camara.pcId == filtro || c.pc == null)
         .toList();
-    final resumen = resumenCamaras(todas, conConsentimiento: conConsentimiento);
+    final l = context.l10n;
+    final resumen = resumenCamaras(
+      l,
+      todas,
+      conConsentimiento: conConsentimiento,
+    );
     final atencion = _filasAtencion(context, visibles, camaras, titular);
     final bien = camaras.where((c) => !c.necesitaAtencion).toList();
     return [
@@ -151,7 +157,7 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
           children: [
             Expanded(
               child: Boton(
-                'Ver todas',
+                l.pcsVerTodas,
                 icono: Ico.grid,
                 pequeno: true,
                 alPresionar: () => verTodas(context),
@@ -160,7 +166,7 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
             const SizedBox(width: 12),
             Expanded(
               child: Boton(
-                'Ordenar',
+                l.pcsOrdenar,
                 icono: Ico.swap,
                 estilo: EstiloBoton.secundario,
                 pequeno: true,
@@ -173,13 +179,13 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
       if (varias) ...[
         const SizedBox(height: 12),
         Semantics(
-          label: 'Ver las cámaras de',
+          label: l.pcsFiltroSemantica,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
                 for (final (id, nombre) in [
-                  (null, 'Todas'),
+                  (null, l.pcsTodas),
                   for (final p in pcs) (p.id, p.nombre),
                 ]) ...[
                   ChipOpcion(
@@ -195,11 +201,13 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
         ),
       ],
       if (atencion.isNotEmpty) ...[
-        const EncabezadoSeccion('Necesitan atención'),
+        EncabezadoSeccion(l.pcsNecesitanAtencion),
         ListaTarjeta(children: atencion),
       ],
       if (bien.isNotEmpty) ...[
-        EncabezadoSeccion(conConsentimiento ? 'Funcionando' : 'Detenidas'),
+        EncabezadoSeccion(
+          conConsentimiento ? l.pcsFuncionando : l.pcsDetenidas,
+        ),
         _Rejilla([
           for (final c in bien)
             TarjetaHabitacion(
@@ -208,7 +216,7 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
             ),
         ]),
       ],
-      const EncabezadoSeccion('PCs de la casa'),
+      EncabezadoSeccion(l.pcsPcsDeLaCasa),
       ListaTarjeta(
         children: [
           for (final pc in pcs)
@@ -218,21 +226,21 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
       const SizedBox(height: 16),
       if (titular) ...[
         Boton(
-          'Agregar PC',
+          l.pcsAgregarPc,
           icono: Ico.plus,
           estilo: EstiloBoton.secundario,
           alPresionar: () => context.push(Rutas.vincular),
         ),
         const SizedBox(height: 8),
         Text(
-          'Una cámara por habitación.',
+          l.pcsUnaPorHabitacion,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ] else
         AvisoSoloLectura(
           titular: ref.watch(nombreTitularProvider) ?? '',
-          accion: 'agregar o quitar PCs',
+          accion: l.pcsAccionAgregarOQuitar,
         ),
     ];
   }
@@ -245,6 +253,7 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
     bool titular,
   ) {
     final filas = <Widget>[];
+    final l = context.l10n;
     void elegir(Pc pc) => context.push(Rutas.elegirCamaras(pc.id));
     for (final pc in pcs) {
       final propias = camaras.where((c) => c.camara.pcId == pc.id).toList();
@@ -253,22 +262,19 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
           FilaAtencion(
             estado: EstadoVisible.sinConexion,
             titulo: propias.isEmpty
-                ? 'PC ${pc.nombre} sin conexión'
-                : '${enumerar([for (final c in propias) c.habitacion])} sin '
-                      'conexión',
-            detalle: TextSpan(
-              children: [
-                TextSpan(text: 'La PC ${pc.nombre} no responde'),
-                if (pc.ultimaSenal case final s?) ...[
-                  const TextSpan(text: ' desde las '),
-                  TextSpan(
-                    text: hora(s),
-                    style: estiloMono(tamano: 15, peso: 400),
+                ? l.pcsAtencionPcSinConexion(pc.nombre)
+                : l.pcsAtencionSinConexion(
+                    l.formato.enumerar([for (final c in propias) c.habitacion]),
                   ),
-                ],
-              ],
-            ),
-            accion: 'Qué revisar',
+            detalle: switch (pc.ultimaSenal) {
+              final s? => textoConDato(
+                (hora) => l.pcsPcNoRespondeDesde(pc.nombre, hora),
+                l.formato.hora(s),
+                estiloMono(tamano: 15, peso: 400),
+              ),
+              null => TextSpan(text: l.pcsPcNoResponde(pc.nombre)),
+            },
+            accion: l.pcsQueRevisar,
             alActuar: () => context.push(Rutas.pc(pc.id)),
           ),
         );
@@ -282,17 +288,13 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
           FilaAtencion(
             estado: EstadoVisible.detenida,
             icono: Ico.plus,
-            titulo: contar(
-              pc.camarasSinUsar,
-              'cámara sin usar',
-              'cámaras sin usar',
-            ),
+            titulo: l.pcsNCamarasSinUsar(pc.camarasSinUsar),
             detalle: TextSpan(
-              text:
-                  'En la PC ${pc.nombre}'
-                  '${titular ? ' · elige en qué habitación está' : ''}',
+              text: titular
+                  ? l.pcsAtencionEnPcElige(pc.nombre)
+                  : l.pcsAtencionEnPc(pc.nombre),
             ),
-            accion: titular ? 'Elegir las cámaras' : null,
+            accion: titular ? l.pcsElegirCamaras : null,
             alActuar: () => elegir(pc),
           ),
         );
@@ -301,9 +303,9 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
           FilaAtencion(
             estado: EstadoVisible.detenida,
             icono: Ico.pc,
-            titulo: 'PC ${pc.nombre}',
-            detalle: const TextSpan(text: 'Falta elegir las cámaras'),
-            accion: titular ? 'Elegir las cámaras' : null,
+            titulo: l.pcsPcNombre(pc.nombre),
+            detalle: TextSpan(text: l.pcsFaltaElegirCamaras),
+            accion: titular ? l.pcsElegirCamaras : null,
             alActuar: () => elegir(pc),
           ),
         );
@@ -318,13 +320,14 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
 
   Widget _filaCamara(BuildContext context, CamaraEnCasa c) {
     final camara = c.camara;
-    final info = infoAtencion(c);
+    final l = context.l10n;
+    final info = infoAtencion(l, c);
     final enPausa = c.estado == EstadoVisible.enPausa;
     return FilaAtencion(
       estado: c.estado,
       titulo: info.titulo,
       detalle: info.detalle,
-      accion: enPausa ? 'Reanudar ahora' : 'Qué revisar',
+      accion: enPausa ? l.pcsReanudarAhora : l.pcsQueRevisar,
       alActuar: enPausa
           ? () => reanudarCamara(context, ref, camara)
           : () => context.push(Rutas.camara(camara.id)),
@@ -333,34 +336,33 @@ class _PantallaCamarasState extends ConsumerState<PantallaCamaras> {
 }
 
 /// What happens to a camera, in one phrase (`attInfo`): where (the title) and what (the detail).
-({String titulo, InlineSpan detalle}) infoAtencion(CamaraEnCasa c) {
+({String titulo, InlineSpan detalle}) infoAtencion(
+  AppLocalizations l,
+  CamaraEnCasa c,
+) {
   final camara = c.camara;
   final mono = estiloMono(tamano: 15, peso: 400);
   return switch (c.estado) {
     EstadoVisible.sinConexion => (
-      titulo: '${c.habitacion} sin conexión',
-      detalle: TextSpan(text: 'La PC ${c.pc?.nombre ?? ''} no responde'),
+      titulo: l.pcsAtencionSinConexion(c.habitacion),
+      detalle: TextSpan(text: l.pcsPcNoResponde(c.pc?.nombre ?? '')),
     ),
     EstadoVisible.desconectada => (
-      titulo: '${c.habitacion}: cámara desconectada',
-      detalle: TextSpan(
-        children: [
-          if (camara.ultimaSenal case final s?) ...[
-            const TextSpan(text: 'Desde las '),
-            TextSpan(text: hora(s), style: mono),
-          ],
-        ],
-      ),
+      titulo: l.pcsAtencionDesconectada(c.habitacion),
+      detalle: switch (camara.ultimaSenal) {
+        final s? => textoConDato(l.pcsDesdeLas, l.formato.hora(s), mono),
+        null => const TextSpan(children: []),
+      },
     ),
     EstadoVisible.enPausa => (
-      titulo: '${c.habitacion} en pausa',
+      titulo: l.pcsAtencionEnPausa(c.habitacion),
       detalle: TextSpan(
-        text: 'Hasta las ${hora(camara.pausadaHasta!)} · se reactiva sola',
+        text: l.pcsAtencionHastaLas(l.formato.hora(camara.pausadaHasta!)),
       ),
     ),
     _ => (
-      titulo: 'Detección no confiable · ${c.habitacion}',
-      detalle: const TextSpan(text: 'Revisa la luz y el encuadre'),
+      titulo: l.pcsAtencionNoConfiable(c.habitacion),
+      detalle: TextSpan(text: l.pcsAtencionRevisaLuz),
     ),
   };
 }
@@ -533,7 +535,7 @@ class TarjetaHabitacion extends StatelessWidget {
     final color = estado.colorEn(c);
     final tarjeta = Semantics(
       button: true,
-      label: '${camara.habitacion}, ${estado.texto}',
+      label: '${camara.habitacion}, ${estado.texto(context.l10n)}',
       excludeSemantics: true,
       child: Material(
         color: c.tarjeta,
@@ -574,7 +576,7 @@ class TarjetaHabitacion extends StatelessWidget {
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
-                            estado.texto,
+                            estado.texto(context.l10n),
                             style: estiloTexto(14, 700, color: color),
                           ),
                         ),
@@ -619,28 +621,29 @@ class FilaPc extends StatelessWidget {
     final c = context.colores;
     final estado = EstadoPc.de(pc);
     final n = pc.camaras.length;
+    final l = context.l10n;
     return FilaLista(
       inicio: IconoPc(estado: estado, tamano: 40),
       titulo: pc.nombre,
       subtituloRico: switch (estado) {
         EstadoPc.faltanCamaras => TextSpan(
-          text: 'Falta elegir las cámaras',
+          text: l.pcsFaltaElegirCamaras,
           style: estiloTexto(15, 700, color: c.moradoTinta),
         ),
         EstadoPc.sinConexion => TextSpan(
           children: [
-            TextSpan(text: '${contar(n, 'cámara', 'cámaras')} · '),
+            TextSpan(text: '${l.pcsNCamaras(n)} · '),
             TextSpan(
-              text: 'Sin conexión',
+              text: l.pcsSinConexion,
               style: estiloTexto(15, 700, color: c.aviso),
             ),
           ],
         ),
         EstadoPc.enLinea => TextSpan(
           children: [
-            TextSpan(text: '${contar(n, 'cámara', 'cámaras')} · '),
+            TextSpan(text: '${l.pcsNCamaras(n)} · '),
             TextSpan(
-              text: 'En línea',
+              text: l.pcsEnLinea,
               style: estiloTexto(15, 700, color: c.calmaTinta),
             ),
           ],
@@ -673,19 +676,22 @@ class _SinPcs extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Aún no hay una PC vinculada',
+            context.l10n.pcsAunNoHayPc,
             textAlign: TextAlign.center,
             style: texto.titleLarge,
           ),
           const SizedBox(height: 16),
           if (titular)
             Boton(
-              'Agregar PC',
+              context.l10n.pcsAgregarPc,
               icono: Ico.plus,
               alPresionar: () => context.push(Rutas.vincular),
             )
           else
-            AvisoSoloLectura(titular: nombreTitular, accion: 'agregar una PC'),
+            AvisoSoloLectura(
+              titular: nombreTitular,
+              accion: context.l10n.pcsAccionAgregarPc,
+            ),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Localizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,7 +11,6 @@ import '../core/dispositivo/permiso_notificaciones.dart';
 import '../core/notificaciones/dispositivos_repositorio.dart';
 import '../core/notificaciones/mensaje_push.dart';
 import '../core/notificaciones/notificaciones_push.dart';
-import '../core/formato.dart';
 import '../core/reloj.dart';
 import '../core/sesion/sesion.dart';
 import '../core/sesion/sesion_controller.dart';
@@ -33,6 +33,7 @@ import '../features/pcs/data/pcs_repositorio.dart';
 import '../features/pcs/domain/pc.dart';
 import 'router.dart';
 import 'rutas.dart';
+import '../l10n/l10n.dart';
 
 /// Screen that a push opens (contract §7 `tipo`).
 String rutaDePush(MensajePush m) {
@@ -324,6 +325,7 @@ class GestorPush {
     _refrescar(m);
     final router = _ref.read(routerProvider);
     final habitacion = m.habitacion ?? '';
+    final l = _textos();
     switch (m.tipo) {
       case TipoPush.alertaCaida ||
           TipoPush.alertaMovimientoInestable ||
@@ -350,10 +352,10 @@ class GestorPush {
             .mostrar(
               AvisoFlotante(
                 tipo: TipoFlotante.enApp,
-                titulo: '$nombre sigue en el suelo',
-                texto:
-                    'Caída confirmada a las '
-                    '${hora(_ref.read(relojProvider)())}. La alerta sigue activa.',
+                titulo: l.pushSigueEnElSueloTitulo(nombre),
+                texto: l.pushCaidaConfirmadaTexto(
+                  l.formato.hora(_ref.read(relojProvider)()),
+                ),
                 alTocar: () => router.push(Rutas.alerta(id)),
               ),
             );
@@ -361,16 +363,21 @@ class GestorPush {
         // CA-21.1: the follow-up notice, also on the alert itself (screen 57).
         final id = m.alertaId;
         final nombre = _ref.read(nombreAdultoMayorProvider) ?? '';
+        final cuando = l.formato.hora(
+          m.ocurridaEn ?? _ref.read(relojProvider)(),
+        );
         _ref
             .read(avisoFlotanteProvider.notifier)
             .mostrar(
               AvisoFlotante(
                 tipo: TipoFlotante.enApp,
-                titulo: '$nombre se levantó',
-                texto:
-                    '${hora(m.ocurridaEn ?? _ref.read(relojProvider)())} · Se '
-                    'puso de pie${habitacion.isEmpty ? '' : ' ${enHabitacion(habitacion)}'}. '
-                    'Confirma cómo está.',
+                titulo: l.pushSeLevantoTitulo(nombre),
+                texto: habitacion.isEmpty
+                    ? l.pushSeLevantoTexto(cuando)
+                    : l.pushSeLevantoTextoEn(
+                        cuando,
+                        _enHabitacion(l, habitacion),
+                      ),
                 alTocar: id == null || _enPantalla(router, Rutas.alerta(id))
                     ? null
                     : () => router.push(Rutas.alerta(id)),
@@ -409,8 +416,8 @@ class GestorPush {
             .mostrar(
               AvisoFlotante(
                 tipo: TipoFlotante.enApp,
-                titulo: 'Listo. Ya no guardamos los movimientos de $nombre.',
-                texto: 'Los borramos de la nube.',
+                titulo: l.pushMovimientosBorradosTitulo(nombre),
+                texto: l.pushMovimientosBorradosTexto,
                 alTocar: () => router.push(Rutas.privacidad),
               ),
             );
@@ -469,17 +476,20 @@ class GestorPush {
     final habitaciones = [
       for (final c in ida?.camaras ?? const <Camara>[]) c.nombreHabitacion,
     ];
+    final l = _textos();
     _ref
         .read(avisoFlotanteProvider.notifier)
         .mostrar(
           AvisoFlotante(
             tipo: TipoFlotante.enApp,
             titulo: ida == null
-                ? 'Una PC se desvinculó de la casa'
-                : 'La PC ${ida.nombre} se desvinculó',
+                ? l.pushPcDesvinculadaTitulo
+                : l.pushPcDesvinculadaNombre(ida.nombre),
             texto: habitaciones.isEmpty
-                ? 'Sus cámaras ya no detectan caídas. Revisa Cámaras y PCs.'
-                : 'Ya no detecta caídas en ${enumerar(habitaciones)}.',
+                ? l.pushPcDesvinculadaSinCamaras
+                : l.pushPcDesvinculadaHabitaciones(
+                    l.formato.enumerar(habitaciones),
+                  ),
             alTocar: () => router.push(Rutas.pcs),
           ),
         );
@@ -510,20 +520,17 @@ class GestorPush {
     final yo = _ref.read(sesionControllerProvider)?.usuario.id;
     final espera = esperaGuardada ?? ConfiguracionAviso.esperaPredeterminada;
     final mia = conSecundario && secundario?.usuarioId == yo;
+    final l = _textos();
     final (titulo, texto) = mia
-        ? (
-            'Nadie atendió la alerta: te toca',
-            'Pasaron $espera min sin respuesta. Eres el contacto secundario.',
-          )
+        ? (l.pushEscaladaMiaTitulo, l.pushEscaladaMiaTexto(espera))
         : conSecundario
         ? (
-            'Alerta escalada a ${secundario?.nombre ?? 'tu contacto secundario'}',
-            'Nadie la marcó en $espera min. Tú todavía puedes atenderla.',
+            l.pushEscaladaTitulo(
+              secundario?.nombre ?? l.pushTuContactoSecundario,
+            ),
+            l.pushEscaladaTexto(espera),
           )
-        : (
-            'No hay contacto secundario',
-            'Pasaron $espera min sin respuesta. La alerta sigue siendo tuya.',
-          );
+        : (l.pushSinSecundarioTitulo, l.pushSinSecundarioTexto(espera));
     _ref
         .read(avisoFlotanteProvider.notifier)
         .mostrar(
@@ -541,17 +548,20 @@ class GestorPush {
       final a = await _ref.read(alertaProvider(id).future);
       final quien = (a.atendidaPor ?? '').split(' ').first;
       final cuando = a.atendidaEn ?? _ref.read(relojProvider)();
+      final l = _textos();
       _ref
           .read(avisoFlotanteProvider.notifier)
           .mostrar(
             AvisoFlotante(
               tipo: TipoFlotante.enApp,
               titulo: a.estado == EstadoAlerta.falsaAlarma
-                  ? '$quien la marcó como falsa alarma'
-                  : '$quien atendió la alerta',
-              texto:
-                  '${hora(cuando)} · ${a.tipo.nombre} '
-                  '${enHabitacion(a.habitacion)}.',
+                  ? l.pushFalsaAlarmaTitulo(quien)
+                  : l.pushAtendidaTitulo(quien),
+              texto: l.pushAtendidaTexto(
+                l.formato.hora(cuando),
+                a.tipo == TipoAlerta.caida ? 'caida' : 'inestable',
+                _enHabitacion(l, a.habitacion),
+              ),
               alTocar: () => router.push(Rutas.detalleAlerta(id)),
             ),
           );
@@ -559,6 +569,24 @@ class GestorPush {
       // The alert list and the strip are refreshed anyway.
     }
   }
+
+  /// The texts of the in-app notices: the app's language (the phone's), read from the screen on
+  /// top when there is one.
+  AppLocalizations _textos() {
+    final contexto = _ref
+        .read(routerProvider)
+        .routerDelegate
+        .navigatorKey
+        .currentContext;
+    return (contexto == null
+            ? null
+            : Localizations.of<AppLocalizations>(contexto, AppLocalizations)) ??
+        textosDelSistema();
+  }
+
+  /// «en la Sala», «in the Sala».
+  static String _enHabitacion(AppLocalizations l, String habitacion) =>
+      l.nucleoEnHabitacion(conArticulo(habitacion), habitacion);
 
   /// Whether [ruta] is the screen on top. The configuration's `uri` keeps the last `go` location
   /// and ignores the screens pushed on it, so the top match is compared instead.

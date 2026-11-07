@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/dispositivo/conectividad.dart';
-import '../core/formato.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/camaras/domain/camara.dart';
 import 'rutas.dart';
@@ -12,6 +11,7 @@ import '../core/ui/iconos.dart';
 import 'tema/colores.dart';
 import 'tema/paleta.dart';
 import 'tema/tema.dart';
+import '../l10n/l10n.dart';
 
 /// «Tu celular no tiene internet» (screen 27), above every tab.
 class BarraSinInternet extends ConsumerWidget {
@@ -46,7 +46,7 @@ class BarraSinInternet extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tu celular no tiene internet',
+                    context.l10n.nucleoSinInternetTitulo,
                     style: estiloTexto(
                       16,
                       700,
@@ -54,8 +54,7 @@ class BarraSinInternet extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    'Las alertas llegarán cuando vuelvas a conectarte. Si no '
-                    'atiendes una a tiempo, avisamos a tu contacto secundario.',
+                    context.l10n.nucleoSinInternetTexto,
                     style: estiloTexto(
                       15,
                       400,
@@ -82,11 +81,14 @@ class FranjaAlertaActiva extends ConsumerWidget {
     if (alerta == null) return const SizedBox.shrink();
     final caida = alerta.esCaida;
     final color = caida ? Colors.white : Colores.tinta;
-    final titulo = !caida
-        ? 'Movimiento inestable'
-        : alerta.sigueEnElSuelo
-        ? 'Caída confirmada'
-        : 'Posible caída';
+    final l = context.l10n;
+    final titulo = l.nucleoAlertaTitulo(
+      !caida
+          ? 'inestable'
+          : alerta.sigueEnElSuelo
+          ? 'confirmada'
+          : 'posible',
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 6),
       child: Material(
@@ -110,15 +112,15 @@ class FranjaAlertaActiva extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '$titulo ${enHabitacion(alerta.habitacion)}',
+                        '$titulo ${l.nucleoEnHabitacion(conArticulo(alerta.habitacion), alerta.habitacion)}',
                         style: estiloTexto(16, 700, color: color),
                       ),
                       Text.rich(
                         TextSpan(
                           children: [
-                            const TextSpan(text: 'Alerta activa desde las '),
+                            TextSpan(text: l.nucleoAlertaActivaDesde),
                             TextSpan(
-                              text: hora(alerta.ocurridaEn),
+                              text: l.formato.hora(alerta.ocurridaEn),
                               style: estiloMono(tamano: 15, color: color),
                             ),
                           ],

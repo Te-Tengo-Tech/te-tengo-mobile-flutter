@@ -13,6 +13,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../data/cuentas_repositorio.dart';
 import '../domain/validacion.dart';
 import 'pantalla_iniciar_sesion.dart';
@@ -42,7 +43,7 @@ class _PantallaRecuperarState extends ConsumerState<PantallaRecuperar> {
   Future<void> _enviar() async {
     final correo = _correo.text.trim();
     setState(() {
-      _error = validarCorreo(correo);
+      _error = validarCorreo(context.l10n, correo);
       _problema = null;
     });
     if (_error != null) return;
@@ -66,26 +67,31 @@ class _PantallaRecuperarState extends ConsumerState<PantallaRecuperar> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Recuperar contraseña')),
+      appBar: AppBar(title: Text(l.recuperarContrasena)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
-          Text('Te enviaremos un enlace.', style: texto.bodyMedium),
+          Text(l.recuperarTeEnviaremos, style: texto.bodyMedium),
           const SizedBox(height: 16),
           if (_problema != null) ...[
             MensajeProblema(_problema!),
             const SizedBox(height: 16),
           ],
           CampoTexto(
-            etiqueta: 'Correo electrónico',
+            etiqueta: l.sesionCampoCorreo,
             controlador: _correo,
             tipo: TipoCampo.correo,
             error: _error,
             autocompletar: const [AutofillHints.email],
             alEnviar: (_) => _enviar(),
           ),
-          Boton('Enviar enlace', cargando: _enviando, alPresionar: _enviar),
+          Boton(
+            l.recuperarEnviarEnlace,
+            cargando: _enviando,
+            alPresionar: _enviar,
+          ),
         ],
       ),
     );
@@ -148,8 +154,11 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
     final cuerpo = texto.bodyLarge!.copyWith(color: context.colores.tinta2);
     final espera =
         '${_restante ~/ 60}:${(_restante % 60).toString().padLeft(2, '0')}';
+    final l = context.l10n;
+    final siTiene = _alrededor(l.recuperarSiTieneCuenta);
+    final reenviarEn = _alrededor(l.recuperarReenviarEn);
     return Scaffold(
-      appBar: AppBar(title: const Text('Recuperar contraseña')),
+      appBar: AppBar(title: Text(l.recuperarContrasena)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
         children: [
@@ -165,13 +174,13 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
           const SizedBox(height: 20),
           Semantics(
             header: true,
-            child: Text('Revisa tu correo', style: texto.titleLarge),
+            child: Text(l.recuperarRevisaCorreo, style: texto.titleLarge),
           ),
           const SizedBox(height: 8),
           Text.rich(
             TextSpan(
               children: [
-                const TextSpan(text: 'Si '),
+                TextSpan(text: siTiene.$1),
                 TextSpan(
                   text: widget.correo,
                   style: cuerpo.copyWith(
@@ -179,19 +188,16 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const TextSpan(
-                  text:
-                      ' tiene cuenta, te llegará un enlace. Vence en 30 minutos.',
-                ),
+                TextSpan(text: siTiene.$2),
               ],
             ),
             style: cuerpo,
           ),
           const SizedBox(height: 12),
-          Text('Revisa también el spam.', style: texto.bodySmall),
+          Text(l.recuperarSpam, style: texto.bodySmall),
           const SizedBox(height: 24),
           Boton(
-            'Volver a iniciar sesión',
+            l.recuperarVolverIniciar,
             alPresionar: () => context.go(
               Uri(
                 path: Rutas.iniciarSesion,
@@ -210,8 +216,10 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
                   child: Text.rich(
                     TextSpan(
                       children: [
-                        const TextSpan(text: 'Reenviar enlace en '),
+                        TextSpan(text: reenviarEn.$1),
                         TextSpan(text: espera, style: estiloMono(tamano: 18)),
+                        if (reenviarEn.$2.isNotEmpty)
+                          TextSpan(text: reenviarEn.$2),
                       ],
                     ),
                     style: estiloTexto(18, 700, color: context.colores.tinta3),
@@ -221,7 +229,7 @@ class _PantallaEnlaceEnviadoState extends ConsumerState<PantallaEnlaceEnviado> {
             )
           else
             Boton(
-              'Reenviar enlace',
+              l.recuperarReenviar,
               estilo: EstiloBoton.fantasma,
               alPresionar: _reenviar,
             ),
@@ -264,10 +272,11 @@ class _PantallaNuevaContrasenaState
 
   Future<void> _guardar() async {
     final clave = _clave.text;
+    final l = context.l10n;
     setState(() {
-      _error = validarContrasenaNueva(clave, vacio: null);
+      _error = validarContrasenaNueva(l, clave, exigida: false);
       _errorRepetida = _error == null && clave != _repetida.text
-          ? 'Las contraseñas no coinciden.'
+          ? l.sesionErrorNoCoinciden
           : null;
       _problema = null;
     });
@@ -304,8 +313,10 @@ class _PantallaNuevaContrasenaState
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
+    final paraCuenta = _alrededor(l.recuperarParaCuenta);
     return Scaffold(
-      appBar: _barraCerrar(context, 'Nueva contraseña'),
+      appBar: _barraCerrar(context, l.sesionNuevaContrasena),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
@@ -313,12 +324,12 @@ class _PantallaNuevaContrasenaState
             Text.rich(
               TextSpan(
                 children: [
-                  const TextSpan(text: 'Para la cuenta '),
+                  TextSpan(text: paraCuenta.$1),
                   TextSpan(
                     text: widget.correo,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                  const TextSpan(text: '.'),
+                  TextSpan(text: paraCuenta.$2),
                 ],
               ),
               style: texto.bodyMedium,
@@ -330,15 +341,15 @@ class _PantallaNuevaContrasenaState
             const SizedBox(height: 16),
           ],
           CampoTexto(
-            etiqueta: 'Nueva contraseña',
+            etiqueta: l.sesionNuevaContrasena,
             controlador: _clave,
             tipo: TipoCampo.contrasena,
             error: _error,
-            ayuda: ayudaContrasena,
+            ayuda: l.sesionAyudaContrasena,
             autocompletar: const [AutofillHints.newPassword],
           ),
           CampoTexto(
-            etiqueta: 'Repite la contraseña',
+            etiqueta: l.recuperarRepite,
             controlador: _repetida,
             tipo: TipoCampo.contrasena,
             error: _errorRepetida,
@@ -346,7 +357,7 @@ class _PantallaNuevaContrasenaState
             alEnviar: (_) => _guardar(),
           ),
           Boton(
-            'Guardar contraseña',
+            l.sesionGuardarContrasena,
             cargando: _enviando,
             alPresionar: _guardar,
           ),
@@ -363,8 +374,9 @@ class PantallaEnlaceVencido extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
-      appBar: _barraCerrar(context, 'Nueva contraseña'),
+      appBar: _barraCerrar(context, l.sesionNuevaContrasena),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
         children: [
@@ -380,21 +392,21 @@ class PantallaEnlaceVencido extends StatelessWidget {
           const SizedBox(height: 20),
           Semantics(
             header: true,
-            child: Text('Este enlace ya venció', style: texto.titleLarge),
+            child: Text(l.recuperarVencido, style: texto.titleLarge),
           ),
           const SizedBox(height: 8),
           Text(
-            'Dura 30 minutos y sirve una sola vez.',
+            l.recuperarDura,
             style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
           ),
           const SizedBox(height: 24),
           Boton(
-            'Pedir un enlace nuevo',
+            l.recuperarPedirNuevo,
             alPresionar: () => context.go(Rutas.recuperar),
           ),
           const SizedBox(height: 8),
           Boton(
-            'Volver a iniciar sesión',
+            l.recuperarVolverIniciar,
             estilo: EstiloBoton.fantasma,
             alPresionar: () => context.go(Rutas.iniciarSesion),
           ),
@@ -404,10 +416,16 @@ class PantallaEnlaceVencido extends StatelessWidget {
   }
 }
 
+/// The text of [mensaje] before and after its one placeholder, which the screen styles apart.
+(String, String) _alrededor(String Function(String) mensaje) {
+  final partes = mensaje('\u0000').split('\u0000');
+  return (partes.first, partes.last);
+}
+
 AppBar _barraCerrar(BuildContext context, String titulo) => AppBar(
   automaticallyImplyLeading: false,
   leading: IconButton(
-    tooltip: 'Cerrar',
+    tooltip: context.l10n.recuperarCerrar,
     icon: Icono(Ico.x, color: context.colores.icono),
     onPressed: () => context.go(Rutas.iniciarSesion),
   ),

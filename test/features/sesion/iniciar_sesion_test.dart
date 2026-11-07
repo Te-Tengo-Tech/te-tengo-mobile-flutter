@@ -112,7 +112,7 @@ void main() {
       await abrir(tester);
       await entrar(tester, 'carmen.huaman@gmail.com', 'mala');
       expect(find.text('Bloqueado por 15 minutos'), findsOneWidget);
-      final horaDesbloqueo = hora(
+      final horaDesbloqueo = Formato.es.hora(
         DateTime.parse('2026-10-07T15:57:00Z').toLocal(),
       );
       expect(

@@ -13,6 +13,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/marca.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../sesion/domain/validacion.dart';
 import '../data/familia_repositorio.dart';
@@ -59,12 +60,13 @@ class _PantallaAceptarInvitacionState
   Future<void> _crear({required bool conCuenta}) async {
     final nombre = _nombre.text.trim();
     final clave = _clave.text;
+    final l = context.l10n;
     setState(() {
       _errores = conCuenta
           ? {}
           : {
-              if (nombre.isEmpty) 'nombre': 'Escribe tu nombre y apellido.',
-              'clave': ?validarContrasenaNueva(clave),
+              if (nombre.isEmpty) 'nombre': l.sesionErrorNombre,
+              'clave': ?validarContrasenaNueva(l, clave),
             };
       _problema = null;
     });
@@ -105,6 +107,7 @@ class _PantallaAceptarInvitacionState
     final titular = widget.titular;
     final adulto = widget.adultoMayor;
     final correo = widget.correo;
+    final l = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: AutofillGroup(
@@ -117,15 +120,15 @@ class _PantallaAceptarInvitacionState
                 header: true,
                 child: Text(
                   titular != null && adulto != null
-                      ? '$titular te invitó a cuidar a ${adulto.split(' ').first}'
-                      : 'Crear mi acceso',
+                      ? l.invitarTeInvito(titular, adulto.split(' ').first)
+                      : l.invitarCrearAcceso,
                   style: texto.headlineMedium,
                 ),
               ),
               if (adulto != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  'Crea tu acceso para recibir sus alertas.',
+                  l.invitarCreaTuAcceso,
                   style: texto.bodyLarge?.copyWith(
                     color: context.colores.tinta2,
                   ),
@@ -138,7 +141,7 @@ class _PantallaAceptarInvitacionState
               ],
               if (!conCuenta) ...[
                 CampoTexto(
-                  etiqueta: 'Tu nombre y apellido',
+                  etiqueta: l.sesionCampoNombre,
                   controlador: _nombre,
                   error: _errores['nombre'],
                   autocompletar: const [AutofillHints.name],
@@ -146,23 +149,23 @@ class _PantallaAceptarInvitacionState
                 ),
                 if (correo != null)
                   CampoTexto(
-                    etiqueta: 'Correo electrónico',
+                    etiqueta: l.sesionCampoCorreo,
                     controlador: _correo,
                     tipo: TipoCampo.correo,
                     habilitado: false,
                   ),
                 CampoTexto(
-                  etiqueta: 'Crea una contraseña',
+                  etiqueta: l.invitarCampoClave,
                   controlador: _clave,
                   tipo: TipoCampo.contrasena,
                   error: _errores['clave'],
-                  ayuda: ayudaContrasena,
+                  ayuda: l.sesionAyudaContrasena,
                   autocompletar: const [AutofillHints.newPassword],
                   alEnviar: (_) => _crear(conCuenta: false),
                 ),
               ],
               Boton(
-                'Crear mi acceso',
+                l.invitarCrearAcceso,
                 cargando: _enviando,
                 alPresionar: () => _crear(conCuenta: conCuenta),
               ),
@@ -184,6 +187,7 @@ class PantallaAccesoCreado extends ConsumerWidget {
     final yo = ref.watch(sesionControllerProvider)?.usuario.nombrePila ?? '';
     final adulto = ref.watch(nombreAdultoMayorProvider) ?? '';
     final titular = ref.watch(nombreTitularProvider) ?? '';
+    final l = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -207,25 +211,22 @@ class PantallaAccesoCreado extends ConsumerWidget {
                     Semantics(
                       header: true,
                       child: Text(
-                        'Listo, $yo. Ya recibes las alertas de $adulto.',
+                        l.invitarListo(yo, adulto),
                         style: texto.headlineMedium,
                       ),
                     ),
                     const SizedBox(height: 20),
                     ListaTarjeta(
                       children: [
-                        const FilaLista(
-                          inicio: IconoFila(Ico.check),
-                          titulo: 'Puedes',
-                          subtitulo:
-                              'Ver alertas, clips y la cámara en vivo; marcar '
-                              'alertas y pausar.',
+                        FilaLista(
+                          inicio: const IconoFila(Ico.check),
+                          titulo: l.invitarPuedes,
+                          subtitulo: l.invitarPuedesDetalle,
                         ),
                         FilaLista(
                           inicio: const IconoFila(Ico.lock),
-                          titulo: 'Solo $titular puede',
-                          subtitulo:
-                              'Cambiar datos, consentimiento, cámaras y familia.',
+                          titulo: l.invitarSoloPuede(titular),
+                          subtitulo: l.invitarSoloPuedeDetalle,
                         ),
                       ],
                     ),
@@ -234,7 +235,7 @@ class PantallaAccesoCreado extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               Boton(
-                'Ir al inicio',
+                l.invitarIrInicio,
                 alPresionar: () => context.go(Rutas.inicio),
               ),
             ],

@@ -1,0 +1,4890 @@
+{
+  "@@locale": "es",
+  "actividadTitulo": "Actividad",
+  "actividadHoy": "Hoy",
+  "actividadAyer": "Ayer",
+  "actividadUltimoCambioHoy": "Último cambio: hoy {hora}",
+  "@actividadUltimoCambioHoy": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadUltimoCambioAyer": "Último cambio: ayer {hora}",
+  "@actividadUltimoCambioAyer": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadUltimoCambioFecha": "Último cambio: el {fecha} {hora}",
+  "@actividadUltimoCambioFecha": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadSinActividad": "Aún no hay actividad",
+  "actividadAyudaRegistro": "Nadie puede borrar ni cambiar este registro.",
+  "actividadAyudaTema": "registro de actividad",
+  "@actividadAyudaTema": {
+    "description": "Topic of the «?» button: «Más información: registro de actividad»."
+  },
+  "actividadFiltrarPorPc": "Filtrar por PC",
+  "actividadTodas": "Todas",
+  "@actividadTodas": {
+    "description": "Chip: all PCs."
+  },
+  "actividadVacioTitulo": "Aún no hay actividad registrada",
+  "actividadVacioTexto": "Aquí verás cada cambio en PCs, cámaras y datos.",
+  "actividadReintentar": "Volver a intentarlo",
+  "actividadDatoQuien": "Quién",
+  "actividadDatoDesde": "Desde",
+  "actividadDatoMomento": "Momento",
+  "actividadDatoDuracion": "Duración",
+  "actividadDatoAntes": "Antes",
+  "actividadDatoDespues": "Después",
+  "actividadDatoFechaYHora": "Fecha y hora",
+  "actividadCerrar": "Cerrar",
+  "actividadCargando": "Cargando actividad",
+  "actividadFraseFamiliar": "{quien} {accion}",
+  "@actividadFraseFamiliar": {
+    "description": "A family member did [accion]: «Carmen vinculó la PC Cocina-Rosa».",
+    "placeholders": {
+      "quien": {
+        "type": "String"
+      },
+      "accion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadFraseDesdePc": "Desde la PC {pc}: {accion}",
+  "@actividadFraseDesdePc": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      },
+      "accion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadVinculoPc": "vinculó la PC {pc}",
+  "@actividadVinculoPc": {
+    "description": "Action in lower case; the system ones are capitalized.",
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadRenombroPc": "renombró la PC {antes} a {despues}",
+  "@actividadRenombroPc": {
+    "placeholders": {
+      "antes": {
+        "type": "String"
+      },
+      "despues": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadQuitoPc": "quitó la PC {pc}",
+  "@actividadQuitoPc": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPcRestablecida": "La PC {pc} se restableció",
+  "@actividadPcRestablecida": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPcDesinstalada": "La PC {pc} se desinstaló",
+  "@actividadPcDesinstalada": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPcSeDesvinculo": "se desvinculó esta PC",
+  "actividadPcVencida": "Se desvinculó la PC {pc}: no se conectó en 90 días",
+  "@actividadPcVencida": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPcPorSeguridad": "Se desvinculó la PC {pc} por seguridad",
+  "@actividadPcPorSeguridad": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadCamaraPasoA": "la cámara {camara} pasó a {habitacion}",
+  "@actividadCamaraPasoA": {
+    "placeholders": {
+      "camara": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadEligioCamara": "eligió la cámara {camara} para {conArticulo}",
+  "@actividadEligioCamara": {
+    "description": "[conArticulo] is the Spanish room with its article («el Dormitorio»); [habitacion] the bare room name.",
+    "placeholders": {
+      "camara": {
+        "type": "String"
+      },
+      "conArticulo": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPasoCamara": "pasó la cámara {camara} {deAntes} {aDespues}",
+  "@actividadPasoCamara": {
+    "description": "[deAntes] «de la Sala», [aDespues] «al Dormitorio» (Spanish forms); [antes] and [despues] the bare room names.",
+    "placeholders": {
+      "camara": {
+        "type": "String"
+      },
+      "deAntes": {
+        "type": "String"
+      },
+      "aDespues": {
+        "type": "String"
+      },
+      "antes": {
+        "type": "String"
+      },
+      "despues": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadSeDejoDeUsarCamara": "se dejó de usar la cámara {camara}",
+  "@actividadSeDejoDeUsarCamara": {
+    "placeholders": {
+      "camara": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadDejoDeUsarCamara": "dejó de usar la cámara {camara}",
+  "@actividadDejoDeUsarCamara": {
+    "placeholders": {
+      "camara": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadRenombroHabitacion": "cambió el nombre de la habitación {deAntes} a {despues}",
+  "@actividadRenombroHabitacion": {
+    "description": "[deAntes] «de la Sala» (Spanish form); [antes] the bare room name.",
+    "placeholders": {
+      "deAntes": {
+        "type": "String"
+      },
+      "despues": {
+        "type": "String"
+      },
+      "antes": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPausoCamara": "pausó la cámara {deHabitacion}",
+  "@actividadPausoCamara": {
+    "description": "[deHabitacion] «del Dormitorio» (Spanish form); [habitacion] the bare room name.",
+    "placeholders": {
+      "deHabitacion": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPausoCamaraHasta": "pausó la cámara {deHabitacion} hasta {hasta}",
+  "@actividadPausoCamaraHasta": {
+    "description": "[hasta] is actividadHastaHora or actividadHastaDia.",
+    "placeholders": {
+      "deHabitacion": {
+        "type": "String"
+      },
+      "hasta": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadHastaHora": "las {hora}",
+  "@actividadHastaHora": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadHastaDia": "el {dia} a las {hora}",
+  "@actividadHastaDia": {
+    "placeholders": {
+      "dia": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadTerminoPausa": "Terminó la pausa {deHabitacion}",
+  "@actividadTerminoPausa": {
+    "placeholders": {
+      "deHabitacion": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadReanudoCamara": "reanudó la cámara {deHabitacion}",
+  "@actividadReanudoCamara": {
+    "placeholders": {
+      "deHabitacion": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadCambioFoto": "cambió la foto de {nombre}",
+  "@actividadCambioFoto": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadQuitoFoto": "quitó la foto de {nombre}",
+  "@actividadQuitoFoto": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadRegistroConsentimiento": "registró el consentimiento de monitoreo",
+  "actividadRevocoConsentimiento": "revocó el consentimiento de monitoreo",
+  "actividadRegistroPermisoMovimientos": "registró el permiso de {nombre} para guardar movimientos",
+  "@actividadRegistroPermisoMovimientos": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadMovimientosRevocados": "Se dejaron de guardar los movimientos de {nombre} al revocar el consentimiento",
+  "@actividadMovimientosRevocados": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadDejoDeGuardarMovimientos": "dejó de guardar los movimientos de {nombre}",
+  "@actividadDejoDeGuardarMovimientos": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadCambioRetencion": "cambió los movimientos en la nube de {de} a {a}",
+  "@actividadCambioRetencion": {
+    "placeholders": {
+      "de": {
+        "type": "String"
+      },
+      "a": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadNoGuardar": "No guardar",
+  "actividadModoAvanzadoActivado": "se activó el modo avanzado",
+  "actividadModoAvanzadoDesactivado": "se desactivó el modo avanzado",
+  "actividadGuardadoEnPc": "el guardado en la PC",
+  "actividadGuardadoCambio": "{que} pasó de {antes} a {despues}",
+  "@actividadGuardadoCambio": {
+    "placeholders": {
+      "que": {
+        "type": "String"
+      },
+      "antes": {
+        "type": "String"
+      },
+      "despues": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadNo": "No",
+  "actividadBorroDatos": "se borraron los datos guardados en la PC",
+  "actividadVioQuePaso": "se vio qué pasó",
+  "actividadVioQuePasoEn": "se vio qué pasó {enHabitacion}",
+  "@actividadVioQuePasoEn": {
+    "description": "[enHabitacion] «en la Sala» (Spanish form); [habitacion] the bare room name.",
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadConDetalle": "{frase} ({detalle})",
+  "@actividadConDetalle": {
+    "placeholders": {
+      "frase": {
+        "type": "String"
+      },
+      "detalle": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadMomento": "{dia} {desde}–{hasta}",
+  "@actividadMomento": {
+    "description": "«23/09 10:36–10:46».",
+    "placeholders": {
+      "dia": {
+        "type": "String"
+      },
+      "desde": {
+        "type": "String"
+      },
+      "hasta": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadDiaMes": "{dd}/{mm}",
+  "@actividadDiaMes": {
+    "description": "Day and month as two digits each.",
+    "placeholders": {
+      "dd": {
+        "type": "String"
+      },
+      "mm": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPcActualizada": "{pc} se actualizó a {version}",
+  "@actividadPcActualizada": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadActualizacionAutomaticaActivada": "se activó la actualización automática",
+  "actividadActualizacionAutomaticaDesactivada": "se desactivó la actualización automática",
+  "actividadCambioFamiliar": "hizo un cambio en la configuración",
+  "actividadCambioPc": "hubo un cambio en la configuración",
+  "actividadCambioSistema": "Hubo un cambio en la configuración",
+  "actividadVinculada": "Vinculada",
+  "actividadDesvinculada": "Desvinculada",
+  "actividadSinUsar": "Sin usar",
+  "actividadEnLinea": "En línea",
+  "actividadEnPausa": "En pausa",
+  "actividadEnPausaHasta": "En pausa hasta {hasta}",
+  "@actividadEnPausaHasta": {
+    "placeholders": {
+      "hasta": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadNoAutorizado": "No autorizado",
+  "actividadVigente": "Vigente",
+  "actividadRevocado": "Revocado",
+  "actividadDesactivado": "Desactivado",
+  "actividadActivado": "Activado",
+  "actividadAlguienEnPc": "Alguien en la PC",
+  "actividadCelularDe": "Celular de {nombre}",
+  "@actividadCelularDe": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadPc": "PC {pc}",
+  "@actividadPc": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "actividadAutomatico": "Automático",
+  "ajustesTitulo": "Ajustes",
+  "ajustesEdad": "{edad} años",
+  "@ajustesEdad": {
+    "placeholders": {
+      "edad": {
+        "type": "int"
+      }
+    }
+  },
+  "ajustesViveSolo": "Vive solo(a)",
+  "ajustesViveContigo": "Vive contigo",
+  "ajustesViveConCuidador": "Vive con otro cuidador",
+  "ajustesInvitadoTitulo": "Eres familiar invitado",
+  "ajustesInvitadoTexto": "Lo que tiene candado solo lo cambia {titular}.",
+  "@ajustesInvitadoTexto": {
+    "placeholders": {
+      "titular": {
+        "type": "String"
+      }
+    }
+  },
+  "ajustesPersonaCuidada": "Persona cuidada",
+  "ajustesMonitoreo": "Monitoreo",
+  "ajustesCamarasYPcs": "Cámaras y PCs",
+  "ajustesOrdenAviso": "Orden de aviso y espera",
+  "ajustesOrdenSinSecundario": "{principal} · sin secundario · {espera} min",
+  "@ajustesOrdenSinSecundario": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      },
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "ajustesOrdenConSecundario": "{principal} → {secundario} · {espera} min",
+  "@ajustesOrdenConSecundario": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      },
+      "secundario": {
+        "type": "String"
+      },
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "ajustesPrivacidad": "Privacidad y consentimiento",
+  "ajustesConsentimientoVigente": "Vigente · {fecha}",
+  "@ajustesConsentimientoVigente": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "ajustesSinConsentimiento": "Sin consentimiento",
+  "ajustesActividad": "Actividad",
+  "ajustesEsteCelular": "Este celular",
+  "ajustesNotificaciones": "Notificaciones",
+  "ajustesActivadas": "Activadas",
+  "@ajustesActivadas": {
+    "description": "Notifications are on."
+  },
+  "ajustesDesactivadas": "Desactivadas",
+  "@ajustesDesactivadas": {
+    "description": "Notifications are off."
+  },
+  "ajustesPreferencias": "Preferencias",
+  "ajustesAgregarWidget": "Agregar el widget",
+  "ajustesWidgetResumen": "{nombre} y «Ver en vivo» en tu pantalla de inicio",
+  "@ajustesWidgetResumen": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "ajustesCuenta": "Cuenta",
+  "ajustesTuCuentaTitular": "Tu cuenta · Titular",
+  "ajustesTuCuentaInvitado": "Tu cuenta · Familiar invitado",
+  "ajustesCerrarSesion": "Cerrar sesión",
+  "ajustesCamaras": "{n, plural, =1{1 cámara} other{{n} cámaras}}",
+  "@ajustesCamaras": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ajustesPcs": "{n, plural, =1{1 PC} other{{n} PCs}}",
+  "@ajustesPcs": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ajustesSinPc": "Aún no hay una PC vinculada",
+  "ajustesPcSinConexion": "{pc} sin conexión",
+  "@ajustesPcSinConexion": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "preferenciasTitulo": "Preferencias",
+  "preferenciasTemaAutomatico": "Automático",
+  "preferenciasTemaClaro": "Claro",
+  "preferenciasTemaOscuro": "Oscuro",
+  "preferenciasLetraEstandar": "Estándar",
+  "preferenciasLetraGrande": "Grande",
+  "preferenciasResumenTemaAutomatico": "Tema automático",
+  "preferenciasResumenTemaClaro": "Tema claro",
+  "preferenciasResumenTemaOscuro": "Tema oscuro",
+  "preferenciasResumenLetraEstandar": "letra estándar",
+  "preferenciasResumenLetraGrande": "letra grande",
+  "preferenciasResumenContraste": "más contraste",
+  "preferenciasTema": "Tema",
+  "preferenciasIgualQueCelular": "Igual que tu celular",
+  "preferenciasTamanoLetra": "Tamaño de letra",
+  "preferenciasContraste": "Contraste",
+  "preferenciasAumentarContraste": "Aumentar el contraste",
+  "preferenciasContrasteTexto": "Texto y bordes más marcados",
+  "preferenciasAlertasConservanColor": "Las alertas conservan su color.",
+  "notificacionesTitulo": "Notificaciones",
+  "notificacionesDesactivadasTitulo": "Desactivadas en tu celular",
+  "notificacionesDesactivadasTexto": "Con la app cerrada no te enterarás de una caída.",
+  "notificacionesActivar": "Activar notificaciones",
+  "notificacionesFamiliaSinAlertas": "Nadie de la familia recibe las alertas",
+  "notificacionesCelularSinAlertas": "Este celular no recibe las alertas",
+  "notificacionesSinAlertasTexto": "Sin ellas no sabrás de una caída con la app cerrada.",
+  "notificacionesActivadas": "Notificaciones activadas",
+  "notificacionesAvisosEnCelular": "Avisos en este celular",
+  "notificacionesCaidas": "Caídas",
+  "notificacionesSiempreActivas": "Siempre activas",
+  "notificacionesSonarSubtitulo": "Aunque el celular esté en silencio",
+  "notificacionesInestables": "Movimientos inestables",
+  "notificacionesSeveridadMedia": "Severidad media",
+  "notificacionesEstadoCamara": "Estado de la cámara",
+  "notificacionesEstadoCamaraTexto": "Desconexión o detección no confiable · siempre activas",
+  "notificacionesFinPausa": "Fin de una pausa",
+  "notificacionesFinPausaTexto": "Cuando la cámara se reactiva sola",
+  "notificacionesSiNadieAtiende": "Si nadie atiende",
+  "notificacionesAvisarSecundario": "Avisar al secundario a los {espera} min",
+  "@notificacionesAvisarSecundario": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "notificacionesActivadasPermiso": "Activadas",
+  "@notificacionesActivadasPermiso": {
+    "description": "«✓ Activadas»: the notification permission is granted."
+  },
+  "notificacionesSonarEnSilencio": "Sonar en silencio",
+  "notificacionesPermitir": "Permitir",
+  "acercaDeComoPwa": "Se actualiza con internet. Te avisamos para recargarla.",
+  "acercaDeComoApk": "Te avisamos cuando hay una versión nueva. Android te pide confirmar.",
+  "acercaDeComoPlay": "Google Play la actualiza sola.",
+  "acercaDeComoIos": "Se actualiza desde App Store o TestFlight.",
+  "acercaDeTitulo": "Acerca de",
+  "acercaDeFila": "Acerca de Te Tengo",
+  "acercaDeVersion": "Versión {version}",
+  "@acercaDeVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "acercaDeHayUnaNueva": "hay una nueva",
+  "acercaDeActualizaciones": "Actualizaciones",
+  "acercaDeActualizacionesTema": "actualizaciones",
+  "@acercaDeActualizacionesTema": {
+    "description": "Topic of the «?» button."
+  },
+  "acercaDePcsDeLaCasa": "PCs de la casa",
+  "acercaDePcsAyuda": "Cada PC actualiza Te Tengo Captura por su cuenta.",
+  "acercaDePcsTema": "las PCs",
+  "@acercaDePcsTema": {
+    "description": "Topic of the «?» button."
+  },
+  "acercaDePcsAnteriores": "{n, plural, =1{1 PC con versión anterior} other{{n} PCs con versión anterior}}",
+  "@acercaDePcsAnteriores": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "acercaDeTodasAlDia": "Todas al día · Te Tengo Captura {version}",
+  "@acercaDeTodasAlDia": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "acercaDeCaptura": "Captura {version}",
+  "@acercaDeCaptura": {
+    "description": "Te Tengo Captura (the PC program, a brand) and its version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "acercaDeAlDia": "al día",
+  "actualizacionVersionAnterior": "versión anterior",
+  "actualizacionBuscando": "Buscando actualizaciones…",
+  "actualizacionSinInternet": "Sin internet",
+  "actualizacionNoPudimosBuscar": "No pudimos buscar.",
+  "actualizacionUltimaVersion": "Tienes la última versión",
+  "actualizacionRevisadoAntes": "Revisado hoy a las ",
+  "@actualizacionRevisadoAntes": {
+    "description": "Text before the time of «Revisado hoy a las 10:42.»."
+  },
+  "actualizacionRevisadoDespues": ".",
+  "@actualizacionRevisadoDespues": {
+    "description": "Text after the time of «Revisado hoy a las 10:42.»."
+  },
+  "actualizacionBuscar": "Buscar actualizaciones",
+  "actualizacionQueCambio": "Qué cambió",
+  "actualizacionQueCambioEn": "Qué cambió en la {version}",
+  "@actualizacionQueCambioEn": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionAlCerrarAlerta": "Al cerrar la alerta.",
+  "actualizacionAhoraNo": "Ahora no",
+  "actualizacionDescarga": "Descarga",
+  "actualizacionPorcentaje": "{p} %",
+  "@actualizacionPorcentaje": {
+    "placeholders": {
+      "p": {
+        "type": "int"
+      }
+    }
+  },
+  "actualizacionTamanoMb": "{mb} MB",
+  "@actualizacionTamanoMb": {
+    "description": "[mb] already has the decimal separator of the language.",
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionSeparadorDecimal": ",",
+  "@actualizacionSeparadorDecimal": {
+    "description": "Decimal separator of the download size («8,4 MB»)."
+  },
+  "actualizacionDescargaTema": "la descarga",
+  "@actualizacionDescargaTema": {
+    "description": "Topic of the «?» button."
+  },
+  "actualizacionAbrirTienda": "Abrir {tienda}",
+  "@actualizacionAbrirTienda": {
+    "placeholders": {
+      "tienda": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionAbrir": "Abrir",
+  "actualizacionActualizar": "Actualizar",
+  "actualizacionDescargando": "Descargando {version}",
+  "@actualizacionDescargando": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionCancelar": "Cancelar",
+  "actualizacionComprobando": "Comprobando la descarga…",
+  "actualizacionReintentar": "Reintentar",
+  "actualizacionNoSePudoDescargarPunto": "No se pudo descargar.",
+  "actualizacionNoSePudoDescargar": "No se pudo descargar",
+  "actualizacionSigues": "Sigues con la {version}.",
+  "@actualizacionSigues": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionNoSePudoVerificar": "No se pudo verificar la descarga",
+  "actualizacionLaBorramos": "La borramos. Sigues con la {version}.",
+  "@actualizacionLaBorramos": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionNoCoincide": "No coincide con la versión publicada. Para cuidar tu celular, no se instala.",
+  "actualizacionNoSeInstalo": "No se instaló",
+  "actualizacionCancelaste": "Cancelaste la instalación.",
+  "actualizacionFaltaPermiso": "Falta el permiso de Android",
+  "actualizacionSinPermiso": "Sin él no se instala.",
+  "actualizacionHayNuevaVersion": "Hay una versión nueva ({version})",
+  "@actualizacionHayNuevaVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionHayNueva": "Hay una versión nueva",
+  "actualizacionAplicacionWeb": "Aplicación web",
+  "actualizacionSeActualizo": "Te Tengo se actualizó",
+  "actualizacionVersionPunto": "Versión {version}.",
+  "@actualizacionVersionPunto": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionObligatoriaTitulo": "Actualiza Te Tengo para seguir recibiendo alertas",
+  "actualizacionObligatoriaTienes": "Tienes la {version}. Toma un minuto.",
+  "@actualizacionObligatoriaTienes": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionObligatoriaAyuda": "Esta versión ya no recibe las alertas de forma segura. Quienes ya actualizaron las siguen recibiendo.",
+  "actualizacionObligatoriaTema": "por qué actualizar",
+  "@actualizacionObligatoriaTema": {
+    "description": "Topic of the «?» button."
+  },
+  "actualizacionAbrirLaTienda": "Abrir la tienda",
+  "actualizacionLlamarA": "Llamar a {nombre}",
+  "@actualizacionLlamarA": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionSeAbre": "Se abre {tienda}.",
+  "@actualizacionSeAbre": {
+    "placeholders": {
+      "tienda": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionActualizando": "Actualizando…",
+  "actualizacionCerrar": "Cerrar",
+  "actualizacionInstalarTitulo": "Instalar la actualización",
+  "actualizacionPermitirFuente": "Permitir de esta fuente",
+  "@actualizacionPermitirFuente": {
+    "description": "Android's own setting label."
+  },
+  "actualizacionPermiteInstalar": "Permite instalar la actualización",
+  "actualizacionUnaSolaVez": "Android lo pide una sola vez.",
+  "actualizacionPermisoAyuda": "Te Tengo no viene de una tienda, así que Android pide permiso para instalar sus versiones nuevas. Solo acepta las firmadas por Te Tengo.",
+  "actualizacionPermisoTema": "el permiso de Android",
+  "@actualizacionPermisoTema": {
+    "description": "Topic of the «?» button."
+  },
+  "actualizacionPasoAbrirAjustes": "Toca «Abrir ajustes».",
+  "actualizacionPasoActivar": "Activa «Permitir de esta fuente».",
+  "actualizacionPasoVolver": "Vuelve a Te Tengo.",
+  "actualizacionAbrirAjustes": "Abrir ajustes",
+  "actualizacionVersionAnteriorPc": "Versión anterior ({version})",
+  "@actualizacionVersionAnteriorPc": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "actualizacionSeActualizaraSola": "Se actualizará sola.",
+  "actualizacionPideActualizar": "Pide a quien está en la casa que la actualice. ",
+  "actualizacionPcAyuda": "En la PC aparece «Hay una versión nueva»: que elijan «Descargar». Se instala sola y la detección sigue.",
+  "@actualizacionPcAyuda": {
+    "description": "The quoted labels are those of the PC program (Te Tengo Captura), which is in Spanish."
+  },
+  "actualizacionPcTema": "cómo actualizar la PC",
+  "@actualizacionPcTema": {
+    "description": "Topic of the «?» button."
+  },
+  "alertaTipoCaida": "Caída",
+  "@alertaTipoCaida": {
+    "description": "Kind of alert (also the severity tag)."
+  },
+  "alertaTipoInestable": "Movimiento inestable",
+  "alertaTipoEnHabitacion": "{tipo} en {sala}",
+  "@alertaTipoEnHabitacion": {
+    "description": "«Caída en la Sala». sala: the room with its Spanish article; habitacion: the room name as entered.",
+    "placeholders": {
+      "tipo": {
+        "type": "String"
+      },
+      "sala": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaEtiquetaInestable": "Inestable",
+  "@alertaEtiquetaInestable": {
+    "description": "Short severity tag."
+  },
+  "alertaSelloAtendida": "Atendida",
+  "@alertaSelloAtendida": {
+    "description": "State stamp (shown uppercase)."
+  },
+  "alertaSelloFalsaAlarma": "Falsa alarma",
+  "alertaSelloActiva": "Activa",
+  "alertaCerrarTooltip": "Cerrar la alerta y volver al inicio",
+  "alertaNoContesta": "¿{nombre} no contesta?",
+  "@alertaNoContesta": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaLlamarSamu": "Llamar al SAMU · 106",
+  "@alertaLlamarSamu": {
+    "description": "SAMU · 106 is Peru's emergency service."
+  },
+  "alertaClipTitulo": "Clip del evento",
+  "alertaClipResumen": "12 s, antes y después",
+  "alertaClipNoGuardado": "No se pudo guardar",
+  "alertaMasDetalles": "Más detalles",
+  "alertaMasDetallesResumen": "Dirección, teléfono, aviso y registro",
+  "alertaMarcar": "Marcar alerta",
+  "alertaPorqueInestable": "No es una caída. Si termina en una, te avisamos.",
+  "alertaPorqueSeLevanto": "Se puso de pie. Confirma cómo está antes de marcarla.",
+  "alertaPorqueConfirmada": "Lleva más de 30 s en el suelo. Si se levanta, te avisamos.",
+  "alertaPorqueComprobando": "Si sigue en el suelo 30 s, confirmamos la caída. Si se levanta, te avisamos.",
+  "alertaDireccion": "Dirección",
+  "alertaTelefono": "Teléfono",
+  "alertaBomberos": "Bomberos",
+  "alertaEmpezoInestableTitulo": "Empezó como movimiento inestable",
+  "alertaEmpezoInestableTexto": "A las {hora} en {sala}. Terminó en caída.",
+  "@alertaEmpezoInestableTexto": {
+    "description": "hora: formatted time (shown in mono).",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      },
+      "sala": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaTeTocaTitulo": "Te toca atenderla",
+  "alertaTeTocaTexto": "Nadie la marcó en {espera} min ({hora}).",
+  "@alertaTeTocaTexto": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaAvisamosA": "Avisamos a {nombre}",
+  "@alertaAvisamosA": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaAvisamosTexto": "A las {hora}. Tú aún puedes atenderla.",
+  "@alertaAvisamosTexto": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaNoHayAQuienTitulo": "No hay a quién escalar",
+  "alertaSinRespuestaTuya": "{espera} min sin respuesta. Sigue siendo tuya.",
+  "@alertaSinRespuestaTuya": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "alertaSinRespuestaDe": "{espera} min sin respuesta. Sigue siendo de {nombre}.",
+  "@alertaSinRespuestaDe": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      },
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaAgregarSecundario": "Agregar contacto secundario",
+  "alertaSinSecundarioTitulo": "Sin contacto secundario",
+  "alertaSinSecundarioTexto": "Si nadie la atiende, no hay a quién más avisar.",
+  "alertaAgregarContacto": "Agregar contacto",
+  "alertaLimiteSoySecundario": "{principal} es la principal. Si nadie la marca antes de las {hora}, te avisamos.",
+  "@alertaLimiteSoySecundario": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaLimiteSecundario": "Si nadie la marca antes de las {hora}, avisamos a {secundario} (secundario).",
+  "@alertaLimiteSecundario": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      },
+      "secundario": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaEtiquetaCaidaUrgente": "Caída · Urgente",
+  "@alertaEtiquetaCaidaUrgente": {
+    "description": "Severity tag, shown uppercase."
+  },
+  "alertaEtiquetaInestableMedia": "Inestable · Severidad media",
+  "alertaNoTeLlego": "No te llegó como notificación",
+  "alertaFalloEnvio": "Falló el envío; seguimos reintentando.",
+  "alertaTituloInestable": "{nombre} tuvo un movimiento inestable",
+  "@alertaTituloInestable": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaTituloEnElSuelo": "{nombre} se cayó y sigue en el suelo",
+  "@alertaTituloEnElSuelo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaTituloPudoCaerse": "{nombre} pudo haberse caído",
+  "@alertaTituloPudoCaerse": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaHaceAhora": "ahora",
+  "@alertaHaceAhora": {
+    "description": "Elapsed time under «Hace» when under a minute."
+  },
+  "alertaHaceMinutos": "{minutos} min",
+  "@alertaHaceMinutos": {
+    "placeholders": {
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "alertaLlamarA": "Llamar a {nombre}",
+  "@alertaLlamarA": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaVerEnVivo": "Ver en vivo",
+  "alertaSigueEnSueloConfirmada": "Sigue en el suelo · confirmada",
+  "alertaComprobando": "Comprobando si sigue en el suelo",
+  "alertaSeLevantoALas": "Se levantó a las {hora}",
+  "@alertaSeLevantoALas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaDatoHabitacion": "Habitación",
+  "alertaDatoHora": "Hora",
+  "alertaDatoHace": "Hace",
+  "@alertaDatoHace": {
+    "description": "Header of the elapsed time."
+  },
+  "alertaAvisadoPrincipal": "{nombre} (principal)",
+  "@alertaAvisadoPrincipal": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaLineaLaFamilia": "la familia",
+  "alertaLineaReintentando": "No se pudo entregar; reintentando",
+  "alertaLineaNoEntregada": "No se pudo entregar",
+  "alertaLineaAviso": "Aviso a {avisados} · {segundos} s",
+  "@alertaLineaAviso": {
+    "placeholders": {
+      "avisados": {
+        "type": "String"
+      },
+      "segundos": {
+        "type": "int"
+      }
+    }
+  },
+  "alertaLineaConfirmada": "Sigue en el suelo: confirmada",
+  "alertaLineaSeLevanto": "{nombre} se levantó",
+  "@alertaLineaSeLevanto": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaLineaEscaladaA": "Sin respuesta en {espera} min: aviso a {nombre} (secundario)",
+  "@alertaLineaEscaladaA": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      },
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaLineaSinSecundario": "Sin respuesta en {espera} min y sin secundario",
+  "@alertaLineaSinSecundario": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "alertaLineaAtendidaPor": "Atendida por {nombre}",
+  "@alertaLineaAtendidaPor": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaLineaAntesDeEscalar": "Atendida antes de {espera} min: sin escalar",
+  "@alertaLineaAntesDeEscalar": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "alertaLineaFalsaAlarma": "Falsa alarma, marcada por {nombre}",
+  "@alertaLineaFalsaAlarma": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaMarcadaFalsa": "Marcada como falsa alarma",
+  "alertaAtendidaToast": "Alerta atendida",
+  "alertaToastFamiliaVera": "La familia verá que la marcaste a las {hora}.",
+  "@alertaToastFamiliaVera": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaMarcarPregunta": "¿Cómo terminó esta alerta?",
+  "alertaMarcarResumen": "{tipo} en {sala} a las {hora}.",
+  "@alertaMarcarResumen": {
+    "placeholders": {
+      "tipo": {
+        "type": "String"
+      },
+      "sala": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaOpcionAtendida": "Atendida",
+  "alertaOpcionAtendidaDetalle": "{nombre} recibió ayuda o está bien",
+  "@alertaOpcionAtendidaDetalle": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaOpcionFalsa": "Falsa alarma",
+  "alertaOpcionFalsaCaida": "No hubo caída.",
+  "alertaOpcionFalsaInestable": "No hubo movimiento inestable.",
+  "alertaEligeOpcion": "Elige una opción.",
+  "alertaQuedaraRegistrado": "Quedará registrado: {quien} · {hora}",
+  "@alertaQuedaraRegistrado": {
+    "placeholders": {
+      "quien": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaGuardar": "Guardar",
+  "alertaDetalleTitulo": "Alerta",
+  "alertaDetalleTituloFecha": "Alerta del {fecha}",
+  "@alertaDetalleTituloFecha": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaGrabacion": "Grabación",
+  "alertaVerQuePaso": "Ver qué pasó",
+  "alertaVerQuePasoSinVideo": "En la cámara, sin video",
+  "alertaVerQuePasoRequiere": "Requiere guardar movimientos",
+  "alertaRegistroEvento": "Registro del evento",
+  "alertaMomentos": "{n} momentos",
+  "@alertaMomentos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "alertaTerminoEnCaida": "¿Terminó en caída y no avisamos?",
+  "alertaMarcadaAtendida": "Marcada como atendida",
+  "alertaMarcadaPor": "por {nombre} a las {hora}",
+  "@alertaMarcadaPor": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaGrabacionDescargada": "Grabación descargada",
+  "alertaGrabacionEnArchivos": "{archivo} en Archivos",
+  "@alertaGrabacionEnArchivos": {
+    "placeholders": {
+      "archivo": {
+        "type": "String"
+      }
+    }
+  },
+  "alertaDescargarGrabacion": "Descargar grabación",
+  "alertaDescargaDetalle": "MP4 · 12 s · hasta el {fecha}",
+  "@alertaDescargaDetalle": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "clipBorradoTitulo": "La grabación ya no está disponible",
+  "clipBorradoDetalle": "Se borró el {fecha} (se guardan 30 días).",
+  "@clipBorradoDetalle": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "clipNoDisponible": "Clip no disponible",
+  "clipSigueValida": "La alerta sigue siendo válida.",
+  "clipPantallaCompleta": "Ver el clip en pantalla completa",
+  "clipAyuda": "El clip dura 12 s: 6 s antes y 6 s después de la alerta.",
+  "clipAyudaTema": "el clip",
+  "@clipAyudaTema": {
+    "description": "Topic of the «?» help button: «Más información: el clip»."
+  },
+  "clipSalirPantallaCompleta": "Salir de pantalla completa",
+  "clipPuntosSinPermiso": "falta el permiso de {nombre} para guardar movimientos",
+  "@clipPuntosSinPermiso": {
+    "description": "Reason after «No disponibles:».",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "clipPuntosNoLosTiene": "este clip no los tiene",
+  "clipPuntosNoCargaron": "no se pudieron cargar",
+  "clipPuntosTitulo": "Puntos del cuerpo",
+  "clipPuntosNoDisponibles": "No disponibles: {motivo}.",
+  "@clipPuntosNoDisponibles": {
+    "placeholders": {
+      "motivo": {
+        "type": "String"
+      }
+    }
+  },
+  "clipPausar": "Pausar clip",
+  "clipVolverAVer": "Volver a ver el clip",
+  "clipReproducir": "Reproducir clip",
+  "clipRetroceder": "Retroceder 5 segundos",
+  "clipAdelantar": "Adelantar 5 segundos",
+  "clipVelocidad": "Velocidad {velocidad}. Cambiar la velocidad",
+  "@clipVelocidad": {
+    "placeholders": {
+      "velocidad": {
+        "type": "String"
+      }
+    }
+  },
+  "clipAvance": "Avance del clip",
+  "clipMomentoEvento": "Momento del evento",
+  "repeticionEventoCaida": "Caída",
+  "repeticionEventoInestable": "Inestable",
+  "repeticionEventoLevanto": "Se levantó",
+  "repeticionSinDatos": "Sin datos",
+  "repeticionFaseLevanto": "Se levantó",
+  "repeticionFaseInestable": "Movimiento inestable",
+  "repeticionFasePosibleCaida": "Posible caída",
+  "repeticionFaseEnSuelo": "En el suelo",
+  "repeticionNoMasEventosDia": "No hay más eventos este día",
+  "repeticionNoMasEventos": "No hay más eventos",
+  "repeticionNoEventosAntes": "No hay eventos antes",
+  "repeticionHoy": "Hoy",
+  "repeticionAyer": "Ayer",
+  "repeticionVerEnVivo": "Ver {habitacion} en vivo",
+  "@repeticionVerEnVivo": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "repeticionEnVivo": "En vivo",
+  "repeticionCargando": "Cargando…",
+  "repeticionSinInternet": "Sin internet",
+  "repeticionPermisoRetirado": "{nombre} retiró el permiso. Se borraron sus movimientos.",
+  "@repeticionPermisoRetirado": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "repeticionSinPersona": "Sin persona en la imagen",
+  "repeticionIrAEvento": "{hora}, {evento}. Ir a este momento",
+  "@repeticionIrAEvento": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      },
+      "evento": {
+        "type": "String"
+      }
+    }
+  },
+  "repeticionMomento": "Momento de la repetición",
+  "repeticionEventoAnterior": "Evento anterior",
+  "repeticionRetroceder": "Retroceder 10 segundos",
+  "repeticionPausar": "Pausar",
+  "repeticionReproducir": "Reproducir",
+  "repeticionEventoSiguiente": "Evento siguiente",
+  "repeticionAdelantar": "Adelantar 10 segundos",
+  "repeticionElegirDia": "Elegir día",
+  "repeticionHayMovimientosDesde": "Hay movimientos desde el {fecha}.",
+  "@repeticionHayMovimientosDesde": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "repeticionConEventos": "Con eventos",
+  "repeticionDiaSinMovimientos": "{fecha}, sin movimientos",
+  "@repeticionDiaSinMovimientos": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "repeticionDiaConEventos": "{fecha}, con eventos",
+  "@repeticionDiaConEventos": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "reportesEnlace": "¿Hubo una caída y no avisó?",
+  "reportesNoSe": "No sé",
+  "@reportesNoSe": {
+    "description": "Room chip when the room is unknown."
+  },
+  "reportesHoraFormato": "Escribe la hora así: 07:30.",
+  "@reportesHoraFormato": {
+    "description": "The field takes a 24-hour HH:MM time."
+  },
+  "reportesHoraFutura": "Elige una hora que ya pasó.",
+  "reportesFecha": "Fecha",
+  "reportesHoy": "Hoy",
+  "reportesAyer": "Ayer",
+  "reportesHoraAproximada": "Hora aproximada",
+  "reportesTitulo": "Contarnos qué pasó",
+  "reportesSamuConNombre": "Si {nombre} necesita ayuda ahora, llama al SAMU · 106",
+  "@reportesSamuConNombre": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "reportesSamu": "Si necesita ayuda ahora, llama al SAMU · 106",
+  "reportesLlamarSamu": "Llamar al SAMU · 106",
+  "reportesPregunta": "¿Hubo una caída y no te avisamos?",
+  "reportesRevisaremos": "Lo revisaremos para mejorar la detección.",
+  "reportesHabitacion": "Habitación",
+  "reportesEligeHabitacion": "Elige la habitación o «No sé».",
+  "reportesQuePaso": "¿Qué pasó? (opcional)",
+  "reportesNotaEjemplo": "Ej.: Se resbaló al salir de la cama",
+  "reportesEnviar": "Enviar",
+  "reportesEnviando": "Enviando…",
+  "reportesMovimientosHay": "Revisaremos los movimientos de ese momento.",
+  "reportesMovimientosNo": "Sin movimientos de ese momento; revisaremos tu relato.",
+  "reportesGuardado": "Lo guardamos para enviarlo",
+  "reportesGracias": "Gracias. Lo revisaremos.",
+  "reportesGraciasNombre": "Gracias, {nombre}. Lo revisaremos.",
+  "@reportesGraciasNombre": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "reportesNoPudimosTitulo": "No pudimos enviarlo",
+  "reportesNoPudimosTexto": "Lo guardamos y lo enviaremos cuando vuelva la conexión.",
+  "reportesNoGeneraAlerta": "Esto no genera una alerta ni avisa a la familia.",
+  "reportesVolverHistorial": "Volver al historial",
+  "appTitulo": "Te Tengo",
+  "@appTitulo": {
+    "description": "App name (brand, never translated)."
+  },
+  "camaraEstadoEnLinea": "En línea",
+  "@camaraEstadoEnLinea": {
+    "description": "Camera state."
+  },
+  "camaraEstadoDesconectada": "Desconectada",
+  "@camaraEstadoDesconectada": {
+    "description": "Camera state: the camera is unplugged."
+  },
+  "camaraEstadoEnPausa": "En pausa",
+  "@camaraEstadoEnPausa": {
+    "description": "Camera state."
+  },
+  "camaraEstadoNoConfiable": "Detección no confiable",
+  "@camaraEstadoNoConfiable": {
+    "description": "Camera state."
+  },
+  "camaraEstadoDetenida": "Detenida",
+  "@camaraEstadoDetenida": {
+    "description": "Camera state: stopped because there is no consent."
+  },
+  "camaraEstadoSinConexion": "Sin conexión",
+  "@camaraEstadoSinConexion": {
+    "description": "Camera state: the camera's PC does not answer."
+  },
+  "camaraPausa30Min": "30 minutos",
+  "camaraPausa1Hora": "1 hora",
+  "camaraPausa2Horas": "2 horas",
+  "camaraPausaHastaManana": "Hasta mañana",
+  "camaraPausaFinHasta": "hasta las {hora}",
+  "@camaraPausaFinHasta": {
+    "description": "When a pause ends (lowercase, under the option).",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraPausaFinALas": "a las {hora}",
+  "@camaraPausaFinALas": {
+    "description": "«Hasta mañana» ends at this time (lowercase).",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraFinDePausaManana": "{hora} de mañana",
+  "@camaraFinDePausaManana": {
+    "description": "A pause that ends tomorrow.",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraEnHabitacion": "en {habitacion}",
+  "@camaraEnHabitacion": {
+    "description": "Spanish gets the room with its article («la Sala»); English gets the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraReactivadaTitulo": "Cámara {habitacion} reactivada",
+  "@camaraReactivadaTitulo": {
+    "description": "Spanish gets «de la Sala»; English the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraReactivadaTexto": "La detección y la vista en vivo vuelven a estar disponibles.",
+  "camaraEnPausaTitulo": "Cámara {habitacion} en pausa",
+  "@camaraEnPausaTitulo": {
+    "description": "Spanish gets «de la Sala»; English the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraSeReactivaraALas": "Se reactivará sola a las {hora}.",
+  "@camaraSeReactivaraALas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraPausarTitulo": "Pausar la cámara {habitacion}",
+  "@camaraPausarTitulo": {
+    "description": "Spanish gets «de la Sala»; English the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraPausarTexto": "Sin detección ni vista en vivo. Se reactiva sola.",
+  "camaraPausar": "Pausar",
+  "camaraAvisoDesconectadaTitulo": "La cámara {habitacion} se desconectó",
+  "@camaraAvisoDesconectadaTitulo": {
+    "description": "Spanish gets «de la Sala»; English the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraAvisoDesconectadaTexto": "Revisa el cable de la cámara, que la PC esté encendida y el internet de la casa.",
+  "camaraAvisoReconectadaTitulo": "La cámara {habitacion} volvió a estar en línea",
+  "@camaraAvisoReconectadaTitulo": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraAvisoReconectadaTexto": "El monitoreo se restableció a las {hora}.",
+  "@camaraAvisoReconectadaTexto": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraAvisoReactivadaTitulo": "La cámara {habitacion} se reactivó",
+  "@camaraAvisoReactivadaTitulo": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraAvisoReactivadaTexto": "Terminó la pausa a las {hora}.",
+  "@camaraAvisoReactivadaTexto": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraAvisoNoConfiableTitulo": "La detección no es confiable {enHabitacion}",
+  "@camaraAvisoNoConfiableTitulo": {
+    "description": "«en la Sala» / «in Sala».",
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraAvisoNoConfiableTexto": "Hace más de 5 minutos que la cámara no ve bien a {nombre}. Revisa la luz y el encuadre.",
+  "@camaraAvisoNoConfiableTexto": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraFavorita": "Favorita",
+  "camaraFavoritaDe": "Favorita: {habitacion}",
+  "@camaraFavoritaDe": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraUltimaSenalPrefijo": "última señal ",
+  "@camaraUltimaSenalPrefijo": {
+    "description": "Followed by a time in another font."
+  },
+  "camaraDesdeLasPrefijo": "desde las ",
+  "@camaraDesdeLasPrefijo": {
+    "description": "Followed by a time in another font."
+  },
+  "camaraHastaLas": "hasta las {hora}",
+  "@camaraHastaLas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraRevisaLuzEncuadre": "revisa la luz y el encuadre",
+  "camaraSinConsentimiento": "sin consentimiento",
+  "camaraPcNoResponde": "la PC no responde",
+  "camaraHaceSegundos": "hace {n} s",
+  "@camaraHaceSegundos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "camaraHaceMinutos": "hace {n} min",
+  "@camaraHaceMinutos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "camaraHaceHoras": "hace {n} h",
+  "@camaraHaceHoras": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "camarasOrdenar": "Ordenar",
+  "camarasListo": "Listo",
+  "camarasOrdenarTexto": "Favoritas primero. Solo en este celular.",
+  "camarasFavoritas": "Favoritas",
+  "camarasTitulo": "Cámaras",
+  "camarasLasDemas": "Las demás",
+  "camarasArrastrar": "Arrastrar {habitacion}",
+  "@camarasArrastrar": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camarasSubir": "Subir {habitacion}",
+  "@camarasSubir": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camarasBajar": "Bajar {habitacion}",
+  "@camarasBajar": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraNombreOcupada": "Ya hay una cámara {enHabitacion}. Por ahora, cada habitación usa una sola cámara.",
+  "@camaraNombreOcupada": {
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraNombreVacio": "Escribe el nombre de la habitación.",
+  "camaraNombreBano": "Por privacidad, Te Tengo no admite cámaras en el baño.",
+  "camaraNombreGuardado": "Nombre guardado: {nombre}",
+  "@camaraNombreGuardado": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraNombreProximasAlertas": "Las próximas alertas dirán «{enHabitacion}».",
+  "@camaraNombreProximasAlertas": {
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraNombreTitulo": "Nombre de la habitación",
+  "camaraNombreMarcador": "Ej.: Sala comedor",
+  "camaraNombreSugerencias": "Sugerencias",
+  "camaraNombreYaTienen": "Las que ya tienen cámara no se pueden elegir.",
+  "camaraNombreAsiSeVera": "Así se verá en las próximas alertas",
+  "camaraNombrePosibleCaidaVacia": "Posible caída …",
+  "camaraNombrePosibleCaida": "Posible caída {enHabitacion}",
+  "@camaraNombrePosibleCaida": {
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraNombreAnteriores": "Las alertas anteriores no cambian.",
+  "camaraNombreGuardar": "Guardar nombre",
+  "camaraTitulo": "Cámara",
+  "camaraAjustes": "Ajustes de la cámara",
+  "camaraRepeticionAcceso": "Repetición {habitacion} · {duracion}",
+  "@camaraRepeticionAcceso": {
+    "description": "Spanish gets «de la Sala»; English the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      },
+      "duracion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraPcNoRespondeMotivo": "La PC no responde",
+  "camaraDesconectadaMotivo": "Cámara desconectada",
+  "camaraActivar": "Activar",
+  "camaraSoloTitularActiva": "Solo {nombre} puede activarlo",
+  "@camaraSoloTitularActiva": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraDetenidaSinConsentimiento": "Detenida: falta el consentimiento",
+  "camaraRegistrarConsentimiento": "Registrar consentimiento",
+  "camaraSinInternet": "Sin internet",
+  "camaraActivaGuardarMovimientos": "Para ver lo que pasó, activa Guardar movimientos",
+  "camaraActivaNube": "Para ver lo que pasó, activa Movimientos en la nube",
+  "camaraNoHayMovimientos": "No hay movimientos del {dia}. Hay desde el {desde}.",
+  "@camaraNoHayMovimientos": {
+    "placeholders": {
+      "dia": {
+        "type": "String"
+      },
+      "desde": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraVerLoUltimo": "Ver lo último",
+  "camaraCargando": "Cargando…",
+  "camaraAyudaPrivacidad": "Solo puntos del cuerpo, nunca video. Cada repetición queda en el registro de accesos.",
+  "camaraAjustesResumen": "Pausa, nombre, registro",
+  "camaraRevisarCable": "El cable USB de la cámara",
+  "camaraRevisarPc": "La PC encendida",
+  "camaraRevisarPcDetalle": "Con Te Tengo Captura abierto",
+  "camaraRevisarInternet": "El internet de la casa",
+  "camaraRevisarLuz": "La luz",
+  "camaraRevisarLuzDetalle": "De noche, una lámpara pequeña",
+  "camaraRevisarEncuadre": "El encuadre",
+  "camaraRevisarEncuadreDetalle": "Que se vea a {nombre} de cuerpo entero",
+  "@camaraRevisarEncuadreDetalle": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraQueRevisar": "Qué revisar",
+  "camaraHoy": "Hoy",
+  "camaraAyer": "Ayer",
+  "camaraElegirDia": "Elegir día…",
+  "camara10Min": "10 min",
+  "camara1Hora": "1 hora",
+  "camaraSoloEventos": "Solo eventos",
+  "camaraEventosDe": "Eventos · {dia}",
+  "@camaraEventosDe": {
+    "placeholders": {
+      "dia": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraSinEventosHoy": "Sin eventos hoy",
+  "camaraSinEventosAyer": "Sin eventos ayer",
+  "camaraSinEventosEl": "Sin eventos el {dia}",
+  "@camaraSinEventosEl": {
+    "placeholders": {
+      "dia": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraUltimosEventos": "Últimos eventos",
+  "camaraCaida": "Caída",
+  "camaraInestable": "Inestable",
+  "camaraReanudarAhora": "Reanudar ahora",
+  "camaraEnPausaHastaLas": "En pausa hasta las {hora}",
+  "@camaraEnPausaHastaLas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraSinDeteccionNiVivo": "Sin detección ni vista en vivo",
+  "camaraNombreDe": "Nombre: {habitacion}",
+  "@camaraNombreDe": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraPcNombre": "PC {nombre}",
+  "@camaraPcNombre": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraPcDeLaCasa": "PC de la casa",
+  "camaraDesdeElFecha": "desde el {fecha}",
+  "@camaraDesdeElFecha": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraHuboCaida": "¿Hubo una caída y no avisó?",
+  "camaraDejarDeUsar": "Dejar de usar esta cámara",
+  "camaraDispositivoDeHabitacion": "de la {habitacion}",
+  "@camaraDispositivoDeHabitacion": {
+    "description": "Names a camera without a device name, as in «¿Dejar de usar la cámara de la Sala?».",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraDesconectadaDesde": "Desconectada desde las {hora}",
+  "@camaraDesconectadaDesde": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "camaraSinConexionDesde": "Sin conexión desde las {hora}",
+  "@camaraSinConexionDesde": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "accesosTitulo": "Registro de accesos",
+  "accesosRegistrado": "Acceso registrado",
+  "accesosIntro": "Quién miró, cuándo y cuánto. Toda la familia lo ve.",
+  "accesosVacio": "Aún no hay accesos registrados",
+  "accesosTodo": "Todo",
+  "accesosVistaEnVivo": "Vista en vivo",
+  "accesosRepeticiones": "Repeticiones",
+  "accesosNombreTu": "{nombre} (tú)",
+  "@accesosNombreTu": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "accesosVio": "{quien} vio {habitaciones}",
+  "@accesosVio": {
+    "placeholders": {
+      "quien": {
+        "type": "String"
+      },
+      "habitaciones": {
+        "type": "String"
+      }
+    }
+  },
+  "accesosVariasCamaras": "Varias cámaras",
+  "accesosVistaEnVivoDe": "Vista en vivo · {habitacion}",
+  "@accesosVistaEnVivoDe": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "accesosVistaPrevia": "Vista previa al elegir cámaras",
+  "accesosVistaPreviaDe": "Vista previa al elegir cámaras · {dispositivo}",
+  "@accesosVistaPreviaDe": {
+    "placeholders": {
+      "dispositivo": {
+        "type": "String"
+      }
+    }
+  },
+  "accesosRepeticion": "Repetición · {habitacion}, {dia} {hora}",
+  "@accesosRepeticion": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      },
+      "dia": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "accesosDesdeAlerta": "Desde una alerta",
+  "accesosAbrirDeNuevo": "Abrir de nuevo",
+  "accesosSinAccesos": "Sin accesos",
+  "accesosTu": "Tú",
+  "accesosHoyMinuscula": "hoy",
+  "accesosResumen": "{quien} · {dia} {hora}",
+  "@accesosResumen": {
+    "placeholders": {
+      "quien": {
+        "type": "String"
+      },
+      "dia": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoViste": "Viste {habitacion} en vivo durante {duracion}.",
+  "@vivoViste": {
+    "description": "Spanish gets «la Sala»; English the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      },
+      "duracion": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoVolverAlerta": "Volver a la alerta",
+  "vivoVolverATodas": "Volver a todas",
+  "vivoCerrar": "Cerrar la vista en vivo",
+  "vivoTitulo": "En vivo",
+  "vivoTituloDe": "En vivo · {habitacion}",
+  "@vivoTituloDe": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoVerEnVivo": "Ver en vivo",
+  "vivoLlamarA": "Llamar a {nombre}",
+  "@vivoLlamarA": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoReanudarCamara": "Reanudar la cámara ahora",
+  "vivoPrivacidad": "No se graba. Tu acceso queda en el registro que ve toda la familia: quién, cuándo y cuánto.",
+  "vivoEtiqueta": "EN VIVO",
+  "@vivoEtiqueta": {
+    "description": "Tag over a live image."
+  },
+  "vivoNoDisponibleTitulo": "La cámara {habitacion} no está disponible",
+  "@vivoNoDisponibleTitulo": {
+    "description": "Spanish gets «de la Sala»; English the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoSinConexionDesdePrefijo": "Sin conexión desde las ",
+  "@vivoSinConexionDesdePrefijo": {
+    "description": "Followed by a time in another font."
+  },
+  "vivoLlamaOPide": "Llama a {nombre} o pide a alguien cercano que vaya a verla.",
+  "@vivoLlamaOPide": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoRevisaCable": "Revisa el cable, la PC y el internet de la casa.",
+  "vivoNoDisponible": "Vista en vivo no disponible",
+  "vivoEnPausaHastaPrefijo": "En pausa hasta las ",
+  "@vivoEnPausaHastaPrefijo": {
+    "description": "Followed by a time in another font."
+  },
+  "vivoCamaraEnPausa": "La cámara {habitacion} está en pausa.",
+  "@vivoCamaraEnPausa": {
+    "description": "Spanish gets «de la Sala»; English the bare room name.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoDetenidaTitulo": "La cámara está detenida",
+  "vivoSinConsentimiento": "Sin el consentimiento de {nombre} no hay video.",
+  "@vivoSinConsentimiento": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoSinConexionPc": "Sin conexión · la PC {pc} no responde",
+  "@vivoSinConexionPc": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "vivoDesdeLasPrefijo": " desde las ",
+  "@vivoDesdeLasPrefijo": {
+    "description": "After «Desconectada», followed by a time in another font."
+  },
+  "vivoDetenidaSinConsentimiento": "Detenida · sin consentimiento",
+  "vivoQueHabitacion": "¿Qué habitación quieres ver?",
+  "vivoVerTodasALaVez": "Ver todas a la vez",
+  "vivoHasta4PorPagina": "Hasta 4 por página",
+  "vivoDisponibleAhora": "Disponible ahora",
+  "vivoQueSeVe": "Qué se ve",
+  "vivoModoVideo": "Video",
+  "vivoModoEsqueleto": "Esqueleto",
+  "mosaicoPrivacidad": "No se graba. Al cerrar queda un solo acceso en el registro, con las habitaciones vistas y la duración.",
+  "mosaicoHastaLas": "Hasta las {hora}",
+  "@mosaicoHastaLas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "mosaicoDesdeLas": "Desde las {hora}",
+  "@mosaicoDesdeLas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "mosaicoPcNoResponde": "La PC no responde",
+  "mosaicoSinConsentimiento": "Sin consentimiento",
+  "mosaicoSeMovio": "{habitacion} se movió",
+  "@mosaicoSeMovio": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "mosaicoMismoOrden": "Mismo orden en Cámaras y Ver en vivo.",
+  "mosaicoFavoritasPrimero": "Las favoritas van primero",
+  "mosaicoCambiaEstrella": "Cambia la estrella para pasarla al otro grupo.",
+  "mosaicoViste": "Viste {habitaciones} · {duracion}.",
+  "@mosaicoViste": {
+    "placeholders": {
+      "habitaciones": {
+        "type": "String"
+      },
+      "duracion": {
+        "type": "String"
+      }
+    }
+  },
+  "mosaicoTodas": "Todas en vivo",
+  "mosaicoTodasPagina": "Todas en vivo, página {pagina} de {total}",
+  "@mosaicoTodasPagina": {
+    "placeholders": {
+      "pagina": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "mosaicoEligeCamara": "Elige una cámara para moverla",
+  "mosaicoArrastraOMuevePrefijo": "Arrastra o mueve ",
+  "@mosaicoArrastraOMuevePrefijo": {
+    "description": "Followed by the room name in bold."
+  },
+  "mosaicoMoverAntes": "Mover antes",
+  "mosaicoMoverDespues": "Mover después",
+  "mosaicoCerrar": "Cerrar",
+  "mosaicoVertical": "Vertical",
+  "mosaicoOrdenarCamaras": "Ordenar las cámaras",
+  "mosaicoControles": "Controles de Ver todas",
+  "mosaicoReanudar": "Reanudar",
+  "mosaicoCerrarVerTodas": "Cerrar Ver todas",
+  "mosaicoVerHorizontal": "Ver en horizontal",
+  "mosaicoPaginaAnterior": "Página anterior",
+  "mosaicoPaginaSiguiente": "Página siguiente",
+  "mosaicoPagina": "Página {pagina} de {total}",
+  "@mosaicoPagina": {
+    "placeholders": {
+      "pagina": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "mosaicoEnVivoMinuscula": "en vivo",
+  "mosaicoCeldaEtiqueta": "{habitacion}, {estado}. {accion}",
+  "@mosaicoCeldaEtiqueta": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      },
+      "estado": {
+        "type": "String"
+      },
+      "accion": {
+        "type": "String"
+      }
+    }
+  },
+  "mosaicoElegirParaMover": "Elegir para mover",
+  "mosaicoAbrirCompleta": "Abrir en pantalla completa",
+  "mosaicoPistaOrdenando": "Arrástrala o usa Mover antes y Mover después",
+  "mosaicoPistaMantener": "Mantén presionado para moverla",
+  "mosaicoQuitarFavorita": "Quitar de favoritas",
+  "mosaicoMarcarFavorita": "Marcar como favorita",
+  "mosaicoVerCompleta": "Ver en pantalla completa",
+  "familiaNombreTu": "{nombre} (tú)",
+  "@familiaNombreTu": {
+    "description": "A member's name when it is the signed-in person.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaPapelPrincipal": "Principal",
+  "@familiaPapelPrincipal": {
+    "description": "Role tag in the alert order."
+  },
+  "familiaPapelSecundario": "Secundario",
+  "@familiaPapelSecundario": {
+    "description": "Role tag in the alert order."
+  },
+  "familiaPapelFamiliar": "Recibe alertas",
+  "@familiaPapelFamiliar": {
+    "description": "Role tag: a member that is neither primary nor secondary."
+  },
+  "familiaResumenParentescoTitular": "{parentesco} · titular",
+  "@familiaResumenParentescoTitular": {
+    "description": "Relationship written by the member (user data) plus «owner».",
+    "placeholders": {
+      "parentesco": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaResumenTitular": "titular de la cuenta",
+  "familiaTitularCuenta": "Titular de la cuenta",
+  "familiaTitulo": "Familia",
+  "@familiaTitulo": {
+    "description": "Family tab heading."
+  },
+  "familiaReciben": "Reciben las alertas de {nombre}.",
+  "@familiaReciben": {
+    "description": "nombre: the cared-for person.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaOrdenFila": "Orden de aviso y tiempo de espera",
+  "familiaOrdenSinSecundario": "{principal} · sin contacto secundario",
+  "@familiaOrdenSinSecundario": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaOrdenResumen": "{principal} → {secundario} · {minutos} min de espera",
+  "@familiaOrdenResumen": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      },
+      "secundario": {
+        "type": "String"
+      },
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaSinSecundarioTitulo": "No hay contacto secundario",
+  "familiaSinSecundarioTexto": "Si {principal} no atiende a tiempo, nadie más será avisado.",
+  "@familiaSinSecundarioTexto": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaInvitar": "Invitar a un familiar",
+  "@familiaInvitar": {
+    "description": "Button and screen title."
+  },
+  "familiaSoloLecturaInvitar": "invitar o retirar familiares y cambiar el orden de aviso",
+  "@familiaSoloLecturaInvitar": {
+    "description": "Completes «Only Carmen (owner) can …»."
+  },
+  "familiaFamiliarTitulo": "Familiar",
+  "familiaTuPerfilTitulo": "Tu perfil en la familia",
+  "familiaHacerPrincipal": "Hacer contacto principal",
+  "familiaHacerPrincipalDetalle": "Recibirá cada alerta primero",
+  "familiaHacerSecundario": "Hacer contacto secundario",
+  "familiaHacerSecundarioDetalle": "Recibe la alerta si nadie atiende en {minutos} min",
+  "@familiaHacerSecundarioDetalle": {
+    "placeholders": {
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaRetirarAcceso": "Retirar acceso",
+  "familiaContacto": "Contacto",
+  "familiaTelefono": "Teléfono",
+  "familiaLlamar": "Llamar",
+  "familiaCorreo": "Correo",
+  "familiaEnLasAlertas": "En las alertas",
+  "familiaPapelPrincipalDetalle": "Recibe cada alerta primero",
+  "familiaPapelSecundarioDetalle": "Le avisamos si nadie atiende en {minutos} min",
+  "@familiaPapelSecundarioDetalle": {
+    "placeholders": {
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaPapelFamiliarDetalle": "Se entera de todo, sin escalamiento",
+  "familiaActividad": "Actividad",
+  "familiaAlertasMarcadas": "{n, plural, =1{1 alerta marcada} other{{n} alertas marcadas}}",
+  "@familiaAlertasMarcadas": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaUltimaMarcada": "Última: {tipo, select, caida{Caída} other{Inestable}} en {habitacionConArticulo} · {fecha} · ",
+  "@familiaUltimaMarcada": {
+    "description": "Followed by the time. tipo: caida or inestable. habitacion: room name (user data); habitacionConArticulo: the same with its Spanish article («la Sala»).",
+    "placeholders": {
+      "tipo": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      },
+      "habitacionConArticulo": {
+        "type": "String"
+      },
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaSinMarcadas": "Aún no marcó alertas",
+  "familiaAccesosCamara": "{n, plural, =1{1 acceso a la cámara} other{{n} accesos a la cámara}}",
+  "@familiaAccesosCamara": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaUltimoAcceso": "Último: {cuando} ",
+  "@familiaUltimoAcceso": {
+    "description": "Followed by the time. cuando: «today» or a short date.",
+    "placeholders": {
+      "cuando": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaHoy": "hoy",
+  "familiaSinAccesos": "Aún no abrió la vista en vivo",
+  "familiaAvisoDejarPrincipal": "Para dejar de ser principal, elige a otro contacto.",
+  "familiaAvisoRetirarPrincipal": "Para retirar su acceso, primero elige a otro contacto principal.",
+  "familiaOpciones": "Opciones",
+  "familiaSoloLecturaPapel": "cambiar el papel de un familiar o retirar su acceso",
+  "@familiaSoloLecturaPapel": {
+    "description": "Completes «Only Carmen (owner) can …»."
+  },
+  "familiaAhoraEsContacto": "{nombre} ahora es contacto {papel, select, principal{principal} other{secundario}}",
+  "@familiaAhoraEsContacto": {
+    "description": "papel: principal or secundario.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "papel": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaOrdenActualizado": "El orden de aviso se actualizó.",
+  "familiaRetirarTitulo": "¿Retirar el acceso de {nombre}?",
+  "@familiaRetirarTitulo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaRetirarTexto": "Dejará de recibir alertas y de ver el historial.",
+  "familiaRetirarTextoSecundario": "Dejará de recibir alertas y de ver el historial. Te quedarás sin contacto secundario.",
+  "familiaCancelar": "Cancelar",
+  "familiaYaNoRecibe": "{nombre} ya no recibe alertas",
+  "@familiaYaNoRecibe": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaQuedasteSinSecundario": "Te quedaste sin contacto secundario.",
+  "familiaOrdenTitulo": "Orden de aviso",
+  "familiaSoloLecturaOrden": "cambiar el orden de aviso y el tiempo de espera",
+  "@familiaSoloLecturaOrden": {
+    "description": "Completes «Only Carmen (owner) can …»."
+  },
+  "familiaOrdenExplicacion": "Si el principal no marca la alerta a tiempo, avisamos al secundario.",
+  "familiaQuienResponde": "Quién responde",
+  "familiaContactoPrincipal": "Contacto principal",
+  "familiaSinSecundario": "Sin contacto secundario",
+  "familiaNadieMasRecibe": "Nadie más recibe el aviso.",
+  "familiaContactoSecundarioA": "Contacto secundario · a los {minutos} min",
+  "@familiaContactoSecundarioA": {
+    "placeholders": {
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaTiempoEspera": "Tiempo de espera",
+  "familiaAntesDeAvisar": "Antes de avisar al secundario.",
+  "familiaMinutos": "{minutos, plural, =1{1 minuto} other{{minutos} minutos}}",
+  "@familiaMinutos": {
+    "placeholders": {
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaPredeterminado": "Predeterminado",
+  "familiaEsperaToast": "{minutos, plural, =1{Tiempo de espera: 1 minuto} other{Tiempo de espera: {minutos} minutos}}",
+  "@familiaEsperaToast": {
+    "placeholders": {
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaEsperaToastTexto": "Se aplicará en las próximas alertas.",
+  "familiaEjemploEspera": "Ej.: alerta a las {inicio} sin atender → {nombre} a las {fin}.",
+  "@familiaEjemploEspera": {
+    "description": "inicio and fin are times, shown in a monospaced style.",
+    "placeholders": {
+      "inicio": {
+        "type": "String"
+      },
+      "nombre": {
+        "type": "String"
+      },
+      "fin": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaUsaConSecundario": "Se usa cuando haya un contacto secundario.",
+  "familiaCambiarContacto": "Cambiar contacto {puesto, select, principal{principal} other{secundario}}",
+  "@familiaCambiarContacto": {
+    "description": "Screen-reader label. puesto: principal or secundario.",
+    "placeholders": {
+      "puesto": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaCambiar": "Cambiar",
+  "familiaPrimeroOtroPrincipal": "Primero elige otro principal",
+  "familiaYaEsPrincipal": "{nombre} ya es el contacto principal.",
+  "@familiaYaEsPrincipal": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaEsContacto": "{nombre} es contacto {puesto, select, principal{principal} other{secundario}}",
+  "@familiaEsContacto": {
+    "description": "puesto: principal or secundario.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "puesto": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaUsaremosOrden": "Usaremos este orden en las próximas alertas.",
+  "familiaQuienSera": "¿Quién será el contacto {puesto, select, principal{principal} other{secundario}}?",
+  "@familiaQuienSera": {
+    "description": "puesto: principal or secundario.",
+    "placeholders": {
+      "puesto": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaAtiendePrimero": "Atiende cada alerta primero.",
+  "familiaLeAvisamos": "Le avisamos si nadie la marca en {minutos} min.",
+  "@familiaLeAvisamos": {
+    "placeholders": {
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "familiaOrdenAhora": "ahora: {papel}",
+  "@familiaOrdenAhora": {
+    "description": "papel: the role tag in lower case.",
+    "placeholders": {
+      "papel": {
+        "type": "String"
+      }
+    }
+  },
+  "familiaQuitarSecundario": "Quitar contacto secundario",
+  "familiaNadieMasSeraAvisado": "Nadie más será avisado si no se atiende una alerta.",
+  "invitarCorreoVacio": "Escribe su correo electrónico.",
+  "invitarPropioCorreo": "Ese es tu propio correo. Invita a otra persona.",
+  "invitarYaEnFamilia": "Esa persona ya está en la familia de {nombre}.",
+  "@invitarYaEnFamilia": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "invitarEnviada": "Invitación enviada",
+  "invitarEnviadaTexto": "Le enviamos un enlace a {correo}.",
+  "@invitarEnviadaTexto": {
+    "placeholders": {
+      "correo": {
+        "type": "String"
+      }
+    }
+  },
+  "invitarQuePodra": "Qué podrá hacer",
+  "invitarPuntoVer": "Ver alertas, historial y la cámara en vivo",
+  "invitarPuntoMarcar": "Marcar alertas y pausar la cámara",
+  "invitarPuntoNoCambia": "No cambia datos, consentimiento, cámaras ni familia",
+  "invitarEnviar": "Enviar invitación",
+  "invitarTeInvito": "{titular} te invitó a cuidar a {adulto}",
+  "@invitarTeInvito": {
+    "placeholders": {
+      "titular": {
+        "type": "String"
+      },
+      "adulto": {
+        "type": "String"
+      }
+    }
+  },
+  "invitarCrearAcceso": "Crear mi acceso",
+  "invitarCreaTuAcceso": "Crea tu acceso para recibir sus alertas.",
+  "invitarCampoClave": "Crea una contraseña",
+  "invitarListo": "Listo, {yo}. Ya recibes las alertas de {adulto}.",
+  "@invitarListo": {
+    "placeholders": {
+      "yo": {
+        "type": "String"
+      },
+      "adulto": {
+        "type": "String"
+      }
+    }
+  },
+  "invitarPuedes": "Puedes",
+  "invitarPuedesDetalle": "Ver alertas, clips y la cámara en vivo; marcar alertas y pausar.",
+  "invitarSoloPuede": "Solo {titular} puede",
+  "@invitarSoloPuede": {
+    "placeholders": {
+      "titular": {
+        "type": "String"
+      }
+    }
+  },
+  "invitarSoloPuedeDetalle": "Cambiar datos, consentimiento, cámaras y familia.",
+  "invitarIrInicio": "Ir al inicio",
+  "perfilErrorSubir": "No se pudo subir la foto. Vuelve a intentarlo.",
+  "perfilTitulo": "Tu perfil",
+  "perfilCampoNombre": "Nombre y apellido",
+  "perfilCorreoAyuda": "Con él inicias sesión.",
+  "perfilErrorTelefono": "Revisa el teléfono: solo números.",
+  "perfilCambiosGuardados": "Cambios guardados",
+  "perfilNombreNuevo": "Tu familia verá tu nombre nuevo.",
+  "perfilCampoTelefono": "Teléfono",
+  "perfilParentesco": "Parentesco",
+  "perfilParentescoCon": "Parentesco con {nombre}",
+  "@perfilParentescoCon": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "perfilParentescoMarcador": "Ej.: Hija, sobrino, vecina",
+  "@perfilParentescoMarcador": {
+    "description": "Hint of a free-text field."
+  },
+  "perfilGuardarCambios": "Guardar cambios",
+  "perfilCambiarContrasena": "Cambiar contraseña",
+  "perfilQuitandoFoto": "Quitando la foto",
+  "perfilSubiendoFoto": "Subiendo la foto",
+  "perfilPorcentaje": "{n} %",
+  "@perfilPorcentaje": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "perfilCambiarFoto": "Cambiar foto",
+  "perfilQuitando": "Quitando…",
+  "perfilSubiendo": "Subiendo…",
+  "perfilSubiendoPorcentaje": "Subiendo… {n} %",
+  "@perfilSubiendoPorcentaje": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "perfilNoSeCambioFoto": "No se pudo cambiar la foto",
+  "perfilVolverIntentar": "Volver a intentarlo",
+  "perfilFotoQuitada": "Foto quitada",
+  "perfilSeVeranIniciales": "Se verán las iniciales.",
+  "perfilNoPudimosAbrir": "No pudimos abrir esa foto",
+  "perfilEligeOtra": "Elige otra.",
+  "perfilNoPudimosAbrirEligeOtra": "No pudimos abrir esa foto. Elige otra.",
+  "perfilFotoActualizada": "Foto actualizada",
+  "perfilLaVeraFamilia": "La verá toda la familia.",
+  "perfilSinPermisoCamara": "Sin permiso para usar la cámara",
+  "perfilSinPermisoFotos": "Sin permiso para ver tus fotos",
+  "perfilOtraOpcion": "Puedes elegir otra opción.",
+  "perfilCamaraBloqueada": "La cámara del celular está bloqueada",
+  "perfilFotosBloqueadas": "Tus fotos están bloqueadas para Te Tengo",
+  "perfilPermitelo": "Permítelo en los ajustes del celular y vuelve a intentarlo.",
+  "perfilAbrirAjustes": "Abrir los ajustes del celular",
+  "perfilAhoraNo": "Ahora no",
+  "perfilFotoDe": "Foto de {nombre}",
+  "@perfilFotoDe": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "perfilLaVeFamilia": "La ve toda la familia.",
+  "perfilTomarFoto": "Tomar una foto",
+  "perfilElegirGaleria": "Elegir de la galería",
+  "perfilQuitarFoto": "Quitar la foto",
+  "perfilErrorActualVacia": "Escribe tu contraseña actual.",
+  "perfilActualIncorrecta": "No coincide con tu contraseña actual.",
+  "perfilContrasenaActual": "Contraseña actual",
+  "perfilRepiteNueva": "Repite la nueva contraseña",
+  "perfilAjustaFoto": "Ajusta la foto",
+  "perfilMueveAcerca": "Mueve y acerca la foto para centrar la cara.",
+  "perfilUsarFoto": "Usar esta foto",
+  "sesionErrorNombre": "Escribe tu nombre y apellido.",
+  "sesionErrorCorreoVacio": "Escribe tu correo electrónico.",
+  "sesionErrorCorreoIncompleto": "Revisa el correo: parece incompleto.",
+  "sesionErrorClaveVacia": "Crea una contraseña.",
+  "sesionErrorClaveCorta": "Usa al menos 8 caracteres y un número.",
+  "sesionErrorNoCoinciden": "Las contraseñas no coinciden.",
+  "sesionAyudaContrasena": "8 caracteres o más, con un número.",
+  "sesionCampoNombre": "Tu nombre y apellido",
+  "sesionCampoCorreo": "Correo electrónico",
+  "sesionCampoContrasena": "Contraseña",
+  "sesionNuevaContrasena": "Nueva contraseña",
+  "sesionGuardarContrasena": "Guardar contraseña",
+  "sesionContrasenaActualizada": "Contraseña actualizada",
+  "sesionCerrarTitulo": "¿Cerrar sesión?",
+  "sesionCerrarTexto": "Dejarás de recibir las alertas en este celular.",
+  "sesionCerrarTextoSus": "Dejarás de recibir sus alertas en este celular.",
+  "sesionCerrar": "Cerrar sesión",
+  "sesionCancelar": "Cancelar",
+  "sesionBienvenidaTitulo": "Cuida a tu familiar aunque no estés en casa.",
+  "sesionBienvenidaTexto": "Detecta caídas y te avisa al instante.",
+  "sesionVinetaSinPulseras": "Sin pulseras ni botones",
+  "sesionVinetaEnVivo": "En vivo, con su permiso",
+  "sesionVinetaPostura": "Solo postura, nunca rostros",
+  "sesionCrearCuenta": "Crear cuenta",
+  "sesionYaTengoCuenta": "Ya tengo una cuenta",
+  "sesionFotoDescripcion": "Una hija abraza a su madre",
+  "@sesionFotoDescripcion": {
+    "description": "Description of the welcome photo for screen readers."
+  },
+  "sesionCerradaTitulo": "Sesión cerrada",
+  "sesionCerradaTexto": "Inicia sesión para volver a recibir alertas.",
+  "sesionClaveActualizadaTexto": "Ya puedes iniciar sesión con ella.",
+  "sesionErrorCorreo": "Escribe tu correo.",
+  "sesionErrorContrasena": "Escribe tu contraseña.",
+  "sesionIniciaSesion": "Inicia sesión",
+  "@sesionIniciaSesion": {
+    "description": "Heading and link."
+  },
+  "sesionBloqueadoTitulo": "Bloqueado por 15 minutos",
+  "sesionBloqueadoTexto": "Vuelve a intentarlo a las {hora}.",
+  "@sesionBloqueadoTexto": {
+    "description": "hora is shown in a monospaced style.",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "sesionIncorrectos": "Correo o contraseña incorrectos",
+  "sesionIntentosRestantes": "{n, plural, =1{Te queda 1 intento antes de un bloqueo de 15 min.} other{Te quedan {n} intentos antes de un bloqueo de 15 min.}}",
+  "@sesionIntentosRestantes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sesionFaltanDatos": "Escribe tu correo y tu contraseña",
+  "sesionOlvidaste": "¿Olvidaste tu contraseña?",
+  "sesionIniciarSesion": "Iniciar sesión",
+  "@sesionIniciarSesion": {
+    "description": "Button."
+  },
+  "sesionSinCuenta": "¿Aún no tienes cuenta?",
+  "sesionCreaUna": "Crea una",
+  "registroCorreoRegistrado": "Este correo ya está registrado.",
+  "registroCorreoConCuenta": "Ese correo ya tiene una cuenta",
+  "registroIniciarConCorreo": "Iniciar sesión con este correo",
+  "registroRecuperarMiContrasena": "Recuperar mi contraseña",
+  "registroCompletaCampos": "Completa los campos marcados",
+  "registroAceptasLos": "Aceptas los",
+  "@registroAceptasLos": {
+    "description": "Followed by the «Terms» link."
+  },
+  "registroTerminos": "Términos",
+  "@registroTerminos": {
+    "description": "Link to the terms."
+  },
+  "registroYLa": "y la",
+  "@registroYLa": {
+    "description": "Between the «Terms» and «Privacy» links."
+  },
+  "registroPrivacidad": "Privacidad",
+  "@registroPrivacidad": {
+    "description": "Link to the privacy policy."
+  },
+  "registroYaTienesCuenta": "¿Ya tienes cuenta?",
+  "registroCuentaLista": "Tu cuenta está lista, {nombre}.",
+  "@registroCuentaLista": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "registroDosPasos": "2 pasos más:",
+  "registroPasoDatos": "Datos de la persona",
+  "registroPasoConsentimiento": "Consentimiento informado",
+  "registroEmpezar": "Empezar",
+  "recuperarContrasena": "Recuperar contraseña",
+  "recuperarTeEnviaremos": "Te enviaremos un enlace.",
+  "recuperarEnviarEnlace": "Enviar enlace",
+  "recuperarRevisaCorreo": "Revisa tu correo",
+  "recuperarSiTieneCuenta": "Si {correo} tiene cuenta, te llegará un enlace. Vence en 30 minutos.",
+  "@recuperarSiTieneCuenta": {
+    "description": "correo is shown in bold.",
+    "placeholders": {
+      "correo": {
+        "type": "String"
+      }
+    }
+  },
+  "recuperarSpam": "Revisa también el spam.",
+  "recuperarVolverIniciar": "Volver a iniciar sesión",
+  "recuperarReenviarEn": "Reenviar enlace en {tiempo}",
+  "@recuperarReenviarEn": {
+    "description": "tiempo: a countdown like 0:45, shown in a monospaced style.",
+    "placeholders": {
+      "tiempo": {
+        "type": "String"
+      }
+    }
+  },
+  "recuperarReenviar": "Reenviar enlace",
+  "recuperarParaCuenta": "Para la cuenta {correo}.",
+  "@recuperarParaCuenta": {
+    "description": "correo is shown in bold.",
+    "placeholders": {
+      "correo": {
+        "type": "String"
+      }
+    }
+  },
+  "recuperarRepite": "Repite la contraseña",
+  "recuperarVencido": "Este enlace ya venció",
+  "recuperarDura": "Dura 30 minutos y sirve una sola vez.",
+  "recuperarPedirNuevo": "Pedir un enlace nuevo",
+  "recuperarCerrar": "Cerrar",
+  "consentimientoSeccionVivoTitulo": "Vista en vivo en cualquier momento",
+  "@consentimientoSeccionVivoTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionVivoResumen": "Cuando la familia quiera",
+  "@consentimientoSeccionVivoResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionVivoTexto": "La familia vinculada puede verla en vivo cuando quiera, no solo en una alerta. Cada acceso queda registrado: quién, cuándo y cuánto.",
+  "@consentimientoSeccionVivoTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionHacemosTitulo": "Qué hacemos",
+  "@consentimientoSeccionHacemosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionHacemosResumen": "Caídas por la postura",
+  "@consentimientoSeccionHacemosResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionHacemosTexto": "La PC de la casa analiza la postura para detectar caídas y movimientos inestables. El video continuo nunca sale de la casa. Solo salen el aviso y el clip de cada alerta, y la vista en vivo mientras alguien de la familia la mira.",
+  "@consentimientoSeccionHacemosTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionNoHacemosTitulo": "Qué no hacemos",
+  "@consentimientoSeccionNoHacemosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionNoHacemosResumen": "Ni rostros ni grabación continua",
+  "@consentimientoSeccionNoHacemosResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionNoHacemosTexto": "Sin reconocimiento facial ni grabación continua. La vista en vivo no se guarda.",
+  "@consentimientoSeccionNoHacemosTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionGuardamosTitulo": "Qué guardamos",
+  "@consentimientoSeccionGuardamosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionGuardamosResumen": "Clip de cada alerta, 30 días",
+  "@consentimientoSeccionGuardamosResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionGuardamosTexto": "Solo el clip de cada alerta, 30 días; luego se borra. Se guarda en Microsoft Azure (Azure Blob Storage, región Chile Central), con servidores fuera del Perú: es un flujo transfronterizo de datos personales. Sus movimientos (puntos del cuerpo, sin imagen) solo se guardan con un permiso aparte.",
+  "@consentimientoSeccionGuardamosTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionDerechosTitulo": "Sus derechos",
+  "@consentimientoSeccionDerechosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionDerechosResumen": "Ley N.° 29733 · revocable",
+  "@consentimientoSeccionDerechosResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoSeccionDerechosTexto": "Por la Ley N.° 29733, puede ver, corregir o borrar sus datos, oponerse a su uso y revocar este consentimiento.",
+  "@consentimientoSeccionDerechosTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoRegistroTitulo": "Cómo se registra",
+  "@consentimientoRegistroTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoRegistroTexto": "Guardamos quién lo otorgó, quién lo registró, fecha y hora (Ley N.° 29733).",
+  "@consentimientoRegistroTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosQueEsTitulo": "Qué es Te Tengo",
+  "@legalTerminosQueEsTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosQueEsTexto": "Avisa a tu familia si la cámara de la casa detecta una posible caída o un movimiento inestable. No es una cámara de seguridad.",
+  "@legalTerminosQueEsTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosCuentaTitulo": "Tu cuenta",
+  "@legalTerminosCuentaTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosCuentaTexto1": "Solo el titular (quien la crea) cambia los datos de la persona cuidada, el consentimiento, las habitaciones, la familia y el orden de aviso.",
+  "@legalTerminosCuentaTexto1": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosCuentaTexto2": "Cada cuenta cuida a una sola persona. Contraseña de 8 caracteres o más, con un número; 5 intentos fallidos bloquean el acceso 15 minutos.",
+  "@legalTerminosCuentaTexto2": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosInvitadosTitulo": "Familiares invitados",
+  "@legalTerminosInvitadosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosInvitadosTexto": "Ven alertas, clips, historial y vista en vivo; marcan alertas y pausan la cámara. El titular puede retirar el acceso.",
+  "@legalTerminosInvitadosTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosConsentimientoTitulo": "Consentimiento",
+  "@legalTerminosConsentimientoTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosConsentimientoTexto1": "Sin el consentimiento de la persona cuidada o de su representante legal, la cámara no envía video. Revocarlo detiene la captura y borra las grabaciones.",
+  "@legalTerminosConsentimientoTexto1": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosConsentimientoTexto2": "Guardar sus movimientos necesita un permiso aparte y opcional; las alertas funcionan igual sin él.",
+  "@legalTerminosConsentimientoTexto2": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosAlertasTitulo": "Alertas",
+  "@legalTerminosAlertasTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosAlertasTexto": "Las reciben todos los familiares vinculados. Si el principal no marca una en el tiempo de espera (3, 5 o 10 minutos), avisamos al secundario.",
+  "@legalTerminosAlertasTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosLimitesTitulo": "Límites del servicio",
+  "@legalTerminosLimitesTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosLimitesTexto1": "Sin detección con la PC de la casa apagada, la cámara desconectada, en pausa o sin consentimiento; no es confiable si no ve bien a la persona.",
+  "@legalTerminosLimitesTexto1": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosLimitesTexto2": "Con la app cerrada, las alertas llegan solo con las notificaciones activadas.",
+  "@legalTerminosLimitesTexto2": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaDatosTitulo": "Qué datos guardamos",
+  "@legalPoliticaDatosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaDatosTexto1": "Cuenta: nombre, correo y contraseña.",
+  "@legalPoliticaDatosTexto1": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaDatosTexto2": "Persona cuidada: nombre, edad, dirección y con quién vive.",
+  "@legalPoliticaDatosTexto2": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaDatosTexto3": "Alertas: tipo, habitación, fecha, hora y quién atendió.",
+  "@legalPoliticaDatosTexto3": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaVideoTitulo": "Video",
+  "@legalPoliticaVideoTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaVideoTexto1": "Se analiza en la PC de la casa. Sin reconocimiento facial ni video en la nube.",
+  "@legalPoliticaVideoTexto1": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaVideoTexto2": "Solo salen de la casa el aviso y el clip de cada alerta, y la vista en vivo mientras alguien de la familia la mira con el consentimiento vigente.",
+  "@legalPoliticaVideoTexto2": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaVideoTexto3": "Solo el clip de cada alerta (6 s antes y 6 s después), 30 días. La vista en vivo no se graba.",
+  "@legalPoliticaVideoTexto3": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaMovimientosTitulo": "Movimientos",
+  "@legalPoliticaMovimientosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaMovimientosTexto1": "Solo con un permiso aparte y opcional: puntos del cuerpo (hombros, caderas, rodillas…), sin imagen ni video.",
+  "@legalPoliticaMovimientosTexto1": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaMovimientosTexto2": "En la PC de la casa y, si el titular lo elige, en la nube, de 7 días a 1 año. Retirar el permiso borra los de la nube; la PC pregunta si también los borra.",
+  "@legalPoliticaMovimientosTexto2": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaDondeTitulo": "Dónde se guardan",
+  "@legalPoliticaDondeTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaDondeTexto": "Los clips y los movimientos de la nube se guardan en Microsoft Azure (Azure Blob Storage, región Chile Central), con servidores fuera del Perú: es un flujo transfronterizo de datos personales.",
+  "@legalPoliticaDondeTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaQuienTitulo": "Quién ve los datos",
+  "@legalPoliticaQuienTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaQuienTexto": "Solo la familia vinculada. Cada acceso en vivo y cada repetición quedan en un registro que ven todos: quién, cuándo y cuánto.",
+  "@legalPoliticaQuienTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaRevocarTitulo": "Revocar el consentimiento",
+  "@legalPoliticaRevocarTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaRevocarTexto": "Detiene la captura y la vista en vivo y borra las grabaciones; te enviamos la constancia.",
+  "@legalPoliticaRevocarTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaDerechosTitulo": "Tus derechos",
+  "@legalPoliticaDerechosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalPoliticaDerechosTexto": "Ver, corregir o borrar tus datos, u oponerte a su uso (Ley N.° 29733): privacidad@tetengo.pe.",
+  "@legalPoliticaDerechosTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "legalTerminosTitulo": "Términos de uso",
+  "@legalTerminosTitulo": {
+    "description": "Title of the terms of use (screen and link)."
+  },
+  "legalVerPolitica": "Ver la política de privacidad",
+  "@legalVerPolitica": {
+    "description": "Link at the end of the terms."
+  },
+  "legalPoliticaTitulo": "Política de privacidad",
+  "@legalPoliticaTitulo": {
+    "description": "Title of the privacy policy (screen and link)."
+  },
+  "consentimientoTitulo": "Consentimiento",
+  "@consentimientoTitulo": {
+    "description": "Title of the consent screens."
+  },
+  "consentimientoPersonaGenerica": "la persona cuidada",
+  "@consentimientoPersonaGenerica": {
+    "description": "Stands in for the first name while the household loads, inside a sentence."
+  },
+  "consentimientoDocumentoIntro": "Lo acepta {nombre} o su representante legal antes de que la cámara envíe video.",
+  "@consentimientoDocumentoIntro": {
+    "description": "LEGAL: needs human/legal review in English.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "consentimientoConstancia": "Constancia",
+  "@consentimientoConstancia": {
+    "description": "Heading of the consent certificate in the full document."
+  },
+  "consentimientoOtorgadoPor": "Otorgado por",
+  "@consentimientoOtorgadoPor": {
+    "description": "Certificate row label; the value comes from the backend."
+  },
+  "consentimientoRegistradoPor": "Registrado por",
+  "@consentimientoRegistradoPor": {
+    "description": "Certificate row label."
+  },
+  "consentimientoFecha": "Fecha",
+  "@consentimientoFecha": {
+    "description": "Certificate row label."
+  },
+  "consentimientoHora": "Hora",
+  "@consentimientoHora": {
+    "description": "Certificate row label."
+  },
+  "consentimientoIntro": "Lo acepta {nombre} o su representante. Sin él, no detectamos caídas.",
+  "@consentimientoIntro": {
+    "description": "LEGAL: needs human/legal review in English.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "consentimientoQuienOtorga": "¿Quién otorga el consentimiento?",
+  "@consentimientoQuienOtorga": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoDirectamente": "{nombre}, directamente",
+  "@consentimientoDirectamente": {
+    "description": "Option: the older adult (full name) gives the consent.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "consentimientoRepresentante": "Su representante legal",
+  "@consentimientoRepresentante": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoCasillaAcepta": "{nombre} fue informada y acepta la cámara para detectar caídas y que su familia la vea en vivo cuando quiera.",
+  "@consentimientoCasillaAcepta": {
+    "description": "LEGAL: needs human/legal review in English.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "consentimientoCasillaLeyo": "Leí el resumen y el documento completo.",
+  "@consentimientoCasillaLeyo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoFaltanCasillas": "Marca las dos casillas.",
+  "@consentimientoFaltanCasillas": {
+    "description": "Error when a box is unchecked."
+  },
+  "consentimientoGuardamosFecha": "Guardamos fecha y hora como constancia (Ley N.° 29733).",
+  "@consentimientoGuardamosFecha": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "consentimientoRegistrar": "Registrar consentimiento",
+  "@consentimientoRegistrar": {
+    "description": "Button."
+  },
+  "consentimientoAhoraNo": "Ahora no",
+  "@consentimientoAhoraNo": {
+    "description": "Button: leave the consent for later."
+  },
+  "consentimientoLeerDocumento": "Leer el documento completo",
+  "@consentimientoLeerDocumento": {
+    "description": "Link."
+  },
+  "consentimientoRegistradoTitulo": "Consentimiento registrado",
+  "@consentimientoRegistradoTitulo": {
+    "description": "Screen title."
+  },
+  "consentimientoCamarasDetectan": "Las cámaras ya detectan caídas.",
+  "consentimientoDetectaranAlVincular": "Detectarán caídas al vincular la PC.",
+  "consentimientoVolverInicio": "Volver al inicio",
+  "@consentimientoVolverInicio": {
+    "description": "Button."
+  },
+  "consentimientoCamaraActivada": "Cámara activada",
+  "@consentimientoCamaraActivada": {
+    "description": "Toast title."
+  },
+  "consentimientoCamaraDetectaDesde": "La cámara {deHabitacion} detecta caídas desde las {hora}.",
+  "@consentimientoCamaraDetectaDesde": {
+    "description": "Toast text. deHabitacion is the Spanish «de la Sala»; habitacion is the bare room name.",
+    "placeholders": {
+      "deHabitacion": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "consentimientoConstanciaTitulo": "Constancia de consentimiento",
+  "@consentimientoConstanciaTitulo": {
+    "description": "Certificate card title."
+  },
+  "consentimientoVerConstancia": "Ver la constancia completa",
+  "@consentimientoVerConstancia": {
+    "description": "Link."
+  },
+  "consentimientoConstanciaLey": "Constancia exigida por la Ley N.° 29733.",
+  "@consentimientoConstanciaLey": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "privacidadTitulo": "Privacidad",
+  "@privacidadTitulo": {
+    "description": "Screen title."
+  },
+  "privacidadVerDocumento": "Ver el documento aceptado",
+  "@privacidadVerDocumento": {
+    "description": "Link."
+  },
+  "privacidadSinConsentimiento": "Sin consentimiento",
+  "privacidadRevocadoEliminadas": "Revocado. Grabaciones eliminadas.",
+  "privacidadAunNoRegistra": "Aún no se registra. La cámara no envía video.",
+  "privacidadMovimientos": "Movimientos",
+  "@privacidadMovimientos": {
+    "description": "Section header."
+  },
+  "privacidadGuardarMovimientos": "Guardar movimientos",
+  "privacidadVigenteDesde": "Vigente desde el {fecha}",
+  "@privacidadVigenteDesde": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "privacidadNoAutorizado": "No autorizado",
+  "privacidadMovimientosNube": "Movimientos en la nube",
+  "privacidadNubeDesactivada": "Desactivado · falta el permiso",
+  "privacidadSusDatos": "Sus datos",
+  "@privacidadSusDatos": {
+    "description": "Section header (the cared-for person's data)."
+  },
+  "privacidadComoCuidamos": "Cómo los cuidamos",
+  "privacidadComoCuidamosResumen": "Sin video en la nube · clips 30 días",
+  "privacidadDatoVideo": "Video",
+  "privacidadDatoVideoValor": "En la PC, nunca en la nube",
+  "privacidadDatoClips": "Clips",
+  "privacidadDatoClipsValor": "30 días",
+  "privacidadDatoEnVivo": "En vivo",
+  "privacidadDatoEnVivoValor": "No se graba",
+  "privacidadDatoRostros": "Rostros",
+  "privacidadDatoRostrosValor": "No se reconocen",
+  "privacidadRegistroAccesos": "Registro de accesos",
+  "privacidadRegistroAccesosSub": "Quién miró, cuándo y cuánto",
+  "privacidadDerechos": "Derechos (Ley N.° 29733): ",
+  "@privacidadDerechos": {
+    "description": "LEGAL: needs human/legal review in English. Followed by the e-mail address in bold."
+  },
+  "privacidadRevocar": "Revocar",
+  "@privacidadRevocar": {
+    "description": "Section header."
+  },
+  "privacidadRevocarTexto": "Detiene la cámara y borra las grabaciones.",
+  "privacidadRevocarBoton": "Revocar consentimiento",
+  "@privacidadRevocarBoton": {
+    "description": "Button."
+  },
+  "privacidadSoloLecturaRevocar": "revocar el consentimiento",
+  "@privacidadSoloLecturaRevocar": {
+    "description": "What only the owner can do, inside «Solo Carmen (titular) puede …»."
+  },
+  "privacidadRevocarDialogoTitulo": "¿Revocar el consentimiento?",
+  "privacidadRevocarDialogoTexto": "Se detiene la captura, no habrá más alertas y se borran las grabaciones. No se puede deshacer.",
+  "privacidadRevocarDialogoAceptar": "Sí, revocar y eliminar",
+  "privacidadRevocarDialogoCancelar": "Cancelar, mantenerlo",
+  "privacidadSigueVigente": "Tu consentimiento sigue vigente",
+  "@privacidadSigueVigente": {
+    "description": "Toast title."
+  },
+  "privacidadSigueDetectando": "La cámara sigue detectando caídas.",
+  "@privacidadSigueDetectando": {
+    "description": "Toast text."
+  },
+  "privacidadRevocadoTitulo": "Consentimiento revocado",
+  "privacidadRevocandoTitulo": "Revocando el consentimiento",
+  "privacidadConstanciaEnviada": "Te enviamos la constancia a {correo}.",
+  "@privacidadConstanciaEnviada": {
+    "placeholders": {
+      "correo": {
+        "type": "String"
+      }
+    }
+  },
+  "privacidadNoCierres": "No cierres la app.",
+  "privacidadCapturaDetenida": "Captura detenida",
+  "privacidadALasHora": "A las {hora}",
+  "@privacidadALasHora": {
+    "description": "The time is shown in the mono font.",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "privacidadGrabacionesEliminadas": "Grabaciones eliminadas",
+  "privacidadEliminandoGrabaciones": "Eliminando las grabaciones…",
+  "privacidadClips": "{n, plural, =1{1 clip} other{{n} clips}}",
+  "@privacidadClips": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "privacidadClipsHora": "{clips} · {hora}",
+  "@privacidadClipsHora": {
+    "description": "Deleted clips and the time (mono font).",
+    "placeholders": {
+      "clips": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "privacidadConstanciaCorreo": "Constancia por correo",
+  "privacidadEnviada": "Enviada",
+  "privacidadPendiente": "Pendiente",
+  "hogarConvivenciaSolo": "Vive solo(a)",
+  "hogarConvivenciaConFamiliar": "Vive conmigo",
+  "hogarConvivenciaConCuidador": "Vive con otro cuidador",
+  "hogarErrorNombre": "Escribe su nombre y apellido.",
+  "hogarErrorEdadVacia": "Escribe su edad.",
+  "hogarErrorEdadInvalida": "Escribe una edad válida, en años.",
+  "hogarErrorDireccion": "Escribe la dirección de la vivienda.",
+  "hogarErrorConvivencia": "Elige una opción.",
+  "hogarErrorTelefono": "Revisa el teléfono: solo números.",
+  "hogarCampoNombre": "Nombre y apellido",
+  "hogarCampoNombreEjemplo": "Ej.: Rosa Huamán",
+  "hogarCampoEdad": "Edad",
+  "hogarCampoTelefono": "Teléfono de {nombre}",
+  "@hogarCampoTelefono": {
+    "description": "First name; may be empty while typing.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "hogarCampoTelefonoAyuda": "Lo usa «Llamar a {nombre}».",
+  "@hogarCampoTelefonoAyuda": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "hogarCampoDireccion": "Dirección de la vivienda",
+  "hogarCampoDireccionEjemplo": "Calle, número y distrito",
+  "hogarConQuienVive": "¿Con quién vive?",
+  "hogarPersonaCuidadaTitulo": "Persona cuidada",
+  "@hogarPersonaCuidadaTitulo": {
+    "description": "Screen title and setup step 1."
+  },
+  "hogarCambiosGuardados": "Cambios guardados",
+  "@hogarCambiosGuardados": {
+    "description": "Toast."
+  },
+  "hogarSoloLecturaCambiarDatos": "cambiar los datos de {nombre}",
+  "@hogarSoloLecturaCambiarDatos": {
+    "description": "What only the owner can do, inside «Solo Carmen (titular) puede …».",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "hogarGuardarCambios": "Guardar cambios",
+  "@hogarGuardarCambios": {
+    "description": "Button."
+  },
+  "hogarUnaSolaPersonaTitulo": "Cada cuenta cuida a una sola persona",
+  "hogarUnaSolaPersonaTexto": "Para cuidar a alguien más, crea otra cuenta.",
+  "hogarAQuienCuidar": "¿A quién vas a cuidar?",
+  "hogarCompletaCampos": "Completa los campos marcados",
+  "hogarGuardarYContinuar": "Guardar y continuar",
+  "@hogarGuardarYContinuar": {
+    "description": "Button."
+  },
+  "onboardingTodoListo": "Todo listo. Ya estás cerca de {nombre}.",
+  "@onboardingTodoListo": {
+    "description": "First name; empty while loading.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingQueNoSePase": "Que no se te pase ninguna caída",
+  "onboardingAunqueCerrada": "Aunque la app esté cerrada o el celular en silencio.",
+  "onboardingNotificaciones": "Notificaciones",
+  "onboardingParaRecibir": "Para recibir las alertas",
+  "onboardingPermitir": "Permitir",
+  "@onboardingPermitir": {
+    "description": "Small button."
+  },
+  "onboardingSuenanIgual": "Las caídas suenan igual",
+  "onboardingFaltaConsentimiento": "Falta el consentimiento",
+  "onboardingRegistraloInicio": "Regístralo desde Inicio",
+  "onboardingPcVinculada": "PC {nombre} vinculada",
+  "@onboardingPcVinculada": {
+    "description": "PC name from the backend.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingFaltaElegirCamaras": "Falta elegir las cámaras",
+  "onboardingPcCamaras": "{n, plural, =1{1 cámara: {lista}} other{{n} cámaras: {lista}}}",
+  "@onboardingPcCamaras": {
+    "description": "lista: the room names.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "lista": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingSinDetectar": "{camaras} · sin detectar",
+  "@onboardingSinDetectar": {
+    "placeholders": {
+      "camaras": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingSinPc": "Sin PC vinculada",
+  "onboardingAgregaPc": "Agrégala desde Ajustes › Cámaras y PCs",
+  "onboardingSinSecundario": "Sin contacto secundario",
+  "onboardingInvitaloFamilia": "Invítalo desde Familia",
+  "onboardingIrInicio": "Ir al inicio",
+  "@onboardingIrInicio": {
+    "description": "Button."
+  },
+  "movimientosSecParaQueTitulo": "Para qué",
+  "@movimientosSecParaQueTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecParaQueResumen": "Ver qué pasó y mejorar la detección",
+  "@movimientosSecParaQueResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecParaQueTexto": "Ver qué pasó antes y después de un aviso, y mejorar la detección.",
+  "@movimientosSecParaQueTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecQueTitulo": "Qué guardamos",
+  "@movimientosSecQueTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecQueResumen": "Puntos del cuerpo, sin imagen",
+  "@movimientosSecQueResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecQueTexto": "Solo puntos del cuerpo (hombros, caderas, rodillas…), sin imagen ni video.",
+  "@movimientosSecQueTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecDondeTitulo": "Dónde",
+  "@movimientosSecDondeTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecDondeResumen": "PC y, si quieres, nube",
+  "@movimientosSecDondeResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecDondeTextoV1": "En la PC de la casa y, si lo eliges, en la nube (servidores fuera del Perú).",
+  "@movimientosSecDondeTextoV1": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecDondeTextoV2": "En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con servidores fuera del Perú. Guardarlos ahí es un flujo transfronterizo de datos personales.",
+  "@movimientosSecDondeTextoV2": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecDondeTextoV3": "En la PC de la casa y, si lo eliges, en la nube: Microsoft Azure (Azure Blob Storage, región Chile Central), con servidores fuera del Perú. Guardarlos ahí es un flujo transfronterizo de datos personales.",
+  "@movimientosSecDondeTextoV3": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecCuantoTitulo": "Cuánto tiempo",
+  "@movimientosSecCuantoTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecCuantoResumen": "Tú eliges el plazo",
+  "@movimientosSecCuantoResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecCuantoTexto": "Nube: de 7 días a 1 año. PC: también sin borrar.",
+  "@movimientosSecCuantoTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecQuienTitulo": "Quién puede verlos",
+  "@movimientosSecQuienTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecQuienResumen": "La familia, con registro",
+  "@movimientosSecQuienResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecQuienTexto": "Solo la familia vinculada; cada repetición queda registrada.",
+  "@movimientosSecQuienTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecDerechosTitulo": "Sus derechos",
+  "@movimientosSecDerechosTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecDerechosResumen": "Ley N.° 29733",
+  "@movimientosSecDerechosResumen": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosSecDerechosTexto": "{nombre} puede ver, corregir o borrar sus datos, u oponerse a su uso: privacidad@tetengo.pe (Ley N.° 29733).",
+  "@movimientosSecDerechosTexto": {
+    "description": "LEGAL: needs human/legal review in English.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosTitulo": "Guardar movimientos",
+  "movimientosErrorRepresentante": "Escribe el nombre del representante.",
+  "movimientosRegistradoTitulo": "Permiso registrado",
+  "movimientosRegistradoTexto": "Ahora puedes elegir si se guardan en la nube.",
+  "movimientosDejarTitulo": "¿Dejar de guardar los movimientos de {nombre}?",
+  "@movimientosDejarTitulo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosDejarTexto": "Borraremos los de la nube; la PC preguntará si también los borra. Las alertas siguen igual.",
+  "movimientosDejarAceptar": "Dejar de guardar",
+  "movimientosCancelar": "Cancelar",
+  "movimientosSinInternetTitulo": "Sin internet",
+  "movimientosSinInternetTexto": "Revisa tu conexión y vuelve a intentarlo.",
+  "movimientosPregunta": "¿Guardamos los movimientos de {nombre}?",
+  "@movimientosPregunta": {
+    "description": "LEGAL: needs human/legal review in English.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosOpcional": "Es opcional: las alertas funcionan igual.",
+  "@movimientosOpcional": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosQuienDa": "¿Quién da el permiso?",
+  "@movimientosQuienDa": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosEnPersona": "{nombre}, en persona",
+  "@movimientosEnPersona": {
+    "description": "LEGAL: needs human/legal review in English.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosSuRepresentante": "Su representante",
+  "@movimientosSuRepresentante": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosNombreRepresentante": "Nombre del representante",
+  "movimientosNombreMarcador": "Nombre y apellido",
+  "movimientosAcepto": "{nombre} aceptó que se guarden sus movimientos para estos fines.",
+  "@movimientosAcepto": {
+    "description": "LEGAL: needs human/legal review in English.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosErrorRedTitulo": "No pudimos registrar el permiso",
+  "movimientosErrorRedTexto": "Nada se guardó.",
+  "movimientosRegistrar": "Registrar el permiso",
+  "movimientosAhoraNo": "Ahora no",
+  "movimientosAccionRegistrar": "registrar este permiso",
+  "movimientosLeerDocumento": "Leer el documento completo",
+  "movimientosFaltaConsentimientoTitulo": "Falta el consentimiento",
+  "movimientosFaltaConsentimientoTexto": "Sin él no detectamos caídas.",
+  "movimientosRegistrarConsentimiento": "Registrar consentimiento",
+  "movimientosEnLaNube": "Movimientos en la nube",
+  "movimientosDejarBoton": "Dejar de guardar movimientos",
+  "movimientosAccionRetirar": "retirar este permiso",
+  "movimientosConstanciaTitulo": "Permiso para guardar movimientos",
+  "movimientosConstanciaOtorgadoPor": "Otorgado por",
+  "movimientosConstanciaRepresentante": "{nombre} (representante)",
+  "@movimientosConstanciaRepresentante": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosConstanciaRegistradoPor": "Registrado por",
+  "movimientosConstanciaFecha": "Fecha",
+  "movimientosConstanciaVersion": "Versión del texto",
+  "movimientosConstanciaLey": "Constancia exigida por la Ley N.° 29733 para datos sensibles.",
+  "@movimientosConstanciaLey": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosLeerAceptado": "Leer el documento aceptado",
+  "movimientosPersonaCuidada": "la persona cuidada",
+  "movimientosDocIntroduccion": "Permiso aparte y opcional. Lo acepta {nombre} o su representante.",
+  "@movimientosDocIntroduccion": {
+    "description": "LEGAL: needs human/legal review in English.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosDocRegistraTitulo": "Cómo se registra",
+  "@movimientosDocRegistraTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosDocRegistraTexto": "Guardamos quién lo otorgó, quién lo registró, fecha, hora y versión del texto (Ley N.° 29733).",
+  "@movimientosDocRegistraTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosDocRetirarTitulo": "Cómo retirarlo",
+  "@movimientosDocRetirarTitulo": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosDocRetirarTexto": "El titular lo retira en Ajustes › Privacidad. Borramos los de la nube; la PC pregunta si también los borra.",
+  "@movimientosDocRetirarTexto": {
+    "description": "LEGAL: needs human/legal review in English."
+  },
+  "movimientosDocVersion": "Versión del texto: {version}.",
+  "@movimientosDocVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosBorradoListo": "Listo. Ya no guardamos los movimientos de {nombre}.",
+  "@movimientosBorradoListo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosBorrandoNube": "Borrando los movimientos de la nube…",
+  "movimientosAlertasIgual": "Las alertas siguen igual.",
+  "movimientosNoCierres": "No cierres la app.",
+  "movimientosYaNoGuardamos": "Ya no guardamos movimientos",
+  "movimientosDesdeLas": "Desde las {hora}",
+  "@movimientosDesdeLas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "movimientosBorradosNube": "Movimientos borrados de la nube",
+  "movimientosEnLaPc": "En la PC de la casa",
+  "movimientosPcPreguntara": "Preguntará si también se borran ahí.",
+  "movimientosVolverPrivacidad": "Volver a Privacidad",
+  "nubePlazoDias": "{dias, plural, other{{dias} días}}",
+  "@nubePlazoDias": {
+    "placeholders": {
+      "dias": {
+        "type": "int"
+      }
+    }
+  },
+  "nubePlazoAnio": "1 año",
+  "nubeDesactivado": "Desactivado",
+  "nubeSeGuardan": "Se guardan {plazo}",
+  "@nubeSeGuardan": {
+    "placeholders": {
+      "plazo": {
+        "type": "String"
+      }
+    }
+  },
+  "nubeApagarTitulo": "¿Dejar de guardar en la nube?",
+  "nubeAcortarTitulo": "¿Guardar solo {plazo}?",
+  "@nubeAcortarTitulo": {
+    "placeholders": {
+      "plazo": {
+        "type": "String"
+      }
+    }
+  },
+  "nubeApagarTexto": "Borraremos todos los movimientos de la nube. No se pueden recuperar.",
+  "nubeAcortarTexto": "Borraremos los movimientos anteriores al {fecha}. No se pueden recuperar.",
+  "@nubeAcortarTexto": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "nubeNoGuardar": "No guardar en la nube",
+  "nubeGuardarPlazo": "Guardar {plazo}",
+  "@nubeGuardarPlazo": {
+    "placeholders": {
+      "plazo": {
+        "type": "String"
+      }
+    }
+  },
+  "nubeToastApagado": "Movimientos en la nube: no guardar",
+  "nubeToastPlazo": "Movimientos en la nube: {plazo}",
+  "@nubeToastPlazo": {
+    "placeholders": {
+      "plazo": {
+        "type": "String"
+      }
+    }
+  },
+  "nubeBorramos": "Borramos los movimientos de la nube.",
+  "nubeSeBorranSolos": "Se borran solos al cumplirse el plazo.",
+  "nubeFaltaPermiso": "Falta el permiso de {nombre} para guardar movimientos",
+  "@nubeFaltaPermiso": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "nubeVerPermiso": "Ver el permiso",
+  "nubeAccionCambiarPlazo": "cambiar el plazo",
+  "nubeErrorRed": "No pudimos guardar el cambio",
+  "nubePlazoEtiqueta": "Plazo en la nube",
+  "nubeMaximoRecomendado": "Máximo recomendado",
+  "nubeEspacio": "Espacio aproximado",
+  "nubeEspacioValor": "{minimo} a {maximo} MB por cámara al día (estimado)",
+  "@nubeEspacioValor": {
+    "placeholders": {
+      "minimo": {
+        "type": "int"
+      },
+      "maximo": {
+        "type": "int"
+      }
+    }
+  },
+  "nubeDatosDesde": "Hay movimientos desde",
+  "nubeCamaras": "Cámaras",
+  "nubePcSubira": "La PC {pc} subirá sus movimientos al reconectarse.",
+  "@nubePcSubira": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "nubeNuncaVideo": "Nunca guardamos video en la nube.",
+  "historialTitulo": "Historial",
+  "historialAlertas": "Alertas",
+  "historialResumenSemanal": "Resumen semanal",
+  "historialRangoSiete": "Últimos 7 días",
+  "historialRangoTreinta": "Últimos 30 días",
+  "historialRangoTodo": "Todo",
+  "historialChipCaidas": "Caídas",
+  "historialChipInestables": "Movimientos inestables",
+  "historialChipActivas": "Activas",
+  "historialChipAtendidas": "Atendidas",
+  "historialChipFalsas": "Falsas alarmas",
+  "historialFiltrarTitulo": "Filtrar alertas",
+  "historialFiltroFecha": "Fecha",
+  "historialFiltroTipo": "Tipo",
+  "historialFiltroEstado": "Estado",
+  "historialFiltroTodas": "Todas",
+  "historialFiltroCaida": "Caída",
+  "historialFiltroInestable": "Movimiento inestable",
+  "historialFiltroTodos": "Todos",
+  "historialFiltroActiva": "Activa",
+  "historialFiltroAtendida": "Atendida",
+  "historialFiltroFalsa": "Falsa alarma",
+  "historialLimpiar": "Limpiar",
+  "historialVerAlertas": "Ver alertas",
+  "historialVerConteo": "{n, plural, =1{Ver {n} alerta} other{Ver {n} alertas}}",
+  "@historialVerConteo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "historialVacio": "Sin eventos registrados",
+  "historialNingunaCoincide": "Ninguna alerta coincide",
+  "historialQuitarFiltros": "Quitar filtros",
+  "historialHoy": "Hoy",
+  "historialAyer": "Ayer",
+  "historialFiltrar": "Filtrar",
+  "historialFiltrarConteo": "Filtrar ({n})",
+  "@historialFiltrarConteo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "historialQuitarFiltro": "Quitar filtro {filtro}",
+  "@historialQuitarFiltro": {
+    "placeholders": {
+      "filtro": {
+        "type": "String"
+      }
+    }
+  },
+  "historialSinMarcar": "Sin marcar",
+  "historialMarcadaPor": "por {nombre}",
+  "@historialMarcadaPor": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "historialFilaCaida": "Caída",
+  "historialFilaInestable": "Inestable",
+  "historialCargando": "Cargando historial",
+  "resumenSemanaAnterior": "Semana anterior",
+  "resumenSemanaSiguiente": "Semana siguiente",
+  "resumenEstaSemana": "Esta semana",
+  "resumenSemanaPasada": "Semana pasada",
+  "resumenHaceSemanas": "{n, plural, other{Hace {n} semanas}}",
+  "@resumenHaceSemanas": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "resumenRangoHastaHoy": "{rango} · hasta hoy",
+  "@resumenRangoHastaHoy": {
+    "placeholders": {
+      "rango": {
+        "type": "String"
+      }
+    }
+  },
+  "resumenRangoAnio": "{rango} {anio}",
+  "@resumenRangoAnio": {
+    "placeholders": {
+      "rango": {
+        "type": "String"
+      },
+      "anio": {
+        "type": "String"
+      }
+    }
+  },
+  "resumenSinEventos": "Semana sin eventos",
+  "resumenPorTipo": "Por tipo",
+  "resumenVs": "vs. {rango}",
+  "@resumenVs": {
+    "placeholders": {
+      "rango": {
+        "type": "String"
+      }
+    }
+  },
+  "resumenCaidas": "Caídas",
+  "resumenInestables": "Movimientos inestables",
+  "resumenFalsas": "Falsas alarmas",
+  "resumenFalsasNoSuman": "Las falsas alarmas no suman.",
+  "resumenEventosPorDia": "Eventos por día",
+  "resumenInicialesDias": "LMMJVSD",
+  "resumenIgual": "Igual ({anterior})",
+  "@resumenIgual": {
+    "placeholders": {
+      "anterior": {
+        "type": "int"
+      }
+    }
+  },
+  "resumenSubio": "Subió de {anterior} a {actual}",
+  "@resumenSubio": {
+    "placeholders": {
+      "anterior": {
+        "type": "int"
+      },
+      "actual": {
+        "type": "int"
+      }
+    }
+  },
+  "resumenBajo": "Bajó de {anterior} a {actual}",
+  "@resumenBajo": {
+    "placeholders": {
+      "anterior": {
+        "type": "int"
+      },
+      "actual": {
+        "type": "int"
+      }
+    }
+  },
+  "resumenVerResumen": "Ver resumen",
+  "resumenInicioCaidas": "{n, plural, =1{caída} other{caídas}}",
+  "@resumenInicioCaidas": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "resumenInicioInestables": "{n, plural, =1{inestable} other{inestables}}",
+  "@resumenInicioInestables": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "resumenInicioFalsas": "{n, plural, =1{falsa} other{falsas}}",
+  "@resumenInicioFalsas": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "comunCerrarAviso": "Cerrar aviso",
+  "@comunCerrarAviso": {
+    "description": "Screen-reader action that closes a floating notice."
+  },
+  "comunSoloVer": "Solo ver",
+  "@comunSoloVer": {
+    "description": "Read-only tag for an invited member."
+  },
+  "comunSoloTitularPuede": "Solo {titular} (titular) puede {accion}.",
+  "@comunSoloTitularPuede": {
+    "description": "Read-only notice. accion is a lowercase verb phrase, e.g. «agregar una PC».",
+    "placeholders": {
+      "titular": {
+        "type": "String"
+      },
+      "accion": {
+        "type": "String"
+      }
+    }
+  },
+  "comunPasoDe": "Paso {paso} de {pasos}",
+  "@comunPasoDe": {
+    "placeholders": {
+      "paso": {
+        "type": "int"
+      },
+      "pasos": {
+        "type": "int"
+      }
+    }
+  },
+  "comunMostrarContrasena": "Mostrar contraseña",
+  "comunOcultarContrasena": "Ocultar contraseña",
+  "comunUnMomento": "Un momento…",
+  "@comunUnMomento": {
+    "description": "Default label of a button while it is loading."
+  },
+  "comunMasInformacion": "Más información: {tema}",
+  "@comunMasInformacion": {
+    "description": "Screen-reader label of the «?» help button.",
+    "placeholders": {
+      "tema": {
+        "type": "String"
+      }
+    }
+  },
+  "comunErrorGenerico": "Ocurrió un error.",
+  "redSinConexion": "No hay conexión con Te Tengo. Revisa tu internet.",
+  "navInicio": "Inicio",
+  "navHistorial": "Historial",
+  "navFamilia": "Familia",
+  "navAjustes": "Ajustes",
+  "navAlertasActivas": "{n, plural, =1{1 alerta activa} other{{n} alertas activas}}",
+  "@navAlertasActivas": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nucleoEnHabitacion": "en {lugar}",
+  "@nucleoEnHabitacion": {
+    "description": "Where something happened. lugar is the room with its Spanish article («la Sala»); habitacion is the room name alone.",
+    "placeholders": {
+      "lugar": {
+        "type": "String"
+      },
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "nucleoSinInternetTitulo": "Tu celular no tiene internet",
+  "nucleoSinInternetTexto": "Las alertas llegarán cuando vuelvas a conectarte. Si no atiendes una a tiempo, avisamos a tu contacto secundario.",
+  "nucleoAlertaTitulo": "{tipo, select, inestable{Movimiento inestable} confirmada{Caída confirmada} other{Posible caída}}",
+  "@nucleoAlertaTitulo": {
+    "placeholders": {
+      "tipo": {
+        "type": "String"
+      }
+    }
+  },
+  "nucleoAlertaActivaDesde": "Alerta activa desde las ",
+  "@nucleoAlertaActivaDesde": {
+    "description": "Followed by a time in another font (keep the trailing space)."
+  },
+  "pushSigueEnElSueloTitulo": "{nombre} sigue en el suelo",
+  "@pushSigueEnElSueloTitulo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pushCaidaConfirmadaTexto": "Caída confirmada a las {hora}. La alerta sigue activa.",
+  "@pushCaidaConfirmadaTexto": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pushSeLevantoTitulo": "{nombre} se levantó",
+  "@pushSeLevantoTitulo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pushSeLevantoTexto": "{hora} · Se puso de pie. Confirma cómo está.",
+  "@pushSeLevantoTexto": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pushSeLevantoTextoEn": "{hora} · Se puso de pie {lugar}. Confirma cómo está.",
+  "@pushSeLevantoTextoEn": {
+    "description": "lugar is nucleoEnHabitacion («en la Sala»).",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      },
+      "lugar": {
+        "type": "String"
+      }
+    }
+  },
+  "pushMovimientosBorradosTitulo": "Listo. Ya no guardamos los movimientos de {nombre}.",
+  "@pushMovimientosBorradosTitulo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pushMovimientosBorradosTexto": "Los borramos de la nube.",
+  "pushPcDesvinculadaTitulo": "Una PC se desvinculó de la casa",
+  "pushPcDesvinculadaNombre": "La PC {pc} se desvinculó",
+  "@pushPcDesvinculadaNombre": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "pushPcDesvinculadaSinCamaras": "Sus cámaras ya no detectan caídas. Revisa Cámaras y PCs.",
+  "pushPcDesvinculadaHabitaciones": "Ya no detecta caídas en {habitaciones}.",
+  "@pushPcDesvinculadaHabitaciones": {
+    "description": "habitaciones: a list of room names, «Sala y Cocina».",
+    "placeholders": {
+      "habitaciones": {
+        "type": "String"
+      }
+    }
+  },
+  "pushEscaladaMiaTitulo": "Nadie atendió la alerta: te toca",
+  "pushEscaladaMiaTexto": "Pasaron {espera} min sin respuesta. Eres el contacto secundario.",
+  "@pushEscaladaMiaTexto": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "pushEscaladaTitulo": "Alerta escalada a {nombre}",
+  "@pushEscaladaTitulo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pushTuContactoSecundario": "tu contacto secundario",
+  "pushEscaladaTexto": "Nadie la marcó en {espera} min. Tú todavía puedes atenderla.",
+  "@pushEscaladaTexto": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "pushSinSecundarioTitulo": "No hay contacto secundario",
+  "pushSinSecundarioTexto": "Pasaron {espera} min sin respuesta. La alerta sigue siendo tuya.",
+  "@pushSinSecundarioTexto": {
+    "placeholders": {
+      "espera": {
+        "type": "int"
+      }
+    }
+  },
+  "pushFalsaAlarmaTitulo": "{quien} la marcó como falsa alarma",
+  "@pushFalsaAlarmaTitulo": {
+    "placeholders": {
+      "quien": {
+        "type": "String"
+      }
+    }
+  },
+  "pushAtendidaTitulo": "{quien} atendió la alerta",
+  "@pushAtendidaTitulo": {
+    "placeholders": {
+      "quien": {
+        "type": "String"
+      }
+    }
+  },
+  "pushAtendidaTexto": "{hora} · {tipo, select, caida{Caída} other{Movimiento inestable}} {lugar}.",
+  "@pushAtendidaTexto": {
+    "description": "lugar is nucleoEnHabitacion.",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      },
+      "tipo": {
+        "type": "String"
+      },
+      "lugar": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioHola": "Hola, {nombre}",
+  "@inicioHola": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioNadieRecibeAlertas": "Nadie de la familia recibe las alertas",
+  "inicioActivaNotificaciones": "Activa las notificaciones",
+  "inicioEsteCelularNoRecibe": "Este celular no recibe las alertas",
+  "inicioSinNotificacionesTexto": "Sin ellas no sabrás de una caída con la app cerrada.",
+  "inicioActivarNotificaciones": "Activar notificaciones",
+  "inicioVerAlerta": "Ver la alerta",
+  "inicioRegistrarConsentimiento": "Registrar consentimiento",
+  "inicioElegirCamaras": "Elegir las cámaras",
+  "inicioAgregarPc": "Agregar PC",
+  "inicioVerQueRevisar": "Ver qué revisar",
+  "inicioVerEnVivo": "Ver en vivo",
+  "inicioNoDisponibleAhora": "No disponible ahora",
+  "inicioTemaPrivacidad": "privacidad",
+  "@inicioTemaPrivacidad": {
+    "description": "Topic of the «?» help next to «Ver en vivo»."
+  },
+  "inicioNotificacionesActivadas": "Notificaciones activadas",
+  "inicioNotificacionesActivadasTexto": "Te llegarán las alertas aunque la app esté cerrada.",
+  "inicioAlertaTitulo": "{tipo, select, inestable{Movimiento inestable activo} confirmada{Caída confirmada} other{Alerta de caída activa}}",
+  "@inicioAlertaTitulo": {
+    "placeholders": {
+      "tipo": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioAlertaTexto": "{tipo, select, caida{Caída} other{Movimiento inestable}} {lugar} a las {hora}. Nadie la marcó aún.",
+  "@inicioAlertaTexto": {
+    "description": "lugar is nucleoEnHabitacion.",
+    "placeholders": {
+      "tipo": {
+        "type": "String"
+      },
+      "lugar": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioDeteccionDetenida": "Detección detenida",
+  "inicioRevocasteConsentimiento": "Revocaste el consentimiento.",
+  "inicioFaltaConsentimiento": "Falta el consentimiento de {nombre}.",
+  "@inicioFaltaConsentimiento": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioSinCamaras": "Sin cámaras",
+  "inicioFaltaElegirCamaras": "Falta elegir las cámaras.",
+  "inicioVinculaPc": "Vincula la PC de la casa para detectar caídas.",
+  "inicioUnaCamaraNoResponde": "1 cámara no responde · {habitacion}",
+  "@inicioUnaCamaraNoResponde": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioCamarasNoResponden": "{n, plural, =1{1 cámara no responde} other{{n} cámaras no responden}}",
+  "@inicioCamarasNoResponden": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "inicioNoDetectamosEn": "No detectamos caídas {lugares}. Las demás siguen.",
+  "@inicioNoDetectamosEn": {
+    "description": "lugares: a list of nucleoEnHabitacion, «en la Sala y en el Pasillo».",
+    "placeholders": {
+      "lugares": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioCamaraDesconectada": "La cámara está desconectada",
+  "inicioSinEllaNoDetectamos": "Sin ella no detectamos caídas {lugar}.",
+  "@inicioSinEllaNoDetectamos": {
+    "description": "lugar is nucleoEnHabitacion.",
+    "placeholders": {
+      "lugar": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioNoConfiable": "La detección no es confiable",
+  "inicioNoVeBien": "Hace más de 5 min que no ve bien a {nombre}.",
+  "@inicioNoVeBien": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioTranquiloConPausa": "Todo tranquilo, con una pausa",
+  "inicioEnPausaHasta": "{habitacion} en pausa hasta las {hora}.",
+  "@inicioEnPausaHasta": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "inicioTodoTranquilo": "Todo tranquilo",
+  "inicioSinEventosHoy": "{n, plural, =0{Sin eventos hoy.} =1{Sin eventos hoy.} other{{n} cámaras cuidando. Sin eventos hoy.}}",
+  "@inicioSinEventosHoy": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "inicioNombreEdad": "{nombre}, {edad} años",
+  "@inicioNombreEdad": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "edad": {
+        "type": "int"
+      }
+    }
+  },
+  "inicioCamaras": "Cámaras",
+  "inicioFamilia": "Familia",
+  "inicioPersonas": "{n, plural, =1{1 persona} other{{n} personas}}",
+  "@inicioPersonas": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "inicioCamarasNecesitanAtencion": "{n, plural, =1{1 cámara necesita atención} other{{n} cámaras necesitan atención}}",
+  "@inicioCamarasNecesitanAtencion": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "arranqueLema": "Cerca de los tuyos, aunque estés lejos.",
+  "@arranqueLema": {
+    "description": "Brand tagline on the splash screen."
+  },
+  "instalarAvisoTitulo": "Agrega Te Tengo a tu pantalla de inicio",
+  "instalarAvisoTexto": "En el iPhone, las alertas solo llegan si abres Te Tengo desde su ícono.",
+  "instalarVerComo": "Ver cómo",
+  "instalarTitulo": "Agregar a la pantalla de inicio",
+  "instalarEncabezado": "Instala Te Tengo en tu iPhone",
+  "instalarIntro": "Así te llegarán las alertas de caída aunque tengas la app cerrada. Necesitas iOS 16.4 o posterior.",
+  "instalarPaso1": "Abre esta página en Safari",
+  "instalarPaso2": "Toca Compartir",
+  "instalarPaso2Detalle": "El cuadrado con una flecha hacia arriba, en la barra de Safari o dentro del menú «···».",
+  "instalarPaso3": "Elige «Agregar a inicio»",
+  "@instalarPaso3": {
+    "description": "Name of the iOS Safari menu item in each language."
+  },
+  "instalarPaso3Detalle": "Si no lo ves, toca «Ver más» y desliza la lista hacia arriba.",
+  "instalarPaso4": "Toca «Agregar»",
+  "instalarPaso5": "Abre Te Tengo desde su ícono",
+  "instalarPaso5Detalle": "Inicia sesión otra vez y toca «Activar notificaciones».",
+  "widgetAbreLaApp": "Abre la app para ver el estado.",
+  "widgetTituloAlerta": "{tipo, select, confirmada{Caída confirmada} caida{Posible caída} other{Movimiento inestable}}",
+  "@widgetTituloAlerta": {
+    "placeholders": {
+      "tipo": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetSinCamaras": "Sin cámaras",
+  "widgetAbreTeTengo": "Abre Te Tengo",
+  "widgetDeteccionDetenida": "Detección detenida",
+  "widgetFaltaConsentimiento": "Falta el consentimiento",
+  "widgetCamarasNoResponden": "{n, plural, =1{1 cámara no responde} other{{n} cámaras no responden}}",
+  "@widgetCamarasNoResponden": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetTodoTranquilo": "Todo tranquilo",
+  "widgetCamaras": "{n, plural, =1{1 cámara} other{{n} cámaras}}",
+  "@widgetCamaras": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "widgetPaso1": "Mantén presionado un espacio libre de la pantalla de inicio.",
+  "widgetPaso2": "Toca «Widgets» y busca Te Tengo.",
+  "widgetPaso3": "Elige el tamaño y suéltalo.",
+  "widgetPrivacidad": "Muestra el estado, nunca imágenes de la casa.",
+  "pcsSinInternet": "Sin internet",
+  "pcsRevisaConexion": "Revisa tu conexión y vuelve a intentarlo.",
+  "pcsSinInternetReintenta": "Sin internet. Vuelve a intentarlo.",
+  "pcsAgregarPc": "Agregar PC",
+  "pcsEscanearQr": "Escanear el código QR",
+  "pcsEscribirCodigo": "Escribir el código",
+  "pcsBuscandoPc": "Buscando la PC…",
+  "pcsCodigoVencidoTitulo": "Este código ya venció o ya se usó",
+  "pcsCodigoVencidoTexto": "La PC ya muestra uno nuevo: escríbelo o escanéalo.",
+  "pcsDemasiadosIntentos": "Demasiados intentos",
+  "pcsYaVinculadaTitulo": "Esta PC ya está vinculada",
+  "pcsYaVinculadaTexto": "La encuentras en Cámaras y PCs.",
+  "pcsCancelar": "Cancelar",
+  "pcsCerrar": "Cerrar",
+  "pcsListo": "Listo",
+  "pcsFaltaElegirCamaras": "Falta elegir las cámaras",
+  "pcsElegirCamaras": "Elegir las cámaras",
+  "pcsSistema": "Sistema",
+  "@pcsSistema": {
+    "description": "Label of the PC's operating system row."
+  },
+  "pcsPrograma": "Programa",
+  "@pcsPrograma": {
+    "description": "Label of the row with the Te Tengo Captura version."
+  },
+  "pcsRegistrarConsentimiento": "Registrar consentimiento",
+  "pcsFaltaConsentimientoDe": "Falta el consentimiento de {nombre}",
+  "@pcsFaltaConsentimientoDe": {
+    "description": "nombre: first name of the cared-for person.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsQueRevisar": "Qué revisar",
+  "pcsSinConexion": "Sin conexión",
+  "pcsEnLinea": "En línea",
+  "pcsSinConexionDesdeLas": "Sin conexión desde las {hora}.",
+  "@pcsSinConexionDesdeLas": {
+    "description": "hora: an already formatted time.",
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsPcNoResponde": "La PC {nombre} no responde",
+  "@pcsPcNoResponde": {
+    "description": "nombre: the PC's name, e.g. «Sala-Rosa».",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsPcNoRespondeDesde": "La PC {nombre} no responde desde las {hora}",
+  "@pcsPcNoRespondeDesde": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsPcNombre": "PC {nombre}",
+  "@pcsPcNombre": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsDejarDeUsar": "Dejar de usar",
+  "pcsVistaPreviaTema": "vista previa",
+  "@pcsVistaPreviaTema": {
+    "description": "Topic of a «?» help button: «Más información: vista previa»."
+  },
+  "pcsNCamaras": "{n, plural, =1{1 cámara} other{{n} cámaras}}",
+  "@pcsNCamaras": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "pcsNCamarasSinUsar": "{n, plural, =1{1 cámara sin usar} other{{n} cámaras sin usar}}",
+  "@pcsNCamarasSinUsar": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "pcsUnaPorHabitacion": "Una cámara por habitación.",
+  "pcsBuscarDeNuevo": "Buscar de nuevo",
+  "pcsEstadoSinConexionDesde": "Sin conexión desde las {hora}",
+  "@pcsEstadoSinConexionDesde": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsEstadoEnLineaSenal": "En línea · última señal {hace}",
+  "@pcsEstadoEnLineaSenal": {
+    "description": "hace: «hace 6 s» / «6 s ago».",
+    "placeholders": {
+      "hace": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsRevisarEncendida": "Que la PC esté encendida",
+  "pcsRevisarEncendidaDetalle": "Sin suspender",
+  "pcsRevisarInternet": "Que tenga internet",
+  "pcsRevisarInternetDetalle": "Con la luz del módem encendida",
+  "pcsRevisarCaptura": "Que Te Tengo Captura esté abierto",
+  "pcsRevisarCapturaDetalle": "Junto al reloj de Windows",
+  "pcsChipOcupada": "{habitacion}, ya tiene cámara",
+  "@pcsChipOcupada": {
+    "description": "Screen reader label of a room chip that cannot be chosen.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsDejarDeUsarTitulo": "¿Dejar de usar la cámara {dispositivo}?",
+  "@pcsDejarDeUsarTitulo": {
+    "description": "dispositivo: the webcam's name, e.g. «Webcam USB HD».",
+    "placeholders": {
+      "dispositivo": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsDejarDeUsarTexto": "No detectaremos caídas {enHabitacion}. Puedes volver a elegirla.",
+  "@pcsDejarDeUsarTexto": {
+    "description": "enHabitacion: «en la Sala» / «in the Sala».",
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsDejamosDeUsar": "Dejamos de usar la cámara {dispositivo}",
+  "@pcsDejamosDeUsar": {
+    "placeholders": {
+      "dispositivo": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsYaNoDetectamos": "Ya no detectamos caídas {enHabitacion}.",
+  "@pcsYaNoDetectamos": {
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsCodigoNoExiste": "Ese código no existe. Revísalo letra por letra.",
+  "pcsCodigoFormato": "El código tiene 8 letras, solo consonantes y sin números.",
+  "pcsCodigoVencido": "Este código venció o ya se usó. La PC ya muestra uno nuevo.",
+  "pcsBloqueoQuinceMinutos": "Podrás volver a intentarlo en 15 minutos.",
+  "pcsBloqueoHasta": "Podrás volver a intentarlo a las {hora}.",
+  "@pcsBloqueoHasta": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsCampoCodigoEtiqueta": "Código de la PC, 8 letras",
+  "pcsEscribeElCodigo": "Escribe el código de la PC",
+  "pcsCodigoDe8Letras": "Código de 8 letras",
+  "pcsSoloConsonantes": "El código solo lleva consonantes, sin números",
+  "pcsCodigoDondeEsta": "Está debajo del QR, en Te Tengo Captura.",
+  "pcsContinuar": "Continuar",
+  "pcsQrAjenoTitulo": "Ese código no es de Te Tengo Captura",
+  "pcsQrAjenoTexto": "Apunta al código QR que muestra la PC.",
+  "pcsVolver": "Volver",
+  "pcsCamaraDelCelular": "Cámara del celular",
+  "pcsApuntaAlQr": "Apunta al QR de la PC",
+  "pcsLinterna": "Linterna",
+  "pcsExplicarCamara": "Te Tengo usará la cámara para leer el QR.",
+  "pcsNoGuardaImagenes": "No guarda imágenes.",
+  "pcsPermitir": "Permitir",
+  "pcsCamaraBloqueada": "La cámara del celular está bloqueada",
+  "pcsAbrirAjustesCelular": "Abrir los ajustes del celular",
+  "pcsNoPuedesEscanear": "¿No puedes escanearlo?",
+  "pcsNoVinculamosTitulo": "No vinculamos la PC",
+  "pcsNoVinculamosTexto": "La PC no tendrá acceso. No escanees códigos ajenos.",
+  "pcsEntendido": "Entendido",
+  "pcsAprobarLaPc": "Aprobar la PC",
+  "pcsVolverAIntentarlo": "Volver a intentarlo",
+  "pcsVinculamosPregunta": "¿Vinculamos esta PC a la casa de {nombre}?",
+  "@pcsVinculamosPregunta": {
+    "description": "nombre: first name of the cared-for person.",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsNoPudimosVincular": "No pudimos vincular la PC",
+  "pcsNombreDeLaPc": "Nombre de la PC",
+  "pcsCodigo": "Código",
+  "pcsSiLaApruebas": "Si la apruebas, esta PC podrá:",
+  "pcsPermisoDetectar": "Detectar caídas con sus cámaras",
+  "pcsPermisoAvisos": "Enviar avisos y clips de 12 s",
+  "pcsPermisoVivo": "Mostrar la vista en vivo",
+  "pcsApruebalaSolo": "Apruébala solo si estás frente a la PC de {nombre} o tú la instalaste.",
+  "@pcsApruebalaSolo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAccionVincularPc": "vincular una PC. Pídele que escanee el código",
+  "@pcsAccionVincularPc": {
+    "description": "Ends «Solo Rosa (titular) puede …» / «Only Rosa (owner) can …»."
+  },
+  "pcsAprobar": "Aprobar",
+  "pcsVinculando": "Vinculando…",
+  "pcsNoReconozco": "No reconozco esta PC",
+  "pcsVinculaTitulo": "Vincula la PC de la casa",
+  "pcsAccionAgregarPc": "agregar una PC",
+  "@pcsAccionAgregarPc": {
+    "description": "Ends «Solo Rosa (titular) puede …» / «Only Rosa (owner) can …»."
+  },
+  "pcsPasoInstalar": "Instala Te Tengo Captura en la PC",
+  "pcsPasoInstalarDesde": "Desde {pagina}",
+  "@pcsPasoInstalarDesde": {
+    "description": "pagina: the download web address.",
+    "placeholders": {
+      "pagina": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsPasoAbrir": "Ábrelo: muestra un código QR",
+  "pcsPasoEscanear": "Escanea el QR con este celular",
+  "pcsEstaVinculada": "La PC {nombre} está vinculada",
+  "@pcsEstaVinculada": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsCamarasYaElegidas": "Sus cámaras ya están elegidas.",
+  "pcsAhoraElige": "Ahora elige sus cámaras desde aquí.",
+  "pcsSinElNoEnvian": "Sin él, las cámaras no envían nada.",
+  "pcsCompletarConsentimiento": "Completar el consentimiento",
+  "pcsHacerloDespues": "Hacerlo después",
+  "pcsSinCamarasNoDetectamos": "Sin cámaras elegidas no detectamos caídas.",
+  "pcsPc": "PC",
+  "pcsVinculada": "Vinculada",
+  "@pcsVinculada": {
+    "description": "Label of the row with the date the PC was linked."
+  },
+  "pcsVinculadaPor": "{fecha} por {nombre}",
+  "@pcsVinculadaPor": {
+    "description": "fecha: 03/08/2026; nombre: who approved it.",
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      },
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsUltimaSenal": "Última señal",
+  "pcsCamarasDeEstaPc": "Cámaras de esta PC",
+  "pcsUsaOtraCamara": "Usa otra cámara o deja de usar una",
+  "pcsQuitar": "Quitar",
+  "pcsQuitarExplicacion": "Deja de detectar caídas con esta PC.",
+  "pcsQuitarEstaPc": "Quitar esta PC",
+  "pcsAccionElegirOQuitar": "elegir las cámaras o quitar esta PC",
+  "@pcsAccionElegirOQuitar": {
+    "description": "Ends «Solo Rosa (titular) puede …» / «Only Rosa (owner) can …»."
+  },
+  "pcsQuitarPregunta": "¿Quitar la PC {nombre}?",
+  "@pcsQuitarPregunta": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsQuitarTextoHabitaciones": "Dejaremos de detectar caídas en {habitaciones}. La PC volverá a mostrar su QR.",
+  "@pcsQuitarTextoHabitaciones": {
+    "description": "habitaciones: «Sala y Cocina» / «Sala and Cocina».",
+    "placeholders": {
+      "habitaciones": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsQuitarTexto": "La PC volverá a mostrar su QR.",
+  "pcsQuitarLaPc": "Quitar la PC",
+  "pcsQuitamos": "Quitamos la PC {nombre}",
+  "@pcsQuitamos": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsDejaraDeCapturar": "Dejará de capturar en cuanto se conecte.",
+  "pcsCamaras": "Cámaras",
+  "pcsFaltaConsentimiento": "Falta el consentimiento",
+  "pcsSinElNoDetectamos": "Sin él no detectamos caídas.",
+  "pcsVerTodas": "Ver todas",
+  "pcsOrdenar": "Ordenar",
+  "pcsFiltroSemantica": "Ver las cámaras de",
+  "@pcsFiltroSemantica": {
+    "description": "Screen reader label of the row of PC filter chips."
+  },
+  "pcsTodas": "Todas",
+  "@pcsTodas": {
+    "description": "Filter chip: the cameras of every PC."
+  },
+  "pcsNecesitanAtencion": "Necesitan atención",
+  "pcsFuncionando": "Funcionando",
+  "pcsDetenidas": "Detenidas",
+  "pcsPcsDeLaCasa": "PCs de la casa",
+  "pcsAccionAgregarOQuitar": "agregar o quitar PCs",
+  "@pcsAccionAgregarOQuitar": {
+    "description": "Ends «Solo Rosa (titular) puede …» / «Only Rosa (owner) can …»."
+  },
+  "pcsAtencionPcSinConexion": "PC {nombre} sin conexión",
+  "@pcsAtencionPcSinConexion": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAtencionSinConexion": "{habitacion} sin conexión",
+  "@pcsAtencionSinConexion": {
+    "description": "habitacion: one room or a list of rooms.",
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAtencionEnPc": "En la PC {nombre}",
+  "@pcsAtencionEnPc": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAtencionEnPcElige": "En la PC {nombre} · elige en qué habitación está",
+  "@pcsAtencionEnPcElige": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsReanudarAhora": "Reanudar ahora",
+  "pcsAtencionDesconectada": "{habitacion}: cámara desconectada",
+  "@pcsAtencionDesconectada": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsDesdeLas": "Desde las {hora}",
+  "@pcsDesdeLas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAtencionEnPausa": "{habitacion} en pausa",
+  "@pcsAtencionEnPausa": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAtencionHastaLas": "Hasta las {hora} · se reactiva sola",
+  "@pcsAtencionHastaLas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAtencionNoConfiable": "Detección no confiable · {habitacion}",
+  "@pcsAtencionNoConfiable": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAtencionRevisaLuz": "Revisa la luz y el encuadre",
+  "pcsAunNoHayPc": "Aún no hay una PC vinculada",
+  "pcsLineaSinCamaras": "Sin cámaras",
+  "pcsLineaFunciona": "Funciona · {habitacion}",
+  "@pcsLineaFunciona": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsLineaFuncionan": "{ok, plural, =1{{ok} de {n} funciona} other{{ok} de {n} funcionan}}",
+  "@pcsLineaFuncionan": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "pcsResumenSinCamaras": "Aún no hay cámaras elegidas",
+  "pcsResumenDetenidas": "detenidas",
+  "pcsResumenFuncionaBien": "funciona bien",
+  "pcsResumenTodasBien": "todas funcionan bien",
+  "pcsResumenNoFunciona": "no funciona ahora",
+  "pcsResumenNingunaFunciona": "ninguna funciona ahora",
+  "pcsResumenAlgunasBien": "{ok, plural, =1{1 funciona bien} other{{ok} funcionan bien}}",
+  "@pcsResumenAlgunasBien": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      }
+    }
+  },
+  "pcsEscribeNombreHabitacion": "Escribe el nombre de la habitación.",
+  "pcsSinBano": "Por privacidad, Te Tengo no admite cámaras en el baño.",
+  "pcsOcupada": "Ya hay una cámara {enHabitacion}. Por ahora, cada habitación usa una sola cámara.",
+  "@pcsOcupada": {
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsOcupadaConPc": "Ya hay una cámara {enHabitacion} (PC {pc}). Por ahora, cada habitación usa una sola cámara.",
+  "@pcsOcupadaConPc": {
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      },
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsCuidaAhora": "La cámara {dispositivo} cuida ahora {laHabitacion}",
+  "@pcsCuidaAhora": {
+    "description": "laHabitacion: «la Sala» / «the Sala».",
+    "placeholders": {
+      "dispositivo": {
+        "type": "String"
+      },
+      "laHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsProximasAlertas": "Las próximas alertas dirán «{enHabitacion}».",
+  "@pcsProximasAlertas": {
+    "placeholders": {
+      "enHabitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsDetectaraConConsentimiento": "Detectará caídas cuando registres el consentimiento.",
+  "pcsEligeLasCamaras": "Elige las cámaras",
+  "pcsCamarasEnLaPc": "{n, plural, =1{1 cámara en la PC {pc}. Una por habitación.} other{{n} cámaras en la PC {pc}. Una por habitación.}}",
+  "@pcsCamarasEnLaPc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsSinElNoHayVistaPrevia": "Sin él no hay vista previa ni detección.",
+  "pcsAccionElegirCamaras": "elegir las cámaras",
+  "@pcsAccionElegirCamaras": {
+    "description": "Ends «Solo Rosa (titular) puede …» / «Only Rosa (owner) can …»."
+  },
+  "pcsQueRevisarEnCasa": "Qué revisar en la casa",
+  "pcsDeteccionLenta": "Si la detección va lenta, pasa cámaras a otra PC.",
+  "pcsFaltaUna": "¿Falta una? Que la conecten por USB.",
+  "pcsVerVistaPrevia": "Ver vista previa",
+  "pcsAyudaVistaPrevia": "Muestra lo que ve la cámara durante 15 s. No se graba y queda en el registro de accesos.",
+  "pcsRevisaCableConserva": "Revisa el cable USB. {habitacion} conserva esta cámara.",
+  "@pcsRevisaCableConserva": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsPideConectarUsb": "Pide que la conecten por USB.",
+  "pcsEnQueHabitacion": "¿En qué habitación está?",
+  "pcsHabitacionesTema": "habitaciones",
+  "@pcsHabitacionesTema": {
+    "description": "Topic of a «?» help button: «Más información: habitaciones»."
+  },
+  "pcsOtra": "Otra…",
+  "@pcsOtra": {
+    "description": "Chip to type a room name that is not offered."
+  },
+  "pcsYaTienenCamara": "Las que ya tienen cámara no se pueden elegir.",
+  "pcsNombreHabitacion": "Nombre de la habitación",
+  "pcsNombreHabitacionEjemplo": "Ej.: Estudio",
+  "pcsUsarEstaCamara": "Usar esta cámara",
+  "pcsBuscandoCamaras": "Buscando cámaras en la PC {pc}…",
+  "@pcsBuscandoCamaras": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsNoEncontramosCamaras": "No encontramos cámaras en la PC {pc}",
+  "@pcsNoEncontramosCamaras": {
+    "placeholders": {
+      "pc": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsConectenWebcam": "Que conecten una webcam por USB.",
+  "pcsWebcamDesconectadaEn": "Desconectada · {habitacion}",
+  "@pcsWebcamDesconectadaEn": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsWebcamEnUsoPausa": "En uso · {habitacion} · en pausa",
+  "@pcsWebcamEnUsoPausa": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsWebcamEnUso": "En uso · {habitacion}",
+  "@pcsWebcamEnUso": {
+    "placeholders": {
+      "habitacion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsWebcamDesconectada": "Desconectada",
+  "pcsWebcamSinUsar": "Sin usar",
+  "pcsCamaraDesconectada": "La cámara está desconectada",
+  "pcsRevisenCable": "Que revisen el cable USB.",
+  "pcsSinElNoHayVideo": "Sin él no hay video.",
+  "pcsCamaraEnPausa": "La cámara está en pausa",
+  "pcsHastaLas": "Hasta las {hora}.",
+  "@pcsHastaLas": {
+    "placeholders": {
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAccesoRegistrado": "Acceso registrado",
+  "pcsVisteVistaPrevia": "Viste la vista previa de {dispositivo} durante {duracion}.",
+  "@pcsVisteVistaPrevia": {
+    "description": "duracion: already formatted, e.g. «12 s».",
+    "placeholders": {
+      "dispositivo": {
+        "type": "String"
+      },
+      "duracion": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsVistaPreviaDe": "Vista previa · {dispositivo}",
+  "@pcsVistaPreviaDe": {
+    "placeholders": {
+      "dispositivo": {
+        "type": "String"
+      }
+    }
+  },
+  "pcsAyudaVistaPreviaCierre": "No se graba y queda en el registro de accesos. Se cierra sola a los {segundos} s.",
+  "@pcsAyudaVistaPreviaCierre": {
+    "placeholders": {
+      "segundos": {
+        "type": "int"
+      }
+    }
+  },
+  "pcsVistaPreviaCuenta": "VISTA PREVIA · {tiempo}",
+  "@pcsVistaPreviaCuenta": {
+    "description": "tiempo: countdown, e.g. «0:12».",
+    "placeholders": {
+      "tiempo": {
+        "type": "String"
+      }
+    }
+  }
+}

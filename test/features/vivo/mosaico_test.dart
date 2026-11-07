@@ -163,7 +163,13 @@ void main() {
       for (final t in ['Cerrar', 'Video', 'Esqueleto', 'Ordenar', 'Vertical']) {
         expect(find.bySemanticsLabel(t), findsOneWidget, reason: t);
       }
-      expect(ayudaCon(textoPrivacidadMosaico), findsOneWidget);
+      expect(
+        ayudaCon(
+          'No se graba. Al cerrar queda un solo acceso en el registro, con '
+          'las habitaciones vistas y la duración.',
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('«Ver todas a la vez» encabeza la hoja de habitaciones', (

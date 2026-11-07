@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/tema/paleta.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
@@ -10,6 +9,7 @@ import '../../alertas/domain/alerta.dart';
 import '../../camaras/domain/camara.dart';
 import '../../hogar/domain/hogar.dart';
 import '../../pcs/domain/camaras_en_casa.dart';
+import '../../../l10n/l10n.dart';
 
 /// What the older adult status card says (`seniorCard`).
 class EstadoTarjeta {
@@ -29,10 +29,11 @@ class EstadoTarjeta {
 }
 
 /// Status of the home card (`seniorCard`) from the household, its cameras and the active alert, in
-/// [paleta]. With several cameras the card tells the problems (management by exception): which
+/// [paleta], in [l]'s language. With several cameras the card tells the problems (management by exception): which
 /// rooms do not answer, while the others keep watching. [hayPc]: a PC is linked, so without cameras
 /// it is their choice that is missing.
 EstadoTarjeta estadoTarjeta(
+  AppLocalizations l,
   Hogar hogar,
   List<CamaraEnCasa> camaras, {
   Alerta? alerta,
@@ -40,20 +41,26 @@ EstadoTarjeta estadoTarjeta(
   Paleta paleta = Paleta.clara,
 }) {
   final nombre = hogar.adultoMayor.nombrePila;
+  String en(String habitacion) =>
+      l.nucleoEnHabitacion(conArticulo(habitacion), habitacion);
   if (alerta != null) {
     final caida = alerta.esCaida;
     return EstadoTarjeta(
       banda: caida ? Banda.caida : Banda.inestable,
       icono: caida ? Ico.fall : Ico.unsteady,
       color: caida ? paleta.caidaTinta : paleta.inestableTinta,
-      titulo: !caida
-          ? 'Movimiento inestable activo'
-          : alerta.sigueEnElSuelo
-          ? 'Caída confirmada'
-          : 'Alerta de caída activa',
-      texto:
-          '${alerta.tipo.nombre} ${enHabitacion(alerta.habitacion)} a las '
-          '${hora(alerta.ocurridaEn)}. Nadie la marcó aún.',
+      titulo: l.inicioAlertaTitulo(
+        !caida
+            ? 'inestable'
+            : alerta.sigueEnElSuelo
+            ? 'confirmada'
+            : 'activa',
+      ),
+      texto: l.inicioAlertaTexto(
+        alerta.tipo == TipoAlerta.caida ? 'caida' : 'inestable',
+        en(alerta.habitacion),
+        l.formato.hora(alerta.ocurridaEn),
+      ),
     );
   }
   if (!hogar.conConsentimiento) {
@@ -61,10 +68,10 @@ EstadoTarjeta estadoTarjeta(
       banda: Banda.pausa,
       icono: Ico.lock,
       color: paleta.pausa,
-      titulo: 'Detección detenida',
+      titulo: l.inicioDeteccionDetenida,
       texto: hogar.consentimiento != null
-          ? 'Revocaste el consentimiento.'
-          : 'Falta el consentimiento de $nombre.',
+          ? l.inicioRevocasteConsentimiento
+          : l.inicioFaltaConsentimiento(nombre),
     );
   }
   final n = camaras.length;
@@ -73,23 +80,21 @@ EstadoTarjeta estadoTarjeta(
       banda: Banda.pausa,
       icono: Ico.lock,
       color: paleta.pausa,
-      titulo: 'Sin cámaras',
-      texto: hayPc
-          ? 'Falta elegir las cámaras.'
-          : 'Vincula la PC de la casa para detectar caídas.',
+      titulo: l.inicioSinCamaras,
+      texto: hayPc ? l.inicioFaltaElegirCamaras : l.inicioVinculaPc,
     );
   }
   final caidas = camaras.where((c) => c.noResponde).toList();
   if (caidas.isNotEmpty && n > 1) {
-    final rooms = [for (final c in caidas) enHabitacion(c.habitacion)];
+    final rooms = [for (final c in caidas) en(c.habitacion)];
     return EstadoTarjeta(
       banda: Banda.aviso,
       icono: Ico.wifiOff,
       color: paleta.aviso,
       titulo: caidas.length == 1
-          ? '1 cámara no responde · ${caidas.single.habitacion}'
-          : '${caidas.length} cámaras no responden',
-      texto: 'No detectamos caídas ${enumerar(rooms)}. Las demás siguen.',
+          ? l.inicioUnaCamaraNoResponde(caidas.single.habitacion)
+          : l.inicioCamarasNoResponden(caidas.length),
+      texto: l.inicioNoDetectamosEn(l.formato.enumerar(rooms)),
     );
   }
   final c = camarasQueImportan(camaras).first;
@@ -99,29 +104,32 @@ EstadoTarjeta estadoTarjeta(
       banda: Banda.aviso,
       icono: Ico.wifiOff,
       color: paleta.aviso,
-      titulo: 'La cámara está desconectada',
-      texto: 'Sin ella no detectamos caídas ${enHabitacion(habitacion)}.',
+      titulo: l.inicioCamaraDesconectada,
+      texto: l.inicioSinEllaNoDetectamos(en(habitacion)),
     ),
     EstadoVisible.noConfiable => EstadoTarjeta(
       banda: Banda.aviso,
       icono: Ico.eyeOff,
       color: paleta.aviso,
-      titulo: 'La detección no es confiable',
-      texto: 'Hace más de 5 min que no ve bien a $nombre.',
+      titulo: l.inicioNoConfiable,
+      texto: l.inicioNoVeBien(nombre),
     ),
     EstadoVisible.enPausa => EstadoTarjeta(
       banda: Banda.pausa,
       icono: Ico.pause,
       color: paleta.pausa,
-      titulo: 'Todo tranquilo, con una pausa',
-      texto: '$habitacion en pausa hasta las ${hora(c.camara.pausadaHasta!)}.',
+      titulo: l.inicioTranquiloConPausa,
+      texto: l.inicioEnPausaHasta(
+        habitacion,
+        l.formato.hora(c.camara.pausadaHasta!),
+      ),
     ),
     _ => EstadoTarjeta(
       banda: Banda.calma,
       icono: Ico.sun,
       color: paleta.calmaTinta,
-      titulo: 'Todo tranquilo',
-      texto: '${n > 1 ? '$n cámaras cuidando. ' : ''}Sin eventos hoy.',
+      titulo: l.inicioTodoTranquilo,
+      texto: l.inicioSinEventosHoy(n),
     ),
   };
 }
@@ -178,7 +186,10 @@ class TarjetaAdultoMayor extends StatelessWidget {
                   child: Text(
                     adulto.edad == null
                         ? adulto.nombre
-                        : '${adulto.nombre}, ${adulto.edad} años',
+                        : context.l10n.inicioNombreEdad(
+                            adulto.nombre,
+                            adulto.edad!,
+                          ),
                     style: texto.titleMedium?.copyWith(fontSize: 17),
                   ),
                 ),

@@ -89,12 +89,12 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Guardar cambios'), findsNothing);
-    await tester.pageBack();
+    await volver(tester);
     await tester.pumpAndSettle();
     await tocar(tester, find.text('Orden de aviso y espera'));
     expect(find.textContaining('Solo Carmen (titular) puede'), findsWidgets);
     expect(find.text('Guardar orden'), findsNothing);
-    await tester.pageBack();
+    await volver(tester);
     await tester.pumpAndSettle();
     await tocar(tester, find.text('Privacidad y consentimiento'));
     expect(find.text('Revocar consentimiento'), findsNothing);

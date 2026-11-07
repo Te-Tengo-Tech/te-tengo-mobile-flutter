@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../../actualizaciones/data/actualizacion_controller.dart';
 import '../../actualizaciones/presentation/version_pc.dart';
 import '../../camaras/presentation/cabecera_camara.dart';
@@ -31,25 +31,43 @@ enum EstadoPc {
 
 /// The PC's state line: «En línea · última señal hace 6 s», «Sin conexión desde las 09:58» or
 /// «Falta elegir las cámaras».
-InlineSpan textoEstadoPc(Pc pc, DateTime ahora) {
+InlineSpan textoEstadoPc(AppLocalizations l, Pc pc, DateTime ahora) {
   final senal = pc.ultimaSenal;
   return switch (EstadoPc.de(pc)) {
-    EstadoPc.sinConexion => TextSpan(
-      children: [
-        const TextSpan(text: 'Sin conexión'),
-        if (senal != null) ...[
-          const TextSpan(text: ' desde las '),
-          TextSpan(text: hora(senal), style: estiloMono(tamano: 15)),
-        ],
-      ],
-    ),
-    EstadoPc.faltanCamaras => const TextSpan(text: 'Falta elegir las cámaras'),
+    EstadoPc.sinConexion =>
+      senal == null
+          ? TextSpan(text: l.pcsSinConexion)
+          : textoConDato(
+              l.pcsEstadoSinConexionDesde,
+              l.formato.hora(senal),
+              estiloMono(tamano: 15),
+            ),
+    EstadoPc.faltanCamaras => TextSpan(text: l.pcsFaltaElegirCamaras),
     EstadoPc.enLinea => TextSpan(
       text: senal == null
-          ? 'En línea'
-          : 'En línea · última señal ${haceTiempo(senal, ahora)}',
+          ? l.pcsEnLinea
+          : l.pcsEstadoEnLineaSenal(haceTiempo(senal, ahora, l)),
     ),
   };
+}
+
+/// A message with one value in its own style (a time in the mono font): [mensaje] is built with a
+/// mark in place of the value, so each language puts the value where its grammar wants it.
+TextSpan textoConDato(
+  String Function(String dato) mensaje,
+  String dato,
+  TextStyle estilo,
+) {
+  const marca = '\u0000';
+  final partes = mensaje(marca).split(marca);
+  return TextSpan(
+    children: [
+      for (var i = 0; i < partes.length; i++) ...[
+        if (i > 0) TextSpan(text: dato, style: estilo),
+        if (partes[i].isNotEmpty) TextSpan(text: partes[i]),
+      ],
+    ],
+  );
 }
 
 /// Round PC icon with the state's color (`.pcline`): green online, amber dashed offline, purple
@@ -140,7 +158,7 @@ class CabeceraPc extends ConsumerWidget {
         children: [
           TextSpan(
             style: estiloTexto(15, 700, color: colorEstado),
-            children: [textoEstadoPc(pc, ahora)],
+            children: [textoEstadoPc(context.l10n, pc, ahora)],
           ),
           if (programa != null) ...[const TextSpan(text: '\n'), programa],
         ],
@@ -155,25 +173,28 @@ class QueRevisarPc extends StatelessWidget {
   const QueRevisarPc({super.key});
 
   @override
-  Widget build(BuildContext context) => const ListaTarjeta(
-    children: [
-      FilaLista(
-        inicio: IconoFila(Ico.pc),
-        titulo: 'Que la PC esté encendida',
-        subtitulo: 'Sin suspender',
-      ),
-      FilaLista(
-        inicio: IconoFila(Ico.wifi),
-        titulo: 'Que tenga internet',
-        subtitulo: 'Con la luz del módem encendida',
-      ),
-      FilaLista(
-        inicio: IconoFila(Ico.cam),
-        titulo: 'Que Te Tengo Captura esté abierto',
-        subtitulo: 'Junto al reloj de Windows',
-      ),
-    ],
-  );
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return ListaTarjeta(
+      children: [
+        FilaLista(
+          inicio: const IconoFila(Ico.pc),
+          titulo: l.pcsRevisarEncendida,
+          subtitulo: l.pcsRevisarEncendidaDetalle,
+        ),
+        FilaLista(
+          inicio: const IconoFila(Ico.wifi),
+          titulo: l.pcsRevisarInternet,
+          subtitulo: l.pcsRevisarInternetDetalle,
+        ),
+        FilaLista(
+          inicio: const IconoFila(Ico.cam),
+          titulo: l.pcsRevisarCaptura,
+          subtitulo: l.pcsRevisarCapturaDetalle,
+        ),
+      ],
+    );
+  }
 }
 
 /// Big round icon at the top of the pairing screens (`.pc-hero`).
@@ -255,7 +276,7 @@ class ChipHabitacion extends StatelessWidget {
     return Semantics(
       button: true,
       enabled: false,
-      label: '$texto, ya tiene cámara',
+      label: context.l10n.pcsChipOcupada(texto),
       excludeSemantics: true,
       child: Container(
         constraints: const BoxConstraints(minHeight: 44),

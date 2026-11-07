@@ -10,6 +10,7 @@ import '../../app/tema/tema.dart';
 import 'aviso.dart';
 import 'iconos.dart';
 import 'marca.dart';
+import '../../l10n/l10n.dart';
 
 /// Kind of floating notice.
 enum TipoFlotante {
@@ -60,7 +61,8 @@ class AvisosFlotantes extends Notifier<AvisoFlotante?> {
 }
 
 /// Screen reader action that hides a floating notice, next to the system's dismiss action.
-const accionCerrarAviso = CustomSemanticsAction(label: 'Cerrar aviso');
+CustomSemanticsAction accionCerrarAviso(BuildContext context) =>
+    CustomSemanticsAction(label: context.l10n.comunCerrarAviso);
 
 final avisoFlotanteProvider = NotifierProvider<AvisosFlotantes, AvisoFlotante?>(
   AvisosFlotantes.new,
@@ -202,7 +204,7 @@ class _Toast extends StatelessWidget {
       liveRegion: true,
       container: true,
       onDismiss: alCerrar,
-      customSemanticsActions: {accionCerrarAviso: alCerrar},
+      customSemanticsActions: {accionCerrarAviso(context): alCerrar},
       child: Material(
         color: p.inversa,
         borderRadius: BorderRadius.circular(18),
@@ -250,7 +252,7 @@ class _EnApp extends StatelessWidget {
     container: true,
     button: aviso.alTocar != null,
     onDismiss: alCerrar,
-    customSemanticsActions: {accionCerrarAviso: alCerrar},
+    customSemanticsActions: {accionCerrarAviso(context): alCerrar},
     child: Material(
       color: context.colores.hoja,
       borderRadius: BorderRadius.circular(22),

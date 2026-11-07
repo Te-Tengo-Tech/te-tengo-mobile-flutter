@@ -12,13 +12,13 @@ import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/dispositivo/llamada.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/data/orden_camaras.dart';
 import '../../camaras/domain/camara.dart';
@@ -38,11 +38,6 @@ import 'reproductor_webrtc.dart';
 /// At most 4 cameras stream at once: a page of «Ver todas» (prototype decision: the bandwidth of the
 /// household PC and of the phone, and what a phone screen can show).
 const camarasPorPagina = 4;
-
-/// The privacy help of «Ver todas» (`ML_PRIV`).
-const textoPrivacidadMosaico =
-    'No se graba. Al cerrar queda un solo acceso en el registro, con las '
-    'habitaciones vistas y la duración.';
 
 /// Turns the phone to landscape while «Ver todas» is open in landscape; replaceable in tests. The
 /// web cannot lock the orientation, so the screen rotates its content when the window is portrait.
@@ -80,16 +75,19 @@ final orientacionMosaicoProvider = Provider<OrientacionMosaico>(
 
 /// What a cell shows when its camera cannot stream (`mosWhy`): «Desde las 10:31», «Hasta las
 /// 11:42», «La PC no responde», «Sin consentimiento».
-String porQueNoEnMosaico(CamaraEnCasa c) => switch (c.estado) {
-  EstadoVisible.enPausa => 'Hasta las ${hora(c.camara.pausadaHasta!)}',
-  EstadoVisible.desconectada => switch (c.camara.ultimaSenal) {
-    final s? => 'Desde las ${hora(s)}',
-    null => '',
-  },
-  EstadoVisible.sinConexion => 'La PC no responde',
-  EstadoVisible.detenida => 'Sin consentimiento',
-  _ => '',
-};
+String porQueNoEnMosaico(CamaraEnCasa c, AppLocalizations l) =>
+    switch (c.estado) {
+      EstadoVisible.enPausa => l.mosaicoHastaLas(
+        l.formato.hora(c.camara.pausadaHasta!),
+      ),
+      EstadoVisible.desconectada => switch (c.camara.ultimaSenal) {
+        final s? => l.mosaicoDesdeLas(l.formato.hora(s)),
+        null => '',
+      },
+      EstadoVisible.sinConexion => l.mosaicoPcNoResponde,
+      EstadoVisible.detenida => l.mosaicoSinConsentimiento,
+      _ => '',
+    };
 
 /// The live view of one cell of «Ver todas».
 class _Celda {
@@ -163,6 +161,15 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
 
   /// Until this phone's choice of portrait or landscape is read, nothing is drawn.
   bool _preferenciasLeidas = false;
+
+  /// The texts, kept for the notice shown as the screen closes.
+  late AppLocalizations _l;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l = context.l10n;
+  }
 
   @override
   void initState() {
@@ -385,8 +392,8 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
           .read(avisoFlotanteProvider.notifier)
           .mostrar(
             AvisoFlotante(
-              titulo: '${c.habitacion} se movió',
-              texto: 'Mismo orden en Cámaras y Ver en vivo.',
+              titulo: _l.mosaicoSeMovio(c.habitacion),
+              texto: _l.mosaicoMismoOrden,
               icono: Ico.swap,
             ),
           );
@@ -409,9 +416,9 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
         ref
             .read(avisoFlotanteProvider.notifier)
             .mostrar(
-              const AvisoFlotante(
-                titulo: 'Las favoritas van primero',
-                texto: 'Cambia la estrella para pasarla al otro grupo.',
+              AvisoFlotante(
+                titulo: _l.mosaicoFavoritasPrimero,
+                texto: _l.mosaicoCambiaEstrella,
                 icono: Ico.star,
                 tono: TonoAviso.info,
               ),
@@ -502,8 +509,11 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
         .read(avisoFlotanteProvider.notifier)
         .mostrar(
           AvisoFlotante(
-            titulo: 'Acceso registrado',
-            texto: 'Viste ${enumerar(vistas)} · ${duracion(dura)}.',
+            titulo: _l.accesosRegistrado,
+            texto: _l.mosaicoViste(
+              _l.formato.enumerar(vistas),
+              _l.formato.duracion(dura),
+            ),
             icono: Ico.eye,
           ),
         );
@@ -625,10 +635,10 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
             child: Semantics(
               explicitChildNodes: true,
               label: completa != null
-                  ? 'En vivo · ${completa.habitacion}'
+                  ? context.l10n.vivoTituloDe(completa.habitacion)
                   : _paginas > 1
-                  ? 'Todas en vivo, página ${_pagina + 1} de $_paginas'
-                  : 'Todas en vivo',
+                  ? context.l10n.mosaicoTodasPagina(_pagina + 1, _paginas)
+                  : context.l10n.mosaicoTodas,
               child: cuerpo,
             ),
           );
@@ -662,11 +672,12 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
   Widget _barra(BuildContext context, ModoVista modo, {required bool solo}) {
     final elegida = _camaras.where((c) => c.camara.id == _elegida).firstOrNull;
     final orden = ref.read(ordenCamarasProvider);
+    final l = context.l10n;
     final hijos = _ordenando
         ? <Widget>[
             _BotonBarra(
               icono: Ico.check,
-              texto: 'Listo',
+              texto: l.camarasListo,
               claro: true,
               soloIcono: solo,
               alTocar: () => setState(() {
@@ -680,10 +691,10 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
                 liveRegion: true,
                 child: Text.rich(
                   elegida == null
-                      ? const TextSpan(text: 'Elige una cámara para moverla')
+                      ? TextSpan(text: l.mosaicoEligeCamara)
                       : TextSpan(
                           children: [
-                            const TextSpan(text: 'Arrastra o mueve '),
+                            TextSpan(text: l.mosaicoArrastraOMuevePrefijo),
                             TextSpan(
                               text: elegida.habitacion,
                               style: estiloTexto(15, 800, color: Colors.white),
@@ -698,7 +709,7 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
             ),
             _BotonBarra(
               icono: Ico.chevL,
-              texto: 'Mover antes',
+              texto: l.mosaicoMoverAntes,
               soloIcono: solo,
               alTocar:
                   elegida != null &&
@@ -708,7 +719,7 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
             ),
             _BotonBarra(
               icono: Ico.chevR,
-              texto: 'Mover después',
+              texto: l.mosaicoMoverDespues,
               soloIcono: solo,
               alTocar:
                   elegida != null &&
@@ -720,7 +731,7 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
         : <Widget>[
             _BotonBarra(
               icono: Ico.x,
-              texto: 'Cerrar',
+              texto: l.mosaicoCerrar,
               soloIcono: true,
               alTocar: () => Navigator.of(context).maybePop(),
             ),
@@ -734,28 +745,28 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
             const Spacer(),
             if (_paginas > 1) _Paginador(this),
             const Spacer(),
-            const AyudaInfo(
-              texto: textoPrivacidadMosaico,
+            AyudaInfo(
+              texto: l.mosaicoPrivacidad,
               tema: 'privacidad',
               sobreOscuro: true,
               arriba: true,
             ),
             _BotonBarra(
               icono: Ico.swap,
-              texto: 'Ordenar',
+              texto: l.camarasOrdenar,
               soloIcono: solo,
               alTocar: () => setState(() => _ordenando = true),
             ),
             _BotonBarra(
               icono: Ico.portrait,
-              texto: 'Vertical',
+              texto: l.mosaicoVertical,
               soloIcono: solo,
               alTocar: () => _ponerVertical(true),
             ),
           ];
     return Semantics(
       container: true,
-      label: _ordenando ? 'Ordenar las cámaras' : 'Controles de Ver todas',
+      label: _ordenando ? l.mosaicoOrdenarCamaras : l.mosaicoControles,
       child: SizedBox(
         height: 58,
         child: Padding(
@@ -805,6 +816,7 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
     bool solo,
   ) {
     final reproductor = celda?.conexion.reproductorEnVivo;
+    final l = context.l10n;
     return Column(
       children: [
         Expanded(
@@ -820,7 +832,7 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
                         )
                       : Semantics(
                           image: true,
-                          label: 'En vivo · ${c.habitacion}',
+                          label: l.vivoTituloDe(c.habitacion),
                           child: reproductor.vista(),
                         ),
                 )
@@ -838,11 +850,11 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
                   ),
                 ),
               if (disponible)
-                const Positioned(
+                Positioned(
                   top: 4,
                   right: 4,
                   child: AyudaInfo(
-                    texto: textoPrivacidadMosaico,
+                    texto: l.mosaicoPrivacidad,
                     tema: 'privacidad',
                     sobreOscuro: true,
                   ),
@@ -858,7 +870,7 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
               children: [
                 _BotonBarra(
                   icono: Ico.grid,
-                  texto: 'Volver a todas',
+                  texto: l.vivoVolverATodas,
                   soloIcono: solo,
                   alTocar: _volverATodas,
                 ),
@@ -883,13 +895,13 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
                 if (c.estado == EstadoVisible.enPausa)
                   _BotonBarra(
                     icono: Ico.refresh,
-                    texto: 'Reanudar',
+                    texto: l.mosaicoReanudar,
                     soloIcono: solo,
                     alTocar: () => _reanudar(c),
                   ),
                 _BotonBarra(
                   icono: Ico.phone,
-                  texto: 'Llamar a $nombre',
+                  texto: l.vivoLlamarA(nombre),
                   claro: true,
                   soloIcono: solo,
                   alTocar: llamar,
@@ -914,24 +926,24 @@ class _PantallaMosaicoState extends ConsumerState<PantallaMosaico> {
       backgroundColor: Colores.noche,
       foregroundColor: Colors.white,
       leading: IconButton(
-        tooltip: 'Cerrar Ver todas',
+        tooltip: context.l10n.mosaicoCerrarVerTodas,
         icon: const Icono(Ico.x, color: Colors.white),
         onPressed: () => Navigator.of(context).maybePop(),
       ),
       title: Text(
-        'Todas en vivo',
+        context.l10n.mosaicoTodas,
         style: estiloTexto(20, 700, color: Colors.white),
       ),
       actions: [
-        const AyudaInfo(
-          texto: textoPrivacidadMosaico,
+        AyudaInfo(
+          texto: context.l10n.mosaicoPrivacidad,
           tema: 'privacidad',
           sobreOscuro: true,
         ),
         Padding(
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(
-            tooltip: 'Ver en horizontal',
+            tooltip: context.l10n.mosaicoVerHorizontal,
             style: IconButton.styleFrom(
               backgroundColor: const Color(0x1FFFFFFF),
               minimumSize: const Size(48, 48),
@@ -1115,19 +1127,20 @@ class _Paginador extends StatelessWidget {
     final p = estado._pagina;
     final n = estado._paginas;
     String dos(int x) => corto ? '$x' : x.toString().padLeft(2, '0');
+    final l = context.l10n;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _BotonBarra(
           icono: Ico.chevL,
-          texto: 'Página anterior',
+          texto: l.mosaicoPaginaAnterior,
           soloIcono: true,
           alTocar: p == 0 ? null : () => estado._irAPagina(p - 1),
         ),
         Semantics(
           container: true,
           liveRegion: true,
-          label: 'Página ${p + 1} de $n',
+          label: l.mosaicoPagina(p + 1, n),
           excludeSemantics: true,
           child: Text(
             '${dos(p + 1)}/${dos(n)}',
@@ -1136,7 +1149,7 @@ class _Paginador extends StatelessWidget {
         ),
         _BotonBarra(
           icono: Ico.chevR,
-          texto: 'Página siguiente',
+          texto: l.mosaicoPaginaSiguiente,
           soloIcono: true,
           alTocar: p == n - 1 ? null : () => estado._irAPagina(p + 1),
         ),
@@ -1243,7 +1256,11 @@ class _Etiqueta extends StatelessWidget {
           Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: s == null ? 'EN VIVO' : 'EN VIVO · '),
+                TextSpan(
+                  text: s == null
+                      ? context.l10n.vivoEtiqueta
+                      : '${context.l10n.vivoEtiqueta} · ',
+                ),
                 if (s != null)
                   TextSpan(
                     text:
@@ -1295,9 +1312,10 @@ class _CeldaMosaico extends StatelessWidget {
   Widget build(BuildContext context) {
     final reproductor = celda?.conexion.reproductorEnVivo;
     final escala = MediaQuery.textScalerOf(context).scale(16) / 16;
+    final l = context.l10n;
     final estado = _disponible
-        ? 'en vivo'
-        : _estadoDe(camara, celda).toLowerCase();
+        ? l.mosaicoEnVivoMinuscula
+        : _estadoDe(camara, celda).texto(l).toLowerCase();
     final radio = BorderRadius.circular(horizontal ? 6 : 16);
     final nombre = Row(
       children: [
@@ -1371,12 +1389,12 @@ class _CeldaMosaico extends StatelessWidget {
     return Semantics(
       button: true,
       selected: ordenando ? seleccionada : null,
-      label:
-          '${camara.habitacion}, $estado. '
-          '${ordenando ? 'Elegir para mover' : 'Abrir en pantalla completa'}',
-      hint: ordenando
-          ? 'Arrástrala o usa Mover antes y Mover después'
-          : 'Mantén presionado para moverla',
+      label: l.mosaicoCeldaEtiqueta(
+        camara.habitacion,
+        estado,
+        ordenando ? l.mosaicoElegirParaMover : l.mosaicoAbrirCompleta,
+      ),
+      hint: ordenando ? l.mosaicoPistaOrdenando : l.mosaicoPistaMantener,
       excludeSemantics: true,
       onTap: alTocar,
       onLongPress: alMantener,
@@ -1405,13 +1423,13 @@ class _CeldaMosaico extends StatelessWidget {
 }
 
 /// «Desconectada», «En pausa», «Sin conexión» or «Detenida».
-String _estadoDe(CamaraEnCasa c, _Celda? celda) {
-  if (celda?.cortadaEn != null) return EstadoVisible.desconectada.texto;
+EstadoVisible _estadoDe(CamaraEnCasa c, _Celda? celda) {
+  if (celda?.cortadaEn != null) return EstadoVisible.desconectada;
   return switch (celda?.problema?.codigo) {
-    'CAMARA_EN_PAUSA' => EstadoVisible.enPausa.texto,
-    'CAMARA_DESCONECTADA' => EstadoVisible.desconectada.texto,
-    'SIN_CONSENTIMIENTO' => EstadoVisible.detenida.texto,
-    _ => c.estado.texto,
+    'CAMARA_EN_PAUSA' => EstadoVisible.enPausa,
+    'CAMARA_DESCONECTADA' => EstadoVisible.desconectada,
+    'SIN_CONSENTIMIENTO' => EstadoVisible.detenida,
+    _ => c.estado,
   };
 }
 
@@ -1430,16 +1448,18 @@ class _NoDisponible extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cortada = celda?.cortadaEn;
-    final estado = _estadoDe(camara, celda);
+    final l = context.l10n;
+    final visible = _estadoDe(camara, celda);
+    final estado = visible.texto(l);
     final motivo = cortada != null
-        ? 'Desde las ${hora(cortada)}'
+        ? l.mosaicoDesdeLas(l.formato.hora(cortada))
         : celda?.problema != null && camara.vivoDisponible
         ? celda!.problema!.detalle
-        : porQueNoEnMosaico(camara);
-    final (icono, color) = switch (estado) {
-      'En pausa' => (Ico.pause, Colores.nochePausa),
-      'Detenida' => (Ico.lock, Colores.nochePausa),
-      'Sin conexión' => (Ico.pc, Colores.nochePausa),
+        : porQueNoEnMosaico(camara, l);
+    final (icono, color) = switch (visible) {
+      EstadoVisible.enPausa => (Ico.pause, Colores.nochePausa),
+      EstadoVisible.detenida => (Ico.lock, Colores.nochePausa),
+      EstadoVisible.sinConexion => (Ico.pc, Colores.nochePausa),
       _ => (Ico.wifiOff, Colores.nocheAviso),
     };
     return CustomPaint(
@@ -1538,6 +1558,7 @@ class _HojaMover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colores;
+    final l = context.l10n;
     Widget opcion(Ico icono, String texto, _OpcionMenu? valor) => Semantics(
       button: true,
       enabled: valor != null,
@@ -1585,14 +1606,18 @@ class _HojaMover extends StatelessWidget {
       ),
     );
     final opciones = [
-      opcion(Ico.chevL, 'Mover antes', antes ? _OpcionMenu.antes : null),
-      opcion(Ico.chevR, 'Mover después', despues ? _OpcionMenu.despues : null),
+      opcion(Ico.chevL, l.mosaicoMoverAntes, antes ? _OpcionMenu.antes : null),
+      opcion(
+        Ico.chevR,
+        l.mosaicoMoverDespues,
+        despues ? _OpcionMenu.despues : null,
+      ),
       opcion(
         favorita ? Ico.starOn : Ico.star,
-        favorita ? 'Quitar de favoritas' : 'Marcar como favorita',
+        favorita ? l.mosaicoQuitarFavorita : l.mosaicoMarcarFavorita,
         _OpcionMenu.favorita,
       ),
-      opcion(Ico.expand, 'Ver en pantalla completa', _OpcionMenu.completa),
+      opcion(Ico.expand, l.mosaicoVerCompleta, _OpcionMenu.completa),
     ];
     final ancho = MediaQuery.sizeOf(context).width > 520;
     return SingleChildScrollView(

@@ -97,7 +97,7 @@ void main() {
     );
     // An active alert opens by itself; go back to the preferences.
     if (find.byType(PantallaAlerta).evaluate().isNotEmpty) {
-      await tester.pageBack();
+      await volver(tester);
       await tester.pumpAndSettle();
     }
     await tester.tap(find.byType(Switch).at(1));

@@ -1,6 +1,12 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_tengo/features/actualizaciones/domain/estado_actualizacion.dart';
 import 'package:te_tengo/features/actualizaciones/domain/versiones.dart';
+import 'package:te_tengo/l10n/l10n.dart';
+
+final _es = lookupAppLocalizations(const Locale('es'));
+final _en = lookupAppLocalizations(const Locale('en'));
 
 void main() {
   group('comparar versiones (contrato §12)', () {
@@ -131,8 +137,11 @@ void main() {
         canal: Canal.ios,
         tiendaIos: TiendaIos.testflight,
       );
-      expect(play.plataforma, 'Android · Google Play');
-      expect(ios.plataforma, 'iPhone · TestFlight');
+      expect(play.plataforma(_es), 'Android · Google Play');
+      expect(ios.plataforma(_es), 'iPhone · TestFlight');
+      const web = InfoApp(version: '0.5.0', canal: Canal.pwa);
+      expect(web.plataforma(_es), 'Aplicación web');
+      expect(web.plataforma(_en), 'Web app');
       expect(ios.tienda, 'TestFlight');
       expect(const InfoApp(version: '0.5.0', canal: Canal.apk).tienda, isNull);
     });
@@ -174,7 +183,8 @@ void main() {
   });
 
   test('tamaño de la descarga', () {
-    expect(tamanoLegible(8400000), '8,4 MB');
-    expect(tamanoLegible(1000), '0,1 MB');
+    expect(tamanoLegible(_es, 8400000), '8,4 MB');
+    expect(tamanoLegible(_es, 1000), '0,1 MB');
+    expect(tamanoLegible(_en, 8400000), '8.4 MB');
   });
 }

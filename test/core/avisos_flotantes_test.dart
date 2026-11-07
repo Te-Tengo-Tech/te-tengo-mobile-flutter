@@ -8,6 +8,8 @@ import '../apoyo/app_de_prueba.dart';
 
 const _toast = AvisoFlotante(titulo: 'Cambios guardados');
 
+const _cerrarAviso = CustomSemanticsAction(label: 'Cerrar aviso');
+
 void main() {
   late ProviderContainer c;
 
@@ -145,10 +147,7 @@ void main() {
         await mostrar(tester, AvisoFlotante(tipo: tipo, titulo: 'Aviso'));
         expect(
           nodo(tester, 'Aviso'),
-          isSemantics(
-            hasDismissAction: true,
-            customActions: [accionCerrarAviso],
-          ),
+          isSemantics(hasDismissAction: true, customActions: [_cerrarAviso]),
         );
         accion(nodo(tester, 'Aviso'), SemanticsAction.dismiss);
         await tester.pumpAndSettle();
@@ -164,7 +163,7 @@ void main() {
       accion(
         nodo(tester, _toast.titulo),
         SemanticsAction.customAction,
-        CustomSemanticsAction.getIdentifier(accionCerrarAviso),
+        CustomSemanticsAction.getIdentifier(_cerrarAviso),
       );
       await tester.pumpAndSettle();
       expect(find.text(_toast.titulo), findsNothing);

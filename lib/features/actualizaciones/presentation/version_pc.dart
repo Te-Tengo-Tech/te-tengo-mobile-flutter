@@ -5,6 +5,7 @@ import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../pcs/domain/pc.dart';
 import '../data/actualizacion_controller.dart';
 import '../domain/versiones.dart';
@@ -32,7 +33,7 @@ class EtiquetaVersionPc extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     return Text(
-      'Versión anterior (${pc.versionAgente})',
+      context.l10n.actualizacionVersionAnteriorPc('${pc.versionAgente}'),
       style: estiloTexto(15, 700, color: context.colores.avisoTinta),
     );
   }
@@ -52,28 +53,27 @@ class AvisoVersionPc extends ConsumerWidget {
     if (!pcConVersionAnterior(pc, ref.watch(versionesPublicadasProvider))) {
       return const SizedBox.shrink();
     }
-    final titulo = 'Versión anterior (${pc.versionAgente})';
+    final l = context.l10n;
+    final titulo = l.actualizacionVersionAnteriorPc('${pc.versionAgente}');
     final Widget aviso = switch (pc.actualizacionAutomatica) {
       true => Aviso(
         tono: TonoAviso.neutral,
         icono: Ico.refresh,
         titulo: titulo,
-        texto: 'Se actualizará sola.',
+        texto: l.actualizacionSeActualizaraSola,
       ),
       false => Aviso(
         tono: TonoAviso.advertencia,
         icono: Ico.refresh,
         titulo: titulo,
-        contenido: const TextSpan(
+        contenido: TextSpan(
           children: [
-            TextSpan(text: 'Pide a quien está en la casa que la actualice. '),
+            TextSpan(text: l.actualizacionPideActualizar),
             WidgetSpan(
               alignment: PlaceholderAlignment.middle,
               child: AyudaInfo(
-                texto:
-                    'En la PC aparece «Hay una versión nueva»: que elijan '
-                    '«Descargar». Se instala sola y la detección sigue.',
-                tema: 'cómo actualizar la PC',
+                texto: l.actualizacionPcAyuda,
+                tema: l.actualizacionPcTema,
               ),
             ),
           ],
@@ -102,7 +102,7 @@ InlineSpan? programaConVersion(
     children: [
       TextSpan(text: '$programa · '),
       TextSpan(
-        text: 'versión anterior',
+        text: context.l10n.actualizacionVersionAnterior,
         style: estiloTexto(15, 700, color: context.colores.avisoTinta),
       ),
     ],

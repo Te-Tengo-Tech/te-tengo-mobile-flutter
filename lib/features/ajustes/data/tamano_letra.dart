@@ -4,18 +4,24 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/cache/cache_local.dart';
+import '../../../l10n/l10n.dart';
 
 /// «Tamaño de letra» in «Preferencias» (screen 113): «Estándar» keeps the phone's text size and
 /// «Grande» makes it 25 % larger on top of it (the prototype's `.screen.big`). A device setting,
 /// like the theme and the contrast.
 enum TamanoLetra {
-  estandar('estandar', 'Estándar', 1),
-  grande('grande', 'Grande', 1.25);
+  estandar('estandar', 1),
+  grande('grande', 1.25);
 
-  const TamanoLetra(this.codigo, this.texto, this.factor);
+  const TamanoLetra(this.codigo, this.factor);
 
   final String codigo;
-  final String texto;
+
+  /// «Estándar» or «Grande».
+  String texto(AppLocalizations l) => switch (this) {
+    estandar => l.preferenciasLetraEstandar,
+    grande => l.preferenciasLetraGrande,
+  };
 
   /// Applied over the phone's own text scale.
   final double factor;

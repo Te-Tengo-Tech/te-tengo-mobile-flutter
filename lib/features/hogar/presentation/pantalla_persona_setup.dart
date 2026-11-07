@@ -9,6 +9,7 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../data/hogar_repositorio.dart';
 import 'formulario_adulto_mayor.dart';
 import 'pantalla_persona_cuidada.dart' show AvisoUnaSolaPersona;
@@ -37,7 +38,7 @@ class _PantallaPersonaSetupState extends ConsumerState<PantallaPersonaSetup> {
   }
 
   Future<void> _guardar() async {
-    final completo = _formulario.validar();
+    final completo = _formulario.validar(context.l10n);
     setState(() {
       _faltanDatos = !completo;
       _yaRegistrado = false;
@@ -72,10 +73,11 @@ class _PantallaPersonaSetupState extends ConsumerState<PantallaPersonaSetup> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
       appBar: CabeceraConfiguracion(
         paso: 1,
-        titulo: 'Persona cuidada',
+        titulo: l.hogarPersonaCuidadaTitulo,
         escala: MediaQuery.textScalerOf(context),
       ),
       body: ListView(
@@ -83,14 +85,14 @@ class _PantallaPersonaSetupState extends ConsumerState<PantallaPersonaSetup> {
         children: [
           Semantics(
             header: true,
-            child: Text('¿A quién vas a cuidar?', style: texto.titleLarge),
+            child: Text(l.hogarAQuienCuidar, style: texto.titleLarge),
           ),
           const SizedBox(height: 16),
           if (_faltanDatos) ...[
-            const Aviso(
+            Aviso(
               tono: TonoAviso.error,
               icono: Ico.warn,
-              titulo: 'Completa los campos marcados',
+              titulo: l.hogarCompletaCampos,
             ),
             const SizedBox(height: 16),
           ],
@@ -107,7 +109,7 @@ class _PantallaPersonaSetupState extends ConsumerState<PantallaPersonaSetup> {
             alCambiar: () => setState(() {}),
           ),
           Boton(
-            'Guardar y continuar',
+            l.hogarGuardarYContinuar,
             cargando: _enviando,
             alPresionar: _guardar,
           ),

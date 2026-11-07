@@ -10,13 +10,11 @@ import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/dispositivo/llamada.dart';
-import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
-import '../../../core/ui/piezas.dart';
 import '../../../core/ui/plegable.dart';
 import '../../../core/ui/tarjeta.dart';
 import '../../camaras/domain/camara.dart';
@@ -25,12 +23,14 @@ import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../hogar/domain/hogar.dart';
+import '../../../l10n/l10n.dart';
 import '../../vivo/data/vista_en_vivo_repositorio.dart';
 import '../data/alertas_repositorio.dart';
 import '../domain/alerta.dart';
 import 'clip_evento.dart';
 import 'linea_de_tiempo.dart';
 import 'marcar_alerta.dart';
+import 'textos_alerta.dart';
 
 /// Alert ids already opened in this run, so an active alert opens by itself only once (CA-16.4).
 class AlertasVistas extends Notifier<Set<String>> {
@@ -142,6 +142,7 @@ class _Alerta extends ConsumerWidget {
       yo: ref.watch(sesionControllerProvider)?.usuario.id,
     );
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: caida ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -154,7 +155,7 @@ class _Alerta extends ConsumerWidget {
               pinned: true,
               automaticallyImplyLeading: false,
               leading: IconButton(
-                tooltip: 'Cerrar la alerta y volver al inicio',
+                tooltip: l.alertaCerrarTooltip,
                 icon: Icono(Ico.x, color: tinta),
                 onPressed: () => context.go(Rutas.inicio),
               ),
@@ -187,12 +188,12 @@ class _Alerta extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              '¿$nombre no contesta?',
+                              l.alertaNoContesta(nombre),
                               style: texto.titleMedium,
                             ),
                             const SizedBox(height: 12),
                             Boton(
-                              'Llamar al SAMU · 106',
+                              l.alertaLlamarSamu,
                               icono: Ico.phone,
                               estilo: EstiloBoton.secundario,
                               alPresionar: () =>
@@ -214,10 +215,10 @@ class _Alerta extends ConsumerWidget {
                       children: [
                         FilaPlegable(
                           icono: Ico.video,
-                          titulo: 'Clip del evento',
+                          titulo: l.alertaClipTitulo,
                           resumen: alerta.clip == EstadoClip.disponible
-                              ? '12 s, antes y después'
-                              : 'No se pudo guardar',
+                              ? l.alertaClipResumen
+                              : l.alertaClipNoGuardado,
                           // An unstable movement is understood by watching it.
                           abierta: !caida,
                           aRas: true,
@@ -225,8 +226,8 @@ class _Alerta extends ConsumerWidget {
                         ),
                         FilaPlegable(
                           icono: Ico.info,
-                          titulo: 'Más detalles',
-                          resumen: 'Dirección, teléfono, aviso y registro',
+                          titulo: l.alertaMasDetalles,
+                          resumen: l.alertaMasDetallesResumen,
                           child: _MasDetalles(
                             alerta: alerta,
                             adulto: adulto,
@@ -237,9 +238,10 @@ class _Alerta extends ConsumerWidget {
                                     titular: ref.watch(esTitularProvider),
                                   ),
                             linea: itemsDeAlerta(
+                              l,
                               alerta,
                               nombreAdultoMayor: nombre,
-                              avisados: avisadosDe(miembros),
+                              avisados: avisadosDe(l, miembros),
                               secundario: secundarioDe(miembros),
                               esperaMinutos: espera,
                             ),
@@ -266,7 +268,7 @@ class _Alerta extends ConsumerWidget {
           child: SafeArea(
             top: false,
             child: Boton(
-              'Marcar alerta',
+              l.alertaMarcar,
               icono: Ico.check,
               alPresionar: () => marcarAlerta(context, alerta),
             ),
@@ -297,25 +299,24 @@ class _MasDetalles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
-    final hab = enHabitacion(alerta.habitacion);
+    final l = context.l10n;
     final telefono = adulto.telefono;
     final porque = !alerta.esCaida
-        ? 'No es una caída. Si termina en una, te avisamos.'
+        ? l.alertaPorqueInestable
         : alerta.recuperadaEn != null
-        ? 'Se puso de pie. Confirma cómo está antes de marcarla.'
+        ? l.alertaPorqueSeLevanto
         : alerta.confirmada
-        ? 'Lleva más de 30 s en el suelo. Si se levanta, te avisamos.'
-        : 'Si sigue en el suelo 30 s, confirmamos la caída. Si se levanta, te '
-              'avisamos.';
+        ? l.alertaPorqueConfirmada
+        : l.alertaPorqueComprobando;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DatosTarjeta([
-          FilaDato(clave: 'Dirección', valor: adulto.direccion),
+          FilaDato(clave: l.alertaDireccion, valor: adulto.direccion),
           if (telefono != null)
-            FilaDato(clave: 'Teléfono', valor: telefono, mono: true),
+            FilaDato(clave: l.alertaTelefono, valor: telefono, mono: true),
           if (alerta.esCaida)
-            const FilaDato(clave: 'Bomberos', valor: '116', mono: true),
+            FilaDato(clave: l.alertaBomberos, valor: '116', mono: true),
         ]),
         const SizedBox(height: 8),
         Text(porque, style: texto.bodyMedium),
@@ -324,11 +325,14 @@ class _MasDetalles extends StatelessWidget {
           Aviso(
             tono: TonoAviso.neutral,
             icono: Ico.unsteady,
-            titulo: 'Empezó como movimiento inestable',
-            contenido: conHora(
-              'A las ',
-              hora(alerta.ocurridaEn),
-              ' $hab. Terminó en caída.',
+            titulo: l.alertaEmpezoInestableTitulo,
+            contenido: textoConHora(
+              l.alertaEmpezoInestableTexto(
+                context.formato.hora(alerta.ocurridaEn),
+                conArticulo(alerta.habitacion),
+                alerta.habitacion,
+              ),
+              context.formato.hora(alerta.ocurridaEn),
             ),
           ),
         ],
@@ -390,6 +394,8 @@ class _Escalamiento {
   Widget aviso(BuildContext context, {required bool titular}) {
     final escalada = alerta.escaladaEn;
     final secundario = this.secundario;
+    final l = context.l10n;
+    final formato = context.formato;
     final agregar = titular
         ? (String texto) => Boton(
             texto,
@@ -403,21 +409,19 @@ class _Escalamiento {
           ? Aviso(
               tono: TonoAviso.info,
               icono: Ico.users,
-              titulo: 'Te toca atenderla',
-              contenido: conHora(
-                'Nadie la marcó en $espera min (',
-                hora(escalada),
-                ').',
+              titulo: l.alertaTeTocaTitulo,
+              contenido: textoConHora(
+                l.alertaTeTocaTexto(espera, formato.hora(escalada)),
+                formato.hora(escalada),
               ),
             )
           : Aviso(
               tono: TonoAviso.info,
               icono: Ico.users,
-              titulo: 'Avisamos a ${secundario.nombre}',
-              contenido: conHora(
-                'A las ',
-                hora(escalada),
-                '. Tú aún puedes atenderla.',
+              titulo: l.alertaAvisamosA(secundario.nombre),
+              contenido: textoConHora(
+                l.alertaAvisamosTexto(formato.hora(escalada)),
+                formato.hora(escalada),
               ),
             );
     }
@@ -425,43 +429,33 @@ class _Escalamiento {
       return Aviso(
         tono: TonoAviso.advertencia,
         icono: Ico.warn,
-        titulo: 'No hay a quién escalar',
-        texto:
-            '$espera min sin respuesta. Sigue siendo '
-            '${soyPrincipal ? 'tuya' : 'de ${principal?.nombrePila ?? ''}'}.',
-        accion: agregar?.call('Agregar contacto secundario'),
+        titulo: l.alertaNoHayAQuienTitulo,
+        texto: soyPrincipal
+            ? l.alertaSinRespuestaTuya(espera)
+            : l.alertaSinRespuestaDe(espera, principal?.nombrePila ?? ''),
+        accion: agregar?.call(l.alertaAgregarSecundario),
       );
     }
     if (secundario == null) {
       return Aviso(
         tono: TonoAviso.advertencia,
         icono: Ico.warn,
-        titulo: 'Sin contacto secundario',
-        texto: 'Si nadie la atiende, no hay a quién más avisar.',
-        accion: agregar?.call('Agregar contacto'),
+        titulo: l.alertaSinSecundarioTitulo,
+        texto: l.alertaSinSecundarioTexto,
+        accion: agregar?.call(l.alertaAgregarContacto),
       );
     }
-    final limite = hora(alerta.ocurridaEn.add(Duration(minutes: espera)));
+    final limite = formato.hora(
+      alerta.ocurridaEn.add(Duration(minutes: espera)),
+    );
     return _LineaRica(
       Ico.clock,
-      TextSpan(
-        children: soySecundario
-            ? [
-                TextSpan(
-                  text:
-                      '${principal?.nombrePila ?? ''} es la principal. Si '
-                      'nadie la marca antes de las ',
-                ),
-                TextSpan(text: limite, style: _limite),
-                const TextSpan(text: ', te avisamos.'),
-              ]
-            : [
-                const TextSpan(text: 'Si nadie la marca antes de las '),
-                TextSpan(text: limite, style: _limite),
-                TextSpan(
-                  text: ', avisamos a ${secundario.nombre} (secundario).',
-                ),
-              ],
+      textoConHora(
+        soySecundario
+            ? l.alertaLimiteSoySecundario(principal?.nombrePila ?? '', limite)
+            : l.alertaLimiteSecundario(limite, secundario.nombre),
+        limite,
+        estilo: _limite,
       ),
     );
   }
@@ -509,7 +503,10 @@ class _Heroe extends ConsumerWidget {
     final nombre = adulto.nombrePila;
     final ahora = ref.watch(relojProvider)();
     final minutos = ahora.difference(alerta.ocurridaEn).inMinutes;
-    final etiqueta = caida ? 'Caída · Urgente' : 'Inestable · Severidad media';
+    final l = context.l10n;
+    final etiqueta = caida
+        ? l.alertaEtiquetaCaidaUrgente
+        : l.alertaEtiquetaInestableMedia;
     final telefono = adulto.telefono;
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 4, 22, 22),
@@ -534,18 +531,18 @@ class _Heroe extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'No te llegó como notificación',
-                          style: TextStyle(
+                        Text(
+                          l.alertaNoTeLlego,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Colores.tinta,
                           ),
                         ),
                         if (alerta.avisoReintentando)
-                          const Text(
-                            'Falló el envío; seguimos reintentando.',
-                            style: TextStyle(
+                          Text(
+                            l.alertaFalloEnvio,
+                            style: const TextStyle(
                               fontSize: 15.5,
                               color: Colores.tinta,
                             ),
@@ -608,10 +605,10 @@ class _Heroe extends ConsumerWidget {
             header: true,
             child: Text(
               !caida
-                  ? '$nombre tuvo un movimiento inestable'
+                  ? l.alertaTituloInestable(nombre)
                   : alerta.sigueEnElSuelo
-                  ? '$nombre se cayó y sigue en el suelo'
-                  : '$nombre pudo haberse caído',
+                  ? l.alertaTituloEnElSuelo(nombre)
+                  : l.alertaTituloPudoCaerse(nombre),
               style: estiloTexto(
                 34,
                 800,
@@ -627,18 +624,20 @@ class _Heroe extends ConsumerWidget {
           _Datos(
             alerta: alerta,
             color: color,
-            hace: minutos < 1 ? 'ahora' : '$minutos min',
+            hace: minutos < 1
+                ? l.alertaHaceAhora
+                : l.alertaHaceMinutos(minutos),
           ),
           const SizedBox(height: 16),
           Boton(
-            'Llamar a $nombre',
+            l.alertaLlamarA(nombre),
             icono: Ico.phone,
             estilo: caida ? EstiloBoton.blanco : EstiloBoton.tinta,
             alPresionar: () => ref.read(llamarProvider)(telefono),
           ),
           const SizedBox(height: 12),
           Boton(
-            'Ver en vivo',
+            l.alertaVerEnVivo,
             icono: Ico.video,
             estilo: caida ? EstiloBoton.sobreRojo : EstiloBoton.secundario,
             alPresionar: () => context.push(
@@ -667,11 +666,12 @@ class ChipPermanencia extends StatelessWidget {
   Widget build(BuildContext context) {
     final recuperada = alerta.recuperadaEn;
     final confirmada = alerta.confirmada && recuperada == null;
+    final l = context.l10n;
     final (icono, texto) = recuperada != null
         ? (Ico.stand, null)
         : confirmada
-        ? (Ico.warn, 'Sigue en el suelo · confirmada')
-        : (Ico.clock, 'Comprobando si sigue en el suelo');
+        ? (Ico.warn, l.alertaSigueEnSueloConfirmada)
+        : (Ico.clock, l.alertaComprobando);
     final color = confirmada ? Colores.caidaTinta : Colors.white;
     final estilo = estiloTexto(15, 800, color: color);
     return Semantics(
@@ -690,14 +690,10 @@ class ChipPermanencia extends StatelessWidget {
             Flexible(
               child: recuperada != null
                   ? Text.rich(
-                      TextSpan(
-                        children: [
-                          const TextSpan(text: 'Se levantó a las '),
-                          TextSpan(
-                            text: hora(recuperada),
-                            style: estiloMono(tamano: 15, color: color),
-                          ),
-                        ],
+                      textoConHora(
+                        l.alertaSeLevantoALas(context.formato.hora(recuperada)),
+                        context.formato.hora(recuperada),
+                        estilo: estiloMono(tamano: 15, color: color),
                       ),
                       style: estilo,
                     )
@@ -735,6 +731,7 @@ class _Datos extends StatelessWidget {
       ),
     );
     final estiloValor = estiloTexto(21, 800, color: color);
+    final l = context.l10n;
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: ColoredBox(
@@ -748,7 +745,7 @@ class _Datos extends StatelessWidget {
               Expanded(
                 flex: 125,
                 child: dato(
-                  'Habitación',
+                  l.alertaDatoHabitacion,
                   Text(alerta.habitacion, style: estiloValor),
                 ),
               ),
@@ -756,10 +753,16 @@ class _Datos extends StatelessWidget {
               Expanded(
                 flex: 100,
                 child: dato(
-                  'Hora',
-                  Text(
-                    hora(alerta.ocurridaEn),
-                    style: estiloMono(tamano: 21, color: color),
+                  l.alertaDatoHora,
+                  // «10:42 AM» in English: shrink it instead of breaking it.
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      context.formato.hora(alerta.ocurridaEn),
+                      style: estiloMono(tamano: 21, color: color),
+                      maxLines: 1,
+                    ),
                   ),
                 ),
               ),
@@ -767,7 +770,7 @@ class _Datos extends StatelessWidget {
               Expanded(
                 flex: 95,
                 child: dato(
-                  'Hace',
+                  l.alertaDatoHace,
                   // «instantes» is one word: shrink it instead of breaking it.
                   FittedBox(
                     fit: BoxFit.scaleDown,

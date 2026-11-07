@@ -5,26 +5,24 @@ import 'package:flutter/material.dart';
 import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../alertas/presentation/etiquetas.dart';
 import '../../movimientos/presentation/esqueleto.dart';
 import '../domain/repeticion.dart';
 import 'reproductor_camara.dart';
 
-String _dos(int n) => n.toString().padLeft(2, '0');
-
-/// `10:41:52`.
-String horaConSegundos(DateTime t) =>
-    '${_dos(t.hour)}:${_dos(t.minute)}:${_dos(t.second)}';
+/// `10:41:52` (`10:41:52 AM` in English).
+String horaConSegundos(AppLocalizations l, DateTime t) =>
+    l.formato.horaConSegundos(t);
 
 /// «Hoy», «Ayer» or «lun 21 sep» (`dayChip`).
-String etiquetaDiaCamara(DateTime dia, DateTime hoy) {
+String etiquetaDiaCamara(AppLocalizations l, DateTime dia, DateTime hoy) {
   final d = DateTime(dia.year, dia.month, dia.day);
   final h = DateTime(hoy.year, hoy.month, hoy.day);
-  if (d == h) return 'Hoy';
-  if (d == h.subtract(const Duration(days: 1))) return 'Ayer';
-  return fechaCorta(d);
+  if (d == h) return l.repeticionHoy;
+  if (d == h.subtract(const Duration(days: 1))) return l.repeticionAyer;
+  return l.formato.fechaCorta(d);
 }
 
 /// The mark of an event on the timeline and in the list (`rpMark`): a red triangle for a fall, an
@@ -118,7 +116,7 @@ class BotonEnVivo extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    label: 'Ver $habitacion en vivo',
+    label: context.l10n.repeticionVerEnVivo(habitacion),
     excludeSemantics: true,
     child: Material(
       color: const Color(0xE6221A38),
@@ -143,7 +141,7 @@ class BotonEnVivo extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'En vivo',
+                  context.l10n.repeticionEnVivo,
                   style: estiloTexto(16, 700, color: Colors.white),
                 ),
               ],
@@ -234,14 +232,15 @@ class EscenarioMovimientos extends StatelessWidget {
     final c = context.colores;
     final fase = r.fase;
     final fotograma = r.fotograma;
+    final l = context.l10n;
     // A state that stops the player covers the stage; otherwise, without a frame, say why
     // there is no skeleton (never a guessed posture).
     final (Ico, String)? bloqueo = switch (r.estado) {
-      EstadoReproductor.cargando => (Ico.clock, 'Cargando…'),
-      EstadoReproductor.sinInternet => (Ico.wifiOff, 'Sin internet'),
+      EstadoReproductor.cargando => (Ico.clock, l.repeticionCargando),
+      EstadoReproductor.sinInternet => (Ico.wifiOff, l.repeticionSinInternet),
       EstadoReproductor.revocado => (
         Ico.lock,
-        '$nombreAdultoMayor retiró el permiso. Se borraron sus movimientos.',
+        l.repeticionPermisoRetirado(nombreAdultoMayor),
       ),
       EstadoReproductor.listo => null,
     };
@@ -250,7 +249,7 @@ class EscenarioMovimientos extends StatelessWidget {
         (fotograma != null || fase?.tipo == null && fase != null
             ? null
             : r.registrada && fase == null
-            ? (Ico.eyeOff, 'Sin persona en la imagen')
+            ? (Ico.eyeOff, l.repeticionSinPersona)
             : null);
     return AspectRatio(
       aspectRatio: 1.6,
@@ -305,8 +304,8 @@ class EscenarioMovimientos extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  '${etiquetaDiaCamara(r.dia, hoy)} '
-                  '${horaConSegundos(r.posicion)}',
+                  '${etiquetaDiaCamara(l, r.dia, hoy)} '
+                  '${horaConSegundos(l, r.posicion)}',
                   style: estiloTexto(15, 700, color: Colors.white),
                 ),
               ),
@@ -400,6 +399,7 @@ class LineaDeTiempoReproductor extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = reproductor;
     final c = context.colores;
+    final l = context.l10n;
     final total = r.largo.inMilliseconds;
     double fr(DateTime t) =>
         (t.difference(r.inicio).inMilliseconds / total).clamp(0.0, 1.0);
@@ -442,9 +442,10 @@ class LineaDeTiempoReproductor extends StatelessWidget {
                         bottom: 2.0 + niveles[i] * 22,
                         child: Semantics(
                           button: true,
-                          label:
-                              '${horaConSegundos(eventos[i].en)}, '
-                              '${eventos[i].tipo.texto}. Ir a este momento',
+                          label: l.repeticionIrAEvento(
+                            horaConSegundos(l, eventos[i].en),
+                            eventos[i].tipo.texto(l),
+                          ),
                           excludeSemantics: true,
                           child: InkResponse(
                             radius: 22,
@@ -464,12 +465,14 @@ class LineaDeTiempoReproductor extends StatelessWidget {
               Semantics(
                 slider: true,
                 enabled: habilitada,
-                label: 'Momento de la repetición',
-                value: horaConSegundos(r.posicion),
+                label: l.repeticionMomento,
+                value: horaConSegundos(l, r.posicion),
                 increasedValue: horaConSegundos(
+                  l,
                   r.posicion.add(const Duration(seconds: 10)),
                 ),
                 decreasedValue: horaConSegundos(
+                  l,
                   r.posicion.subtract(const Duration(seconds: 10)),
                 ),
                 onIncrease: habilitada ? () => r.saltar(1) : null,
@@ -508,7 +511,9 @@ class LineaDeTiempoReproductor extends StatelessWidget {
                       children: [
                         for (final k in [0, 1, 2])
                           Text(
-                            hora(r.inicio.add(r.largo * (k / 2))),
+                            context.formato.hora(
+                              r.inicio.add(r.largo * (k / 2)),
+                            ),
                             style: estiloMono(
                               tamano: 14,
                               peso: 400,
@@ -594,8 +599,9 @@ class _Pista extends CustomPainter {
       old.avance != avance || old.huecos != huecos || old.fondo != fondo;
 }
 
-String textoVelocidad(double v) =>
-    v == 0.5 ? '0,5×' : '${v.toStringAsFixed(0)}×';
+/// «0,5×» (`0.5×` in English, [idioma] `en`), «1×», «2×», «4×».
+String textoVelocidad(double v, [String idioma = 'es']) =>
+    v == 0.5 ? (idioma == 'en' ? '0.5×' : '0,5×') : '${v.toStringAsFixed(0)}×';
 
 /// Speed, −10 s (or the previous event), play and +10 s (or the next event) (`camControls`).
 class ControlesReproductor extends StatelessWidget {
@@ -612,6 +618,8 @@ class ControlesReproductor extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = reproductor;
     final c = context.colores;
+    final l = context.l10n;
+    final vel = textoVelocidad(r.velocidad, l.localeName);
     final solo = r.soloEventos;
     Widget redondo({
       required String etiqueta,
@@ -668,23 +676,23 @@ class ControlesReproductor extends StatelessWidget {
       child: Row(
         children: [
           redondo(
-            etiqueta:
-                'Velocidad ${textoVelocidad(r.velocidad)}. Cambiar la velocidad',
-            hijo: Text(
-              textoVelocidad(r.velocidad),
-              style: estiloTexto(15, 800, color: c.moradoTinta),
-            ),
+            etiqueta: l.clipVelocidad(vel),
+            hijo: Text(vel, style: estiloTexto(15, 800, color: c.moradoTinta)),
             accion: r.cambiarVelocidad,
           ),
           const SizedBox(width: 14),
           redondo(
-            etiqueta: solo ? 'Evento anterior' : 'Retroceder 10 segundos',
+            etiqueta: solo
+                ? l.repeticionEventoAnterior
+                : l.repeticionRetroceder,
             hijo: salto(-1),
             accion: () => r.saltar(-1),
           ),
           const SizedBox(width: 14),
           redondo(
-            etiqueta: r.reproduciendo ? 'Pausar' : 'Reproducir',
+            etiqueta: r.reproduciendo
+                ? l.repeticionPausar
+                : l.repeticionReproducir,
             principal: true,
             tamano: 64,
             hijo: Icono(
@@ -696,7 +704,9 @@ class ControlesReproductor extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           redondo(
-            etiqueta: solo ? 'Evento siguiente' : 'Adelantar 10 segundos',
+            etiqueta: solo
+                ? l.repeticionEventoSiguiente
+                : l.repeticionAdelantar,
             hijo: salto(1),
             accion: () => r.saltar(1),
           ),
@@ -740,7 +750,7 @@ class FilaEvento extends StatelessWidget {
                   MarcaEvento(e.tipo),
                   const SizedBox(width: 14),
                   Text(
-                    hora(e.en),
+                    context.formato.hora(e.en),
                     style: estiloMono(tamano: 16, color: c.tinta2),
                   ),
                   const SizedBox(width: 14),
@@ -749,7 +759,7 @@ class FilaEvento extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          e.tipo.texto,
+                          e.tipo.texto(context.l10n),
                           style: estiloTexto(17, 700, color: c.tinta),
                         ),
                         if (grande && e.tipo != TipoEvento.levanto) ...[
@@ -789,11 +799,11 @@ class HojaElegirDia extends StatelessWidget {
   final Set<DateTime> conEventos;
   final ValueChanged<DateTime> alElegir;
 
-  static const _dias = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
-
   @override
   Widget build(BuildContext context) {
     final c = context.colores;
+    final l = context.l10n;
+    String semana(DateTime d) => l.formato.diaSemanaCorto(d);
     final h = DateTime(hoy.year, hoy.month, hoy.day);
     final desde = datosDesde == null
         ? null
@@ -807,14 +817,14 @@ class HojaElegirDia extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              'Elegir día',
+              l.repeticionElegirDia,
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           if (desde != null) ...[
             const SizedBox(height: 8),
             Text(
-              'Hay movimientos desde el ${fechaNumerica(desde)}.',
+              l.repeticionHayMovimientosDesde(l.formato.fechaNumerica(desde)),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -830,7 +840,7 @@ class HojaElegirDia extends StatelessWidget {
               for (final d in dias)
                 _Dia(
                   dia: d,
-                  semana: _dias[d.weekday - 1],
+                  semana: semana(d),
                   elegido: d == elegido,
                   deshabilitado: desde != null && d.isBefore(desde),
                   conEventos: conEventos.contains(d),
@@ -850,7 +860,10 @@ class HojaElegirDia extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text('Con eventos', style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                l.repeticionConEventos,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
           ),
           Divider(color: c.linea, height: 1, thickness: 0),
@@ -880,6 +893,8 @@ class _Dia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colores;
+    final l = context.l10n;
+    final fecha = l.formato.fechaLarga(dia);
     final color = elegido
         ? c.sobreInversa
         : deshabilitado
@@ -889,13 +904,11 @@ class _Dia extends StatelessWidget {
       button: true,
       enabled: !deshabilitado,
       selected: elegido,
-      label:
-          '${fechaLarga(dia)}'
-          '${deshabilitado
-              ? ', sin movimientos'
-              : conEventos
-              ? ', con eventos'
-              : ''}',
+      label: deshabilitado
+          ? l.repeticionDiaSinMovimientos(fecha)
+          : conEventos
+          ? l.repeticionDiaConEventos(fecha)
+          : fecha,
       excludeSemantics: true,
       child: Material(
         color: elegido

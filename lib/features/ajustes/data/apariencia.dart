@@ -4,19 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/cache/cache_local.dart';
+import '../../../l10n/l10n.dart';
 
 /// Light or dark on this phone (or this browser): a device setting, not an account one, so it is
 /// not sent to the backend and survives signing out.
 enum Apariencia {
   /// Follows the phone's (or the browser's) theme, as the prototype does. The default.
-  automatica('Automático', ThemeMode.system),
-  clara('Claro', ThemeMode.light),
-  oscura('Oscuro', ThemeMode.dark);
+  automatica(ThemeMode.system),
+  clara(ThemeMode.light),
+  oscura(ThemeMode.dark);
 
-  const Apariencia(this.texto, this.modo);
+  const Apariencia(this.modo);
 
-  final String texto;
   final ThemeMode modo;
+
+  /// «Automático», «Claro», «Oscuro».
+  String texto(AppLocalizations l) => switch (this) {
+    automatica => l.preferenciasTemaAutomatico,
+    clara => l.preferenciasTemaClaro,
+    oscura => l.preferenciasTemaOscuro,
+  };
 
   /// The stored name; anything unknown (an old or corrupt value) is [automatica].
   static Apariencia desdeNombre(String? nombre) => Apariencia.values.firstWhere(

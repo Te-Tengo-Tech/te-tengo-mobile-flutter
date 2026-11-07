@@ -1,4 +1,5 @@
 import '../../../core/formato.dart';
+import '../../../l10n/l10n.dart';
 
 /// A `MAJOR.MINOR.PATCH` version, compared numerically (contract §12). A build suffix (`+12`) or
 /// a pre-release tag (`-rc.1`) is ignored: `0.5.3+12` is `0.5.3`.
@@ -168,10 +169,12 @@ class Versiones {
 }
 
 /// «8,4 MB», the size of a download.
-String tamanoLegible(int bytes) {
+String tamanoLegible(AppLocalizations l, int bytes) {
   final mb = bytes / 1000000;
-  if (mb < 0.1) return '0,1 MB';
-  return '${mb.toStringAsFixed(1).replaceAll('.', ',')} MB';
+  final cifra = mb < 0.1 ? '0.1' : mb.toStringAsFixed(1);
+  return l.actualizacionTamanoMb(
+    cifra.replaceAll('.', l.actualizacionSeparadorDecimal),
+  );
 }
 
 /// How a PC's Te Tengo Captura compares with the published one (CA-43.7).
