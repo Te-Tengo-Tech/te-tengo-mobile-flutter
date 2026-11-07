@@ -14,6 +14,7 @@ import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
+import '../../apoyo/idioma.dart';
 import '../camaras/repositorio_falso.dart';
 import '../familia/familia_falso.dart';
 import '../pcs/pcs_falso.dart';
@@ -125,6 +126,24 @@ void main() {
       expect(find.text('Consentimiento registrado'), findsOneWidget);
       expect(find.text('Constancia de consentimiento'), findsOneWidget);
       expect(find.text('Volver al inicio'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'en inglés se traduce la pantalla, pero se registra el mismo consentimiento',
+    (tester) async {
+      usarIngles(tester);
+      await abrir(tester, Rutas.configConsentimiento);
+      expect(find.text('Live view at any time'), findsOneWidget);
+      await tocar(tester, find.text('Their legal representative'));
+      await tocar(tester, find.textContaining('Rosa was informed and accepts'));
+      await tocar(
+        tester,
+        find.text('I read the summary and the full document.'),
+      );
+      await tocar(tester, find.text('Record consent'));
+      // What the backend stores as the record stays in Spanish.
+      expect(repo.consentimientos, ['Representante legal de Rosa Huamán']);
     },
   );
 

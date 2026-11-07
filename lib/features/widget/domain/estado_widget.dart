@@ -2,6 +2,7 @@ import '../../../app/rutas.dart';
 import '../../../core/formato.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../pcs/domain/camaras_en_casa.dart';
+import '../../../l10n/l10n.dart';
 
 /// Color of the home-screen widget (`.wg.calma`, `.caida`…), always with its icon and text.
 enum TonoWidget {
@@ -34,11 +35,14 @@ class EstadoWidget {
     this.conSesion = true,
   });
 
-  /// Signed out (CA-44.3): no data of the household.
-  static const sinSesion = EstadoWidget(
+  /// Signed out (CA-44.3): no data of the household. In the phone's language.
+  static EstadoWidget get sinSesion => sinSesionEn(textosDelSistema());
+
+  /// [sinSesion] in [l]'s language.
+  static EstadoWidget sinSesionEn(AppLocalizations l) => EstadoWidget(
     tono: TonoWidget.pausa,
-    titulo: 'Te Tengo',
-    linea: 'Abre la app para ver el estado.',
+    titulo: l.appTitulo,
+    linea: l.widgetAbreLaApp,
     destino: Rutas.inicio,
     conSesion: false,
   );
@@ -82,13 +86,16 @@ class EstadoWidget {
 }
 
 /// The widget's state (`widgetData`): an active alert first, then no cameras, no consent, cameras
-/// that do not answer, and «Todo tranquilo».
+/// that do not answer, and «Todo tranquilo». Its texts are in [l]'s language, the phone's by
+/// default (the widget may be drawn from a background isolate).
 EstadoWidget estadoDelHogar({
   required Alerta? alerta,
   required List<CamaraEnCasa> camaras,
   required bool conConsentimiento,
   required String nombreAdulto,
+  AppLocalizations? l,
 }) {
+  final t = l ?? textosDelSistema();
   final iniciales = nombreAdulto
       .split(' ')
       .where((p) => p.isNotEmpty)
@@ -113,28 +120,30 @@ EstadoWidget estadoDelHogar({
     final caida = alerta.tipo == TipoAlerta.caida;
     return estado(
       caida ? TonoWidget.caida : TonoWidget.inestable,
-      caida
-          ? (alerta.confirmada && alerta.recuperadaEn == null
-                ? 'Caída confirmada'
-                : 'Posible caída')
-          : 'Movimiento inestable',
-      '${alerta.habitacion} · ${hora(alerta.ocurridaEn)}',
+      t.widgetTituloAlerta(
+        caida
+            ? (alerta.confirmada && alerta.recuperadaEn == null
+                  ? 'confirmada'
+                  : 'caida')
+            : 'inestable',
+      ),
+      '${alerta.habitacion} · ${t.formato.hora(alerta.ocurridaEn)}',
       Rutas.alerta(alerta.id),
     );
   }
   if (camaras.isEmpty) {
     return estado(
       TonoWidget.pausa,
-      'Sin cámaras',
-      'Abre Te Tengo',
+      t.widgetSinCamaras,
+      t.widgetAbreTeTengo,
       Rutas.inicio,
     );
   }
   if (!conConsentimiento) {
     return estado(
       TonoWidget.pausa,
-      'Detección detenida',
-      'Falta el consentimiento',
+      t.widgetDeteccionDetenida,
+      t.widgetFaltaConsentimiento,
       Rutas.inicio,
     );
   }
@@ -142,17 +151,15 @@ EstadoWidget estadoDelHogar({
   if (caidas.isNotEmpty) {
     return estado(
       TonoWidget.aviso,
-      caidas.length == 1
-          ? '1 cámara no responde'
-          : '${caidas.length} cámaras no responden',
-      enumerar([for (final c in caidas) c.habitacion]),
+      t.widgetCamarasNoResponden(caidas.length),
+      t.formato.enumerar([for (final c in caidas) c.habitacion]),
       Rutas.pcs,
     );
   }
   return estado(
     TonoWidget.calma,
-    'Todo tranquilo',
-    contar(camaras.length, 'cámara', 'cámaras'),
+    t.widgetTodoTranquilo,
+    t.widgetCamaras(camaras.length),
     Rutas.inicio,
   );
 }
@@ -162,6 +169,7 @@ EstadoWidget estadoDelHogar({
 EstadoWidget? estadoDesdePush(
   Map<String, Object?> datos, {
   required EstadoWidget? anterior,
+  AppLocalizations? l,
 }) {
   final tipo = datos['tipo'];
   final caida = switch (tipo) {
@@ -175,16 +183,19 @@ EstadoWidget? estadoDesdePush(
   final habitacion = datos['habitacion'] as String? ?? '';
   final cuando = fechaDesdeJson(datos['ocurridaEn']);
   final alertaId = datos['alertaId'] as String?;
+  final t = l ?? textosDelSistema();
   return EstadoWidget(
     tono: caida ? TonoWidget.caida : TonoWidget.inestable,
-    titulo: tipo == 'CAIDA_CONFIRMADA'
-        ? 'Caída confirmada'
-        : caida
-        ? 'Posible caída'
-        : 'Movimiento inestable',
+    titulo: t.widgetTituloAlerta(
+      tipo == 'CAIDA_CONFIRMADA'
+          ? 'confirmada'
+          : caida
+          ? 'caida'
+          : 'inestable',
+    ),
     linea: [
       if (habitacion.isNotEmpty) habitacion,
-      if (cuando != null) hora(cuando),
+      if (cuando != null) t.formato.hora(cuando),
     ].join(' · '),
     destino: alertaId == null ? Rutas.inicio : Rutas.alerta(alertaId),
     iniciales: anterior.iniciales,

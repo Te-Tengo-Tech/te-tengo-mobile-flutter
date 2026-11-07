@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
 import '../../movimientos/data/fuente_fotogramas.dart';
@@ -34,7 +36,8 @@ class ReproductorCamara extends ChangeNotifier {
     this.datosDesde,
     this.corte,
     this.avisar,
-  });
+    AppLocalizations? textos,
+  }) : textos = textos ?? lookupAppLocalizations(const Locale('es'));
 
   final String camaraId;
   final String habitacion;
@@ -56,6 +59,10 @@ class ReproductorCamara extends ChangeNotifier {
 
   /// A short notice for the screen («No hay más eventos»).
   final void Function(String)? avisar;
+
+  /// The texts of the phase tag, the stretches without data and the notices (Spanish unless the
+  /// screen passes its own).
+  final AppLocalizations textos;
 
   static const velocidades = [0.5, 1.0, 2.0, 4.0];
   static const diezMinutos = Duration(minutes: 10);
@@ -112,19 +119,21 @@ class ReproductorCamara extends ChangeNotifier {
     final tramos = <Tramo>[
       if (sesion != null && finVisible.isAfter(inicio))
         // A file without its light file cannot be drawn: a stretch without data.
-        ...huecosDe(
+        for (final t in huecosDe(
           [
             for (final a in sesion!.archivos)
               if (a.ligero != null) a,
           ],
           inicio,
           finVisible,
-        ),
+        ))
+          Tramo(t.desde, t.hasta, t.motivo ?? textos.repeticionSinDatos),
     ];
     if (finDeDatos.isBefore(fin)) {
       final desde = finDeDatos.isAfter(inicio) ? finDeDatos : inicio;
+      final sinDatos = textos.repeticionSinDatos;
       tramos.add(
-        Tramo(desde, fin, esHoy ? corte?.motivo ?? 'Sin datos' : 'Sin datos'),
+        Tramo(desde, fin, esHoy ? corte?.motivo ?? sinDatos : sinDatos),
       );
     }
     return tramos;
@@ -147,17 +156,28 @@ class ReproductorCamara extends ChangeNotifier {
   /// frames the posture is not known.
   ({String texto, TipoEvento? tipo})? get fase {
     for (final t in huecos) {
-      if (t.contiene(posicion)) return (texto: t.motivo, tipo: null);
+      if (t.contiene(posicion)) {
+        return (texto: t.motivo ?? textos.repeticionSinDatos, tipo: null);
+      }
     }
     for (final e in eventos.reversed) {
       final d = posicion.difference(e.en);
       switch (e.tipo) {
         case TipoEvento.levanto when d >= Duration.zero && d < _s(4):
-          return (texto: 'Se levantó', tipo: TipoEvento.levanto);
+          return (
+            texto: textos.repeticionFaseLevanto,
+            tipo: TipoEvento.levanto,
+          );
         case TipoEvento.inestable when d >= -_s(2) && d < _s(4):
-          return (texto: 'Movimiento inestable', tipo: TipoEvento.inestable);
+          return (
+            texto: textos.repeticionFaseInestable,
+            tipo: TipoEvento.inestable,
+          );
         case TipoEvento.caida when d >= -_s(3) && d < _s(5):
-          return (texto: 'Posible caída', tipo: TipoEvento.caida);
+          return (
+            texto: textos.repeticionFasePosibleCaida,
+            tipo: TipoEvento.caida,
+          );
         case TipoEvento.caida when d >= _s(5) && d < const Duration(minutes: 2):
           final levanto = eventos.any(
             (x) =>
@@ -166,7 +186,10 @@ class ReproductorCamara extends ChangeNotifier {
                 !x.en.isAfter(posicion),
           );
           if (!levanto) {
-            return (texto: 'En el suelo', tipo: TipoEvento.caida);
+            return (
+              texto: textos.repeticionFaseEnSuelo,
+              tipo: TipoEvento.caida,
+            );
           }
         default:
       }
@@ -408,7 +431,7 @@ class ReproductorCamara extends ChangeNotifier {
             .firstOrNull;
         if (proximo == null) {
           _parar();
-          avisar?.call('No hay más eventos este día');
+          avisar?.call(textos.repeticionNoMasEventosDia);
           return;
         }
         t = proximo.en.subtract(_s(6));
@@ -446,7 +469,9 @@ class ReproductorCamara extends ChangeNotifier {
                 .lastOrNull;
       if (e == null) {
         avisar?.call(
-          sentido > 0 ? 'No hay más eventos' : 'No hay eventos antes',
+          sentido > 0
+              ? textos.repeticionNoMasEventos
+              : textos.repeticionNoEventosAntes,
         );
         return;
       }

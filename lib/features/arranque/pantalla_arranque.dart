@@ -6,8 +6,7 @@ import '../../app/rutas.dart';
 import '../../app/tema/colores.dart';
 import '../../app/tema/tema.dart';
 import '../../core/ui/marca.dart';
-
-const lemaTeTengo = 'Cerca de los tuyos, aunque estés lejos.';
+import '../../l10n/l10n.dart';
 
 /// Splash (screen 00): on cream the violet body rises, its head drops in, the coral figure enters the
 /// embrace, the symbol beats once and «Te Tengo» and the tagline appear; then the screen goes to
@@ -66,7 +65,7 @@ class _PantallaArranqueState extends State<PantallaArranque>
     return Scaffold(
       backgroundColor: Colores.fondo,
       body: Semantics(
-        label: 'Te Tengo. $lemaTeTengo',
+        label: '${context.l10n.appTitulo}. ${context.l10n.arranqueLema}',
         button: true,
         onTap: _terminar,
         excludeSemantics: true,
@@ -184,7 +183,7 @@ class _Escena extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 240),
                   child: Text(
-                    lemaTeTengo,
+                    context.l10n.arranqueLema,
                     textAlign: TextAlign.center,
                     style: estiloTexto(
                       17,

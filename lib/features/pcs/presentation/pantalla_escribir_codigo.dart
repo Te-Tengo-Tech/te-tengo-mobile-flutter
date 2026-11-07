@@ -14,6 +14,7 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../data/pcs_repositorio.dart';
 import '../domain/pc.dart';
 import 'campo_codigo.dart';
@@ -108,26 +109,27 @@ class _PantallaEscribirCodigoState
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
     final error = _error;
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Agregar PC')),
+      appBar: AppBar(title: Text(l.pcsAgregarPc)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
           Semantics(
             header: true,
-            child: Text('Escribe el código de la PC', style: texto.titleLarge),
+            child: Text(l.pcsEscribeElCodigo, style: texto.titleLarge),
           ),
           const SizedBox(height: 16),
           if (_bloqueado) ...[
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.clock,
-              titulo: 'Demasiados intentos',
-              contenido: textoBloqueo(_bloqueadaHasta),
+              titulo: l.pcsDemasiadosIntentos,
+              contenido: textoBloqueo(l, _bloqueadaHasta),
             ),
             const SizedBox(height: 16),
           ],
-          const EtiquetaCampo('Código de 8 letras'),
+          EtiquetaCampo(l.pcsCodigoDe8Letras),
           const SizedBox(height: 8),
           CampoCodigo(
             controlador: _control,
@@ -147,7 +149,7 @@ class _PantallaEscribirCodigoState
               liveRegion: true,
               child: _Linea(
                 icono: Ico.warn,
-                texto: error.texto,
+                texto: error.texto(l),
                 color: context.colores.caidaTinta,
               ),
             ),
@@ -156,18 +158,15 @@ class _PantallaEscribirCodigoState
             const SizedBox(height: 10),
             _Linea(
               icono: Ico.info,
-              texto: 'El código solo lleva consonantes, sin números',
+              texto: l.pcsSoloConsonantes,
               color: context.colores.aviso,
             ),
           ],
           const SizedBox(height: 10),
-          Text(
-            'Está debajo del QR, en Te Tengo Captura.',
-            style: texto.bodySmall,
-          ),
+          Text(l.pcsCodigoDondeEsta, style: texto.bodySmall),
           const SizedBox(height: 20),
           Boton(
-            'Continuar',
+            l.pcsContinuar,
             cargando: _consultando,
             alPresionar: _letras.length == largoDelCodigo && !_bloqueado
                 ? _continuar
@@ -176,7 +175,7 @@ class _PantallaEscribirCodigoState
           if (!_bloqueado) ...[
             const SizedBox(height: 8),
             Boton(
-              'Escanear el código QR',
+              l.pcsEscanearQr,
               icono: Ico.scan,
               estilo: EstiloBoton.fantasma,
               alPresionar: () => context.pushReplacement(Rutas.escanear),

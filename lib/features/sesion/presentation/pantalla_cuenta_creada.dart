@@ -8,6 +8,7 @@ import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 
 /// Screen 05: the account is ready and the two setup steps follow (CA-01.1, docs/ONBOARDING.md).
 /// The PC, the family and the notifications are not steps: «Todo listo» and Inicio offer them.
@@ -19,6 +20,7 @@ class PantallaCuentaCreada extends ConsumerWidget {
     final nombre =
         ref.watch(sesionControllerProvider)?.usuario.nombrePila ?? '';
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -41,21 +43,21 @@ class PantallaCuentaCreada extends ConsumerWidget {
                         Semantics(
                           header: true,
                           child: Text(
-                            'Tu cuenta está lista, $nombre.',
+                            l.registroCuentaLista(nombre),
                             style: texto.headlineMedium,
                           ),
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          '2 pasos más:',
+                          l.registroDosPasos,
                           style: texto.bodyLarge?.copyWith(
                             color: context.colores.tinta2,
                           ),
                         ),
                         const SizedBox(height: 20),
-                        const PasosNumerados([
-                          ('Datos de la persona', null),
-                          ('Consentimiento informado', null),
+                        PasosNumerados([
+                          (l.registroPasoDatos, null),
+                          (l.registroPasoConsentimiento, null),
                         ]),
                       ],
                     ),
@@ -63,7 +65,7 @@ class PantallaCuentaCreada extends ConsumerWidget {
                 ),
               ),
               Boton(
-                'Empezar',
+                l.registroEmpezar,
                 alPresionar: () => context.go(Rutas.configPersona),
               ),
             ],

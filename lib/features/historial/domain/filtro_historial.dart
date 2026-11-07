@@ -1,15 +1,19 @@
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../alertas/domain/alerta.dart';
+import '../../../l10n/l10n.dart';
 
 /// Date range of the history filter.
 enum RangoFecha {
-  siete('Últimos 7 días'),
-  treinta('Últimos 30 días'),
-  todo('Todo');
+  siete,
+  treinta,
+  todo;
 
-  const RangoFecha(this.texto);
-
-  final String texto;
+  /// «Últimos 7 días», «Últimos 30 días», «Todo».
+  String texto(AppLocalizations l) => switch (this) {
+    siete => l.historialRangoSiete,
+    treinta => l.historialRangoTreinta,
+    todo => l.historialRangoTodo,
+  };
 }
 
 /// Filters of the history (CA-25.2): date range, kind and state.
@@ -68,11 +72,11 @@ class FiltroHistorial {
 }
 
 /// Labels of the active filter chips.
-String etiquetaTipo(TipoAlerta t) =>
-    t == TipoAlerta.caida ? 'Caídas' : 'Movimientos inestables';
+String etiquetaTipo(AppLocalizations l, TipoAlerta t) =>
+    t == TipoAlerta.caida ? l.historialChipCaidas : l.historialChipInestables;
 
-String etiquetaEstado(EstadoAlerta e) => switch (e) {
-  EstadoAlerta.activa => 'Activas',
-  EstadoAlerta.atendida => 'Atendidas',
-  EstadoAlerta.falsaAlarma => 'Falsas alarmas',
+String etiquetaEstado(AppLocalizations l, EstadoAlerta e) => switch (e) {
+  EstadoAlerta.activa => l.historialChipActivas,
+  EstadoAlerta.atendida => l.historialChipAtendidas,
+  EstadoAlerta.falsaAlarma => l.historialChipFalsas,
 };

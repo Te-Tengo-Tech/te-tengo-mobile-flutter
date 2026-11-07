@@ -6,6 +6,8 @@ import 'package:te_tengo/features/arranque/pantalla_arranque.dart';
 import '../apoyo/app_de_prueba.dart';
 import '../apoyo/datos.dart';
 
+const lemaTeTengo = 'Cerca de los tuyos, aunque estés lejos.';
+
 void main() {
   testWidgets('el arranque muestra el lema y pasa a la bienvenida sin sesión', (
     tester,

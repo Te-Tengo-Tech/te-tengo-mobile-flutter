@@ -7,6 +7,7 @@ import 'aviso.dart';
 import 'avisos_flotantes.dart';
 import 'ilustraciones.dart';
 import 'iconos.dart';
+import '../../l10n/l10n.dart';
 
 /// Empty state (`.empty`): illustration, title and text.
 class EstadoVacio extends StatelessWidget {
@@ -67,7 +68,7 @@ class AvisoSoloLectura extends StatelessWidget {
   Widget build(BuildContext context) => Aviso(
     tono: TonoAviso.neutral,
     icono: Ico.lock,
-    texto: 'Solo $titular (titular) puede $accion.',
+    texto: context.l10n.comunSoloTitularPuede(titular, accion),
   );
 }
 
@@ -82,7 +83,7 @@ class EtiquetaSoloVer extends StatelessWidget {
       Icono(Ico.lock, tamano: 15, color: context.colores.icono),
       const SizedBox(width: 4),
       Text(
-        'Solo ver',
+        context.l10n.comunSoloVer,
         style: estiloTexto(13, 700, color: context.colores.tinta3),
       ),
     ],
@@ -245,7 +246,7 @@ class CabeceraConfiguracion extends StatelessWidget
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Paso $paso de $pasos',
+              context.l10n.comunPasoDe(paso, pasos),
               style: estiloTexto(15, 400, color: context.colores.tinta3),
             ),
             const SizedBox(height: 6),

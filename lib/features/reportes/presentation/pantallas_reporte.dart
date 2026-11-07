@@ -17,6 +17,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/chips.dart';
 import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../movimientos/data/movimientos_repositorio.dart';
@@ -25,21 +26,17 @@ import '../../pcs/presentation/piezas_pc.dart';
 import '../data/reportes_repositorio.dart';
 import '../domain/reporte_caida.dart';
 
-/// The room chip for «No sé».
+/// The room chip for «No sé»: its value (never sent); it shows as [AppLocalizations.reportesNoSe].
 const noSe = 'No sé';
 
 /// The `.foot-link` that opens the report: «¿Hubo una caída y no avisó?» at the foot of Historial
 /// and of a camera, «¿Terminó en caída y no avisamos?» under an unstable movement (screens 221,
 /// 229). Any member can report, an invited one too.
 class EnlaceReporte extends StatelessWidget {
-  const EnlaceReporte({
-    super.key,
-    this.texto = '¿Hubo una caída y no avisó?',
-    this.habitacion,
-    this.cuando,
-  });
+  const EnlaceReporte({super.key, this.texto, this.habitacion, this.cuando});
 
-  final String texto;
+  /// «¿Hubo una caída y no avisó?» when null.
+  final String? texto;
   final String? habitacion;
   final DateTime? cuando;
 
@@ -62,7 +59,10 @@ class EnlaceReporte extends StatelessWidget {
             ),
           ),
           icon: Icono(Ico.report, tamano: 18, color: color),
-          label: Text(texto, textAlign: TextAlign.center),
+          label: Text(
+            texto ?? context.l10n.reportesEnlace,
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
     );
@@ -114,8 +114,11 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
       ahora.hour,
       ahora.minute - ahora.minute % 5,
     );
+    // The field takes a 24-hour HH:MM time in every language.
     _hora = TextEditingController(
-      text: hora(cuando != null && _dia == dia ? cuando : redondeada),
+      text: Formato.es.hora(
+        cuando != null && _dia == dia ? cuando : redondeada,
+      ),
     );
     _habitacion = widget.habitacion;
   }
@@ -140,9 +143,9 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
       _errorNota = null;
       _faltaHabitacion = _habitacion == null;
       _errorHora = cuando == null
-          ? 'Escribe la hora así: 07:30.'
+          ? context.l10n.reportesHoraFormato
           : cuando.isAfter(ahora)
-          ? 'Elige una hora que ya pasó.'
+          ? context.l10n.reportesHoraFutura
           : null;
     });
     if (_faltaHabitacion || _errorHora != null) return;
@@ -180,6 +183,7 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final nombre = ref.watch(nombreAdultoMayorProvider);
     final camaras = ref.watch(camarasProvider).value ?? const [];
     // The rooms with a camera, a preselected room no camera has any more, and «No sé».
@@ -197,7 +201,7 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const EtiquetaCampo('Fecha'),
+          EtiquetaCampo(l.reportesFecha),
           DropdownButtonFormField<DateTime>(
             initialValue: _dia,
             isExpanded: true,
@@ -210,10 +214,10 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
                   value: d,
                   child: Text(
                     d == _hoy
-                        ? 'Hoy'
+                        ? l.reportesHoy
                         : d == dias[1]
-                        ? 'Ayer'
-                        : fechaCorta(d),
+                        ? l.reportesAyer
+                        : context.formato.fechaCorta(d),
                   ),
                 ),
             ],
@@ -229,7 +233,7 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const EtiquetaCampo('Hora aproximada'),
+          EtiquetaCampo(l.reportesHoraAproximada),
           TextField(
             controller: _hora,
             keyboardType: TextInputType.number,
@@ -254,7 +258,7 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
     final cuando = _cuando;
     final nube = ref.watch(movimientosEnLaNubeProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text('Contarnos qué pasó')),
+      appBar: AppBar(title: Text(l.reportesTitulo)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
@@ -262,10 +266,10 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
             tono: TonoAviso.error,
             icono: Ico.phone,
             titulo: nombre == null
-                ? 'Si necesita ayuda ahora, llama al SAMU · 106'
-                : 'Si $nombre necesita ayuda ahora, llama al SAMU · 106',
+                ? l.reportesSamu
+                : l.reportesSamuConNombre(nombre),
             accion: Boton(
-              'Llamar al SAMU · 106',
+              l.reportesLlamarSamu,
               icono: Ico.phone,
               estilo: EstiloBoton.peligro,
               pequeno: true,
@@ -275,25 +279,19 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
           const SizedBox(height: 20),
           Semantics(
             header: true,
-            child: Text(
-              '¿Hubo una caída y no te avisamos?',
-              style: texto.titleLarge,
-            ),
+            child: Text(l.reportesPregunta, style: texto.titleLarge),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Lo revisaremos para mejorar la detección.',
-            style: texto.bodyMedium,
-          ),
+          Text(l.reportesRevisaremos, style: texto.bodyMedium),
           const SizedBox(height: 16),
-          const EtiquetaCampo('Habitación'),
+          EtiquetaCampo(l.reportesHabitacion),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               for (final (nombre, _) in habitaciones)
                 ChipOpcion(
-                  texto: nombre,
+                  texto: nombre == noSe ? l.reportesNoSe : nombre,
                   elegido: _habitacion == nombre,
                   alTocar: () => setState(() {
                     _habitacion = nombre;
@@ -303,9 +301,9 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
             ],
           ),
           if (_faltaHabitacion)
-            const Padding(
-              padding: EdgeInsets.only(top: 6),
-              child: MensajeCampo('Elige la habitación o «No sé».'),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: MensajeCampo(l.reportesEligeHabitacion),
             ),
           const SizedBox(height: 16),
           if (grande) ...[
@@ -323,7 +321,7 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
               child: MensajeCampo(e),
             ),
           const SizedBox(height: 16),
-          const EtiquetaCampo('¿Qué pasó? (opcional)'),
+          EtiquetaCampo(l.reportesQuePaso),
           TextField(
             controller: _nota,
             minLines: 3,
@@ -332,7 +330,7 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
             textCapitalization: TextCapitalization.sentences,
             onChanged: (_) => setState(() => _errorNota = null),
             decoration: InputDecoration(
-              hintText: 'Ej.: Se resbaló al salir de la cama',
+              hintText: l.reportesNotaEjemplo,
               error: _errorNota == null ? null : const SizedBox.shrink(),
             ),
             buildCounter:
@@ -361,10 +359,10 @@ class _PantallaReporteCaidaState extends ConsumerState<PantallaReporteCaida> {
           ],
           const SizedBox(height: 20),
           Boton(
-            'Enviar',
+            l.reportesEnviar,
             icono: Ico.send,
             cargando: _enviando,
-            textoCargando: 'Enviando…',
+            textoCargando: l.reportesEnviando,
             alPresionar: () => _enviar(habitaciones),
           ),
         ],
@@ -393,8 +391,8 @@ class _NotaMovimientos extends StatelessWidget {
       tono: TonoAviso.neutral,
       icono: hay ? Ico.body : Ico.info,
       texto: hay
-          ? 'Revisaremos los movimientos de ese momento.'
-          : 'Sin movimientos de ese momento; revisaremos tu relato.',
+          ? context.l10n.reportesMovimientosHay
+          : context.l10n.reportesMovimientosNo,
     );
   }
 }
@@ -425,6 +423,7 @@ class PantallaReporteEnviado extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final texto = Theme.of(context).textTheme;
     final nombre = ref.watch(sesionControllerProvider)?.usuario.nombrePila;
+    final l = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -447,27 +446,25 @@ class PantallaReporteEnviado extends ConsumerWidget {
                       liveRegion: true,
                       child: Text(
                         guardado
-                            ? 'Lo guardamos para enviarlo'
+                            ? l.reportesGuardado
                             : nombre == null
-                            ? 'Gracias. Lo revisaremos.'
-                            : 'Gracias, $nombre. Lo revisaremos.',
+                            ? l.reportesGracias
+                            : l.reportesGraciasNombre(nombre),
                         style: texto.headlineMedium,
                       ),
                     ),
                     if (guardado) ...[
                       const SizedBox(height: 16),
-                      const Aviso(
+                      Aviso(
                         tono: TonoAviso.advertencia,
                         icono: Ico.wifiOff,
-                        titulo: 'No pudimos enviarlo',
-                        texto:
-                            'Lo guardamos y lo enviaremos cuando vuelva la '
-                            'conexión.',
+                        titulo: l.reportesNoPudimosTitulo,
+                        texto: l.reportesNoPudimosTexto,
                       ),
                     ],
                     const SizedBox(height: 12),
                     Text(
-                      'Esto no genera una alerta ni avisa a la familia.',
+                      l.reportesNoGeneraAlerta,
                       style: texto.bodyLarge?.copyWith(
                         color: context.colores.tinta2,
                       ),
@@ -475,7 +472,7 @@ class PantallaReporteEnviado extends ConsumerWidget {
                     const Spacer(),
                     const SizedBox(height: 20),
                     Boton(
-                      'Volver al historial',
+                      l.reportesVolverHistorial,
                       alPresionar: () => context.go(Rutas.historial),
                     ),
                   ],

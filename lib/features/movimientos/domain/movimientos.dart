@@ -1,4 +1,5 @@
 import '../../../core/formato.dart';
+import '../../../l10n/l10n.dart';
 
 /// The certificate of the consent to store movements (contract §11 `constancia`, CA-35.2).
 class ConstanciaMovimientos {
@@ -140,8 +141,9 @@ class MovimientosEnLaNube {
 }
 
 /// «7 días», «30 días», «1 año» (`cloudLbl` without «Se guardan»).
-String textoPlazo(int dias) => dias == 365 ? '1 año' : '$dias días';
+String textoPlazo(AppLocalizations l, int dias) =>
+    dias == 365 ? l.nubePlazoAnio : l.nubePlazoDias(dias);
 
 /// «Se guardan 30 días», «Desactivado» (`cloudLbl`).
-String resumenNube(int? dias) =>
-    dias == null ? 'Desactivado' : 'Se guardan ${textoPlazo(dias)}';
+String resumenNube(AppLocalizations l, int? dias) =>
+    dias == null ? l.nubeDesactivado : l.nubeSeGuardan(textoPlazo(l, dias));

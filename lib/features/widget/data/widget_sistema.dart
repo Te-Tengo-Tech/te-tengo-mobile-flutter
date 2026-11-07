@@ -7,8 +7,8 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 
-import '../../../core/formato.dart';
 import '../domain/estado_widget.dart';
+import '../../../l10n/l10n.dart';
 
 /// The App Group the iOS widget extension shares with the app (docs/BLOCKERS.md: it needs the Apple
 /// account's capability before it can be signed).
@@ -84,7 +84,10 @@ class WidgetHomeWidget implements WidgetDelSistema {
   @override
   Future<void> mostrar(EstadoWidget estado, DateTime actualizado) async {
     try {
-      final datos = {...estado.aDatos(), 'actualizado': hora(actualizado)};
+      final datos = {
+        ...estado.aDatos(),
+        'actualizado': textosDelSistema().formato.hora(actualizado),
+      };
       for (final MapEntry(:key, :value) in datos.entries) {
         await HomeWidget.saveWidgetData<String>('$_prefijo$key', value);
       }

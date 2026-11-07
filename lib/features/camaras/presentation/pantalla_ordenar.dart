@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/aviso.dart';
 import '../../pcs/data/pcs_repositorio.dart';
@@ -24,11 +25,11 @@ class PantallaOrdenarCamaras extends ConsumerWidget {
     final orden = ref.watch(ordenCamarasProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ordenar'),
+        title: Text(context.l10n.camarasOrdenar),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).maybePop(),
-            child: const Text('Listo'),
+            child: Text(context.l10n.camarasListo),
           ),
           const SizedBox(width: 8),
         ],
@@ -53,6 +54,7 @@ class _Lista extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final ids = [for (final c in lista) c.camara.id];
     final favoritas = lista
         .where((c) => orden.esFavorita(c.camara.id))
@@ -77,13 +79,13 @@ class _Lista extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
         Text(
-          'Favoritas primero. Solo en este celular.',
+          l.camarasOrdenarTexto,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
-        if (favoritas.isNotEmpty) grupo('Favoritas', favoritas, 0),
+        if (favoritas.isNotEmpty) grupo(l.camarasFavoritas, favoritas, 0),
         if (demas.isNotEmpty)
           grupo(
-            favoritas.isEmpty ? 'Cámaras' : 'Las demás',
+            favoritas.isEmpty ? l.camarasTitulo : l.camarasLasDemas,
             demas,
             favoritas.length,
           ),
@@ -181,7 +183,7 @@ class _Fila extends StatelessWidget {
               ReorderableDragStartListener(
                 index: indice,
                 child: Semantics(
-                  label: 'Arrastrar $habitacion',
+                  label: context.l10n.camarasArrastrar(habitacion),
                   child: SizedBox.square(
                     dimension: 44,
                     child: Center(
@@ -199,12 +201,12 @@ class _Fila extends StatelessWidget {
               BotonFavorita(camaraId: camara.camara.id, habitacion: habitacion),
               _BotonMover(
                 icono: Ico.up,
-                etiqueta: 'Subir $habitacion',
+                etiqueta: context.l10n.camarasSubir(habitacion),
                 alTocar: puedeSubir ? () => alMover(-1) : null,
               ),
               _BotonMover(
                 icono: Ico.down,
-                etiqueta: 'Bajar $habitacion',
+                etiqueta: context.l10n.camarasBajar(habitacion),
                 alTocar: puedeBajar ? () => alMover(1) : null,
               ),
             ],

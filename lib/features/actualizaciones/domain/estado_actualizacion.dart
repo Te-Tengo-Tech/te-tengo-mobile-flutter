@@ -1,3 +1,4 @@
+import '../../../l10n/l10n.dart';
 import 'versiones.dart';
 
 /// Where an iPhone app came from: the bar says «TestFlight» or «App Store» (CA-43.6).
@@ -24,8 +25,8 @@ class InfoApp {
   final TiendaIos tiendaIos;
 
   /// The platform line of «Acerca de»: «Android · Google Play», «iPhone · TestFlight»…
-  String get plataforma => switch (canal) {
-    Canal.pwa => 'Aplicación web',
+  String plataforma(AppLocalizations l) => switch (canal) {
+    Canal.pwa => l.actualizacionAplicacionWeb,
     Canal.apk => 'Android',
     Canal.play => 'Android · Google Play',
     Canal.ios => 'iPhone · ${tiendaIos.nombre}',

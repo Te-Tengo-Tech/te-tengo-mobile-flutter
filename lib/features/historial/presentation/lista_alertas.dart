@@ -6,6 +6,7 @@ import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
+import '../../../l10n/l10n.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
@@ -31,12 +32,13 @@ class ListaHistorial extends ConsumerWidget {
     final historial = ref.watch(historialProvider);
     final filtro = ref.watch(filtroHistorialProvider);
     final hoy = ref.watch(relojProvider)();
+    final l = context.l10n;
     final hijos = switch (historial) {
       AsyncData(value: final p) when p.alertas.isEmpty && filtro.activos == 0 =>
-        const [
+        [
           EstadoVacio(
             ilustracion: IlustracionVacio.calendario,
-            titulo: 'Sin eventos registrados',
+            titulo: l.historialVacio,
           ),
         ],
       AsyncData(value: final p) => [
@@ -44,9 +46,9 @@ class ListaHistorial extends ConsumerWidget {
         if (p.alertas.isEmpty)
           EstadoVacio(
             ilustracion: IlustracionVacio.filtro,
-            titulo: 'Ninguna alerta coincide',
+            titulo: l.historialNingunaCoincide,
             accion: Boton(
-              'Quitar filtros',
+              l.historialQuitarFiltros,
               estilo: EstiloBoton.secundario,
               alPresionar: () => ref
                   .read(filtroHistorialProvider.notifier)
@@ -55,6 +57,7 @@ class ListaHistorial extends ConsumerWidget {
           )
         else
           ..._porDia(
+            context,
             p.alertas,
             hoy,
             // The room only tells something apart when there is more than one camera.
@@ -77,6 +80,7 @@ class ListaHistorial extends ConsumerWidget {
 
   /// Alerts grouped by local day (`.day-h` + `.list`).
   List<Widget> _porDia(
+    BuildContext context,
     List<Alerta> alertas,
     DateTime hoy, {
     required bool conHabitacion,
@@ -93,10 +97,10 @@ class ListaHistorial extends ConsumerWidget {
       for (final (dia, lista) in grupos) ...[
         EncabezadoDia(
           mismoDia(dia, hoy)
-              ? 'Hoy'
+              ? context.l10n.historialHoy
               : mismoDia(dia, hoy.subtract(const Duration(days: 1)))
-              ? 'Ayer'
-              : fechaCorta(dia),
+              ? context.l10n.historialAyer
+              : context.formato.fechaCorta(dia),
         ),
         ListaTarjeta(
           children: [
@@ -118,20 +122,21 @@ class _Filtros extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final control = ref.read(filtroHistorialProvider.notifier);
     final n = filtro.activos;
+    final l = context.l10n;
     final chips = <(String, FiltroHistorial)>[
       if (filtro.rango != RangoFecha.todo)
-        (filtro.rango.texto, filtro.con(rango: RangoFecha.todo)),
+        (filtro.rango.texto(l), filtro.con(rango: RangoFecha.todo)),
       if (filtro.tipo case final t?)
-        (etiquetaTipo(t), filtro.con(sinTipo: true)),
+        (etiquetaTipo(l, t), filtro.con(sinTipo: true)),
       if (filtro.estado case final e?)
-        (etiquetaEstado(e), filtro.con(sinEstado: true)),
+        (etiquetaEstado(l, e), filtro.con(sinEstado: true)),
     ];
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
         ChipOpcion(
-          texto: n == 0 ? 'Filtrar' : 'Filtrar ($n)',
+          texto: n == 0 ? l.historialFiltrar : l.historialFiltrarConteo(n),
           icono: Ico.filter,
           alTocar: () => abrirFiltros(context),
         ),
@@ -140,7 +145,7 @@ class _Filtros extends ConsumerWidget {
             texto: texto,
             elegido: true,
             iconoFinal: Ico.x,
-            etiqueta: 'Quitar filtro $texto',
+            etiqueta: l.historialQuitarFiltro(texto),
             alTocar: () => control.aplicar(sin),
           ),
       ],
@@ -165,12 +170,13 @@ class FilaAlerta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final a = alerta;
+    final l = context.l10n;
     final quien = a.atendidaPor?.split(' ').first;
     final marcada = a.activa
-        ? 'Sin marcar'
+        ? l.historialSinMarcar
         : quien == null
         ? ''
-        : 'por $quien';
+        : l.historialMarcadaPor(quien);
     final detalle = [
       if (conHabitacion) a.habitacion,
       if (marcada.isNotEmpty) marcada,
@@ -189,7 +195,10 @@ class FilaAlerta extends StatelessWidget {
             children: [
               ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 52),
-                child: Text(hora(a.ocurridaEn), style: estiloMono(tamano: 16)),
+                child: Text(
+                  context.formato.hora(a.ocurridaEn),
+                  style: estiloMono(tamano: 16),
+                ),
               ),
               const SizedBox(width: 4),
               MarcaAlerta(
@@ -202,7 +211,9 @@ class FilaAlerta extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      a.esCaida ? 'Caída' : 'Inestable',
+                      a.esCaida
+                          ? l.historialFilaCaida
+                          : l.historialFilaInestable,
                       style: estiloTexto(17, 700, color: context.colores.tinta),
                     ),
                     if (detalle.isNotEmpty)
@@ -242,7 +253,7 @@ class _Cargando extends StatelessWidget {
       ),
     );
     return Semantics(
-      label: 'Cargando historial',
+      label: context.l10n.historialCargando,
       liveRegion: true,
       child: ListaTarjeta(
         children: [

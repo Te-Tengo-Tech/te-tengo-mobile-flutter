@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
+import '../../../l10n/l10n.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/ilustraciones.dart';
@@ -30,6 +31,8 @@ class VistaResumenSemanal extends ConsumerWidget {
     final lunesAnterior = lunes.subtract(const Duration(days: 7));
     final domingoAnterior = lunes.subtract(const Duration(days: 1));
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
+    final formato = context.formato;
     final control = ref.read(semanaElegidaProvider.notifier);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -37,7 +40,7 @@ class VistaResumenSemanal extends ConsumerWidget {
         Row(
           children: [
             IconButton(
-              tooltip: 'Semana anterior',
+              tooltip: l.resumenSemanaAnterior,
               icon: Icono(Ico.chevL, color: context.colores.icono),
               onPressed: () => control.mover(-1),
             ),
@@ -46,16 +49,22 @@ class VistaResumenSemanal extends ConsumerWidget {
                 children: [
                   Text(
                     switch (desplazamiento) {
-                      0 => 'Esta semana',
-                      -1 => 'Semana pasada',
-                      _ => 'Hace ${-desplazamiento} semanas',
+                      0 => l.resumenEstaSemana,
+                      -1 => l.resumenSemanaPasada,
+                      _ => l.resumenHaceSemanas(-desplazamiento),
                     },
                     textAlign: TextAlign.center,
                     style: estiloTexto(18, 800, color: context.colores.tinta),
                   ),
                   Text(
-                    '${rangoDias(lunes, domingo)}'
-                    '${desplazamiento == 0 ? ' · hasta hoy' : ' ${domingo.year}'}',
+                    desplazamiento == 0
+                        ? l.resumenRangoHastaHoy(
+                            formato.rangoDias(lunes, domingo),
+                          )
+                        : l.resumenRangoAnio(
+                            formato.rangoDias(lunes, domingo),
+                            '${domingo.year}',
+                          ),
                     textAlign: TextAlign.center,
                     style: texto.bodySmall,
                   ),
@@ -63,7 +72,7 @@ class VistaResumenSemanal extends ConsumerWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Semana siguiente',
+              tooltip: l.resumenSemanaSiguiente,
               icon: Icono(
                 Ico.chevR,
                 color: desplazamiento >= 0
@@ -77,19 +86,25 @@ class VistaResumenSemanal extends ConsumerWidget {
         ...switch (resumen) {
           AsyncData(value: final r) => [
             if (r.conteos.total == 0)
-              const EstadoVacio(
+              EstadoVacio(
                 ilustracion: IlustracionVacio.semana,
-                titulo: 'Semana sin eventos',
+                titulo: l.resumenSinEventos,
               )
             else ...[
               const SizedBox(height: 12),
               _Dias(desplazamiento: desplazamiento, lunes: lunes, hoy: hoy),
             ],
             EncabezadoSeccion(
-              'Por tipo',
+              l.resumenPorTipo,
               arriba: 22,
               accion: Text(
-                'vs. ${rangoDias(lunesAnterior, domingoAnterior, corto: true)}',
+                l.resumenVs(
+                  formato.rangoDias(
+                    lunesAnterior,
+                    domingoAnterior,
+                    corto: true,
+                  ),
+                ),
                 style: estiloTexto(15, 600, color: context.colores.tinta3),
               ),
             ),
@@ -97,14 +112,14 @@ class VistaResumenSemanal extends ConsumerWidget {
               children: [
                 _FilaConteo(
                   tipo: TipoAlerta.caida,
-                  titulo: 'Caídas',
+                  titulo: l.resumenCaidas,
                   actual: r.conteos.caidas,
                   anterior: r.semanaAnterior.caidas,
                   tendencia: r.tendenciaCaidas,
                 ),
                 _FilaConteo(
                   tipo: TipoAlerta.movimientoInestable,
-                  titulo: 'Movimientos inestables',
+                  titulo: l.resumenInestables,
                   actual: r.conteos.movimientosInestables,
                   anterior: r.semanaAnterior.movimientosInestables,
                   tendencia: r.tendenciaInestables,
@@ -112,7 +127,7 @@ class VistaResumenSemanal extends ConsumerWidget {
                 _FilaConteo(
                   tipo: TipoAlerta.caida,
                   falsa: true,
-                  titulo: 'Falsas alarmas',
+                  titulo: l.resumenFalsas,
                   actual: r.conteos.falsasAlarmas,
                   anterior: r.semanaAnterior.falsasAlarmas,
                   tendencia: r.tendenciaFalsas,
@@ -120,7 +135,7 @@ class VistaResumenSemanal extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text('Las falsas alarmas no suman.', style: texto.bodySmall),
+            Text(l.resumenFalsasNoSuman, style: texto.bodySmall),
           ],
           AsyncError(:final error) => [
             const SizedBox(height: 12),
@@ -150,14 +165,14 @@ class _Dias extends ConsumerWidget {
   final DateTime lunes;
   final DateTime hoy;
 
-  static const _iniciales = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final alertas =
         ref.watch(alertasDeSemanaProvider(desplazamiento)).value ?? const [];
+    // One initial per day, Monday first («LMMJVSD»).
+    final iniciales = context.l10n.resumenInicialesDias.split('');
     return Semantics(
-      label: 'Eventos por día',
+      label: context.l10n.resumenEventosPorDia,
       child: Container(
         padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
         decoration: BoxDecoration(
@@ -170,7 +185,7 @@ class _Dias extends ConsumerWidget {
             for (var i = 0; i < 7; i++)
               Expanded(
                 child: _Dia(
-                  inicial: _iniciales[i],
+                  inicial: iniciales[i],
                   dia: lunes.add(Duration(days: i)),
                   hoy: hoy,
                   alertas: alertas
@@ -267,21 +282,22 @@ class _FilaConteo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final (icono, color, texto) = switch (tendencia) {
       Tendencia.igual => (
         Ico.equal,
         context.colores.tinta3,
-        'Igual ($anterior)',
+        l.resumenIgual(anterior),
       ),
       Tendencia.aumento => (
         Ico.up,
         falsa ? context.colores.tinta3 : context.colores.aviso,
-        'Subió de $anterior a $actual',
+        l.resumenSubio(anterior, actual),
       ),
       Tendencia.disminucion => (
         Ico.down,
         context.colores.calmaTinta,
-        'Bajó de $anterior a $actual',
+        l.resumenBajo(anterior, actual),
       ),
     };
     return Padding(
@@ -355,42 +371,38 @@ class SemanaEnInicio extends ConsumerWidget {
     final resumen = ref.watch(resumenSemanalProvider(0)).value;
     if (resumen == null) return const SizedBox.shrink();
     final c = resumen.conteos;
-    Widget cifra(int n, Widget marca, String singular, String plural) =>
-        Semantics(
-          container: true,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final l = context.l10n;
+    Widget cifra(int n, Widget marca, String Function(int) nombre) => Semantics(
+      container: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$n',
+            style: estiloMono(tamano: 28, peso: 600).copyWith(height: 1.1),
+          ),
+          const SizedBox(height: 2),
+          Row(
             children: [
-              Text(
-                '$n',
-                style: estiloMono(tamano: 28, peso: 600).copyWith(height: 1.1),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  marca,
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      n == 1 ? singular : plural,
-                      style: estiloTexto(
-                        15,
-                        400,
-                        color: context.colores.tinta2,
-                      ),
-                    ),
-                  ),
-                ],
+              marca,
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  nombre(n),
+                  style: estiloTexto(15, 400, color: context.colores.tinta2),
+                ),
               ),
             ],
           ),
-        );
+        ],
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         EncabezadoSeccion(
-          'Esta semana',
-          accion: Enlace('Ver resumen', alTocar: alVerResumen),
+          l.resumenEstaSemana,
+          accion: Enlace(l.resumenVerResumen, alTocar: alVerResumen),
         ),
         ListaTarjeta(
           children: [
@@ -403,8 +415,7 @@ class SemanaEnInicio extends ConsumerWidget {
                     child: cifra(
                       c.caidas,
                       const MarcaAlerta(tipo: TipoAlerta.caida),
-                      'caída',
-                      'caídas',
+                      l.resumenInicioCaidas,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -412,8 +423,7 @@ class SemanaEnInicio extends ConsumerWidget {
                     child: cifra(
                       c.movimientosInestables,
                       const MarcaAlerta(tipo: TipoAlerta.movimientoInestable),
-                      'inestable',
-                      'inestables',
+                      l.resumenInicioInestables,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -421,8 +431,7 @@ class SemanaEnInicio extends ConsumerWidget {
                     child: cifra(
                       c.falsasAlarmas,
                       const MarcaAlerta(tipo: TipoAlerta.caida, falsa: true),
-                      'falsa',
-                      'falsas',
+                      l.resumenInicioFalsas,
                     ),
                   ),
                 ],

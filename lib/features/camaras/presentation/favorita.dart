@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/tema/colores.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../data/orden_camaras.dart';
 
 /// A favourite's star (`.fav-btn.on`): coral with a dark coral outline, so it reads on white and on
@@ -36,7 +37,7 @@ class MarcaFavorita extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Favorita',
+    label: context.l10n.camaraFavorita,
     child: EstrellaFavorita(tamano: tamano),
   );
 }
@@ -67,7 +68,7 @@ class BotonFavorita extends ConsumerWidget {
     return Semantics(
       button: true,
       toggled: favorita,
-      label: 'Favorita: $habitacion',
+      label: context.l10n.camaraFavoritaDe(habitacion),
       excludeSemantics: true,
       onTap: alternar,
       child: SizedBox.square(

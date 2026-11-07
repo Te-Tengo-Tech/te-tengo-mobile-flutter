@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../l10n/l10n.dart';
 
 /// Backend error in RFC 9457 format (`ProblemDetail`) with its stable `codigo`.
 class ProblemaApi implements Exception {
@@ -40,7 +41,8 @@ class ProblemaApi implements Exception {
       };
       return ProblemaApi(
         codigo: datos['codigo'] as String? ?? 'DESCONOCIDO',
-        detalle: datos['detail'] as String? ?? 'Ocurrió un error.',
+        detalle:
+            datos['detail'] as String? ?? textosDelSistema().comunErrorGenerico,
         titulo: datos['title'] as String?,
         estado: error.response?.statusCode ?? datos['status'] as int?,
         campos: campos is Map
@@ -54,7 +56,7 @@ class ProblemaApi implements Exception {
     }
     return ProblemaApi(
       codigo: sinConexion,
-      detalle: 'No hay conexión con Te Tengo. Revisa tu internet.',
+      detalle: textosDelSistema().redSinConexion,
       estado: error.response?.statusCode,
     );
   }

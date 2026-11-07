@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../camaras/domain/camara.dart';
@@ -10,6 +9,7 @@ import '../../camaras/presentation/estado_camara.dart';
 import '../../familia/domain/familiar.dart';
 import '../../pcs/domain/camaras_en_casa.dart';
 import '../../pcs/presentation/pantalla_camaras.dart';
+import '../../../l10n/l10n.dart';
 
 /// The two tiles of Inicio (`homeTiles`): «Cámaras», how many work and a dot per room, and
 /// «Familia», who else is watching. One column with large text.
@@ -35,16 +35,20 @@ class TarjetasInicio extends StatelessWidget {
   Widget build(BuildContext context) {
     final camarasTile = _Tile(
       icono: Ico.cam,
-      titulo: 'Cámaras',
-      linea: lineaTarjetaCamaras(camaras, conConsentimiento: conConsentimiento),
+      titulo: context.l10n.inicioCamaras,
+      linea: lineaTarjetaCamaras(
+        context.l10n,
+        camaras,
+        conConsentimiento: conConsentimiento,
+      ),
       pie: camaras.length < 2 ? null : PuntosHabitaciones(camaras),
       alTocar: alTocarCamaras,
     );
     final n = familia?.length;
     final familiaTile = _Tile(
       icono: Ico.users,
-      titulo: 'Familia',
-      linea: n == null ? '' : contar(n, 'persona', 'personas'),
+      titulo: context.l10n.inicioFamilia,
+      linea: n == null ? '' : context.l10n.inicioPersonas(n),
       cabeza: familia == null || familia!.isEmpty
           ? null
           : _Fotos(familia!.take(3).toList()),
@@ -290,7 +294,7 @@ Widget? filaAtencionInicio(
   if (resto.isEmpty) return null;
   if (resto.length == 1) {
     final c = resto.single;
-    final info = infoAtencion(c);
+    final info = infoAtencion(context.l10n, c);
     return FilaLista(
       inicio: IconoEstadoCamara(estado: c.estado),
       titulo: info.titulo,
@@ -303,8 +307,8 @@ Widget? filaAtencionInicio(
       estado: EstadoVisible.desconectada,
       icono: Ico.warn,
     ),
-    titulo: '${resto.length} cámaras necesitan atención',
-    subtitulo: enumerar([for (final c in resto) c.habitacion]),
+    titulo: context.l10n.inicioCamarasNecesitanAtencion(resto.length),
+    subtitulo: context.formato.enumerar([for (final c in resto) c.habitacion]),
     alTocar: alTocar,
   );
 }

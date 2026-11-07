@@ -5,6 +5,7 @@ import '../../../app/rutas.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 
 /// The location of the screen on top of the stack.
 String ubicacionArriba(GoRouter router) =>
@@ -37,8 +38,8 @@ void salirA(BuildContext context, String destino) {
 void avisarPcYaVinculada(BuildContext context) {
   mostrarToast(
     context,
-    titulo: 'Esta PC ya está vinculada',
-    texto: 'La encuentras en Cámaras y PCs.',
+    titulo: context.l10n.pcsYaVinculadaTitulo,
+    texto: context.l10n.pcsYaVinculadaTexto,
     icono: Ico.pc,
     tono: TonoAviso.advertencia,
   );

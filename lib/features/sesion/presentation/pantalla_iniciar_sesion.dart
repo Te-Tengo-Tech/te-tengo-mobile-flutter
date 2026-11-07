@@ -13,6 +13,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/marca.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../data/cuentas_repositorio.dart';
 
 /// Notice shown when the sign-in screen opens (`?aviso=`).
@@ -68,20 +69,21 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
     if (aviso == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      final l = context.l10n;
       switch (aviso) {
         case AvisoInicioSesion.sesionCerrada:
           mostrarToast(
             context,
-            titulo: 'Sesión cerrada',
-            texto: 'Inicia sesión para volver a recibir alertas.',
+            titulo: l.sesionCerradaTitulo,
+            texto: l.sesionCerradaTexto,
             icono: Ico.logout,
             tono: TonoAviso.neutral,
           );
         case AvisoInicioSesion.claveActualizada:
           mostrarToast(
             context,
-            titulo: 'Contraseña actualizada',
-            texto: 'Ya puedes iniciar sesión con ella.',
+            titulo: l.sesionContrasenaActualizada,
+            texto: l.sesionClaveActualizadaTexto,
           );
       }
     });
@@ -97,11 +99,12 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
   Future<void> _entrar() async {
     final correo = _correo.text.trim();
     final clave = _clave.text;
+    final l = context.l10n;
     setState(() {
       _faltanDatos = correo.isEmpty || clave.isEmpty;
       _errores = {
-        if (correo.isEmpty) 'correo': 'Escribe tu correo.',
-        if (clave.isEmpty) 'contrasena': 'Escribe tu contraseña.',
+        if (correo.isEmpty) 'correo': l.sesionErrorCorreo,
+        if (clave.isEmpty) 'contrasena': l.sesionErrorContrasena,
       };
       _incorrectos = false;
       _problema = null;
@@ -140,6 +143,7 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final bloqueada = _bloqueadaHasta != null;
     final restantes = PantallaIniciarSesion.intentosAntesDelBloqueo - _fallos;
     return Scaffold(
@@ -151,18 +155,17 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
             const SizedBox(height: 24),
             Semantics(
               header: true,
-              child: Text('Inicia sesión', style: texto.headlineMedium),
+              child: Text(l.sesionIniciaSesion, style: texto.headlineMedium),
             ),
             const SizedBox(height: 16),
             if (bloqueada) ...[
               Aviso(
                 tono: TonoAviso.error,
                 icono: Ico.lock,
-                titulo: 'Bloqueado por 15 minutos',
-                contenido: conHora(
-                  'Vuelve a intentarlo a las ',
-                  hora(_bloqueadaHasta!),
-                  '.',
+                titulo: l.sesionBloqueadoTitulo,
+                contenido: _conHora(
+                  l.sesionBloqueadoTexto,
+                  context.formato.hora(_bloqueadaHasta!),
                 ),
               ),
               const SizedBox(height: 16),
@@ -170,20 +173,18 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
               Aviso(
                 tono: TonoAviso.error,
                 icono: Ico.warn,
-                titulo: 'Correo o contraseña incorrectos',
+                titulo: l.sesionIncorrectos,
                 texto: _fallos >= 3 && restantes > 0
-                    ? 'Te queda${restantes == 1 ? '' : 'n'} $restantes '
-                          'intento${restantes == 1 ? '' : 's'} antes de un '
-                          'bloqueo de 15 min.'
+                    ? l.sesionIntentosRestantes(restantes)
                     : null,
               ),
               const SizedBox(height: 16),
             ],
             if (_faltanDatos) ...[
-              const Aviso(
+              Aviso(
                 tono: TonoAviso.error,
                 icono: Ico.warn,
-                titulo: 'Escribe tu correo y tu contraseña',
+                titulo: l.sesionFaltanDatos,
               ),
               const SizedBox(height: 16),
             ],
@@ -195,7 +196,7 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
               child: Column(
                 children: [
                   CampoTexto(
-                    etiqueta: 'Correo electrónico',
+                    etiqueta: l.sesionCampoCorreo,
                     controlador: _correo,
                     tipo: TipoCampo.correo,
                     error: _errores['correo'],
@@ -204,7 +205,7 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
                     accionTeclado: TextInputAction.next,
                   ),
                   CampoTexto(
-                    etiqueta: 'Contraseña',
+                    etiqueta: l.sesionCampoContrasena,
                     controlador: _clave,
                     tipo: TipoCampo.contrasena,
                     error: _errores['contrasena'],
@@ -218,20 +219,20 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
             Align(
               alignment: Alignment.centerLeft,
               child: Enlace(
-                '¿Olvidaste tu contraseña?',
+                l.sesionOlvidaste,
                 alTocar: () => context.push(_rutaRecuperar),
               ),
             ),
             const SizedBox(height: 12),
             if (bloqueada)
               Boton(
-                'Recuperar contraseña',
+                l.recuperarContrasena,
                 estilo: EstiloBoton.secundario,
                 alPresionar: () => context.push(_rutaRecuperar),
               )
             else
               Boton(
-                'Iniciar sesión',
+                l.sesionIniciarSesion,
                 cargando: _enviando,
                 alPresionar: _entrar,
               ),
@@ -240,14 +241,23 @@ class _PantallaIniciarSesionState extends ConsumerState<PantallaIniciarSesion> {
               alignment: WrapAlignment.center,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text('¿Aún no tienes cuenta?', style: texto.bodyMedium),
-                Enlace('Crea una', alTocar: () => context.push(Rutas.registro)),
+                Text(l.sesionSinCuenta, style: texto.bodyMedium),
+                Enlace(
+                  l.sesionCreaUna,
+                  alTocar: () => context.push(Rutas.registro),
+                ),
               ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  /// [mensaje] around the time, which keeps the monospaced style of [conHora].
+  TextSpan _conHora(String Function(String hora) mensaje, String hora) {
+    final partes = mensaje('\u0000').split('\u0000');
+    return conHora(partes.first, hora, partes.last);
   }
 
   String get _rutaRecuperar {

@@ -14,6 +14,7 @@ import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
@@ -78,6 +79,9 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
   late final ProviderContainer _contenedor;
   late final AppLifecycleListener _ciclo;
 
+  /// The texts, kept for the notice shown as the screen closes.
+  late AppLocalizations _l;
+
   bool get _desdeAlerta => widget.alertaId != null;
   bool get _desdeMosaico => widget.mosaicoId != null;
 
@@ -96,6 +100,12 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
       alPerder: _perder,
     )..addListener(_alCambiarConexion);
     unawaited(_abrir());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l = context.l10n;
   }
 
   Future<void> _abrir() async {
@@ -226,14 +236,16 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     _detener();
     if (!_huboSesion || _desdeMosaico) return;
     final habitacion = _camara?.nombreHabitacion ?? '';
+    final l = _l;
     ref
         .read(avisoFlotanteProvider.notifier)
         .mostrar(
           AvisoFlotante(
-            titulo: 'Acceso registrado',
-            texto:
-                'Viste ${conArticulo(habitacion)} en vivo durante '
-                '${duracion(Duration(seconds: _segundosVistos))}.',
+            titulo: l.accesosRegistrado,
+            texto: l.vivoViste(
+              conArticulo(habitacion, l),
+              l.formato.duracion(Duration(seconds: _segundosVistos)),
+            ),
             icono: Ico.eye,
           ),
         );
@@ -291,11 +303,12 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
     final habitacion = _camara?.nombreHabitacion ?? '';
     final adulto = ref.watch(hogarProvider).value?.adultoMayor;
     final nombre = adulto?.nombrePila ?? '';
+    final l = context.l10n;
     final cerrar = _desdeAlerta
-        ? 'Volver a la alerta'
+        ? l.vivoVolverAlerta
         : _desdeMosaico
-        ? 'Volver a todas'
-        : 'Cerrar la vista en vivo';
+        ? l.vivoVolverATodas
+        : l.vivoCerrar;
     final viendo = _sesion != null;
     return PopScope(
       onPopInvokedWithResult: (_, _) => _terminar(),
@@ -313,15 +326,15 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             onPressed: () => Navigator.of(context).maybePop(),
           ),
           title: Text(
-            habitacion.isEmpty ? 'En vivo' : 'En vivo · $habitacion',
+            habitacion.isEmpty ? l.vivoTitulo : l.vivoTituloDe(habitacion),
             style: estiloTexto(20, 700, color: Colors.white),
           ),
           actions: [
             if (viendo)
-              const Padding(
-                padding: EdgeInsets.only(right: 8),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
                 child: AyudaInfo(
-                  texto: textoPrivacidadVivo,
+                  texto: textoPrivacidadVivo(l),
                   tema: 'privacidad',
                   sobreOscuro: true,
                 ),
@@ -364,7 +377,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             const SizedBox(height: 16),
             if (_cortadaEn != null) ...[
               Boton(
-                'Ver en vivo',
+                l.vivoVerEnVivo,
                 icono: Ico.refresh,
                 estilo: EstiloBoton.blanco,
                 colorTexto: Colores.tinta,
@@ -374,7 +387,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             ],
             if (viendo || _desdeAlerta) ...[
               Boton(
-                'Llamar a $nombre',
+                l.vivoLlamarA(nombre),
                 icono: Ico.phone,
                 estilo: EstiloBoton.blanco,
                 colorTexto: Colores.tinta,
@@ -384,7 +397,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
             ],
             if (_noDisponible == _NoDisponible.enPausa) ...[
               Boton(
-                'Reanudar la cámara ahora',
+                l.vivoReanudarCamara,
                 icono: Ico.refresh,
                 estilo: EstiloBoton.blanco,
                 colorTexto: Colores.tinta,
@@ -405,9 +418,7 @@ class _PantallaVivoState extends ConsumerState<PantallaVivo> {
 }
 
 /// The live view's privacy help (the «?» in its bar, Inicio's «Ver en vivo» and the room picker).
-const textoPrivacidadVivo =
-    'No se graba. Tu acceso queda en el registro que ve toda la familia: '
-    'quién, cuándo y cuánto.';
+String textoPrivacidadVivo(AppLocalizations l) => l.vivoPrivacidad;
 
 /// The live frame, whole at its own aspect ratio, with the «EN VIVO · mm:ss» tag.
 class _Imagen extends StatelessWidget {
@@ -448,7 +459,7 @@ class _Imagen extends StatelessWidget {
                     )
                   : Semantics(
                       image: true,
-                      label: 'En vivo · $habitacion',
+                      label: context.l10n.vivoTituloDe(habitacion),
                       child: r.vista(),
                     ),
             ),
@@ -480,7 +491,7 @@ class _Imagen extends StatelessWidget {
                       Text.rich(
                         TextSpan(
                           children: [
-                            const TextSpan(text: 'EN VIVO · '),
+                            TextSpan(text: '${context.l10n.vivoEtiqueta} · '),
                             TextSpan(
                               text: minutosSegundos(s),
                               style: estiloCifras,
@@ -528,22 +539,21 @@ class _NoDisponibleVista extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const mono = estiloCifras;
+    final l = context.l10n;
     final (icono, color, titulo, texto) = switch (motivo) {
       _NoDisponible.desconectada => (
         Ico.wifiOff,
         Colores.nocheAviso,
-        'La cámara ${deHabitacion(habitacion)} no está disponible',
+        l.vivoNoDisponibleTitulo(deHabitacion(habitacion, l)),
         TextSpan(
           children: [
             if (ultimaSenal case final s?) ...[
-              const TextSpan(text: 'Sin conexión desde las '),
-              TextSpan(text: hora(s), style: mono),
+              TextSpan(text: l.vivoSinConexionDesdePrefijo),
+              TextSpan(text: l.formato.hora(s), style: mono),
               const TextSpan(text: '. '),
             ],
             TextSpan(
-              text: desdeAlerta
-                  ? 'Llama a $nombre o pide a alguien cercano que vaya a verla.'
-                  : 'Revisa el cable, la PC y el internet de la casa.',
+              text: desdeAlerta ? l.vivoLlamaOPide(nombre) : l.vivoRevisaCable,
             ),
           ],
         ),
@@ -551,25 +561,23 @@ class _NoDisponibleVista extends StatelessWidget {
       _NoDisponible.enPausa => (
         Ico.pause,
         Colores.nochePausa,
-        'Vista en vivo no disponible',
+        l.vivoNoDisponible,
         TextSpan(
           children: [
             if (pausadaHasta case final p?) ...[
-              const TextSpan(text: 'En pausa hasta las '),
-              TextSpan(text: finDePausa(p, ahora), style: mono),
+              TextSpan(text: l.vivoEnPausaHastaPrefijo),
+              TextSpan(text: finDePausa(p, ahora, l), style: mono),
               const TextSpan(text: '.'),
             ] else
-              TextSpan(
-                text: 'La cámara ${deHabitacion(habitacion)} está en pausa.',
-              ),
+              TextSpan(text: l.vivoCamaraEnPausa(deHabitacion(habitacion, l))),
           ],
         ),
       ),
       _NoDisponible.detenida => (
         Ico.lock,
         Colores.nochePausa,
-        'La cámara está detenida',
-        TextSpan(text: 'Sin el consentimiento de $nombre no hay video.'),
+        l.vivoDetenidaTitulo,
+        TextSpan(text: l.vivoSinConsentimiento(nombre)),
       ),
     };
     return Container(

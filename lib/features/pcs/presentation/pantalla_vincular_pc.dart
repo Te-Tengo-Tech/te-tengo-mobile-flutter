@@ -9,6 +9,7 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../familia/data/familia_repositorio.dart';
 import 'piezas_pc.dart';
 
@@ -27,8 +28,9 @@ class PantallaVincularPc extends ConsumerWidget {
     final titular = ref.watch(esTitularProvider);
     final sinInternet = ref.watch(sinInternetProvider).value ?? false;
     final deshabilitado = sinInternet || !titular;
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Agregar PC')),
+      appBar: AppBar(title: Text(l.pcsAgregarPc)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
@@ -36,36 +38,33 @@ class PantallaVincularPc extends ConsumerWidget {
           const SizedBox(height: 16),
           Semantics(
             header: true,
-            child: Text('Vincula la PC de la casa', style: texto.titleLarge),
+            child: Text(l.pcsVinculaTitulo, style: texto.titleLarge),
           ),
           const SizedBox(height: 16),
           if (sinInternet) ...[
-            const Aviso(
+            Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.wifiOff,
-              titulo: 'Sin internet',
-              texto: 'Revisa tu conexión y vuelve a intentarlo.',
+              titulo: l.pcsSinInternet,
+              texto: l.pcsRevisaConexion,
             ),
             const SizedBox(height: 16),
           ],
           if (!titular) ...[
             AvisoSoloLectura(
               titular: ref.watch(nombreTitularProvider) ?? '',
-              accion: 'agregar una PC',
+              accion: l.pcsAccionAgregarPc,
             ),
             const SizedBox(height: 16),
           ],
-          const PasosNumerados([
-            (
-              'Instala Te Tengo Captura en la PC',
-              'Desde $paginaDescargaCaptura',
-            ),
-            ('Ábrelo: muestra un código QR', null),
-            ('Escanea el QR con este celular', null),
+          PasosNumerados([
+            (l.pcsPasoInstalar, l.pcsPasoInstalarDesde(paginaDescargaCaptura)),
+            (l.pcsPasoAbrir, null),
+            (l.pcsPasoEscanear, null),
           ]),
           const SizedBox(height: 20),
           Boton(
-            'Escanear el código QR',
+            l.pcsEscanearQr,
             icono: Ico.scan,
             alPresionar: deshabilitado
                 ? null
@@ -73,7 +72,7 @@ class PantallaVincularPc extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Boton(
-            'Escribir el código',
+            l.pcsEscribirCodigo,
             icono: Ico.keyboard,
             estilo: EstiloBoton.secundario,
             alPresionar: deshabilitado

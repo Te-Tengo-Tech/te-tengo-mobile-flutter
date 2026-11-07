@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -29,6 +28,7 @@ import '../../pcs/data/pcs_repositorio.dart';
 import '../data/movimientos_repositorio.dart';
 import '../domain/movimientos.dart';
 import '../../../app/tema/tema.dart';
+import '../../../l10n/l10n.dart';
 
 /// Version of the movements consent text this app shows and records (CA-35.2). It must match the
 /// API's `versionTextoVigente` (`TT_MOVIMIENTOS_VERSION_TEXTO`); a consent keeps the version it was
@@ -43,59 +43,53 @@ const versionTextoMovimientos = '3';
 
 /// The sections of the movements consent (`movSec`): icon, title, summary and the full text, shared
 /// by the screen and its document (CA-35.1), in the text [version] (the current one by default).
+///
+/// Only the display is localized: the version recorded with the consent is [version], whatever the
+/// language the text was read in.
 List<(Ico, String, String, String)> seccionesMovimientos(
+  AppLocalizations l,
   String nombre, {
   String version = versionTextoMovimientos,
 }) => [
   (
     Ico.eye,
-    'Para qué',
-    'Ver qué pasó y mejorar la detección',
-    'Ver qué pasó antes y después de un aviso, y mejorar la detección.',
+    l.movimientosSecParaQueTitulo,
+    l.movimientosSecParaQueResumen,
+    l.movimientosSecParaQueTexto,
   ),
   (
     Ico.body,
-    'Qué guardamos',
-    'Puntos del cuerpo, sin imagen',
-    'Solo puntos del cuerpo (hombros, caderas, rodillas…), sin imagen ni video.',
+    l.movimientosSecQueTitulo,
+    l.movimientosSecQueResumen,
+    l.movimientosSecQueTexto,
   ),
   (
     Ico.cloud,
-    'Dónde',
-    'PC y, si quieres, nube',
+    l.movimientosSecDondeTitulo,
+    l.movimientosSecDondeResumen,
     switch (version) {
-      '1' =>
-        'En la PC de la casa y, si lo eliges, en la nube (servidores fuera '
-            'del Perú).',
-      '2' =>
-        'En la PC de la casa y, si lo eliges, en la nube: Cloudflare R2, con '
-            'servidores fuera del Perú. Guardarlos ahí es un flujo '
-            'transfronterizo de datos personales.',
-      _ =>
-        'En la PC de la casa y, si lo eliges, en la nube: Microsoft Azure '
-            '(Azure Blob Storage, región Chile Central), con servidores fuera '
-            'del Perú. Guardarlos ahí es un flujo transfronterizo de datos '
-            'personales.',
+      '1' => l.movimientosSecDondeTextoV1,
+      '2' => l.movimientosSecDondeTextoV2,
+      _ => l.movimientosSecDondeTextoV3,
     },
   ),
   (
     Ico.clock,
-    'Cuánto tiempo',
-    'Tú eliges el plazo',
-    'Nube: de 7 días a 1 año. PC: también sin borrar.',
+    l.movimientosSecCuantoTitulo,
+    l.movimientosSecCuantoResumen,
+    l.movimientosSecCuantoTexto,
   ),
   (
     Ico.users,
-    'Quién puede verlos',
-    'La familia, con registro',
-    'Solo la familia vinculada; cada repetición queda registrada.',
+    l.movimientosSecQuienTitulo,
+    l.movimientosSecQuienResumen,
+    l.movimientosSecQuienTexto,
   ),
   (
     Ico.shield,
-    'Sus derechos',
-    'Ley N.° 29733',
-    '$nombre puede ver, corregir o borrar sus datos, u oponerse a su uso: '
-        'privacidad@tetengo.pe (Ley N.° 29733).',
+    l.movimientosSecDerechosTitulo,
+    l.movimientosSecDerechosResumen,
+    l.movimientosSecDerechosTexto(nombre),
   ),
 ];
 
@@ -134,7 +128,7 @@ class _PantallaGuardarMovimientosState
     );
     if (_representante && representante.isEmpty) {
       setState(
-        () => _errorRepresentante = 'Escribe el nombre del representante.',
+        () => _errorRepresentante = context.l10n.movimientosErrorRepresentante,
       );
       return;
     }
@@ -157,8 +151,8 @@ class _PantallaGuardarMovimientosState
       if (!mounted) return;
       mostrarToast(
         context,
-        titulo: 'Permiso registrado',
-        texto: 'Ahora puedes elegir si se guardan en la nube.',
+        titulo: context.l10n.movimientosRegistradoTitulo,
+        texto: context.l10n.movimientosRegistradoTexto,
         icono: Ico.shield,
       );
     } on ProblemaApi catch (e) {
@@ -179,15 +173,14 @@ class _PantallaGuardarMovimientosState
   }
 
   Future<void> _dejarDeGuardar(String nombre) async {
+    final l = context.l10n;
     final si = await confirmar(
       context,
       icono: Ico.body,
-      titulo: '¿Dejar de guardar los movimientos de $nombre?',
-      texto:
-          'Borraremos los de la nube; la PC preguntará si también los borra. Las '
-          'alertas siguen igual.',
-      aceptar: 'Dejar de guardar',
-      cancelar: 'Cancelar',
+      titulo: l.movimientosDejarTitulo(nombre),
+      texto: l.movimientosDejarTexto,
+      aceptar: l.movimientosDejarAceptar,
+      cancelar: l.movimientosCancelar,
       peligro: true,
     );
     if (!si || !mounted) return;
@@ -199,10 +192,10 @@ class _PantallaGuardarMovimientosState
           mostrarToast(
             context,
             titulo: e.codigo == ProblemaApi.sinConexion
-                ? 'Sin internet'
+                ? context.l10n.movimientosSinInternetTitulo
                 : e.detalle,
             texto: e.codigo == ProblemaApi.sinConexion
-                ? 'Revisa tu conexión y vuelve a intentarlo.'
+                ? context.l10n.movimientosSinInternetTexto
                 : null,
             icono: Ico.warn,
             tono: TonoAviso.advertencia,
@@ -225,7 +218,7 @@ class _PantallaGuardarMovimientosState
     final consentimiento = ref.watch(consentimientoMovimientosProvider);
     final hogar = ref.watch(hogarProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Guardar movimientos')),
+      appBar: AppBar(title: Text(context.l10n.movimientosTitulo)),
       body: switch ((consentimiento, hogar)) {
         (AsyncError(:final error), _) ||
         (_, AsyncError(:final error)) => ErrorDePantalla(
@@ -254,6 +247,7 @@ class _PantallaGuardarMovimientosState
     bool conConsentimiento,
   ) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final titular = ref.watch(esTitularProvider);
     final nombre = adulto.nombrePila;
     final completo = adulto.nombre;
@@ -262,22 +256,17 @@ class _PantallaGuardarMovimientosState
       children: [
         Semantics(
           header: true,
-          child: Text(
-            '¿Guardamos los movimientos de $nombre?',
-            style: texto.titleLarge,
-          ),
+          child: Text(l.movimientosPregunta(nombre), style: texto.titleLarge),
         ),
         const SizedBox(height: 8),
-        Text(
-          'Es opcional: las alertas funcionan igual.',
-          style: texto.bodyMedium,
-        ),
+        Text(l.movimientosOpcional, style: texto.bodyMedium),
         const SizedBox(height: 12),
         IlustracionEsqueleto(color: context.colores.moradoTinta),
         const SizedBox(height: 12),
         ListaTarjeta(
           children: [
             for (final (icono, titulo, resumen, cuerpo) in seccionesMovimientos(
+              l,
               nombre,
             ))
               FilaPlegable(
@@ -290,26 +279,26 @@ class _PantallaGuardarMovimientosState
         ),
         if (titular) ...[
           const SizedBox(height: 20),
-          const EtiquetaCampo('¿Quién da el permiso?'),
+          EtiquetaCampo(l.movimientosQuienDa),
           const SizedBox(height: 6),
           OpcionRadio<bool>(
             valor: false,
             seleccion: _representante,
-            titulo: '$nombre, en persona',
+            titulo: l.movimientosEnPersona(nombre),
             alElegir: (v) => setState(() => _representante = v),
           ),
           OpcionRadio<bool>(
             valor: true,
             seleccion: _representante,
-            titulo: 'Su representante',
+            titulo: l.movimientosSuRepresentante,
             alElegir: (v) => setState(() => _representante = v),
           ),
           if (_representante) ...[
             const SizedBox(height: 8),
             CampoTexto(
-              etiqueta: 'Nombre del representante',
+              etiqueta: l.movimientosNombreRepresentante,
               controlador: _nombreRepresentante,
-              marcador: 'Nombre y apellido',
+              marcador: l.movimientosNombreMarcador,
               error: _errorRepresentante,
               longitudMaxima: 120,
               alCambiar: (_) => setState(() => _errorRepresentante = null),
@@ -318,17 +307,16 @@ class _PantallaGuardarMovimientosState
           const SizedBox(height: 8),
           Casilla(
             marcada: _acepto,
-            texto:
-                '$nombre aceptó que se guarden sus movimientos para estos fines.',
+            texto: l.movimientosAcepto(nombre),
             alCambiar: (v) => setState(() => _acepto = v),
           ),
           if (_errorRed) ...[
             const SizedBox(height: 12),
-            const Aviso(
+            Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.wifiOff,
-              titulo: 'No pudimos registrar el permiso',
-              texto: 'Nada se guardó.',
+              titulo: l.movimientosErrorRedTitulo,
+              texto: l.movimientosErrorRedTexto,
             ),
           ],
           if (_problema != null) ...[
@@ -337,13 +325,13 @@ class _PantallaGuardarMovimientosState
           ],
           const SizedBox(height: 16),
           Boton(
-            'Registrar el permiso',
+            l.movimientosRegistrar,
             cargando: _guardando,
             alPresionar: _acepto ? () => _registrar(completo) : null,
           ),
           const SizedBox(height: 8),
           Boton(
-            'Ahora no',
+            l.movimientosAhoraNo,
             estilo: EstiloBoton.fantasma,
             alPresionar: () => Navigator.of(context).maybePop(),
           ),
@@ -351,12 +339,12 @@ class _PantallaGuardarMovimientosState
           const SizedBox(height: 16),
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'registrar este permiso',
+            accion: l.movimientosAccionRegistrar,
           ),
         ],
         const SizedBox(height: 8),
         Boton(
-          'Leer el documento completo',
+          l.movimientosLeerDocumento,
           estilo: EstiloBoton.fantasma,
           alPresionar: () => context.push(Rutas.documentoMovimientos),
         ),
@@ -370,11 +358,11 @@ class _PantallaGuardarMovimientosState
           Aviso(
             tono: TonoAviso.error,
             icono: Ico.lock,
-            titulo: 'Falta el consentimiento',
-            texto: 'Sin él no detectamos caídas.',
+            titulo: l.movimientosFaltaConsentimientoTitulo,
+            texto: l.movimientosFaltaConsentimientoTexto,
             accion: titular
                 ? Boton(
-                    'Registrar consentimiento',
+                    l.movimientosRegistrarConsentimiento,
                     pequeno: true,
                     alPresionar: () => context.push(Rutas.consentimiento),
                   )
@@ -418,8 +406,10 @@ class _Vigente extends ConsumerWidget {
           children: [
             FilaLista(
               inicio: const IconoFila(Ico.cloud),
-              titulo: 'Movimientos en la nube',
-              subtitulo: nube == null ? null : resumenNube(nube.retencionDias),
+              titulo: context.l10n.movimientosEnLaNube,
+              subtitulo: nube == null
+                  ? null
+                  : resumenNube(context.l10n, nube.retencionDias),
               alTocar: () => context.push(Rutas.nube),
             ),
           ],
@@ -427,14 +417,14 @@ class _Vigente extends ConsumerWidget {
         const SizedBox(height: 16),
         if (titular)
           Boton(
-            'Dejar de guardar movimientos',
+            context.l10n.movimientosDejarBoton,
             estilo: EstiloBoton.peligroContorno,
             alPresionar: alDejar,
           )
         else
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'retirar este permiso',
+            accion: context.l10n.movimientosAccionRetirar,
           ),
       ],
     );
@@ -454,6 +444,8 @@ class TarjetaConstanciaMovimientos extends StatelessWidget {
       banda: Banda.calma,
       builder: (context) {
         final texto = Theme.of(context).textTheme;
+        final l = context.l10n;
+        final formato = context.formato;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -467,7 +459,7 @@ class TarjetaConstanciaMovimientos extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Permiso para guardar movimientos',
+                    l.movimientosConstanciaTitulo,
                     style: texto.titleMedium,
                   ),
                 ),
@@ -476,32 +468,38 @@ class TarjetaConstanciaMovimientos extends StatelessWidget {
             const SizedBox(height: 8),
             DatosTarjeta([
               FilaDato(
-                clave: 'Otorgado por',
+                clave: l.movimientosConstanciaOtorgadoPor,
                 valor: c.representante
-                    ? '${c.otorgadoPor} (representante)'
+                    ? l.movimientosConstanciaRepresentante(c.otorgadoPor)
                     : c.otorgadoPor,
               ),
-              FilaDato(clave: 'Registrado por', valor: c.registradoPor),
               FilaDato(
-                clave: 'Fecha',
+                clave: l.movimientosConstanciaRegistradoPor,
+                valor: c.registradoPor,
+              ),
+              FilaDato(
+                clave: l.movimientosConstanciaFecha,
                 valor: '',
                 valorRico: TextSpan(
                   children: [
-                    TextSpan(text: '${fechaNumerica(c.otorgadoEn)} · '),
-                    TextSpan(text: hora(c.otorgadoEn), style: estiloCifras),
+                    TextSpan(text: '${formato.fechaNumerica(c.otorgadoEn)} · '),
+                    TextSpan(
+                      text: formato.hora(c.otorgadoEn),
+                      style: estiloCifras,
+                    ),
                   ],
                 ),
               ),
-              FilaDato(clave: 'Versión del texto', valor: c.versionTexto),
+              FilaDato(
+                clave: l.movimientosConstanciaVersion,
+                valor: c.versionTexto,
+              ),
             ]),
             const SizedBox(height: 8),
-            Text(
-              'Constancia exigida por la Ley N.° 29733 para datos sensibles.',
-              style: texto.bodySmall,
-            ),
+            Text(l.movimientosConstanciaLey, style: texto.bodySmall),
             const SizedBox(height: 4),
             Boton(
-              'Leer el documento aceptado',
+              l.movimientosLeerAceptado,
               estilo: EstiloBoton.fantasma,
               alPresionar: () => context.push(Rutas.documentoMovimientos),
             ),
@@ -518,41 +516,31 @@ class PantallaDocumentoMovimientos extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final nombre = ref.watch(nombreAdultoMayorProvider) ?? 'la persona cuidada';
+    final l = context.l10n;
+    final nombre =
+        ref.watch(nombreAdultoMayorProvider) ?? l.movimientosPersonaCuidada;
     final c = ref.watch(consentimientoMovimientosProvider).value;
     // The document of a consent in force is the text it was given with.
     final version = c != null && c.vigente && c.constancia != null
         ? c.constancia!.versionTexto
         : versionTextoMovimientos;
     return PantallaDocumento(
-      titulo: 'Guardar movimientos',
-      introduccion:
-          'Permiso aparte y opcional. Lo acepta $nombre o su representante.',
+      titulo: l.movimientosTitulo,
+      introduccion: l.movimientosDocIntroduccion(nombre),
       secciones: [
         for (final (_, titulo, _, cuerpo) in seccionesMovimientos(
+          l,
           nombre,
           version: version,
         ))
           (titulo, [cuerpo]),
-        (
-          'Cómo se registra',
-          [
-            'Guardamos quién lo otorgó, quién lo registró, fecha, hora y versión '
-                'del texto (Ley N.° 29733).',
-          ],
-        ),
-        (
-          'Cómo retirarlo',
-          [
-            'El titular lo retira en Ajustes › Privacidad. Borramos los de la nube; '
-                'la PC pregunta si también los borra.',
-          ],
-        ),
+        (l.movimientosDocRegistraTitulo, [l.movimientosDocRegistraTexto]),
+        (l.movimientosDocRetirarTitulo, [l.movimientosDocRetirarTexto]),
       ],
       pie: c == null
           ? null
           : Text(
-              'Versión del texto: $version.',
+              l.movimientosDocVersion(version),
               style: Theme.of(context).textTheme.bodySmall,
             ),
     );
@@ -620,6 +608,7 @@ class _PantallaBorrandoMovimientosState
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final b = ref.watch(borradoMovimientosProvider);
     final terminado = b?.terminado ?? false;
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
@@ -652,16 +641,16 @@ class _PantallaBorrandoMovimientosState
                       liveRegion: true,
                       child: Text(
                         terminado
-                            ? 'Listo. Ya no guardamos los movimientos de $nombre.'
-                            : 'Borrando los movimientos de la nube…',
+                            ? l.movimientosBorradoListo(nombre)
+                            : l.movimientosBorrandoNube,
                         style: texto.headlineMedium,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       terminado
-                          ? 'Las alertas siguen igual.'
-                          : 'No cierres la app.',
+                          ? l.movimientosAlertasIgual
+                          : l.movimientosNoCierres,
                       style: texto.bodyLarge?.copyWith(
                         color: context.colores.tinta2,
                       ),
@@ -672,24 +661,25 @@ class _PantallaBorrandoMovimientosState
                         children: [
                           _Paso(
                             estado: _EstadoPaso.hecho,
-                            titulo: 'Ya no guardamos movimientos',
-                            detalle: conHora('Desde las ', hora(desde)),
+                            titulo: l.movimientosYaNoGuardamos,
+                            detalle: _conHora(
+                              l.movimientosDesdeLas,
+                              context.formato.hora(desde),
+                            ),
                           ),
                           _Paso(
                             estado: terminado
                                 ? _EstadoPaso.hecho
                                 : _EstadoPaso.enCurso,
                             titulo: terminado
-                                ? 'Movimientos borrados de la nube'
-                                : 'Borrando los movimientos de la nube…',
+                                ? l.movimientosBorradosNube
+                                : l.movimientosBorrandoNube,
                           ),
-                          const _Paso(
+                          _Paso(
                             estado: _EstadoPaso.pendiente,
                             numero: 3,
-                            titulo: 'En la PC de la casa',
-                            detalle: TextSpan(
-                              text: 'Preguntará si también se borran ahí.',
-                            ),
+                            titulo: l.movimientosEnLaPc,
+                            detalle: TextSpan(text: l.movimientosPcPreguntara),
                           ),
                         ],
                       ),
@@ -698,7 +688,7 @@ class _PantallaBorrandoMovimientosState
                 ),
               ),
               Boton(
-                'Volver a Privacidad',
+                l.movimientosVolverPrivacidad,
                 alPresionar: terminado
                     ? () {
                         ref.read(borradoMovimientosProvider.notifier).olvidar();
@@ -712,6 +702,18 @@ class _PantallaBorrandoMovimientosState
       ),
     );
   }
+}
+
+/// [conHora] with the time where the localized [mensaje] puts it («Desde las 10:42»).
+TextSpan _conHora(String Function(String) mensaje, String horaTexto) {
+  final completo = mensaje(horaTexto);
+  final i = completo.indexOf(horaTexto);
+  if (i < 0) return TextSpan(text: completo);
+  return conHora(
+    completo.substring(0, i),
+    horaTexto,
+    completo.substring(i + horaTexto.length),
+  );
 }
 
 enum _EstadoPaso { hecho, enCurso, pendiente }
@@ -783,6 +785,7 @@ class _PantallaMovimientosNubeState
   Future<void> _elegir(MovimientosEnLaNube actual, int? dias) async {
     if (dias == actual.retencionDias || _guardando) return;
     final antes = actual.retencionDias;
+    final l = context.l10n;
     // Shorter, or off: it deletes data, so it asks first (CA-37.4).
     if (antes != null && (dias == null || dias < antes)) {
       final corte = ref
@@ -793,15 +796,15 @@ class _PantallaMovimientosNubeState
         icono: Ico.cloud,
         peligro: true,
         titulo: dias == null
-            ? '¿Dejar de guardar en la nube?'
-            : '¿Guardar solo ${textoPlazo(dias)}?',
-        texto:
-            '${dias == null ? 'Borraremos todos los movimientos de la nube.' : 'Borraremos los movimientos anteriores al ${fechaNumerica(corte)}.'} '
-            'No se pueden recuperar.',
+            ? l.nubeApagarTitulo
+            : l.nubeAcortarTitulo(textoPlazo(l, dias)),
+        texto: dias == null
+            ? l.nubeApagarTexto
+            : l.nubeAcortarTexto(context.formato.fechaNumerica(corte)),
         aceptar: dias == null
-            ? 'No guardar en la nube'
-            : 'Guardar ${textoPlazo(dias)}',
-        cancelar: 'Cancelar',
+            ? l.nubeNoGuardar
+            : l.nubeGuardarPlazo(textoPlazo(l, dias)),
+        cancelar: l.movimientosCancelar,
       );
       if (!si || !mounted) return;
     }
@@ -815,12 +818,12 @@ class _PantallaMovimientosNubeState
       if (!mounted) return;
       mostrarToast(
         context,
-        titulo:
-            'Movimientos en la nube: '
-            '${dias == null ? 'no guardar' : textoPlazo(dias)}',
+        titulo: dias == null
+            ? context.l10n.nubeToastApagado
+            : context.l10n.nubeToastPlazo(textoPlazo(context.l10n, dias)),
         texto: dias == null
-            ? 'Borramos los movimientos de la nube.'
-            : 'Se borran solos al cumplirse el plazo.',
+            ? context.l10n.nubeBorramos
+            : context.l10n.nubeSeBorranSolos,
         icono: Ico.cloud,
       );
     } on ProblemaApi catch (e) {
@@ -843,7 +846,7 @@ class _PantallaMovimientosNubeState
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Movimientos en la nube'),
+        title: Text(context.l10n.movimientosEnLaNube),
         actions: [
           if (!titular)
             const Padding(
@@ -870,6 +873,7 @@ class _PantallaMovimientosNubeState
     String nombre,
   ) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final permiso = n.consentimientoVigente;
     final habilitado = permiso && titular && !_guardando;
     final pcs = ref.watch(pcsProvider).value ?? const [];
@@ -879,16 +883,16 @@ class _PantallaMovimientosNubeState
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
-        Text('Se borran solos al cumplirse el plazo.', style: texto.bodyMedium),
+        Text(l.nubeSeBorranSolos, style: texto.bodyMedium),
         const SizedBox(height: 16),
         if (!permiso) ...[
           Aviso(
             tono: TonoAviso.info,
             icono: Ico.body,
-            titulo: 'Falta el permiso de $nombre para guardar movimientos',
+            titulo: l.nubeFaltaPermiso(nombre),
             accion: titular
                 ? Boton(
-                    'Ver el permiso',
+                    l.nubeVerPermiso,
                     pequeno: true,
                     alPresionar: () => context.push(Rutas.movimientos),
                   )
@@ -898,36 +902,36 @@ class _PantallaMovimientosNubeState
         ] else if (!titular) ...[
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'cambiar el plazo',
+            accion: l.nubeAccionCambiarPlazo,
           ),
           const SizedBox(height: 16),
         ],
         if (_errorRed) ...[
-          const Aviso(
+          Aviso(
             tono: TonoAviso.advertencia,
             icono: Ico.wifiOff,
-            titulo: 'No pudimos guardar el cambio',
+            titulo: l.nubeErrorRed,
           ),
           const SizedBox(height: 16),
         ],
         Semantics(
-          label: 'Plazo en la nube',
+          label: l.nubePlazoEtiqueta,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               OpcionRadio<int?>(
                 valor: null,
                 seleccion: actual,
-                titulo: 'No guardar en la nube',
+                titulo: l.nubeNoGuardar,
                 alElegir: habilitado ? (v) => _elegir(n, v) : null,
               ),
               for (final d in n.opciones)
                 OpcionRadio<int?>(
                   valor: d,
                   seleccion: actual,
-                  titulo: textoPlazo(d),
+                  titulo: textoPlazo(l, d),
                   subtitulo: d == n.maximoRecomendadoDias
-                      ? 'Máximo recomendado'
+                      ? l.nubeMaximoRecomendado
                       : null,
                   alElegir: habilitado ? (v) => _elegir(n, v) : null,
                 ),
@@ -940,17 +944,17 @@ class _PantallaMovimientosNubeState
           relleno: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
           child: DatosTarjeta([
             FilaDato(
-              clave: 'Espacio aproximado',
-              valor:
-                  '${n.mbMinimo} a ${n.mbMaximo} MB por cámara al día (estimado)',
+              clave: l.nubeEspacio,
+              valor: l.nubeEspacioValor(n.mbMinimo, n.mbMaximo),
             ),
             if (permiso && n.retencionDias != null && n.datosDesde != null)
               FilaDato(
-                clave: 'Hay movimientos desde',
-                valor: fechaNumerica(n.datosDesde!),
+                clave: l.nubeDatosDesde,
+                valor: context.formato.fechaNumerica(n.datosDesde!),
                 mono: true,
               ),
-            if (camaras != null) FilaDato(clave: 'Cámaras', valor: '$camaras'),
+            if (camaras != null)
+              FilaDato(clave: l.nubeCamaras, valor: '$camaras'),
           ]),
         ),
         if (permiso && n.retencionDias != null && sinConexion != null) ...[
@@ -958,17 +962,11 @@ class _PantallaMovimientosNubeState
           Aviso(
             tono: TonoAviso.neutral,
             icono: Ico.clock,
-            texto:
-                'La PC ${sinConexion.nombre} subirá sus movimientos al '
-                'reconectarse.',
+            texto: l.nubePcSubira(sinConexion.nombre),
           ),
         ],
         const SizedBox(height: 12),
-        const Aviso(
-          tono: TonoAviso.info,
-          icono: Ico.video,
-          texto: 'Nunca guardamos video en la nube.',
-        ),
+        Aviso(tono: TonoAviso.info, icono: Ico.video, texto: l.nubeNuncaVideo),
       ],
     );
   }

@@ -1,17 +1,25 @@
 import '../../../core/formato.dart';
 import '../../../core/foto.dart';
 import '../../../core/sesion/sesion.dart';
+import '../../../l10n/l10n.dart';
 
 /// Living arrangement of the older adult (contract §2, from the prototype's profile screen).
 enum Convivencia {
-  solo('SOLO', 'Vive solo(a)'),
-  conFamiliar('CON_FAMILIAR', 'Vive conmigo'),
-  conCuidador('CON_CUIDADOR', 'Vive con otro cuidador');
+  solo('SOLO'),
+  conFamiliar('CON_FAMILIAR'),
+  conCuidador('CON_CUIDADOR');
 
-  const Convivencia(this.codigo, this.titulo);
+  const Convivencia(this.codigo);
 
+  /// The value of the contract, sent and received as it is.
   final String codigo;
-  final String titulo;
+
+  /// The form's option: «Vive solo(a)», «Vive conmigo», «Vive con otro cuidador».
+  String titulo(AppLocalizations l) => switch (this) {
+    solo => l.hogarConvivenciaSolo,
+    conFamiliar => l.hogarConvivenciaConFamiliar,
+    conCuidador => l.hogarConvivenciaConCuidador,
+  };
 
   static Convivencia? desde(Object? valor) =>
       Convivencia.values.where((c) => c.codigo == valor).firstOrNull;

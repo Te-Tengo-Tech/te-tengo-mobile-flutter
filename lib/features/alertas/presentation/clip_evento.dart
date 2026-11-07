@@ -6,23 +6,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../core/dispositivo/pantalla_completa.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/ilustraciones.dart';
-import '../../camaras/domain/camara.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../movimientos/data/fuente_fotogramas.dart';
 import '../../movimientos/domain/fotogramas.dart';
 import '../../movimientos/presentation/esqueleto.dart';
 import '../../sesion/presentation/pantalla_bienvenida.dart' show EtiquetaClip;
 import '../data/alertas_repositorio.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/alerta.dart';
 import 'controles_clip.dart';
 import 'reproduccion_clip.dart';
 import 'reproductor.dart';
+import 'textos_alerta.dart';
 
 /// Event clip (US-18): 6 s before and 6 s after the event (CA-18.1). Without a stored video the
 /// alert still shows and says the clip is not available (CA-18.2). The short-lived URL is renewed by
@@ -79,15 +79,18 @@ class ClipNoDisponible extends StatelessWidget {
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
     final eliminado = estado == EstadoClip.eliminado;
+    final l = context.l10n;
     final (icono, titulo, detalle) = eliminado
         ? (
             Ico.trash,
-            'La grabación ya no está disponible',
-            'Se borró el '
-                '${fechaConAnio(alerta.ocurridaEn.add(const Duration(days: 30)))} '
-                '(se guardan 30 días).',
+            l.clipBorradoTitulo,
+            l.clipBorradoDetalle(
+              context.formato.fechaConAnio(
+                alerta.ocurridaEn.add(const Duration(days: 30)),
+              ),
+            ),
           )
-        : (Ico.video, 'Clip no disponible', 'La alerta sigue siendo válida.');
+        : (Ico.video, l.clipNoDisponible, l.clipSigueValida);
     return Container(
       constraints: BoxConstraints(minHeight: aRas ? 0 : 170),
       padding: const EdgeInsets.all(18),
@@ -140,7 +143,9 @@ class _Marco extends StatelessWidget {
             top: 10,
             left: 10,
             child: EtiquetaClip(
-              texto: '${alerta.habitacion} · ${hora(alerta.ocurridaEn)}',
+              texto:
+                  '${alerta.habitacion} · '
+                  '${context.formato.hora(alerta.ocurridaEn)}',
             ),
           ),
           if (alPantallaCompleta case final entrar?)
@@ -161,12 +166,10 @@ class _BotonPantallaCompleta extends StatelessWidget {
 
   final VoidCallback alTocar;
 
-  static const _etiqueta = 'Ver el clip en pantalla completa';
-
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    label: _etiqueta,
+    label: context.l10n.clipPantallaCompleta,
     excludeSemantics: true,
     child: Material(
       color: const Color(0xB817121F),
@@ -316,9 +319,9 @@ class _ReproductorState extends ConsumerState<_Reproductor> {
           ControlesClip(
             reproduccion: _clip,
             aRas: aRas,
-            ayuda: const AyudaInfo(
-              texto: 'El clip dura 12 s: 6 s antes y 6 s después de la alerta.',
-              tema: 'el clip',
+            ayuda: AyudaInfo(
+              texto: context.l10n.clipAyuda,
+              tema: context.l10n.clipAyudaTema,
               sobreOscuro: true,
               arriba: true,
             ),
@@ -391,6 +394,7 @@ class _PantallaClipCompletaState extends ConsumerState<PantallaClipCompleta> {
   Widget build(BuildContext context) {
     final r = widget.reproduccion;
     final alerta = widget.alerta;
+    final l = context.l10n;
     void salir() => Navigator.of(context).maybePop();
     // Landscape and black, as any video: the clip keeps its proportions with black bars.
     return Scaffold(
@@ -428,7 +432,7 @@ class _PantallaClipCompletaState extends ConsumerState<PantallaClipCompleta> {
                   child: Row(
                     children: [
                       IconButton(
-                        tooltip: 'Salir de pantalla completa',
+                        tooltip: l.clipSalirPantallaCompleta,
                         onPressed: salir,
                         icon: const Icono(Ico.x, color: Colors.white),
                       ),
@@ -441,11 +445,10 @@ class _PantallaClipCompletaState extends ConsumerState<PantallaClipCompleta> {
                               children: [
                                 TextSpan(
                                   text:
-                                      '${alerta.tipo.nombre} '
-                                      '${enHabitacion(alerta.habitacion)} · ',
+                                      '${tipoEnHabitacion(l, alerta.tipo, alerta.habitacion)} · ',
                                 ),
                                 TextSpan(
-                                  text: hora(alerta.ocurridaEn),
+                                  text: context.formato.hora(alerta.ocurridaEn),
                                   style: estiloMono(
                                     tamano: 17,
                                     color: Colors.white,
@@ -509,13 +512,13 @@ class PuntosDelCuerpo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
+    final l = context.l10n;
     final por = switch ((enlace.puntos, enlace.puntosNoDisponibles)) {
-      (null, 'SIN_CONSENTIMIENTO') =>
-        'falta el permiso de $nombre para guardar movimientos',
-      (null, 'SIN_ARCHIVO') => 'este clip no los tiene',
+      (null, 'SIN_CONSENTIMIENTO') => l.clipPuntosSinPermiso(nombre),
+      (null, 'SIN_ARCHIVO') => l.clipPuntosNoLosTiene,
       (null, _) => null,
-      _ when enlace.puntosLigeros == null => 'este clip no los tiene',
-      _ when fallaron => 'no se pudieron cargar',
+      _ when enlace.puntosLigeros == null => l.clipPuntosNoLosTiene,
+      _ when fallaron => l.clipPuntosNoCargaron,
       _ => '',
     };
     if (por == null) return const SizedBox.shrink();
@@ -539,7 +542,7 @@ class PuntosDelCuerpo extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Puntos del cuerpo',
+                    l.clipPuntosTitulo,
                     style: estiloTexto(
                       16,
                       700,
@@ -556,7 +559,7 @@ class PuntosDelCuerpo extends ConsumerWidget {
           ),
           if (por.isNotEmpty)
             Text(
-              'No disponibles: $por.',
+              l.clipPuntosNoDisponibles(por),
               style: estiloTexto(15, 400, color: c.tinta3),
             ),
         ],

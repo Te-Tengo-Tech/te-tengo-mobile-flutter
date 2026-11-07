@@ -1,4 +1,5 @@
 import '../../../core/formato.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../alertas/domain/alerta.dart';
 
 /// The light replay file of a movement file (TTMOV v1, contract §11): what the app draws.
@@ -139,13 +140,16 @@ class AccesoRepeticion {
 
 /// A mark of the player's timeline (`RP_EV`).
 enum TipoEvento {
-  caida('Caída'),
-  inestable('Inestable'),
-  levanto('Se levantó');
+  caida,
+  inestable,
+  levanto;
 
-  const TipoEvento(this.texto);
-
-  final String texto;
+  /// «Caída», «Inestable», «Se levantó».
+  String texto(AppLocalizations l) => switch (this) {
+    caida => l.repeticionEventoCaida,
+    inestable => l.repeticionEventoInestable,
+    levanto => l.repeticionEventoLevanto,
+  };
 }
 
 class EventoCamara {
@@ -185,18 +189,19 @@ List<EventoCamara> eventosDe(Iterable<Alerta> alertas, String camaraId) {
 
 /// A stretch of the timeline without movements (CA-39.5).
 class Tramo {
-  const Tramo(this.desde, this.hasta, this.motivo);
+  const Tramo(this.desde, this.hasta, [this.motivo]);
 
   final DateTime desde;
   final DateTime hasta;
 
-  /// «Sin persona en la imagen», «Cámara en pausa», «Cámara desconectada», «La PC no responde».
-  final String motivo;
+  /// «Sin persona en la imagen», «Cámara en pausa», «Cámara desconectada», «La PC no responde»;
+  /// null when there is simply no data («Sin datos»).
+  final String? motivo;
 
   bool contiene(DateTime t) => !t.isBefore(desde) && t.isBefore(hasta);
 }
 
-/// Inside a replay's window, the stretches no file covers.
+/// Inside a replay's window, the stretches no file covers (without a [Tramo.motivo]).
 List<Tramo> huecosDe(
   List<ArchivoMovimientos> archivos,
   DateTime desde,
@@ -207,10 +212,10 @@ List<Tramo> huecosDe(
   for (final a in archivos) {
     if (!a.hasta.isAfter(desde) || !a.desde.isBefore(hasta)) continue;
     if (a.desde.isAfter(cursor)) {
-      tramos.add(Tramo(cursor, a.desde, 'Sin datos'));
+      tramos.add(Tramo(cursor, a.desde));
     }
     if (a.hasta.isAfter(cursor)) cursor = a.hasta;
   }
-  if (cursor.isBefore(hasta)) tramos.add(Tramo(cursor, hasta, 'Sin datos'));
+  if (cursor.isBefore(hasta)) tramos.add(Tramo(cursor, hasta));
   return tramos;
 }

@@ -5,6 +5,7 @@ import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
 import 'tarjeta.dart';
+import '../../l10n/l10n.dart';
 
 /// Button styles of the prototype (`.btn-*`).
 enum EstiloBoton {
@@ -29,7 +30,7 @@ class Boton extends StatelessWidget {
     this.cargando = false,
     this.pequeno = false,
     this.colorTexto,
-    this.textoCargando = 'Un momento…',
+    this.textoCargando,
   });
 
   final String texto;
@@ -42,8 +43,8 @@ class Boton extends StatelessWidget {
   final bool pequeno;
   final Color? colorTexto;
 
-  /// Shown instead of [texto] while [cargando] («Vinculando…»).
-  final String textoCargando;
+  /// Shown instead of [texto] while [cargando] («Vinculando…»); «Un momento…» when null.
+  final String? textoCargando;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +121,9 @@ class Boton extends StatelessWidget {
         ],
         Flexible(
           child: Text(
-            cargando ? textoCargando : this.texto,
+            cargando
+                ? textoCargando ?? context.l10n.comunUnMomento
+                : this.texto,
             textAlign: TextAlign.center,
             style: estiloTexto(pequeno ? 16 : 18, 700, color: color),
           ),

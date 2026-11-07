@@ -1,4 +1,5 @@
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 
 /// One section of the informed consent (`CONSENT_SEC` in the prototype): the same text feeds the
 /// folded summary of the consent screen and the full document.
@@ -18,57 +19,43 @@ class SeccionConsentimiento {
   final String texto;
 }
 
-/// The consent text. The live-view clause goes first: the checkbox mentions it.
+/// The consent text, in the language of [l]. The live-view clause goes first: the checkbox
+/// mentions it. Only the displayed text is translated: nothing of it is sent to the backend.
 ///
 /// Video is analysed on the household PC (docs `04-arquitectura/decision-procesamiento-en-pc.md`).
 /// The prototype's words are kept; the sentences it does not have, and the ones naming
 /// Microsoft Azure (Azure Blob Storage, Chile Central; Cloudflare R2 until 2026-10-31) and the
-/// cross-border flow, are pending legal review (docs/BLOCKERS.md).
-const seccionesConsentimiento = [
+/// cross-border flow, are pending legal review (docs/BLOCKERS.md), as is the English translation.
+List<SeccionConsentimiento> seccionesConsentimiento(AppLocalizations l) => [
   SeccionConsentimiento(
     icono: Ico.eye,
-    titulo: 'Vista en vivo en cualquier momento',
-    resumen: 'Cuando la familia quiera',
-    texto:
-        'La familia vinculada puede verla en vivo cuando quiera, no solo en una '
-        'alerta. Cada acceso queda registrado: quién, cuándo y cuánto.',
+    titulo: l.consentimientoSeccionVivoTitulo,
+    resumen: l.consentimientoSeccionVivoResumen,
+    texto: l.consentimientoSeccionVivoTexto,
   ),
   SeccionConsentimiento(
     icono: Ico.cam,
-    titulo: 'Qué hacemos',
-    resumen: 'Caídas por la postura',
-    texto:
-        'La PC de la casa analiza la postura para detectar caídas y '
-        'movimientos inestables. El video continuo nunca sale de la casa. Solo '
-        'salen el aviso y el clip de cada alerta, y la vista en vivo mientras '
-        'alguien de la familia la mira.',
+    titulo: l.consentimientoSeccionHacemosTitulo,
+    resumen: l.consentimientoSeccionHacemosResumen,
+    texto: l.consentimientoSeccionHacemosTexto,
   ),
   SeccionConsentimiento(
     icono: Ico.eyeOff,
-    titulo: 'Qué no hacemos',
-    resumen: 'Ni rostros ni grabación continua',
-    texto:
-        'Sin reconocimiento facial ni grabación continua. La vista en vivo no se '
-        'guarda.',
+    titulo: l.consentimientoSeccionNoHacemosTitulo,
+    resumen: l.consentimientoSeccionNoHacemosResumen,
+    texto: l.consentimientoSeccionNoHacemosTexto,
   ),
   SeccionConsentimiento(
     icono: Ico.video,
-    titulo: 'Qué guardamos',
-    resumen: 'Clip de cada alerta, 30 días',
-    texto:
-        'Solo el clip de cada alerta, 30 días; luego se borra. Se guarda en '
-        'Microsoft Azure (Azure Blob Storage, región Chile Central), con '
-        'servidores fuera del Perú: es un flujo transfronterizo de datos '
-        'personales. Sus movimientos (puntos del cuerpo, sin imagen) solo se '
-        'guardan con un permiso aparte.',
+    titulo: l.consentimientoSeccionGuardamosTitulo,
+    resumen: l.consentimientoSeccionGuardamosResumen,
+    texto: l.consentimientoSeccionGuardamosTexto,
   ),
   SeccionConsentimiento(
     icono: Ico.shield,
-    titulo: 'Sus derechos',
-    resumen: 'Ley N.° 29733 · revocable',
-    texto:
-        'Por la Ley N.° 29733, puede ver, corregir o borrar sus datos, oponerse a '
-        'su uso y revocar este consentimiento.',
+    titulo: l.consentimientoSeccionDerechosTitulo,
+    resumen: l.consentimientoSeccionDerechosResumen,
+    texto: l.consentimientoSeccionDerechosTexto,
   ),
 ];
 
@@ -76,128 +63,52 @@ const seccionesConsentimiento = [
 typedef SeccionDocumento = (String titulo, List<String> parrafos);
 
 /// «Términos de uso»: only facts the app already shows.
-const seccionesTerminos = <SeccionDocumento>[
+List<SeccionDocumento> seccionesTerminos(AppLocalizations l) => [
+  (l.legalTerminosQueEsTitulo, [l.legalTerminosQueEsTexto]),
   (
-    'Qué es Te Tengo',
-    [
-      'Avisa a tu familia si la cámara de la casa detecta una posible caída o '
-          'un movimiento inestable. No es una cámara de seguridad.',
-    ],
+    l.legalTerminosCuentaTitulo,
+    [l.legalTerminosCuentaTexto1, l.legalTerminosCuentaTexto2],
   ),
+  (l.legalTerminosInvitadosTitulo, [l.legalTerminosInvitadosTexto]),
   (
-    'Tu cuenta',
-    [
-      'Solo el titular (quien la crea) cambia los datos de la persona cuidada, '
-          'el consentimiento, las habitaciones, la familia y el orden de aviso.',
-      'Cada cuenta cuida a una sola persona. Contraseña de 8 caracteres o más, '
-          'con un número; 5 intentos fallidos bloquean el acceso 15 minutos.',
-    ],
+    l.legalTerminosConsentimientoTitulo,
+    [l.legalTerminosConsentimientoTexto1, l.legalTerminosConsentimientoTexto2],
   ),
+  (l.legalTerminosAlertasTitulo, [l.legalTerminosAlertasTexto]),
   (
-    'Familiares invitados',
-    [
-      'Ven alertas, clips, historial y vista en vivo; marcan alertas y pausan '
-          'la cámara. El titular puede retirar el acceso.',
-    ],
-  ),
-  (
-    'Consentimiento',
-    [
-      'Sin el consentimiento de la persona cuidada o de su representante legal, '
-          'la cámara no envía video. Revocarlo detiene la captura y borra las '
-          'grabaciones.',
-      'Guardar sus movimientos necesita un permiso aparte y opcional; las '
-          'alertas funcionan igual sin él.',
-    ],
-  ),
-  (
-    'Alertas',
-    [
-      'Las reciben todos los familiares vinculados. Si el principal no marca '
-          'una en el tiempo de espera (3, 5 o 10 minutos), avisamos al '
-          'secundario.',
-    ],
-  ),
-  (
-    'Límites del servicio',
-    [
-      'Sin detección con la PC de la casa apagada, la cámara desconectada, en '
-          'pausa o sin consentimiento; no es confiable si no ve bien a la '
-          'persona.',
-      'Con la app cerrada, las alertas llegan solo con las notificaciones '
-          'activadas.',
-    ],
+    l.legalTerminosLimitesTitulo,
+    [l.legalTerminosLimitesTexto1, l.legalTerminosLimitesTexto2],
   ),
 ];
 
 /// «Política de privacidad»: what is stored, who sees it and for how long.
-const seccionesPolitica = <SeccionDocumento>[
+List<SeccionDocumento> seccionesPolitica(AppLocalizations l) => [
   (
-    'Qué datos guardamos',
+    l.legalPoliticaDatosTitulo,
     [
-      'Cuenta: nombre, correo y contraseña.',
-      'Persona cuidada: nombre, edad, dirección y con quién vive.',
-      'Alertas: tipo, habitación, fecha, hora y quién atendió.',
+      l.legalPoliticaDatosTexto1,
+      l.legalPoliticaDatosTexto2,
+      l.legalPoliticaDatosTexto3,
     ],
   ),
   (
-    'Video',
+    l.legalPoliticaVideoTitulo,
     [
-      'Se analiza en la PC de la casa. Sin reconocimiento facial ni video en '
-          'la nube.',
-      'Solo salen de la casa el aviso y el clip de cada alerta, y la vista en '
-          'vivo mientras alguien de la familia la mira con el consentimiento '
-          'vigente.',
-      'Solo el clip de cada alerta (6 s antes y 6 s después), 30 días. La '
-          'vista en vivo no se graba.',
+      l.legalPoliticaVideoTexto1,
+      l.legalPoliticaVideoTexto2,
+      l.legalPoliticaVideoTexto3,
     ],
   ),
   (
-    'Movimientos',
-    [
-      'Solo con un permiso aparte y opcional: puntos del cuerpo (hombros, '
-          'caderas, rodillas…), sin imagen ni video.',
-      'En la PC de la casa y, si el titular lo elige, en la nube, de 7 días a '
-          '1 año. Retirar el permiso borra los de la nube; la PC pregunta si '
-          'también los borra.',
-    ],
+    l.legalPoliticaMovimientosTitulo,
+    [l.legalPoliticaMovimientosTexto1, l.legalPoliticaMovimientosTexto2],
   ),
-  (
-    'Dónde se guardan',
-    [
-      'Los clips y los movimientos de la nube se guardan en Microsoft Azure '
-          '(Azure Blob Storage, región Chile Central), con servidores fuera '
-          'del Perú: es un flujo transfronterizo de datos personales.',
-    ],
-  ),
-  (
-    'Quién ve los datos',
-    [
-      'Solo la familia vinculada. Cada acceso en vivo y cada repetición quedan '
-          'en un registro que ven todos: quién, cuándo y cuánto.',
-    ],
-  ),
-  (
-    'Revocar el consentimiento',
-    [
-      'Detiene la captura y la vista en vivo y borra las grabaciones; te '
-          'enviamos la constancia.',
-    ],
-  ),
-  (
-    'Tus derechos',
-    [
-      'Ver, corregir o borrar tus datos, u oponerte a su uso (Ley N.° 29733): '
-          'privacidad@tetengo.pe.',
-    ],
-  ),
+  (l.legalPoliticaDondeTitulo, [l.legalPoliticaDondeTexto]),
+  (l.legalPoliticaQuienTitulo, [l.legalPoliticaQuienTexto]),
+  (l.legalPoliticaRevocarTitulo, [l.legalPoliticaRevocarTexto]),
+  (l.legalPoliticaDerechosTitulo, [l.legalPoliticaDerechosTexto]),
 ];
 
 /// Last section of the full consent document.
-const seccionRegistroConsentimiento = (
-  'Cómo se registra',
-  [
-    'Guardamos quién lo otorgó, quién lo registró, fecha y hora (Ley N.° '
-        '29733).',
-  ],
-);
+SeccionDocumento seccionRegistroConsentimiento(AppLocalizations l) =>
+    (l.consentimientoRegistroTitulo, [l.consentimientoRegistroTexto]);

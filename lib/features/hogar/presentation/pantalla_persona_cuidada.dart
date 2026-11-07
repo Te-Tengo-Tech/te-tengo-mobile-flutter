@@ -8,6 +8,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../perfil/data/fotos.dart';
 import '../../perfil/domain/perfil.dart';
@@ -27,7 +28,7 @@ class PantallaPersonaCuidada extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hogar = ref.watch(hogarProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Persona cuidada')),
+      appBar: AppBar(title: Text(context.l10n.hogarPersonaCuidadaTitulo)),
       body: hogar.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorDePantalla(
@@ -61,7 +62,7 @@ class _FormularioState extends ConsumerState<_Formulario> {
   }
 
   Future<void> _guardar() async {
-    if (!_formulario.validar()) return setState(() {});
+    if (!_formulario.validar(context.l10n)) return setState(() {});
     setState(() {
       _enviando = true;
       _problema = null;
@@ -71,7 +72,9 @@ class _FormularioState extends ConsumerState<_Formulario> {
           .read(hogarRepositorioProvider)
           .actualizarAdultoMayor(_formulario.valor);
       ref.invalidate(hogarProvider);
-      if (mounted) mostrarToast(context, titulo: 'Cambios guardados');
+      if (mounted) {
+        mostrarToast(context, titulo: context.l10n.hogarCambiosGuardados);
+      }
     } on ProblemaApi catch (e) {
       if (!mounted) return;
       setState(() {
@@ -97,7 +100,7 @@ class _FormularioState extends ConsumerState<_Formulario> {
         if (!titular) ...[
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'cambiar los datos de $nombre',
+            accion: context.l10n.hogarSoloLecturaCambiarDatos(nombre),
           ),
           const SizedBox(height: 16),
         ],
@@ -120,7 +123,11 @@ class _FormularioState extends ConsumerState<_Formulario> {
           alCambiar: () => setState(() {}),
         ),
         if (titular) ...[
-          Boton('Guardar cambios', cargando: _enviando, alPresionar: _guardar),
+          Boton(
+            context.l10n.hogarGuardarCambios,
+            cargando: _enviando,
+            alPresionar: _guardar,
+          ),
         ],
       ],
     );
@@ -132,10 +139,10 @@ class AvisoUnaSolaPersona extends StatelessWidget {
   const AvisoUnaSolaPersona({super.key});
 
   @override
-  Widget build(BuildContext context) => const Aviso(
+  Widget build(BuildContext context) => Aviso(
     tono: TonoAviso.info,
     icono: Ico.info,
-    titulo: 'Cada cuenta cuida a una sola persona',
-    texto: 'Para cuidar a alguien más, crea otra cuenta.',
+    titulo: context.l10n.hogarUnaSolaPersonaTitulo,
+    texto: context.l10n.hogarUnaSolaPersonaTexto,
   );
 }

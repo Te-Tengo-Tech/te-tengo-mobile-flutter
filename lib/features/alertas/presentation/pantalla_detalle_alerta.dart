@@ -10,7 +10,6 @@ import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/ui/plegable.dart';
 import '../../../core/ui/tarjeta.dart';
-import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../movimientos/data/movimientos_repositorio.dart';
@@ -19,10 +18,12 @@ import '../../../core/red/problema_api.dart';
 import '../../../core/ui/botones.dart';
 import '../data/alertas_repositorio.dart';
 import '../data/descarga_grabacion.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/alerta.dart';
 import 'clip_evento.dart';
 import 'etiquetas.dart';
 import 'linea_de_tiempo.dart';
+import 'textos_alerta.dart';
 
 /// Detail of a marked or past alert (screens 56, 60, 61, 76, 89–91): who marked it and when
 /// (CA-19.1, CA-19.3), the recording and the record.
@@ -44,8 +45,10 @@ class PantallaDetalleAlerta extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           alerta.value == null
-              ? 'Alerta'
-              : 'Alerta del ${fechaCorta(alerta.value!.ocurridaEn)}',
+              ? context.l10n.alertaDetalleTitulo
+              : context.l10n.alertaDetalleTituloFecha(
+                  context.formato.fechaCorta(alerta.value!.ocurridaEn),
+                ),
         ),
       ),
       body: alerta.when(
@@ -70,10 +73,12 @@ class _Detalle extends ConsumerWidget {
     final a = alerta;
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final miembros = ref.watch(miembrosProvider).value ?? const [];
+    final l = context.l10n;
     final linea = itemsDeAlerta(
+      l,
       a,
       nombreAdultoMayor: nombre,
-      avisados: avisadosDe(miembros),
+      avisados: avisadosDe(l, miembros),
       secundario: secundarioDe(miembros),
       esperaMinutos: esperaDe(ref),
     );
@@ -82,7 +87,7 @@ class _Detalle extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
         TarjetaDetalle(alerta: a),
-        const EncabezadoSeccion('Grabación'),
+        EncabezadoSeccion(l.alertaGrabacion),
         ClipEvento(alerta: a),
         if (a.clip == EstadoClip.disponible) _Descarga(alerta: a),
         const SizedBox(height: 20),
@@ -92,21 +97,21 @@ class _Detalle extends ConsumerWidget {
             if (!a.activa)
               FilaLista(
                 inicio: const IconoFila(Ico.replay),
-                titulo: 'Ver qué pasó',
+                titulo: l.alertaVerQuePaso,
                 subtitulo: switch (ref.watch(movimientosEnLaNubeProvider)) {
                   AsyncData(:final value)
                       when value.consentimientoVigente &&
                           value.retencionDias != null =>
-                    'En la cámara, sin video',
-                  _ => 'Requiere guardar movimientos',
+                    l.alertaVerQuePasoSinVideo,
+                  _ => l.alertaVerQuePasoRequiere,
                 },
                 alTocar: () =>
                     context.push(Rutas.camaraEn(a.camaraId, a.ocurridaEn)),
               ),
             FilaPlegable(
               icono: Ico.clock,
-              titulo: 'Registro del evento',
-              resumen: '${linea.length} momentos',
+              titulo: l.alertaRegistroEvento,
+              resumen: l.alertaMomentos(linea.length),
               child: Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: LineaDeTiempo(linea),
@@ -118,7 +123,7 @@ class _Detalle extends ConsumerWidget {
         if (a.tipo == TipoAlerta.movimientoInestable &&
             a.estado != EstadoAlerta.activa)
           EnlaceReporte(
-            texto: '¿Terminó en caída y no avisamos?',
+            texto: l.alertaTerminoEnCaida,
             habitacion: a.habitacion,
             cuando: a.ocurridaEn,
           ),
@@ -145,6 +150,8 @@ class TarjetaDetalle extends StatelessWidget {
           : Banda.inestable,
       builder: (context) {
         final texto = Theme.of(context).textTheme;
+        final l = context.l10n;
+        final formato = context.formato;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -157,14 +164,14 @@ class TarjetaDetalle extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '${a.tipo.nombre} ${enHabitacion(a.habitacion)}',
+              tipoEnHabitacion(l, a.tipo, a.habitacion),
               style: texto.titleLarge,
             ),
             const SizedBox(height: 8),
             Text.rich(
               conHora(
-                '${mayusculaInicial(fechaLarga(a.ocurridaEn))} · ',
-                hora(a.ocurridaEn),
+                '${mayusculaInicial(formato.fechaLarga(a.ocurridaEn))} · ',
+                formato.hora(a.ocurridaEn),
               ),
               style: texto.bodyMedium,
             ),
@@ -174,7 +181,7 @@ class TarjetaDetalle extends StatelessWidget {
                 child: Divider(height: 1),
               ),
               Text(
-                falsa ? 'Marcada como falsa alarma' : 'Marcada como atendida',
+                falsa ? l.alertaMarcadaFalsa : l.alertaMarcadaAtendida,
                 style: texto.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: Theme.of(context).colorScheme.onSurface,
@@ -182,9 +189,12 @@ class TarjetaDetalle extends StatelessWidget {
               ),
               if (a.atendidaEn != null)
                 Text.rich(
-                  conHora(
-                    'por ${a.atendidaPor ?? ''} a las ',
-                    hora(a.atendidaEn!),
+                  textoConHora(
+                    l.alertaMarcadaPor(
+                      a.atendidaPor ?? '',
+                      formato.hora(a.atendidaEn!),
+                    ),
+                    formato.hora(a.atendidaEn!),
                   ),
                   style: texto.bodyMedium,
                 ),
@@ -223,8 +233,8 @@ class _DescargaState extends ConsumerState<_Descarga> {
       if (!mounted) return;
       mostrarToast(
         context,
-        titulo: 'Grabación descargada',
-        texto: '$nombre en Archivos',
+        titulo: context.l10n.alertaGrabacionDescargada,
+        texto: context.l10n.alertaGrabacionEnArchivos(nombre),
         icono: Ico.download,
       );
     } on Object catch (e) {
@@ -250,7 +260,7 @@ class _DescargaState extends ConsumerState<_Descarga> {
     children: [
       const SizedBox(height: 12),
       Boton(
-        'Descargar grabación',
+        context.l10n.alertaDescargarGrabacion,
         icono: Ico.download,
         estilo: EstiloBoton.secundario,
         cargando: _descargando,
@@ -258,8 +268,11 @@ class _DescargaState extends ConsumerState<_Descarga> {
       ),
       const SizedBox(height: 8),
       Text(
-        'MP4 · 12 s · hasta el '
-        '${fechaConAnio(widget.alerta.ocurridaEn.add(const Duration(days: 30)))}',
+        context.l10n.alertaDescargaDetalle(
+          context.formato.fechaConAnio(
+            widget.alerta.ocurridaEn.add(const Duration(days: 30)),
+          ),
+        ),
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.bodySmall,
       ),
