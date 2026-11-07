@@ -9,6 +9,7 @@ import 'rutas.dart';
 import 'tema/colores.dart';
 import 'tema/paleta.dart';
 import 'tema/tema.dart';
+import '../l10n/l10n.dart';
 
 /// Bottom bar with 4 tabs: Inicio, Historial, Familia and Ajustes (DESIGN.md, Components). It is
 /// the same for the owner and for an invited member.
@@ -24,11 +25,13 @@ class ShellPestanas extends ConsumerWidget {
   /// Bars shown above every tab (no internet, active alert).
   final List<Widget> encima;
 
-  static const _pestanas = [
-    ('Inicio', Ico.home),
-    ('Historial', Ico.hist),
-    ('Familia', Ico.users),
-    ('Ajustes', Ico.sliders),
+  static const _iconos = [Ico.home, Ico.hist, Ico.users, Ico.sliders];
+
+  static List<String> _nombres(AppLocalizations l) => [
+    l.navInicio,
+    l.navHistorial,
+    l.navFamilia,
+    l.navAjustes,
   ];
 
   @override
@@ -44,6 +47,7 @@ class ShellPestanas extends ConsumerWidget {
     final alertasActivas = ref.watch(alertaActivaProvider).value == null
         ? 0
         : 1;
+    final nombres = _nombres(context.l10n);
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -82,12 +86,18 @@ class ShellPestanas extends ConsumerWidget {
               initialLocation: i == navegacion.currentIndex,
             ),
             destinations: [
-              for (var i = 0; i < _pestanas.length; i++)
+              for (var i = 0; i < _iconos.length; i++)
                 NavigationDestination(
-                  label: _pestanas[i].$1,
+                  label: nombres[i],
                   tooltip: '',
-                  icon: _icono(i, context.colores.icono, alertasActivas),
+                  icon: _icono(
+                    context,
+                    i,
+                    context.colores.icono,
+                    alertasActivas,
+                  ),
                   selectedIcon: _icono(
+                    context,
                     i,
                     context.colores.icono,
                     alertasActivas,
@@ -100,13 +110,16 @@ class ShellPestanas extends ConsumerWidget {
     );
   }
 
-  Widget _icono(int i, Color color, int alertasActivas) {
-    final icono = Icono(_pestanas[i].$2, tamano: 26, color: color);
+  Widget _icono(BuildContext context, int i, Color color, int alertasActivas) {
+    final icono = Icono(_iconos[i], tamano: 26, color: color);
     if (i != 1 || alertasActivas == 0) return icono;
     return Badge(
       label: Text('$alertasActivas'),
       backgroundColor: Colores.caida,
-      child: Semantics(label: '1 alerta activa', child: icono),
+      child: Semantics(
+        label: context.l10n.navAlertasActivas(alertasActivas),
+        child: icono,
+      ),
     );
   }
 }

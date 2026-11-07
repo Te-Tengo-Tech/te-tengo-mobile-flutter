@@ -1,4 +1,5 @@
 import '../../../core/formato.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/domain/camara.dart';
 
 /// Who made a change (contract §10 `actor.tipo`).
@@ -89,28 +90,34 @@ class Actividad {
   int? get segundosVistos => int.tryParse(valorNuevo ?? '');
 
   /// «23/09 10:36–10:46», the replayed moment.
-  String? get _momento => switch (momentoRepetido) {
-    (final d, final h) => '${_diaMes(d)} ${hora(d)}–${hora(h)}',
+  String? _momento(AppLocalizations l) => switch (momentoRepetido) {
+    (final d, final h) => l.actividadMomento(
+      _diaMes(l, d),
+      l.formato.hora(d),
+      l.formato.hora(h),
+    ),
     null => null,
   };
 
   /// «3 min», how long it was watched.
-  String? get _visto => switch (segundosVistos) {
-    final s? => duracion(Duration(seconds: s)),
+  String? _visto(AppLocalizations l) => switch (segundosVistos) {
+    final s? => l.formato.duracion(Duration(seconds: s)),
     null => null,
   };
-
-  String get _desdeLaPc => 'Desde la PC ${pc ?? objeto ?? ''}';
 
   /// The row's sentence, with the prototype's pattern: «Carmen vinculó la PC Cocina-Rosa»,
   /// «Desde la PC Sala-Rosa: la cámara Logitech C920 pasó a Dormitorio», «Terminó la pausa de la
   /// Sala». [adultoMayor] is the older adult's first name.
-  String frase({required String adultoMayor}) {
+  ///
+  /// Room names go with their Spanish article forms («de la Sala», «al Dormitorio») for the
+  /// Spanish messages and bare for the other languages.
+  String frase(AppLocalizations l, {required String adultoMayor}) {
     final o = objeto ?? '';
     final antes = valorAnterior;
     final despues = valorNuevo;
-    String familiar(String accion) => '$_quien $accion';
-    String desdePc(String accion) => '$_desdeLaPc: $accion';
+    String familiar(String accion) => l.actividadFraseFamiliar(_quien, accion);
+    String desdePc(String accion) =>
+        l.actividadFraseDesdePc(pc ?? objeto ?? '', accion);
     String segun(String accion) => switch (actor) {
       TipoActor.familiar => familiar(accion),
       TipoActor.pc => desdePc(accion),
@@ -118,166 +125,192 @@ class Actividad {
     };
     switch (tipo) {
       case 'PC_VINCULADA':
-        return segun('vinculó la PC $o');
+        return segun(l.actividadVinculoPc(o));
       case 'PC_RENOMBRADA':
-        return segun('renombró la PC ${antes ?? o} a ${despues ?? ''}');
+        return segun(l.actividadRenombroPc(antes ?? o, despues ?? ''));
       case 'PC_DESVINCULADA':
         return switch (actor) {
-          TipoActor.familiar => familiar('quitó la PC $o'),
+          TipoActor.familiar => familiar(l.actividadQuitoPc(o)),
           TipoActor.pc when despues == 'RESTABLECIDA' =>
-            'La PC ${pc ?? o} se restableció',
+            l.actividadPcRestablecida(pc ?? o),
           TipoActor.pc when despues == 'DESINSTALADA' =>
-            'La PC ${pc ?? o} se desinstaló',
-          TipoActor.pc => desdePc('se desvinculó esta PC'),
+            l.actividadPcDesinstalada(pc ?? o),
+          TipoActor.pc => desdePc(l.actividadPcSeDesvinculo),
           TipoActor.sistema =>
             despues == 'VENCIDA'
-                ? 'Se desvinculó la PC $o: no se conectó en 90 días'
-                : 'Se desvinculó la PC $o por seguridad',
+                ? l.actividadPcVencida(o)
+                : l.actividadPcPorSeguridad(o),
         };
       case 'CAMARA_ASIGNADA':
         final a = despues == null ? '' : conArticulo(despues);
         return switch (actor) {
-          TipoActor.pc => desdePc('la cámara $o pasó a ${despues ?? ''}'),
-          _ when antes == null => segun('eligió la cámara $o para $a'),
+          TipoActor.pc => desdePc(l.actividadCamaraPasoA(o, despues ?? '')),
+          _ when antes == null => segun(
+            l.actividadEligioCamara(o, a, despues ?? ''),
+          ),
           _ => segun(
-            'pasó la cámara $o ${deHabitacion(antes)} '
-            '${a.startsWith('el ') ? 'al ${a.substring(3)}' : 'a $a'}',
+            l.actividadPasoCamara(
+              o,
+              deHabitacion(antes),
+              a.startsWith('el ') ? 'al ${a.substring(3)}' : 'a $a',
+              antes,
+              despues ?? '',
+            ),
           ),
         };
       case 'CAMARA_RETIRADA':
         return actor == TipoActor.pc
-            ? desdePc('se dejó de usar la cámara $o')
-            : segun('dejó de usar la cámara $o');
+            ? desdePc(l.actividadSeDejoDeUsarCamara(o))
+            : segun(l.actividadDejoDeUsarCamara(o));
       case 'AMBIENTE_RENOMBRADO':
         return segun(
-          'cambió el nombre de la habitación '
-          '${deHabitacion(antes ?? o)} a ${despues ?? ''}',
+          l.actividadRenombroHabitacion(
+            deHabitacion(antes ?? o),
+            despues ?? '',
+            antes ?? o,
+          ),
         );
       case 'CAMARA_PAUSADA':
         final hasta = fechaDesdeJson(despues);
         return segun(
-          'pausó la cámara ${deHabitacion(o)}'
-          '${hasta == null ? '' : ' hasta ${_hasta(hasta)}'}',
+          hasta == null
+              ? l.actividadPausoCamara(deHabitacion(o), o)
+              : l.actividadPausoCamaraHasta(
+                  deHabitacion(o),
+                  _hasta(l, hasta),
+                  o,
+                ),
         );
       case 'CAMARA_REANUDADA':
         return actor == TipoActor.sistema
-            ? 'Terminó la pausa ${deHabitacion(o)}'
-            : segun('reanudó la cámara ${deHabitacion(o)}');
+            ? l.actividadTerminoPausa(deHabitacion(o), o)
+            : segun(l.actividadReanudoCamara(deHabitacion(o), o));
       case 'FOTO_ADULTO_MAYOR_CAMBIADA':
-        return segun('cambió la foto de ${o.isEmpty ? adultoMayor : o}');
+        return segun(l.actividadCambioFoto(o.isEmpty ? adultoMayor : o));
       case 'FOTO_ADULTO_MAYOR_QUITADA':
-        return segun('quitó la foto de ${o.isEmpty ? adultoMayor : o}');
+        return segun(l.actividadQuitoFoto(o.isEmpty ? adultoMayor : o));
       case 'CONSENTIMIENTO_OTORGADO':
-        return segun('registró el consentimiento de monitoreo');
+        return segun(l.actividadRegistroConsentimiento);
       case 'CONSENTIMIENTO_REVOCADO':
-        return segun('revocó el consentimiento de monitoreo');
+        return segun(l.actividadRevocoConsentimiento);
       case 'CONSENTIMIENTO_MOVIMIENTOS_OTORGADO':
-        return segun(
-          'registró el permiso de $adultoMayor para guardar movimientos',
-        );
+        return segun(l.actividadRegistroPermisoMovimientos(adultoMayor));
       case 'CONSENTIMIENTO_MOVIMIENTOS_REVOCADO':
         return actor == TipoActor.sistema
-            ? 'Se dejaron de guardar los movimientos de $adultoMayor al '
-                  'revocar el consentimiento'
-            : segun('dejó de guardar los movimientos de $adultoMayor');
+            ? l.actividadMovimientosRevocados(adultoMayor)
+            : segun(l.actividadDejoDeGuardarMovimientos(adultoMayor));
       case 'RETENCION_MOVIMIENTOS_CAMBIADA':
-        final (de, a) = _plazos(antes, despues);
-        return segun('cambió los movimientos en la nube de $de a $a');
+        final (de, a) = _plazos(l, antes, despues);
+        return segun(l.actividadCambioRetencion(de, a));
       case 'MODO_AVANZADO_ACTIVADO':
-        return segun('se activó el modo avanzado');
+        return segun(l.actividadModoAvanzadoActivado);
       case 'MODO_AVANZADO_DESACTIVADO':
-        return segun('se desactivó el modo avanzado');
+        return segun(l.actividadModoAvanzadoDesactivado);
       case 'GUARDADO_LOCAL_CAMBIADO':
         return segun(
-          '${_minuscula(o.isEmpty ? 'el guardado en la PC' : o)} pasó de '
-          '${antes ?? 'No'} a ${despues ?? 'No'}',
+          l.actividadGuardadoCambio(
+            _minuscula(o.isEmpty ? l.actividadGuardadoEnPc : o),
+            antes ?? l.actividadNo,
+            despues ?? l.actividadNo,
+          ),
         );
       case 'DATOS_LOCALES_ELIMINADOS':
-        return segun('se borraron los datos guardados en la PC');
+        return segun(l.actividadBorroDatos);
       case 'REPETICION_VISTA':
-        final detalle = [?_momento, ?_visto].join(', ');
+        final detalle = [?_momento(l), ?_visto(l)].join(', ');
+        final vio = o.isEmpty
+            ? l.actividadVioQuePaso
+            : l.actividadVioQuePasoEn(enHabitacion(o), o);
         return segun(
-          'se vio qué pasó${o.isEmpty ? '' : ' ${enHabitacion(o)}'}'
-          '${detalle.isEmpty ? '' : ' ($detalle)'}',
+          detalle.isEmpty ? vio : l.actividadConDetalle(vio, detalle),
         );
       case 'PC_ACTUALIZADA':
         // «Sala-Rosa se actualizó a 0.5.0» (screen 389, US-43).
-        return '${pc ?? o} se actualizó a ${despues ?? ''}'.trim();
+        return l.actividadPcActualizada(pc ?? o, despues ?? '').trim();
       case 'ACTUALIZACION_AUTOMATICA_ACTIVADA':
-        return segun('se activó la actualización automática');
+        return segun(l.actividadActualizacionAutomaticaActivada);
       case 'ACTUALIZACION_AUTOMATICA_DESACTIVADA':
-        return segun('se desactivó la actualización automática');
+        return segun(l.actividadActualizacionAutomaticaDesactivada);
       default:
         return switch (actor) {
-          TipoActor.familiar => familiar('hizo un cambio en la configuración'),
-          TipoActor.pc => desdePc('hubo un cambio en la configuración'),
-          TipoActor.sistema => 'Hubo un cambio en la configuración',
+          TipoActor.familiar => familiar(l.actividadCambioFamiliar),
+          TipoActor.pc => desdePc(l.actividadCambioPc),
+          TipoActor.sistema => l.actividadCambioSistema,
         };
     }
   }
 
   /// «Antes» and «Después» of the detail sheet, in words («Sin usar» → «Dormitorio»).
-  (String, String) get antesYDespues {
+  (String, String) antesYDespues(AppLocalizations l) {
     final antes = valorAnterior;
     final despues = valorNuevo;
     return switch (tipo) {
-      'PC_VINCULADA' => ('—', 'Vinculada'),
-      'PC_DESVINCULADA' => ('Vinculada', 'Desvinculada'),
-      'CAMARA_ASIGNADA' => (antes ?? 'Sin usar', despues ?? '—'),
-      'CAMARA_RETIRADA' => (antes ?? '—', 'Sin usar'),
+      'PC_VINCULADA' => ('—', l.actividadVinculada),
+      'PC_DESVINCULADA' => (l.actividadVinculada, l.actividadDesvinculada),
+      'CAMARA_ASIGNADA' => (antes ?? l.actividadSinUsar, despues ?? '—'),
+      'CAMARA_RETIRADA' => (antes ?? '—', l.actividadSinUsar),
       'CAMARA_PAUSADA' => (
-        'En línea',
+        l.actividadEnLinea,
         switch (fechaDesdeJson(despues)) {
-          final h? => 'En pausa hasta ${_hasta(h)}',
-          null => 'En pausa',
+          final h? => l.actividadEnPausaHasta(_hasta(l, h)),
+          null => l.actividadEnPausa,
         },
       ),
-      'CAMARA_REANUDADA' => ('En pausa', 'En línea'),
-      'CONSENTIMIENTO_OTORGADO' ||
-      'CONSENTIMIENTO_MOVIMIENTOS_OTORGADO' => ('No autorizado', 'Vigente'),
-      'CONSENTIMIENTO_REVOCADO' ||
-      'CONSENTIMIENTO_MOVIMIENTOS_REVOCADO' => ('Vigente', 'Revocado'),
-      'MODO_AVANZADO_ACTIVADO' => ('Desactivado', 'Activado'),
-      'MODO_AVANZADO_DESACTIVADO' => ('Activado', 'Desactivado'),
+      'CAMARA_REANUDADA' => (l.actividadEnPausa, l.actividadEnLinea),
+      'CONSENTIMIENTO_OTORGADO' || 'CONSENTIMIENTO_MOVIMIENTOS_OTORGADO' => (
+        l.actividadNoAutorizado,
+        l.actividadVigente,
+      ),
+      'CONSENTIMIENTO_REVOCADO' || 'CONSENTIMIENTO_MOVIMIENTOS_REVOCADO' => (
+        l.actividadVigente,
+        l.actividadRevocado,
+      ),
+      'MODO_AVANZADO_ACTIVADO' => (l.actividadDesactivado, l.actividadActivado),
+      'MODO_AVANZADO_DESACTIVADO' => (
+        l.actividadActivado,
+        l.actividadDesactivado,
+      ),
       _ => (antes ?? '—', despues ?? '—'),
     };
   }
 
   /// The detail rows of a replay watched on the PC, instead of «Antes» and «Después»: «Momento»
   /// and «Duración»; null for the other types.
-  (String, String)? get momentoYDuracion =>
-      tipo == 'REPETICION_VISTA' ? (_momento ?? '—', _visto ?? '—') : null;
+  (String, String)? momentoYDuracion(AppLocalizations l) =>
+      tipo == 'REPETICION_VISTA'
+      ? (_momento(l) ?? '—', _visto(l) ?? '—')
+      : null;
 
   /// A new version of Te Tengo Captura installed on a PC (US-43): drawn with the update icon.
   bool get esActualizacion => tipo == 'PC_ACTUALIZADA';
 
   /// «Quién»: the member, «Alguien en la PC», «Te Tengo», or «Te Tengo Captura» for an update
   /// (screen 390).
-  String get quien => esActualizacion
+  String quien(AppLocalizations l) => esActualizacion
       ? (objeto ?? 'Te Tengo Captura')
       : switch (actor) {
           TipoActor.familiar => usuario ?? '—',
-          TipoActor.pc => 'Alguien en la PC',
+          TipoActor.pc => l.actividadAlguienEnPc,
           TipoActor.sistema => 'Te Tengo',
         };
 
   /// «Desde»: «Celular de Carmen», «PC Sala-Rosa» or «Automático».
-  String get desde => switch (actor) {
-    TipoActor.familiar => 'Celular de $_quien',
-    TipoActor.pc => 'PC ${pc ?? ''}',
-    TipoActor.sistema => 'Automático',
+  String desde(AppLocalizations l) => switch (actor) {
+    TipoActor.familiar => l.actividadCelularDe(_quien),
+    TipoActor.pc => l.actividadPc(pc ?? ''),
+    TipoActor.sistema => l.actividadAutomatico,
   };
 
   /// «las 11:42», or «el jue 24 sep a las 07:00» when the pause ends another day.
-  String _hasta(DateTime h) => mismoDia(h, ocurridaEn)
-      ? 'las ${hora(h)}'
-      : 'el ${fechaCorta(h)} a las ${hora(h)}';
+  String _hasta(AppLocalizations l, DateTime h) => mismoDia(h, ocurridaEn)
+      ? l.actividadHastaHora(l.formato.hora(h))
+      : l.actividadHastaDia(l.formato.fechaCorta(h), l.formato.hora(h));
 }
 
-/// «7 días» → «30 días» reads «de 7 a 30 días».
-(String, String) _plazos(String? antes, String? despues) {
-  final de = antes ?? 'No guardar';
-  final a = despues ?? 'No guardar';
+/// «7 días» → «30 días» reads «de 7 a 30 días» (the values come from the backend as they are).
+(String, String) _plazos(AppLocalizations l, String? antes, String? despues) {
+  final de = antes ?? l.actividadNoGuardar;
+  final a = despues ?? l.actividadNoGuardar;
   const dias = ' días';
   if (de.endsWith(dias) && a.endsWith(dias)) {
     return (de.substring(0, de.length - dias.length), a);
@@ -285,8 +318,11 @@ class Actividad {
   return (de, a);
 }
 
-String _diaMes(DateTime t) =>
-    '${t.day.toString().padLeft(2, '0')}/${t.month.toString().padLeft(2, '0')}';
+/// «23/09» in Spanish, «09/23» in English.
+String _diaMes(AppLocalizations l, DateTime t) => l.actividadDiaMes(
+  t.day.toString().padLeft(2, '0'),
+  t.month.toString().padLeft(2, '0'),
+);
 
 String _minuscula(String t) =>
     t.isEmpty ? t : '${t[0].toLowerCase()}${t.substring(1)}';

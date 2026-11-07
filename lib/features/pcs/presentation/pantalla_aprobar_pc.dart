@@ -15,6 +15,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/ui/tarjeta.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
@@ -69,10 +70,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
     final codigo = _codigo;
     if (codigo == null) {
       setState(
-        () => _errorConsulta = const ErrorDeCodigo(
-          TipoErrorCodigo.incorrecto,
-          'Ese código no existe. Revísalo letra por letra.',
-        ),
+        () => _errorConsulta = const ErrorDeCodigo(TipoErrorCodigo.incorrecto),
       );
       return;
     }
@@ -183,17 +181,20 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
             Semantics(
               header: true,
               child: Text(
-                'No vinculamos la PC',
+                context.l10n.pcsNoVinculamosTitulo,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'La PC no tendrá acceso. No escanees códigos ajenos.',
+              context.l10n.pcsNoVinculamosTexto,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
-            Boton('Entendido', alPresionar: () => Navigator.of(context).pop()),
+            Boton(
+              context.l10n.pcsEntendido,
+              alPresionar: () => Navigator.of(context).pop(),
+            ),
           ],
         ),
       ),
@@ -206,12 +207,12 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Aprobar la PC'),
+        title: Text(context.l10n.pcsAprobarLaPc),
         // Opened from the PC's QR there is nothing behind it.
         leading: context.canPop()
             ? null
             : IconButton(
-                tooltip: 'Cerrar',
+                tooltip: context.l10n.pcsCerrar,
                 icon: Icono(Ico.x, color: context.colores.icono),
                 onPressed: () => context.go(Rutas.inicio),
               ),
@@ -222,6 +223,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
 
   Widget _cuerpo(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final error = _errorConsulta;
     final soloTitular = _soloTitular;
     if (!soloTitular && error != null) {
@@ -234,41 +236,45 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.clock,
-              titulo: error.texto,
-              contenido: textoBloqueo(error.bloqueadaHasta),
+              titulo: error.texto(l),
+              contenido: textoBloqueo(l, error.bloqueadaHasta),
             )
           else if (error.tipo == TipoErrorCodigo.vencido)
-            const Aviso(
+            Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.clock,
-              titulo: 'Este código ya venció o ya se usó',
-              texto: 'La PC ya muestra uno nuevo: escríbelo o escanéalo.',
+              titulo: l.pcsCodigoVencidoTitulo,
+              texto: l.pcsCodigoVencidoTexto,
             )
           else if (error.tipo == TipoErrorCodigo.sinConexion)
-            const Aviso(
+            Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.wifiOff,
-              titulo: 'Sin internet',
-              texto: 'Revisa tu conexión y vuelve a intentarlo.',
+              titulo: l.pcsSinInternet,
+              texto: l.pcsRevisaConexion,
             )
           else
-            Aviso(tono: TonoAviso.error, icono: Ico.warn, texto: error.texto),
+            Aviso(
+              tono: TonoAviso.error,
+              icono: Ico.warn,
+              texto: error.texto(l),
+            ),
           const SizedBox(height: 20),
           if (error.tipo == TipoErrorCodigo.sinConexion)
             Boton(
-              'Volver a intentarlo',
+              l.pcsVolverAIntentarlo,
               icono: Ico.refresh,
               alPresionar: _consultar,
             )
           else if (error.tipo != TipoErrorCodigo.bloqueado) ...[
             Boton(
-              'Escanear el código QR',
+              l.pcsEscanearQr,
               icono: Ico.scan,
               alPresionar: () => _otroCodigo(Rutas.escanear),
             ),
             const SizedBox(height: 12),
             Boton(
-              'Escribir el código',
+              l.pcsEscribirCodigo,
               icono: Ico.keyboard,
               estilo: EstiloBoton.secundario,
               alPresionar: () => _otroCodigo(Rutas.escribirCodigo),
@@ -289,7 +295,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
             children: [
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              Text('Buscando la PC…', style: texto.bodyMedium),
+              Text(l.pcsBuscandoPc, style: texto.bodyMedium),
             ],
           ),
         ),
@@ -303,18 +309,15 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
         const SizedBox(height: 16),
         Semantics(
           header: true,
-          child: Text(
-            '¿Vinculamos esta PC a la casa de $nombre?',
-            style: texto.titleLarge,
-          ),
+          child: Text(l.pcsVinculamosPregunta(nombre), style: texto.titleLarge),
         ),
         const SizedBox(height: 16),
         if (_errorRed) ...[
-          const Aviso(
+          Aviso(
             tono: TonoAviso.advertencia,
             icono: Ico.wifiOff,
-            titulo: 'No pudimos vincular la PC',
-            texto: 'Revisa tu conexión y vuelve a intentarlo.',
+            titulo: l.pcsNoPudimosVincular,
+            texto: l.pcsRevisaConexion,
           ),
           const SizedBox(height: 16),
         ],
@@ -327,44 +330,42 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
           relleno: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
           child: DatosTarjeta([
             if (consulta != null) ...[
-              FilaDato(clave: 'Nombre de la PC', valor: consulta.nombrePc),
+              FilaDato(clave: l.pcsNombreDeLaPc, valor: consulta.nombrePc),
               if (consulta.sistemaOperativo case final so?)
-                FilaDato(clave: 'Sistema', valor: so),
+                FilaDato(clave: l.pcsSistema, valor: so),
               if (consulta.versionAgente case final v?)
-                FilaDato(clave: 'Programa', valor: 'Te Tengo Captura $v'),
+                FilaDato(clave: l.pcsPrograma, valor: 'Te Tengo Captura $v'),
             ],
-            FilaDato(clave: 'Código', valor: codigo, mono: true),
+            FilaDato(clave: l.pcsCodigo, valor: codigo, mono: true),
           ]),
         ),
-        const EncabezadoSeccion('Si la apruebas, esta PC podrá:'),
-        const _Permiso(Ico.cam, 'Detectar caídas con sus cámaras'),
-        const _Permiso(Ico.bell, 'Enviar avisos y clips de 12 s'),
-        const _Permiso(Ico.video, 'Mostrar la vista en vivo'),
+        EncabezadoSeccion(l.pcsSiLaApruebas),
+        _Permiso(Ico.cam, l.pcsPermisoDetectar),
+        _Permiso(Ico.bell, l.pcsPermisoAvisos),
+        _Permiso(Ico.video, l.pcsPermisoVivo),
         const SizedBox(height: 12),
         Aviso(
           tono: TonoAviso.neutral,
           icono: Ico.info,
-          texto:
-              'Apruébala solo si estás frente a la PC de $nombre o tú la '
-              'instalaste.',
+          texto: l.pcsApruebalaSolo(nombre),
         ),
         const SizedBox(height: 20),
         if (soloTitular)
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'vincular una PC. Pídele que escanee el código',
+            accion: l.pcsAccionVincularPc,
           )
         else ...[
           Boton(
-            'Aprobar',
+            l.pcsAprobar,
             icono: Ico.check,
             cargando: _aprobando,
-            textoCargando: 'Vinculando…',
+            textoCargando: l.pcsVinculando,
             alPresionar: _rechazando ? null : _aprobar,
           ),
           const SizedBox(height: 12),
           Boton(
-            'No reconozco esta PC',
+            l.pcsNoReconozco,
             estilo: EstiloBoton.peligroContorno,
             cargando: _rechazando,
             alPresionar: _aprobando ? null : _rechazar,

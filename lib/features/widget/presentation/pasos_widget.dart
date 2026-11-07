@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
+import '../../../l10n/l10n.dart';
 
 /// How to add the widget (`widgetSteps`, Ajustes › «Agregar el widget»): three numbered steps and
 /// the privacy line.
 class PasosWidget extends StatelessWidget {
   const PasosWidget({super.key});
 
-  static const pasos = [
-    'Mantén presionado un espacio libre de la pantalla de inicio.',
-    'Toca «Widgets» y busca Te Tengo.',
-    'Elige el tamaño y suéltalo.',
+  static List<String> pasos(AppLocalizations l) => [
+    l.widgetPaso1,
+    l.widgetPaso2,
+    l.widgetPaso3,
   ];
 
   @override
@@ -21,7 +22,7 @@ class PasosWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final (i, paso) in pasos.indexed)
+        for (final (i, paso) in pasos(context.l10n).indexed)
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: Row(
@@ -34,7 +35,7 @@ class PasosWidget extends StatelessWidget {
           ),
         const SizedBox(height: 6),
         Text(
-          'Muestra el estado, nunca imágenes de la casa.',
+          context.l10n.widgetPrivacidad,
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],

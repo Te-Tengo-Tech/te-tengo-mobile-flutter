@@ -19,9 +19,33 @@ lib/
 │                 connectivity, dialer), web/ (browser bridges and EntornoNavegador, conditional imports),
 │                 ui/ (shared widgets: buttons, lists, notices, icons, illustrations, logo,
 │                 FilaPlegable and VerMas for folded secondary detail)
-└── features/     one folder per feature: data/, domain/, presentation/
-    └── camaras/  REFERENCE FEATURE
+├── features/     one folder per feature: data/, domain/, presentation/
+│   └── camaras/  REFERENCE FEATURE
+└── l10n/         app_es.arb (template) and app_en.arb, l10n.dart (languages, context.l10n,
+                  context.formato, textosDelSistema); app_localizations*.dart are generated
 ```
+
+## Languages
+The UI is in Spanish (Peru), the default, and in English when the phone prefers it (any other
+language gets Spanish; `resolverIdioma` in `lib/l10n/l10n.dart`). There is no in-app language
+switch. Every user-visible text lives in `lib/l10n/app_es.arb` (the template) and `app_en.arb`;
+`flutter gen-l10n` (run by `flutter pub get`, settings in `l10n.yaml`) writes
+`lib/l10n/app_localizations*.dart`, which are committed.
+- **Widgets** read texts with `context.l10n.clave` and format dates, times, durations and lists with
+  `context.formato` (`Formato` in `lib/core/formato.dart`: Spanish keeps the prototype's formats,
+  English uses `10:42 AM`, `Wed Sep 23`, `Sep 23, 2026`).
+- **Domain code** that writes a sentence takes the `AppLocalizations` as a parameter
+  (`Actividad.frase(l, …)`, `TipoAlerta.nombre(l)`); code with no `BuildContext` (pushes in the
+  background, the home-screen widget) uses `textosDelSistema()`.
+- **Keys** start with their feature (`alertas…`, `pcs…`, `comun…` for shared widgets); counts are ICU
+  plurals and placeholders carry the data, so English can reorder the sentence. Legal and consent
+  texts are marked «LEGAL» in their description.
+- **Never localized:** what is sent to the API (codes, `otorgadoPor`, room names chosen from the
+  suggestions), text from the backend (`ProblemaApi.detalle`, names), storage keys and logs.
+- **Tests** run on a Spanish phone (`test/flutter_test_config.dart`); `usarIngles(tester)`
+  (`test/apoyo/idioma.dart`) switches one test to English. `test/l10n/textos_test.dart` checks that
+  both ARB files have the same keys and placeholders, and `test/calidad/ingles_test.dart` opens the
+  main screens in English and fails on missing texts, overflow or Spanish left on screen.
 
 ## Features
 Built in backlog-sprint order; see [WORK_PLAN.md](WORK_PLAN.md) (every task checked) and the open

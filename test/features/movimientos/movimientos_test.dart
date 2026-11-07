@@ -17,6 +17,7 @@ import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/movimientos/data/movimientos_repositorio.dart';
 import 'package:te_tengo/features/movimientos/domain/movimientos.dart';
 import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
+import 'package:te_tengo/l10n/l10n.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -532,8 +533,13 @@ void main() {
   });
 
   test('resumen del plazo', () {
-    expect(resumenNube(null), 'Desactivado');
-    expect(resumenNube(365), 'Se guardan 1 año');
-    expect(textoPlazo(30), '30 días');
+    final es = lookupAppLocalizations(const Locale('es'));
+    expect(resumenNube(es, null), 'Desactivado');
+    expect(resumenNube(es, 365), 'Se guardan 1 año');
+    expect(textoPlazo(es, 30), '30 días');
+    final en = lookupAppLocalizations(const Locale('en'));
+    expect(resumenNube(en, null), 'Off');
+    expect(resumenNube(en, 365), 'Kept for 1 year');
+    expect(textoPlazo(en, 7), '7 days');
   });
 }

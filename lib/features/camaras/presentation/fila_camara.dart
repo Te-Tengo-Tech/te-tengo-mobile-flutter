@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/camara.dart';
 import 'estado_camara.dart';
 
@@ -24,25 +24,25 @@ class FilaCamara extends StatelessWidget {
   Widget build(BuildContext context) {
     final senal = camara.ultimaSenal;
     final pausa = camara.pausadaHasta;
+    final l = context.l10n;
+    final f = context.formato;
     final detalle = switch (estado) {
       EstadoVisible.enLinea when senal != null => conHoraMono(
-        'última señal ',
-        hora(senal),
+        l.camaraUltimaSenalPrefijo,
+        f.hora(senal),
       ),
       EstadoVisible.enLinea => const TextSpan(),
       EstadoVisible.desconectada when senal != null => conHoraMono(
-        'desde las ',
-        hora(senal),
+        l.camaraDesdeLasPrefijo,
+        f.hora(senal),
       ),
       EstadoVisible.desconectada => const TextSpan(),
       EstadoVisible.enPausa => TextSpan(
-        text: pausa == null ? '' : 'hasta las ${hora(pausa)}',
+        text: pausa == null ? '' : l.camaraHastaLas(f.hora(pausa)),
       ),
-      EstadoVisible.noConfiable => const TextSpan(
-        text: 'revisa la luz y el encuadre',
-      ),
-      EstadoVisible.detenida => const TextSpan(text: 'sin consentimiento'),
-      EstadoVisible.sinConexion => const TextSpan(text: 'la PC no responde'),
+      EstadoVisible.noConfiable => TextSpan(text: l.camaraRevisaLuzEncuadre),
+      EstadoVisible.detenida => TextSpan(text: l.camaraSinConsentimiento),
+      EstadoVisible.sinConexion => TextSpan(text: l.camaraPcNoResponde),
     };
     return FilaLista(
       inicio: IconoEstadoCamara(estado: estado),
@@ -50,7 +50,7 @@ class FilaCamara extends StatelessWidget {
       subtituloRico: TextSpan(
         children: [
           TextSpan(
-            text: estado.texto,
+            text: estado.texto(l),
             style: estiloTexto(15, 700, color: estado.colorEn(context.colores)),
           ),
           if (detalle.text != '' || detalle.children != null) ...[

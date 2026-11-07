@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../app/tema/paleta.dart';
 import '../../app/tema/tema.dart';
 import 'iconos.dart';
+import '../../l10n/l10n.dart';
 
 /// A «?» icon whose help opens in a small card (`infoTip` of the prototype, docs `5100fc7`): the
 /// privacy and help lines that were always visible now wait behind it, so a screen first shows what
@@ -110,7 +111,7 @@ class _AyudaInfoState extends State<AyudaInfo> {
           child: Semantics(
             button: true,
             expanded: _abierta,
-            label: 'Más información: ${widget.tema}',
+            label: context.l10n.comunMasInformacion(widget.tema),
             excludeSemantics: true,
             onTap: _alternar,
             child: SizedBox.square(

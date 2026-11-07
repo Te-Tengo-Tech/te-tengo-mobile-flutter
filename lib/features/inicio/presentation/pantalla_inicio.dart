@@ -31,6 +31,7 @@ import '../../vivo/presentation/pantalla_vivo.dart' show textoPrivacidadVivo;
 import '../../widget/presentation/actualizador_widget.dart';
 import 'tarjetas_inicio.dart';
 import 'tarjeta_adulto_mayor.dart';
+import '../../../l10n/l10n.dart';
 
 /// Inicio tab (screens 25–27 and 102): greeting, notifications notice (CA-16.3), the older adult
 /// status card, the camera and the live view. While it is on screen it also asks for the active
@@ -72,6 +73,7 @@ class _ContenidoInicio extends ConsumerWidget {
     final familiaSinAlertas = ref.watch(familiaSinAlertasProvider);
     final alerta = ref.watch(alertaActivaProvider).value;
     final debeInstalar = ref.watch(entornoNavegadorProvider).debeInstalar;
+    final l = context.l10n;
     return RefreshIndicator(
       onRefresh: () async {
         ref
@@ -88,7 +90,7 @@ class _ContenidoInicio extends ConsumerWidget {
           Semantics(
             header: true,
             child: Text(
-              'Hola, ${sesion.usuario.nombrePila}',
+              l.inicioHola(sesion.usuario.nombrePila),
               style: texto.headlineMedium,
             ),
           ),
@@ -105,13 +107,13 @@ class _ContenidoInicio extends ConsumerWidget {
               tono: TonoAviso.advertencia,
               icono: Ico.bellOff,
               titulo: familiaSinAlertas
-                  ? 'Nadie de la familia recibe las alertas'
+                  ? l.inicioNadieRecibeAlertas
                   : notificaciones == false
-                  ? 'Activa las notificaciones'
-                  : 'Este celular no recibe las alertas',
-              texto: 'Sin ellas no sabrás de una caída con la app cerrada.',
+                  ? l.inicioActivaNotificaciones
+                  : l.inicioEsteCelularNoRecibe,
+              texto: l.inicioSinNotificacionesTexto,
               accion: Boton(
-                'Activar notificaciones',
+                l.inicioActivarNotificaciones,
                 estilo: EstiloBoton.tinta,
                 pequeno: true,
                 alPresionar: () => activarNotificaciones(context, ref),
@@ -123,6 +125,7 @@ class _ContenidoInicio extends ConsumerWidget {
             AsyncData(value: final h) => TarjetaAdultoMayor(
               adulto: h.adultoMayor,
               estado: estadoTarjeta(
+                l,
                 h,
                 enCasa,
                 alerta: alerta,
@@ -131,7 +134,7 @@ class _ContenidoInicio extends ConsumerWidget {
               ),
               accion: alerta != null
                   ? Boton(
-                      'Ver la alerta',
+                      l.inicioVerAlerta,
                       estilo: alerta.esCaida
                           ? EstiloBoton.peligro
                           : EstiloBoton.tinta,
@@ -177,14 +180,14 @@ class _ContenidoInicio extends ConsumerWidget {
                   ),
                   FilaLista(
                     inicio: const IconoFila(Ico.video),
-                    titulo: 'Ver en vivo',
+                    titulo: l.inicioVerEnVivo,
                     // The privacy line is behind the «?»; «No disponible ahora» stays visible.
                     subtitulo: enCasa.any((c) => c.vivoDisponible)
                         ? null
-                        : 'No disponible ahora',
-                    fin: const AyudaInfo(
-                      texto: textoPrivacidadVivo,
-                      tema: 'privacidad',
+                        : l.inicioNoDisponibleAhora,
+                    fin: AyudaInfo(
+                      texto: textoPrivacidadVivo(l),
+                      tema: l.inicioTemaPrivacidad,
                     ),
                     chevron: true,
                     alTocar: () => verEnVivo(context, enCasa),
@@ -217,7 +220,7 @@ class _ContenidoInicio extends ConsumerWidget {
     if (!conConsentimiento) {
       return titular
           ? Boton(
-              'Registrar consentimiento',
+              context.l10n.inicioRegistrarConsentimiento,
               alPresionar: () => context.push(Rutas.consentimiento),
             )
           : null;
@@ -226,12 +229,12 @@ class _ContenidoInicio extends ConsumerWidget {
       if (!titular) return null;
       return primeraPc != null
           ? Boton(
-              'Elegir las cámaras',
+              context.l10n.inicioElegirCamaras,
               icono: Ico.cam,
               alPresionar: () => context.push(Rutas.elegirCamaras(primeraPc)),
             )
           : Boton(
-              'Agregar PC',
+              context.l10n.inicioAgregarPc,
               icono: Ico.plus,
               alPresionar: () => context.push(Rutas.vincular),
             );
@@ -241,7 +244,7 @@ class _ContenidoInicio extends ConsumerWidget {
     if (!revisar) return null;
     final pc = c.pc;
     return Boton(
-      'Ver qué revisar',
+      context.l10n.inicioVerQueRevisar,
       estilo: EstiloBoton.secundario,
       alPresionar: () => context.push(
         c.estado == EstadoVisible.sinConexion && pc != null
@@ -264,8 +267,8 @@ Future<void> activarNotificaciones(BuildContext context, WidgetRef ref) async {
   if (recepcion == RecepcionPush.activa && context.mounted) {
     mostrarToast(
       context,
-      titulo: 'Notificaciones activadas',
-      texto: 'Te llegarán las alertas aunque la app esté cerrada.',
+      titulo: context.l10n.inicioNotificacionesActivadas,
+      texto: context.l10n.inicioNotificacionesActivadasTexto,
       icono: Ico.bell,
     );
   }

@@ -6,6 +6,7 @@ import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 import '../data/actualizacion_controller.dart';
 import 'rutas_actualizaciones.dart';
 
@@ -17,18 +18,19 @@ class FilaAcercaDe extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estado = ref.watch(actualizacionProvider);
     final info = estado.info;
+    final l = context.l10n;
     return FilaLista(
       inicio: const IconoFila(Ico.info),
-      titulo: 'Acerca de Te Tengo',
+      titulo: l.acercaDeFila,
       subtituloRico: info == null
           ? null
           : TextSpan(
               children: [
-                TextSpan(text: 'Versión ${info.version}'),
+                TextSpan(text: l.acercaDeVersion(info.version)),
                 if (estado.nueva != null) ...[
                   const TextSpan(text: ' · '),
                   TextSpan(
-                    text: 'hay una nueva',
+                    text: l.acercaDeHayUnaNueva,
                     style: estiloTexto(
                       15,
                       700,

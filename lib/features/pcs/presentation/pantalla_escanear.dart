@@ -15,6 +15,7 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/web/entorno.dart';
+import '../../../l10n/l10n.dart';
 import '../data/pcs_repositorio.dart';
 import '../domain/pc.dart';
 import 'campo_codigo.dart';
@@ -69,17 +70,26 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
   String? _ultimo;
   Timer? _ocultarAviso;
 
+  /// The expired-code notice is still to be shown; its texts need the context.
+  late bool _avisarVencido = widget.codigoVencido;
+
   @override
   void initState() {
     super.initState();
-    if (widget.codigoVencido) {
-      _aviso = const _Aviso(
-        'Este código ya venció o ya se usó',
-        'La PC ya muestra uno nuevo: escríbelo o escanéalo.',
-      );
-    }
     unawaited(_empezar());
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_avisarVencido) {
+      _avisarVencido = false;
+      _aviso = _avisoVencido(context.l10n);
+    }
+  }
+
+  _Aviso _avisoVencido(AppLocalizations l) =>
+      _Aviso(l.pcsCodigoVencidoTitulo, l.pcsCodigoVencidoTexto);
 
   Future<void> _empezar() async {
     bool explicada;
@@ -137,12 +147,8 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
     _ultimo = valor;
     final codigo = codigoDeQr(valor);
     if (codigo == null) {
-      return _mostrarAviso(
-        const _Aviso(
-          'Ese código no es de Te Tengo Captura',
-          'Apunta al código QR que muestra la PC.',
-        ),
-      );
+      final l = context.l10n;
+      return _mostrarAviso(_Aviso(l.pcsQrAjenoTitulo, l.pcsQrAjenoTexto));
     }
     if (!ref.read(esTitularProvider)) {
       context.pushReplacement(Rutas.aprobarPc(codigo));
@@ -171,21 +177,19 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
         return;
       }
       setState(() => _estado = _Estado.escaneando);
+      final l = context.l10n;
       _mostrarAviso(switch (error.tipo) {
-        TipoErrorCodigo.vencido => const _Aviso(
-          'Este código ya venció o ya se usó',
-          'La PC ya muestra uno nuevo: escríbelo o escanéalo.',
-        ),
+        TipoErrorCodigo.vencido => _avisoVencido(l),
         TipoErrorCodigo.bloqueado => _Aviso(
-          'Demasiados intentos',
+          l.pcsDemasiadosIntentos,
           null,
-          contenido: textoBloqueo(error.bloqueadaHasta),
+          contenido: textoBloqueo(l, error.bloqueadaHasta),
         ),
-        TipoErrorCodigo.sinConexion => const _Aviso(
-          'Sin internet',
-          'Revisa tu conexión y vuelve a intentarlo.',
+        TipoErrorCodigo.sinConexion => _Aviso(
+          l.pcsSinInternet,
+          l.pcsRevisaConexion,
         ),
-        _ => _Aviso(error.texto, null),
+        _ => _Aviso(error.texto(l), null),
       });
       // The same QR can be read again once the notice is shown.
       _ultimo = null;
@@ -209,12 +213,12 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
         backgroundColor: Colores.noche,
         foregroundColor: Colors.white,
         leading: IconButton(
-          tooltip: 'Volver',
+          tooltip: context.l10n.pcsVolver,
           icon: const Icono(Ico.back, color: Colors.white),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(
-          'Agregar PC',
+          context.l10n.pcsAgregarPc,
           style: estiloTexto(20, 700, color: Colors.white),
         ),
       ),
@@ -284,7 +288,7 @@ class _Visor extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             Semantics(
-              label: 'Cámara del celular',
+              label: context.l10n.pcsCamaraDelCelular,
               child: escaner.vista(alLeer: alLeer, alFallar: alFallar),
             ),
             Center(
@@ -300,7 +304,7 @@ class _Visor extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'Apunta al QR de la PC',
+                    context.l10n.pcsApuntaAlQr,
                     textAlign: TextAlign.center,
                     style: estiloTexto(22, 700, color: Colors.white).copyWith(
                       shadows: const [
@@ -351,7 +355,7 @@ class _Visor extends StatelessWidget {
                           const SizedBox(width: 10),
                           Flexible(
                             child: Text(
-                              'Buscando la PC…',
+                              context.l10n.pcsBuscandoPc,
                               style: estiloTexto(17, 700, color: Colors.white),
                             ),
                           ),
@@ -368,7 +372,7 @@ class _Visor extends StatelessWidget {
                 child: Semantics(
                   button: true,
                   toggled: linterna,
-                  label: 'Linterna',
+                  label: context.l10n.pcsLinterna,
                   child: Material(
                     color: linterna ? Colors.white : const Color(0x33FFFFFF),
                     shape: const CircleBorder(),
@@ -456,25 +460,25 @@ class _Explicar extends StatelessWidget {
       Semantics(
         header: true,
         child: Text(
-          'Te Tengo usará la cámara para leer el QR.',
+          context.l10n.pcsExplicarCamara,
           style: estiloTexto(24, 800, color: Colors.white),
         ),
       ),
       const SizedBox(height: 10),
       Text(
-        'No guarda imágenes.',
+        context.l10n.pcsNoGuardaImagenes,
         style: estiloTexto(17, 400, color: Colores.nocheTexto),
       ),
       const SizedBox(height: 20),
       Boton(
-        'Permitir',
+        context.l10n.pcsPermitir,
         estilo: EstiloBoton.blanco,
         colorTexto: Colores.morado,
         alPresionar: alPermitir,
       ),
       const SizedBox(height: 12),
       Boton(
-        'Escribir el código',
+        context.l10n.pcsEscribirCodigo,
         estilo: EstiloBoton.sobreRojo,
         alPresionar: alEscribir,
       ),
@@ -494,14 +498,14 @@ class _Bloqueada extends StatelessWidget {
   Widget build(BuildContext context) => ListView(
     padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
     children: [
-      const Aviso(
+      Aviso(
         tono: TonoAviso.advertencia,
         icono: Ico.lock,
-        titulo: 'La cámara del celular está bloqueada',
+        titulo: context.l10n.pcsCamaraBloqueada,
       ),
       const SizedBox(height: 16),
       Boton(
-        'Escribir el código',
+        context.l10n.pcsEscribirCodigo,
         icono: Ico.keyboard,
         estilo: EstiloBoton.blanco,
         colorTexto: Colores.morado,
@@ -510,7 +514,7 @@ class _Bloqueada extends StatelessWidget {
       if (alAbrirAjustes != null) ...[
         const SizedBox(height: 12),
         Boton(
-          'Abrir los ajustes del celular',
+          context.l10n.pcsAbrirAjustesCelular,
           estilo: EstiloBoton.sobreRojo,
           alPresionar: alAbrirAjustes,
         ),
@@ -534,13 +538,13 @@ class _Pie extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            '¿No puedes escanearlo?',
+            context.l10n.pcsNoPuedesEscanear,
             textAlign: TextAlign.center,
             style: estiloTexto(17, 400, color: Colores.nocheTexto),
           ),
           const SizedBox(height: 10),
           Boton(
-            'Escribir el código',
+            context.l10n.pcsEscribirCodigo,
             icono: Ico.keyboard,
             estilo: EstiloBoton.sobreRojo,
             alPresionar: alEscribir,

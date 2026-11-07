@@ -12,11 +12,12 @@ import '../domain/alerta.dart';
 /// Saves the file behind a short-lived pre-signed [url] as [nombre]; returns the saved name.
 typedef GuardarArchivo = Future<String> Function(Uri url, String nombre);
 
-/// `alerta-21-sep-1205.mp4`, as the prototype names a downloaded recording.
+/// `alerta-21-sep-1205.mp4`, as the prototype names a downloaded recording (the same name in
+/// every language).
 String nombreGrabacion(Alerta a) {
   final t = a.ocurridaEn;
-  return 'alerta-${t.day}-${nombreMesCorto(t.month)}-'
-      '${hora(t).replaceAll(':', '')}.mp4';
+  return 'alerta-${t.day}-${Formato.es.nombreMesCorto(t.month)}-'
+      '${Formato.es.hora(t).replaceAll(':', '')}.mp4';
 }
 
 /// Downloads into the app documents folder, which iOS shows in Archivos (`UIFileSharingEnabled`)

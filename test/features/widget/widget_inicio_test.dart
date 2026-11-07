@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:async';
+import 'dart:ui' show Locale;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +28,7 @@ import 'package:te_tengo/features/vivo/presentation/elegir_habitacion.dart';
 import 'package:te_tengo/features/widget/data/widget_sistema.dart';
 import 'package:te_tengo/features/widget/domain/estado_widget.dart';
 import 'package:te_tengo/features/widget/presentation/pasos_widget.dart';
+import 'package:te_tengo/l10n/l10n.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -66,6 +68,8 @@ class _WidgetFalso implements WidgetDelSistema {
   Stream<Uri?> get toques => toquesCtl.stream;
 }
 
+final _es = lookupAppLocalizations(const Locale('es'));
+
 void main() {
   group('lo que muestra el widget (CA-44.1)', () {
     List<CamaraEnCasa> enCasa(List<Camara> camaras) =>
@@ -77,6 +81,7 @@ void main() {
         camaras: enCasa(casaDeRosa().camaras),
         conConsentimiento: true,
         nombreAdulto: 'Rosa Huamán',
+        l: _es,
       );
       expect(e.tono, TonoWidget.calma);
       expect(e.titulo, 'Todo tranquilo');
@@ -91,6 +96,7 @@ void main() {
         camaras: enCasa(casaDeRosa().camaras),
         conConsentimiento: true,
         nombreAdulto: 'Rosa Huamán',
+        l: _es,
       );
       expect(e.tono, TonoWidget.caida);
       expect(e.titulo, 'Posible caída');
@@ -101,6 +107,7 @@ void main() {
         camaras: const [],
         conConsentimiento: true,
         nombreAdulto: 'Rosa',
+        l: _es,
       );
       expect(inestable.titulo, 'Movimiento inestable');
       expect(inestable.tono, TonoWidget.inestable);
@@ -120,6 +127,7 @@ void main() {
         ]),
         conConsentimiento: true,
         nombreAdulto: 'Rosa',
+        l: _es,
       );
       expect(e.tono, TonoWidget.aviso);
       expect(e.titulo, '1 cámara no responde');
@@ -134,6 +142,7 @@ void main() {
           camaras: const [],
           conConsentimiento: true,
           nombreAdulto: 'Rosa',
+          l: _es,
         ).titulo,
         'Sin cámaras',
       );
@@ -143,6 +152,7 @@ void main() {
           camaras: enCasa(casaDeRosa().camaras),
           conConsentimiento: false,
           nombreAdulto: 'Rosa',
+          l: _es,
         ).linea,
         'Falta el consentimiento',
       );
@@ -156,25 +166,33 @@ void main() {
         destino: '/inicio',
         iniciales: 'RH',
       );
-      final caida = estadoDesdePush({
-        'tipo': 'ALERTA_CAIDA',
-        'alertaId': 'a-9',
-        'habitacion': 'Cocina',
-        'ocurridaEn': '2026-09-23T15:41:00Z',
-      }, anterior: antes)!;
+      final caida = estadoDesdePush(
+        {
+          'tipo': 'ALERTA_CAIDA',
+          'alertaId': 'a-9',
+          'habitacion': 'Cocina',
+          'ocurridaEn': '2026-09-23T15:41:00Z',
+        },
+        anterior: antes,
+        l: _es,
+      )!;
       expect(caida.titulo, 'Posible caída');
       expect(caida.linea, startsWith('Cocina · '));
       expect(caida.destino, Rutas.alerta('a-9'));
       expect(caida.iniciales, 'RH');
       expect(
-        estadoDesdePush({'tipo': 'CAMARA_DESCONECTADA'}, anterior: antes),
+        estadoDesdePush(
+          {'tipo': 'CAMARA_DESCONECTADA'},
+          anterior: antes,
+          l: _es,
+        ),
         isNull,
       );
       // Signed out: nothing of the household.
       expect(
         estadoDesdePush({
           'tipo': 'ALERTA_CAIDA',
-        }, anterior: EstadoWidget.sinSesion),
+        }, anterior: EstadoWidget.sinSesionEn(_es)),
         isNull,
       );
     });
@@ -265,7 +283,7 @@ void main() {
       );
       await contenedor.read(sesionControllerProvider.notifier).cerrar();
       await tester.pumpAndSettle();
-      expect(sistema.mostrados.last, EstadoWidget.sinSesion);
+      expect(sistema.mostrados.last, EstadoWidget.sinSesionEn(_es));
       expect(sistema.mostrados.last.linea, 'Abre la app para ver el estado.');
     });
 
@@ -328,7 +346,9 @@ void main() {
     testWidgets('Ajustes explica cómo agregarlo', (tester) async {
       await abrir(tester, ubicacion: Rutas.ajustes);
       await tocar(tester, find.text('Agregar el widget'));
-      for (final p in PasosWidget.pasos) {
+      for (final p in PasosWidget.pasos(
+        lookupAppLocalizations(const Locale('es')),
+      )) {
         expect(find.text(p), findsOneWidget);
       }
       expect(

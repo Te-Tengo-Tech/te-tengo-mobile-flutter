@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/sesion/sesion_controller.dart';
@@ -18,7 +17,9 @@ import '../../camaras/domain/camara.dart';
 import '../../historial/data/historial_provider.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../data/alertas_repositorio.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/alerta.dart';
+import 'textos_alerta.dart';
 
 enum _Final { atendida, falsa }
 
@@ -66,12 +67,13 @@ class _HojaMarcarState extends ConsumerState<_HojaMarcar> {
       Navigator.of(context).pop();
       unawaited(router.pushReplacement(Rutas.detalleAlerta(a.id)));
       final cuando = marcada.atendidaEn ?? ref.read(relojProvider)();
+      final l = context.l10n;
       mostrarToast(
         context,
         titulo: eleccion == _Final.falsa
-            ? 'Marcada como falsa alarma'
-            : 'Alerta atendida',
-        texto: 'La familia verá que la marcaste a las ${hora(cuando)}.',
+            ? l.alertaMarcadaFalsa
+            : l.alertaAtendidaToast,
+        texto: l.alertaToastFamiliaVera(context.formato.hora(cuando)),
       );
     } on ProblemaApi catch (e) {
       if (!mounted) return;
@@ -101,6 +103,9 @@ class _HojaMarcarState extends ConsumerState<_HojaMarcar> {
     final texto = Theme.of(context).textTheme;
     final nombre = ref.watch(nombreAdultoMayorProvider) ?? '';
     final quien = ref.watch(sesionControllerProvider)?.usuario.nombre ?? '';
+    final l = context.l10n;
+    final formato = context.formato;
+    final ahora = formato.hora(ref.watch(relojProvider)());
     return Padding(
       padding: EdgeInsets.fromLTRB(
         20,
@@ -115,17 +120,18 @@ class _HojaMarcarState extends ConsumerState<_HojaMarcar> {
           children: [
             Semantics(
               header: true,
-              child: Text(
-                '¿Cómo terminó esta alerta?',
-                style: texto.titleLarge,
-              ),
+              child: Text(l.alertaMarcarPregunta, style: texto.titleLarge),
             ),
             const SizedBox(height: 8),
             Text.rich(
-              conHora(
-                '${a.tipo.nombre} ${enHabitacion(a.habitacion)} a las ',
-                hora(a.ocurridaEn),
-                '.',
+              textoConHora(
+                l.alertaMarcarResumen(
+                  a.tipo.nombre(l),
+                  conArticulo(a.habitacion),
+                  formato.hora(a.ocurridaEn),
+                  a.habitacion,
+                ),
+                formato.hora(a.ocurridaEn),
               ),
               style: texto.bodyMedium,
             ),
@@ -133,8 +139,8 @@ class _HojaMarcarState extends ConsumerState<_HojaMarcar> {
             OpcionRadio(
               valor: _Final.atendida,
               seleccion: _eleccion,
-              titulo: 'Atendida',
-              subtitulo: '$nombre recibió ayuda o está bien',
+              titulo: l.alertaOpcionAtendida,
+              subtitulo: l.alertaOpcionAtendidaDetalle(nombre),
               error: _faltaEleccion,
               alElegir: (v) => setState(() {
                 _eleccion = v;
@@ -144,22 +150,20 @@ class _HojaMarcarState extends ConsumerState<_HojaMarcar> {
             OpcionRadio(
               valor: _Final.falsa,
               seleccion: _eleccion,
-              titulo: 'Falsa alarma',
-              subtitulo:
-                  'No hubo ${a.esCaida ? 'caída' : 'movimiento inestable'}.',
+              titulo: l.alertaOpcionFalsa,
+              subtitulo: a.esCaida
+                  ? l.alertaOpcionFalsaCaida
+                  : l.alertaOpcionFalsaInestable,
               error: _faltaEleccion,
               alElegir: (v) => setState(() {
                 _eleccion = v;
                 _faltaEleccion = false;
               }),
             ),
-            if (_faltaEleccion) const MensajeCampo('Elige una opción.'),
+            if (_faltaEleccion) MensajeCampo(l.alertaEligeOpcion),
             const SizedBox(height: 4),
             Text.rich(
-              conHora(
-                'Quedará registrado: $quien · ',
-                hora(ref.watch(relojProvider)()),
-              ),
+              textoConHora(l.alertaQuedaraRegistrado(quien, ahora), ahora),
               style: texto.bodySmall,
             ),
             const SizedBox(height: 16),
@@ -167,7 +171,7 @@ class _HojaMarcarState extends ConsumerState<_HojaMarcar> {
               MensajeProblema(_problema!),
               const SizedBox(height: 12),
             ],
-            Boton('Guardar', cargando: _guardando, alPresionar: _guardar),
+            Boton(l.alertaGuardar, cargando: _guardando, alPresionar: _guardar),
           ],
         ),
       ),

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/reloj.dart';
 import '../../../core/ui/aviso.dart';
@@ -14,6 +13,7 @@ import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/ui/plegable.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/data/camaras_repositorio.dart';
 import '../../camaras/domain/camara.dart';
 import '../data/hogar_repositorio.dart';
@@ -64,6 +64,8 @@ class _PantallaConsentimientoState
       await ref
           .read(hogarRepositorioProvider)
           .registrarConsentimiento(
+            // The record stored by the backend: always this Spanish text, whatever the
+            // phone's language (only the screens are translated).
             otorgadoPor: _otorgante == _Otorgante.directo
                 ? adulto.nombre
                 : 'Representante legal de ${adulto.nombre}',
@@ -104,14 +106,15 @@ class _PantallaConsentimientoState
   @override
   Widget build(BuildContext context) {
     final hogar = ref.watch(hogarProvider);
+    final titulo = context.l10n.consentimientoTitulo;
     return Scaffold(
       appBar: widget.enConfiguracion
           ? CabeceraConfiguracion(
               paso: 2,
-              titulo: 'Consentimiento',
+              titulo: titulo,
               escala: MediaQuery.textScalerOf(context),
             )
-          : AppBar(title: const Text('Consentimiento')),
+          : AppBar(title: Text(titulo)),
       body: hogar.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorDePantalla(
@@ -125,28 +128,26 @@ class _PantallaConsentimientoState
 
   Widget _formularioDe(BuildContext context, AdultoMayor adulto) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final nombre = adulto.nombrePila;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
       children: [
-        Text(
-          'Lo acepta $nombre o su representante. Sin él, no detectamos caídas.',
-          style: texto.bodyMedium,
-        ),
+        Text(l.consentimientoIntro(nombre), style: texto.bodyMedium),
         const SizedBox(height: 16),
         const ResumenConsentimiento(),
         const SizedBox(height: 20),
-        const EtiquetaCampo('¿Quién otorga el consentimiento?'),
+        EtiquetaCampo(l.consentimientoQuienOtorga),
         OpcionRadio(
           valor: _Otorgante.directo,
           seleccion: _otorgante,
-          titulo: '${adulto.nombre}, directamente',
+          titulo: l.consentimientoDirectamente(adulto.nombre),
           alElegir: (v) => setState(() => _otorgante = v),
         ),
         OpcionRadio(
           valor: _Otorgante.representante,
           seleccion: _otorgante,
-          titulo: 'Su representante legal',
+          titulo: l.consentimientoRepresentante,
           alElegir: (v) => setState(() => _otorgante = v),
         ),
         const SizedBox(height: 8),
@@ -157,9 +158,7 @@ class _PantallaConsentimientoState
             Casilla(
               marcada: _acepta,
               error: _faltanCasillas && !_acepta,
-              texto:
-                  '$nombre fue informada y acepta la cámara para detectar '
-                  'caídas y que su familia la vea en vivo cuando quiera.',
+              texto: l.consentimientoCasillaAcepta(nombre),
               alCambiar: (v) => setState(() {
                 _acepta = v;
                 if (_acepta && _leyo) _faltanCasillas = false;
@@ -168,31 +167,32 @@ class _PantallaConsentimientoState
             Casilla(
               marcada: _leyo,
               error: _faltanCasillas && !_leyo,
-              texto: 'Leí el resumen y el documento completo.',
+              texto: l.consentimientoCasillaLeyo,
               alCambiar: (v) => setState(() {
                 _leyo = v;
                 if (_acepta && _leyo) _faltanCasillas = false;
               }),
             ),
-            if (_faltanCasillas) const MensajeCampo('Marca las dos casillas.'),
+            if (_faltanCasillas) MensajeCampo(l.consentimientoFaltanCasillas),
           ],
         ),
-        Text(
-          'Guardamos fecha y hora como constancia (Ley N.° 29733).',
-          style: texto.bodySmall,
-        ),
+        Text(l.consentimientoGuardamosFecha, style: texto.bodySmall),
         const SizedBox(height: 16),
         if (_problema != null) ...[
           MensajeProblema(_problema!),
           const SizedBox(height: 16),
         ],
         Boton(
-          'Registrar consentimiento',
+          l.consentimientoRegistrar,
           cargando: _enviando,
           alPresionar: () => _registrar(adulto),
         ),
         const SizedBox(height: 8),
-        Boton('Ahora no', estilo: EstiloBoton.fantasma, alPresionar: _ahoraNo),
+        Boton(
+          l.consentimientoAhoraNo,
+          estilo: EstiloBoton.fantasma,
+          alPresionar: _ahoraNo,
+        ),
       ],
     );
   }
@@ -209,7 +209,7 @@ class ResumenConsentimiento extends StatelessWidget {
     children: [
       ListaTarjeta(
         children: [
-          for (final (i, s) in seccionesConsentimiento.indexed)
+          for (final (i, s) in seccionesConsentimiento(context.l10n).indexed)
             FilaPlegable(
               icono: s.icono,
               titulo: s.titulo,
@@ -224,7 +224,7 @@ class ResumenConsentimiento extends StatelessWidget {
       Align(
         alignment: Alignment.centerLeft,
         child: Enlace(
-          'Leer el documento completo',
+          context.l10n.consentimientoLeerDocumento,
           alTocar: () => context.push(Rutas.documentoConsentimiento),
         ),
       ),
@@ -241,6 +241,7 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hogar = ref.watch(hogarProvider);
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: hogar.when(
@@ -264,7 +265,7 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               Semantics(
                 header: true,
                 child: Text(
-                  'Consentimiento registrado',
+                  l.consentimientoRegistradoTitulo,
                   style: texto.headlineMedium,
                 ),
               ),
@@ -272,8 +273,8 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
               Text(
                 // Screen 21: with no camera chosen yet, detection starts once the PC is linked.
                 (ref.watch(camarasProvider).value ?? const []).isNotEmpty
-                    ? 'Las cámaras ya detectan caídas.'
-                    : 'Detectarán caídas al vincular la PC.',
+                    ? l.consentimientoCamarasDetectan
+                    : l.consentimientoDetectaranAlVincular,
                 style: texto.bodyLarge?.copyWith(color: context.colores.tinta2),
               ),
               const SizedBox(height: 20),
@@ -281,7 +282,7 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
                 TarjetaConstancia(consentimiento: c),
               const SizedBox(height: 20),
               Boton(
-                'Volver al inicio',
+                l.consentimientoVolverInicio,
                 alPresionar: () => _volverAlInicio(context, ref),
               ),
             ],
@@ -293,14 +294,18 @@ class PantallaConsentimientoRegistrado extends ConsumerWidget {
 
   void _volverAlInicio(BuildContext context, WidgetRef ref) {
     final camara = ref.read(camarasProvider).value?.firstOrNull;
+    final l = context.l10n;
+    final formato = context.formato;
     context.go(Rutas.inicio);
     if (camara != null) {
       mostrarToast(
         context,
-        titulo: 'Cámara activada',
-        texto:
-            'La cámara ${deHabitacion(camara.nombreHabitacion)} detecta caídas '
-            'desde las ${hora(ref.read(relojProvider)())}.',
+        titulo: l.consentimientoCamaraActivada,
+        texto: l.consentimientoCamaraDetectaDesde(
+          deHabitacion(camara.nombreHabitacion),
+          camara.nombreHabitacion,
+          formato.hora(ref.read(relojProvider)()),
+        ),
         icono: Ico.shield,
       );
     }

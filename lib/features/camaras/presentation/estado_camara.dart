@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/camara.dart';
 
 extension PresentacionEstado on EstadoVisible {
@@ -39,7 +40,7 @@ class EstadoCamara extends StatelessWidget {
       const SizedBox(width: 6),
       Flexible(
         child: Text(
-          estado.texto,
+          estado.texto(context.l10n),
           style: estiloTexto(
             tamano,
             700,

@@ -16,6 +16,7 @@ import 'package:te_tengo/features/pcs/domain/pc.dart';
 import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
 import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
 import 'package:te_tengo/features/vivo/presentation/reproductor_webrtc.dart';
+import 'package:te_tengo/l10n/l10n.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -26,6 +27,8 @@ import '../hogar/hogar_falso.dart';
 import '../vivo/vivo_falso.dart';
 import 'pcs_falso.dart';
 
+final _es = lookupAppLocalizations(const Locale('es'));
+final _en = lookupAppLocalizations(const Locale('en'));
 final _senal = DateTime(2026, 9, 23, 10, 42);
 final _caida = DateTime(2026, 9, 23, 9, 58);
 
@@ -166,22 +169,27 @@ void main() {
 
     test('la tarjeta dice cuántas funcionan', () {
       expect(
-        lineaTarjetaCamaras(enCasa(casaDeRosa()), conConsentimiento: true),
+        lineaTarjetaCamaras(_es, enCasa(casaDeRosa()), conConsentimiento: true),
         '4 de 4 funcionan',
       );
       expect(
         lineaTarjetaCamaras(
+          _es,
           enCasa(casaDeRosa(cocinaSinConexion: true)),
           conConsentimiento: true,
         ),
         '3 de 4 funcionan',
       );
       expect(
-        lineaTarjetaCamaras(const [], conConsentimiento: true),
+        lineaTarjetaCamaras(_es, const [], conConsentimiento: true),
         'Sin cámaras',
       );
       expect(
-        lineaTarjetaCamaras(enCasa(casaDeRosa()), conConsentimiento: false),
+        lineaTarjetaCamaras(
+          _es,
+          enCasa(casaDeRosa()),
+          conConsentimiento: false,
+        ),
         'Detenidas',
       );
       final una = enCasa((
@@ -189,13 +197,14 @@ void main() {
         camaras: [camara('c1', 'Sala', 'pc-sala')],
       ));
       expect(
-        lineaTarjetaCamaras(una, conConsentimiento: true),
+        lineaTarjetaCamaras(_es, una, conConsentimiento: true),
         'Funciona · Sala',
       );
     });
 
     test('la página resume el estado de todas', () {
       final todas = resumenCamaras(
+        _es,
         enCasa(casaDeRosa()),
         conConsentimiento: true,
       );
@@ -204,6 +213,7 @@ void main() {
         (true, '4 cámaras', 'todas funcionan bien'),
       );
       final dos = resumenCamaras(
+        _es,
         enCasa(
           casaDeRosa(
             cocinaSinConexion: true,
@@ -213,6 +223,19 @@ void main() {
         conConsentimiento: true,
       );
       expect((dos.ok, dos.estado), (false, '2 funcionan bien'));
+    });
+
+    test('en inglés, la tarjeta y el resumen', () {
+      expect(
+        lineaTarjetaCamaras(_en, enCasa(casaDeRosa()), conConsentimiento: true),
+        '4 of 4 working',
+      );
+      final todas = resumenCamaras(
+        _en,
+        enCasa(casaDeRosa()),
+        conConsentimiento: true,
+      );
+      expect((todas.cuantas, todas.estado), ('4 cameras', 'all working well'));
     });
 
     test('CA-30.3: las cámaras de una PC sin conexión la nombran', () {

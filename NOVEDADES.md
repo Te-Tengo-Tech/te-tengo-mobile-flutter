@@ -8,6 +8,8 @@
 
 ## [Unreleased]
 
+- Si tu celular está en inglés, la app ahora también se ve en inglés.
+
 ## [0.9.0]
 
 - Crear tu cuenta es más corto: solo 2 pasos, los datos de tu familiar y su consentimiento.

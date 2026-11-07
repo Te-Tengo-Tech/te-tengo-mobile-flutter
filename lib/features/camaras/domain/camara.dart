@@ -1,4 +1,5 @@
 import '../../../core/formato.dart';
+import '../../../l10n/l10n.dart';
 
 /// Household camera (contract §4 `Camara`).
 class Camara {
@@ -90,46 +91,61 @@ enum EstadoConexion {
 
 /// Pause lengths of the prototype's pause sheet (contract `duracion`, CA-22.1).
 enum DuracionPausa {
-  min30('MIN_30', '30 minutos', Duration(minutes: 30)),
-  hora1('HORA_1', '1 hora', Duration(hours: 1)),
-  horas2('HORAS_2', '2 horas', Duration(hours: 2)),
-  hastaManana('HASTA_MANANA', 'Hasta mañana', null);
+  min30('MIN_30', Duration(minutes: 30)),
+  hora1('HORA_1', Duration(hours: 1)),
+  horas2('HORAS_2', Duration(hours: 2)),
+  hastaManana('HASTA_MANANA', null);
 
-  const DuracionPausa(this.codigo, this.texto, this.duracion);
+  const DuracionPausa(this.codigo, this.duracion);
 
   final String codigo;
-  final String texto;
 
   /// Null for «Hasta mañana», which ends at 07:00 the next day.
   final Duration? duracion;
 
+  /// «30 minutos», «1 hora», «2 horas», «Hasta mañana».
+  String texto(AppLocalizations l) => switch (this) {
+    min30 => l.camaraPausa30Min,
+    hora1 => l.camaraPausa1Hora,
+    horas2 => l.camaraPausa2Horas,
+    hastaManana => l.camaraPausaHastaManana,
+  };
+
   /// «hasta las 11:12», or «a las 07:00».
-  String fin(DateTime ahora) => duracion == null
-      ? 'a las $horaManana'
-      : 'hasta las ${hora(ahora.add(duracion!))}';
+  String fin(DateTime ahora, AppLocalizations l) => duracion == null
+      ? l.camaraPausaFinALas(l.formato.hora(DateTime(2000, 1, 1, 7)))
+      : l.camaraPausaFinHasta(l.formato.hora(ahora.add(duracion!)));
 
   /// Resume time of «Hasta mañana» (contract: next 07:00 in the household time zone).
   static const horaManana = '07:00';
 }
 
 /// «11:42», or «07:00 de mañana» when the pause ends another day.
-String finDePausa(DateTime fin, DateTime ahora) =>
-    mismoDia(fin, ahora) ? hora(fin) : '${hora(fin)} de mañana';
+String finDePausa(DateTime fin, DateTime ahora, AppLocalizations l) =>
+    mismoDia(fin, ahora)
+    ? l.formato.hora(fin)
+    : l.camaraFinDePausaManana(l.formato.hora(fin));
 
 /// Camera states of DESIGN.md: always icon + text, never color alone.
 enum EstadoVisible {
-  enLinea('En línea'),
-  desconectada('Desconectada'),
-  enPausa('En pausa'),
-  noConfiable('Detección no confiable'),
-  detenida('Detenida'),
+  enLinea,
+  desconectada,
+  enPausa,
+  noConfiable,
+  detenida,
 
   /// Its PC does not answer (CA-30.3): gray and dotted, unlike an unplugged camera.
-  sinConexion('Sin conexión');
+  sinConexion;
 
-  const EstadoVisible(this.texto);
-
-  final String texto;
+  /// «En línea», «Desconectada», «En pausa», «Detección no confiable», «Detenida», «Sin conexión».
+  String texto(AppLocalizations l) => switch (this) {
+    enLinea => l.camaraEstadoEnLinea,
+    desconectada => l.camaraEstadoDesconectada,
+    enPausa => l.camaraEstadoEnPausa,
+    noConfiable => l.camaraEstadoNoConfiable,
+    detenida => l.camaraEstadoDetenida,
+    sinConexion => l.camaraEstadoSinConexion,
+  };
 }
 
 /// Article forms of the room names of the prototype (`ROOM_ART`): «la Sala», «el Dormitorio».
@@ -142,14 +158,23 @@ const _articulos = {
   'Comedor': 'el Comedor',
 };
 
-/// «la Sala» (or the name itself when it is not a known room).
-String conArticulo(String habitacion) => _articulos[habitacion] ?? habitacion;
+/// Spanish articles only in Spanish ([l] null is Spanish); other languages use the bare name.
+bool _conArticulos(AppLocalizations? l) =>
+    l == null || l.localeName.startsWith('es');
 
-/// «en la Sala».
-String enHabitacion(String habitacion) => 'en ${conArticulo(habitacion)}';
+/// «la Sala» (or the name itself when it is not a known room, or the language is not Spanish).
+String conArticulo(String habitacion, [AppLocalizations? l]) =>
+    _conArticulos(l) ? _articulos[habitacion] ?? habitacion : habitacion;
 
-/// «de la Sala», «del Dormitorio».
-String deHabitacion(String habitacion) {
+/// «en la Sala» («in Sala» in English). Without [l], Spanish.
+String enHabitacion(String habitacion, [AppLocalizations? l]) => l == null
+    ? 'en ${conArticulo(habitacion)}'
+    : l.camaraEnHabitacion(conArticulo(habitacion, l));
+
+/// «de la Sala», «del Dormitorio»; in English the bare name, as in «Sala camera». Without [l],
+/// Spanish.
+String deHabitacion(String habitacion, [AppLocalizations? l]) {
+  if (!_conArticulos(l)) return habitacion;
   final a = _articulos[habitacion];
   if (a == null) return 'de $habitacion';
   return a.startsWith('el ') ? 'del ${a.substring(3)}' : 'de $a';

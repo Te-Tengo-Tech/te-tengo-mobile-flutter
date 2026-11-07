@@ -18,6 +18,7 @@ import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
 import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
 import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
 import 'package:te_tengo/features/pcs/domain/pc.dart';
+import 'package:te_tengo/l10n/l10n.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -247,6 +248,7 @@ void main() {
 
   group('frases', () {
     final t = DateTime(2026, 9, 23, 10, 42);
+    final es = lookupAppLocalizations(const Locale('es'));
     String frase(
       String tipo, {
       TipoActor actor = TipoActor.familiar,
@@ -263,7 +265,7 @@ void main() {
       objeto: objeto,
       antes: antes,
       despues: despues,
-    ).frase(adultoMayor: 'Rosa');
+    ).frase(es, adultoMayor: 'Rosa');
 
     test('la foto de la persona cuidada (contrato §13)', () {
       expect(
@@ -412,7 +414,7 @@ void main() {
         antes: momento,
         despues: '180',
       );
-      expect(a.momentoYDuracion, ('23/09 10:36–10:46', '3\u00a0min'));
+      expect(a.momentoYDuracion(es), ('23/09 10:36–10:46', '3\u00a0min'));
       expect(a.segundosVistos, 180);
       // Without the moment it still reads well.
       expect(
@@ -464,15 +466,15 @@ void main() {
     });
 
     test('etiquetas del día y del último cambio', () {
-      expect(etiquetaDia(DateTime(2026, 9, 22, 23), t), 'Ayer');
-      expect(etiquetaDia(DateTime(2026, 9, 8), t), '08/09/2026');
-      expect(resumenUltimoCambio(null, t), 'Aún no hay actividad');
+      expect(etiquetaDia(es, DateTime(2026, 9, 22, 23), t), 'Ayer');
+      expect(etiquetaDia(es, DateTime(2026, 9, 8), t), '08/09/2026');
+      expect(resumenUltimoCambio(es, null, t), 'Aún no hay actividad');
       expect(
-        resumenUltimoCambio(registroDePrueba[2], t),
+        resumenUltimoCambio(es, registroDePrueba[2], t),
         'Último cambio: ayer 18:44',
       );
       expect(
-        resumenUltimoCambio(registroDePrueba[4], t),
+        resumenUltimoCambio(es, registroDePrueba[4], t),
         'Último cambio: el 21/09/2026 12:20',
       );
     });
@@ -526,7 +528,7 @@ void main() {
       DateTime.utc(2026, 10, 11, 14, 46, 16, 479, 362),
     );
     expect(
-      a.frase(adultoMayor: 'Rosa'),
+      a.frase(lookupAppLocalizations(const Locale('es')), adultoMayor: 'Rosa'),
       'Carmen eligió la cámara Logitech C920 para el Dormitorio',
     );
     expect(http.peticiones.single.queryParameters, {

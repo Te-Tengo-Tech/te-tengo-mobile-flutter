@@ -16,6 +16,7 @@ import '../../pcs/data/pcs_repositorio.dart';
 import '../../perfil/data/perfil_repositorio.dart';
 import '../data/widget_sistema.dart';
 import '../domain/estado_widget.dart';
+import '../../../l10n/l10n.dart';
 
 /// «Ver en vivo» on the widget asked for the room picker (CA-44.2): Inicio opens it once the
 /// cameras are read. The widget never opens the live view by itself.
@@ -118,7 +119,7 @@ class _ActualizadorWidgetState extends ConsumerState<ActualizadorWidget> {
     Foto? foto;
     var conFoto = false;
     if (sesion == null) {
-      estado = EstadoWidget.sinSesion;
+      estado = EstadoWidget.sinSesionEn(context.l10n);
       conFoto = true;
     } else if (sesion.tieneHogar) {
       final alerta = ref.watch(alertaActivaProvider);
@@ -134,6 +135,7 @@ class _ActualizadorWidgetState extends ConsumerState<ActualizadorWidget> {
           camaras: camaras,
           conConsentimiento: hogar.conConsentimiento,
           nombreAdulto: hogar.adultoMayor.nombre,
+          l: context.l10n,
         );
       }
     }

@@ -268,7 +268,7 @@ void main() {
       expect(modo(tester), ThemeMode.dark);
       expect(brillo(tester), Brightness.dark);
       expect(cache.datos[AlmacenAparienciaLocal.clave], 'oscura');
-      await tester.pageBack();
+      await volver(tester);
       await tester.pumpAndSettle();
       await verHasta(tester, find.text('Tema oscuro · letra estándar'));
       expect(find.text('Tema oscuro · letra estándar'), findsOneWidget);
@@ -337,7 +337,7 @@ void main() {
       expect(await cargarTamanoLetra(cache), TamanoLetra.grande);
       await tocar(tester, find.text('Estándar'));
       expect(escala(), closeTo(12, .001));
-      await tester.pageBack();
+      await volver(tester);
       await tester.pumpAndSettle();
       await verHasta(tester, find.text('Tema automático · letra estándar'));
       expect(find.text('Tema automático · letra estándar'), findsOneWidget);

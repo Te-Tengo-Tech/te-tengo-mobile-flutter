@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/ayuda.dart';
@@ -17,6 +16,7 @@ import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../../camaras/domain/camara.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../hogar/data/hogar_repositorio.dart';
@@ -111,9 +111,11 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
 
   void _avisarError(ProblemaApi e) => mostrarToast(
     context,
-    titulo: e.codigo == ProblemaApi.sinConexion ? 'Sin internet' : e.detalle,
+    titulo: e.codigo == ProblemaApi.sinConexion
+        ? context.l10n.pcsSinInternet
+        : e.detalle,
     texto: e.codigo == ProblemaApi.sinConexion
-        ? 'Revisa tu conexión y vuelve a intentarlo.'
+        ? context.l10n.pcsRevisaConexion
         : null,
     icono: e.codigo == ProblemaApi.sinConexion ? Ico.wifiOff : Ico.warn,
     tono: TonoAviso.advertencia,
@@ -121,10 +123,11 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
 
   /// «Ya hay una cámara en la Cocina (PC Cocina-Rosa). Por ahora, cada habitación usa una sola
   /// cámara.» (CA-29.3).
-  String _ocupada(String habitacion, String? pc) =>
-      'Ya hay una cámara ${enHabitacion(habitacion)}'
-      '${pc == null ? '' : ' (PC $pc)'}. Por ahora, cada habitación usa una '
-      'sola cámara.';
+  String _ocupada(String habitacion, String? pc) {
+    final l = context.l10n;
+    final en = enHabitacion(habitacion, l);
+    return pc == null ? l.pcsOcupada(en) : l.pcsOcupadaConPc(en, pc);
+  }
 
   /// «Usar esta cámara» (CA-29.2): the PC hears it at once and the camera starts detecting there.
   Future<void> _usar(
@@ -138,13 +141,11 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
         ? _otraControl.text.trim().replaceAll(RegExp(r'\s+'), ' ')
         : elegida;
     if (nombre.isEmpty) {
-      return setState(() => _error = 'Escribe el nombre de la habitación.');
+      return setState(() => _error = context.l10n.pcsEscribeNombreHabitacion);
     }
     nombre = nombre[0].toUpperCase() + nombre.substring(1);
     if (esBano(nombre)) {
-      return setState(
-        () => _error = 'Por privacidad, Te Tengo no admite cámaras en el baño.',
-      );
+      return setState(() => _error = context.l10n.pcsSinBano);
     }
     final ambiente = ambientes
         .where((a) => a.nombre.toLowerCase() == nombre.toLowerCase())
@@ -172,14 +173,16 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
       final habitacion = usada.nombreHabitacion;
       final conConsentimiento =
           ref.read(hogarProvider).value?.conConsentimiento ?? true;
+      final l = context.l10n;
       mostrarToast(
         context,
-        titulo:
-            'La cámara ${camara.nombreDispositivo} cuida ahora '
-            '${conArticulo(habitacion)}',
+        titulo: l.pcsCuidaAhora(
+          camara.nombreDispositivo,
+          conArticulo(habitacion, l),
+        ),
         texto: conConsentimiento
-            ? 'Las próximas alertas dirán «${enHabitacion(habitacion)}».'
-            : 'Detectará caídas cuando registres el consentimiento.',
+            ? l.pcsProximasAlertas(enHabitacion(habitacion, l))
+            : l.pcsDetectaraConConsentimiento,
         icono: Ico.cam,
       );
       // The next webcam without a room opens.
@@ -200,12 +203,9 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
           );
           ref.invalidate(ambientesProvider);
         case 'AMBIENTE_NO_PERMITIDO':
-          setState(
-            () => _error =
-                'Por privacidad, Te Tengo no admite cámaras en el baño.',
-          );
+          setState(() => _error = context.l10n.pcsSinBano);
         case 'AMBIENTE_NOMBRE_VACIO':
-          setState(() => _error = 'Escribe el nombre de la habitación.');
+          setState(() => _error = context.l10n.pcsEscribeNombreHabitacion);
         case 'AMBIENTE_NOMBRE_MUY_LARGO':
           setState(() => _error = e.detalle);
         default:
@@ -234,7 +234,9 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
     return RefrescoPcs(
       pcId: widget.pcId,
       child: Scaffold(
-        appBar: AppBar(title: Text(pc?.nombre ?? 'Elige las cámaras')),
+        appBar: AppBar(
+          title: Text(pc?.nombre ?? context.l10n.pcsEligeLasCamaras),
+        ),
         body: switch ((pcs, webcams, ambientes, hogar)) {
           (AsyncError(:final error), _, _, _) ||
           (_, AsyncError(:final error), _, _) ||
@@ -286,19 +288,19 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
     }
     final enUso = lista.where((w) => w.enUso).length;
     final n = lista.length;
+    final l = context.l10n;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
         Semantics(
           header: true,
-          child: Text('Elige las cámaras', style: texto.titleLarge),
+          child: Text(l.pcsEligeLasCamaras, style: texto.titleLarge),
         ),
         const SizedBox(height: 8),
         Text(
           sinConexion || n == 0
-              ? 'Una cámara por habitación.'
-              : '${contar(n, 'cámara', 'cámaras')} en la PC $nombrePc. Una por '
-                    'habitación.',
+              ? l.pcsUnaPorHabitacion
+              : l.pcsCamarasEnLaPc(n, nombrePc),
           style: texto.bodyMedium,
         ),
         const SizedBox(height: 16),
@@ -306,11 +308,11 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
           Aviso(
             tono: TonoAviso.error,
             icono: Ico.lock,
-            titulo: 'Falta el consentimiento de $nombre',
-            texto: 'Sin él no hay vista previa ni detección.',
+            titulo: l.pcsFaltaConsentimientoDe(nombre),
+            texto: l.pcsSinElNoHayVistaPrevia,
             accion: titular
                 ? Boton(
-                    'Registrar consentimiento',
+                    l.pcsRegistrarConsentimiento,
                     pequeno: true,
                     alPresionar: () => context.push(Rutas.consentimiento),
                   )
@@ -321,7 +323,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
         if (!titular) ...[
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'elegir las cámaras',
+            accion: l.pcsAccionElegirCamaras,
           ),
           const SizedBox(height: 16),
         ],
@@ -329,22 +331,17 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
           Aviso(
             tono: TonoAviso.advertencia,
             icono: Ico.wifiOff,
-            titulo: 'La PC $nombrePc no responde',
+            titulo: l.pcsPcNoResponde(nombrePc),
             contenido: switch (pc.ultimaSenal) {
-              final s? => TextSpan(
-                children: [
-                  const TextSpan(text: 'Sin conexión desde las '),
-                  TextSpan(
-                    text: hora(s),
-                    style: estiloMono(tamano: 15.5, peso: 400),
-                  ),
-                  const TextSpan(text: '.'),
-                ],
+              final s? => textoConDato(
+                l.pcsSinConexionDesdeLas,
+                l.formato.hora(s),
+                estiloMono(tamano: 15.5, peso: 400),
               ),
               null => null,
             },
           ),
-          const EncabezadoSeccion('Qué revisar en la casa'),
+          EncabezadoSeccion(l.pcsQueRevisarEnCasa),
           const QueRevisarPc(),
         ] else if (_buscando)
           _Buscando(nombrePc: nombrePc)
@@ -369,20 +366,14 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
             const SizedBox(height: 12),
           ],
           if (enUso >= camarasQueCarganLaPc) ...[
-            Text(
-              'Si la detección va lenta, pasa cámaras a otra PC.',
-              style: texto.bodySmall,
-            ),
+            Text(l.pcsDeteccionLenta, style: texto.bodySmall),
             const SizedBox(height: 12),
           ],
           if (titular) ...[
-            Text(
-              '¿Falta una? Que la conecten por USB.',
-              style: texto.bodyMedium,
-            ),
+            Text(l.pcsFaltaUna, style: texto.bodyMedium),
             const SizedBox(height: 4),
             Boton(
-              'Buscar de nuevo',
+              l.pcsBuscarDeNuevo,
               icono: Ico.refresh,
               estilo: EstiloBoton.fantasma,
               alPresionar: _buscarDeNuevo,
@@ -391,7 +382,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
         ],
         if (titular) ...[
           const SizedBox(height: 20),
-          Boton('Listo', alPresionar: _terminar),
+          Boton(l.pcsListo, alPresionar: _terminar),
         ],
       ],
     );
@@ -406,23 +397,19 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
     List<CamaraDetectada> todas,
   ) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final vistaPrevia = Row(
       children: [
         Flexible(
           child: Boton(
-            'Ver vista previa',
+            l.pcsVerVistaPrevia,
             icono: Ico.eye,
             estilo: EstiloBoton.secundario,
             pequeno: true,
             alPresionar: () => abrirVistaPrevia(context, camara: w, pc: pc),
           ),
         ),
-        const AyudaInfo(
-          texto:
-              'Muestra lo que ve la cámara durante 15 s. No se graba y queda '
-              'en el registro de accesos.',
-          tema: 'vista previa',
-        ),
+        AyudaInfo(texto: l.pcsAyudaVistaPrevia, tema: l.pcsVistaPreviaTema),
       ],
     );
     final habitacion = w.nombreHabitacion ?? '';
@@ -436,11 +423,11 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.wifiOff,
-              texto: 'Revisa el cable USB. $habitacion conserva esta cámara.',
+              texto: l.pcsRevisaCableConserva(habitacion),
             ),
           const SizedBox(height: 12),
           Boton(
-            'Dejar de usar',
+            l.pcsDejarDeUsar,
             icono: Ico.x,
             estilo: EstiloBoton.peligroContorno,
             alPresionar: () => dejarDeUsarCamara(
@@ -456,10 +443,10 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
       );
     }
     if (!w.conectada) {
-      return const Aviso(
+      return Aviso(
         tono: TonoAviso.neutral,
         icono: Ico.plug,
-        texto: 'Pide que la conecten por USB.',
+        texto: l.pcsPideConectarUsb,
       );
     }
     final propias = ambientes
@@ -482,19 +469,16 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
           children: [
             Flexible(
               child: Text(
-                '¿En qué habitación está?',
+                l.pcsEnQueHabitacion,
                 style: estiloTexto(16, 700, color: context.colores.tinta),
               ),
             ),
-            const AyudaInfo(
-              texto: 'Por privacidad, Te Tengo no admite cámaras en el baño.',
-              tema: 'habitaciones',
-            ),
+            AyudaInfo(texto: l.pcsSinBano, tema: l.pcsHabitacionesTema),
           ],
         ),
         const SizedBox(height: 4),
         Semantics(
-          label: '¿En qué habitación está?',
+          label: l.pcsEnQueHabitacion,
           child: Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -510,7 +494,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
                   }),
                 ),
               ChipHabitacion(
-                texto: 'Otra…',
+                texto: l.pcsOtra,
                 elegido: _habitacion == _otra,
                 ocupada: false,
                 alTocar: () => setState(() {
@@ -526,17 +510,14 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
           ...propias,
         ].any((h) => ambienteDe(h)?.conCamara ?? false)) ...[
           const SizedBox(height: 8),
-          Text(
-            'Las que ya tienen cámara no se pueden elegir.',
-            style: texto.bodySmall,
-          ),
+          Text(l.pcsYaTienenCamara, style: texto.bodySmall),
         ],
         if (_habitacion == _otra) ...[
           const SizedBox(height: 12),
           CampoTexto(
-            etiqueta: 'Nombre de la habitación',
+            etiqueta: l.pcsNombreHabitacion,
             controlador: _otraControl,
-            marcador: 'Ej.: Estudio',
+            marcador: l.pcsNombreHabitacionEjemplo,
             error: _error,
             longitudMaxima: 40,
             alCambiar: (_) => setState(() => _error = null),
@@ -548,7 +529,7 @@ class _PantallaElegirCamarasState extends ConsumerState<PantallaElegirCamaras> {
         ],
         const SizedBox(height: 16),
         Boton(
-          'Usar esta cámara',
+          l.pcsUsarEstaCamara,
           icono: Ico.check,
           cargando: _guardando,
           alPresionar: _habitacion == null
@@ -587,7 +568,7 @@ class _Buscando extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Buscando cámaras en la PC $nombrePc…',
+                  context.l10n.pcsBuscandoCamaras(nombrePc),
                   style: estiloTexto(
                     16,
                     700,
@@ -630,20 +611,20 @@ class EstadoVacioCamaras extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No encontramos cámaras en la PC $nombrePc',
+            context.l10n.pcsNoEncontramosCamaras(nombrePc),
             textAlign: TextAlign.center,
             style: texto.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Que conecten una webcam por USB.',
+            context.l10n.pcsConectenWebcam,
             textAlign: TextAlign.center,
             style: texto.bodyMedium,
           ),
           if (alBuscar != null) ...[
             const SizedBox(height: 16),
             Boton(
-              'Buscar de nuevo',
+              context.l10n.pcsBuscarDeNuevo,
               icono: Ico.refresh,
               estilo: EstiloBoton.secundario,
               alPresionar: alBuscar,
@@ -657,6 +638,7 @@ class EstadoVacioCamaras extends StatelessWidget {
 
 /// What a webcam card says about it (`webState`): never by color alone.
 ({Ico icono, String texto, EstadoVisible estado}) estadoWebcam(
+  AppLocalizations l,
   CamaraDetectada w,
 ) {
   final habitacion = w.nombreHabitacion ?? '';
@@ -664,31 +646,35 @@ class EstadoVacioCamaras extends StatelessWidget {
     if (!w.conectada) {
       return (
         icono: Ico.wifiOff,
-        texto: 'Desconectada · $habitacion',
+        texto: l.pcsWebcamDesconectadaEn(habitacion),
         estado: EstadoVisible.desconectada,
       );
     }
     if (w.enPausa) {
       return (
         icono: Ico.pause,
-        texto: 'En uso · $habitacion · en pausa',
+        texto: l.pcsWebcamEnUsoPausa(habitacion),
         estado: EstadoVisible.enPausa,
       );
     }
     return (
       icono: Ico.cam,
-      texto: 'En uso · $habitacion',
+      texto: l.pcsWebcamEnUso(habitacion),
       estado: EstadoVisible.enLinea,
     );
   }
   if (!w.conectada) {
     return (
       icono: Ico.wifiOff,
-      texto: 'Desconectada',
+      texto: l.pcsWebcamDesconectada,
       estado: EstadoVisible.desconectada,
     );
   }
-  return (icono: Ico.cam, texto: 'Sin usar', estado: EstadoVisible.detenida);
+  return (
+    icono: Ico.cam,
+    texto: l.pcsWebcamSinUsar,
+    estado: EstadoVisible.detenida,
+  );
 }
 
 /// One webcam the PC reported (`webCard`): its name and state, open one at a time.
@@ -709,7 +695,7 @@ class _TarjetaWebcam extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final e = estadoWebcam(webcam);
+    final e = estadoWebcam(context.l10n, webcam);
     final color = switch (e.estado) {
       EstadoVisible.enLinea => context.colores.calmaTinta,
       EstadoVisible.desconectada => context.colores.aviso,

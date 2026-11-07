@@ -14,6 +14,7 @@ import '../../../core/ui/aviso.dart';
 import '../../../core/ui/avisos_flotantes.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../hogar/data/hogar_repositorio.dart';
 import '../../vivo/data/vista_en_vivo_repositorio.dart';
 import '../../vivo/domain/vista_en_vivo.dart';
@@ -40,7 +41,8 @@ class MotivoSinVistaPrevia {
 
 /// The same rules as the live view: the PC online, the webcam plugged in and not paused, and the
 /// consent in force. Null when it can be previewed.
-MotivoSinVistaPrevia? motivoSinVistaPrevia({
+MotivoSinVistaPrevia? motivoSinVistaPrevia(
+  AppLocalizations l, {
   required CamaraDetectada camara,
   required Pc? pc,
   required bool conConsentimiento,
@@ -50,55 +52,47 @@ MotivoSinVistaPrevia? motivoSinVistaPrevia({
     final senal = pc.ultimaSenal;
     return MotivoSinVistaPrevia(
       Ico.wifiOff,
-      'La PC ${pc.nombre} no responde',
+      l.pcsPcNoResponde(pc.nombre),
       senal == null
           ? null
-          : TextSpan(
-              children: [
-                const TextSpan(text: 'Sin conexión desde las '),
-                TextSpan(
-                  text: hora(senal),
-                  style: estiloMono(tamano: 16, peso: 400),
-                ),
-                const TextSpan(text: '.'),
-              ],
+          : textoConDato(
+              l.pcsSinConexionDesdeLas,
+              l.formato.hora(senal),
+              estiloMono(tamano: 16, peso: 400),
             ),
     );
   }
-  if (!camara.conectada) return _desconectada;
-  if (!conConsentimiento) return _sinConsentimiento(nombre);
-  if (camara.pausadaHasta case final hasta?) return _enPausa(hasta);
+  if (!camara.conectada) return _desconectada(l);
+  if (!conConsentimiento) return _sinConsentimiento(l, nombre);
+  if (camara.pausadaHasta case final hasta?) return _enPausa(l, hasta);
   return null;
 }
 
-const _desconectada = MotivoSinVistaPrevia(
+MotivoSinVistaPrevia _desconectada(AppLocalizations l) => MotivoSinVistaPrevia(
   Ico.wifiOff,
-  'La cámara está desconectada',
-  TextSpan(text: 'Que revisen el cable USB.'),
+  l.pcsCamaraDesconectada,
+  TextSpan(text: l.pcsRevisenCable),
 );
 
-MotivoSinVistaPrevia _sinConsentimiento(String nombre) => MotivoSinVistaPrevia(
-  Ico.lock,
-  'Falta el consentimiento de $nombre',
-  const TextSpan(text: 'Sin él no hay video.'),
-);
+MotivoSinVistaPrevia _sinConsentimiento(AppLocalizations l, String nombre) =>
+    MotivoSinVistaPrevia(
+      Ico.lock,
+      l.pcsFaltaConsentimientoDe(nombre),
+      TextSpan(text: l.pcsSinElNoHayVideo),
+    );
 
-MotivoSinVistaPrevia _enPausa(DateTime? hasta) => MotivoSinVistaPrevia(
-  Ico.pause,
-  'La cámara está en pausa',
-  hasta == null
-      ? null
-      : TextSpan(
-          children: [
-            const TextSpan(text: 'Hasta las '),
-            TextSpan(
-              text: hora(hasta),
-              style: estiloMono(tamano: 16, peso: 400),
+MotivoSinVistaPrevia _enPausa(AppLocalizations l, DateTime? hasta) =>
+    MotivoSinVistaPrevia(
+      Ico.pause,
+      l.pcsCamaraEnPausa,
+      hasta == null
+          ? null
+          : textoConDato(
+              l.pcsHastaLas,
+              l.formato.hora(hasta),
+              estiloMono(tamano: 16, peso: 400),
             ),
-            const TextSpan(text: '.'),
-          ],
-        ),
-);
+    );
 
 /// «Ver vista previa» (screens 252, 253, 257, 259 and 269): a few seconds of what a webcam sees, to
 /// recognise it before assigning it a room (CA-29.7). It is a live view session: not recorded, and
@@ -138,6 +132,10 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
   int _vistos = 0;
   bool _cerrada = false;
 
+  /// The texts, kept for the notice told while the sheet is disposed.
+  late AppLocalizations _l;
+  bool _abierta = false;
+
   @override
   void initState() {
     super.initState();
@@ -150,7 +148,17 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
       alPerder: _perder,
     )..addListener(_redibujar);
     _ciclo = AppLifecycleListener(onHide: _cerrar);
-    unawaited(_abrir());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l = context.l10n;
+    // Right after initState, once the texts can be read.
+    if (!_abierta) {
+      _abierta = true;
+      unawaited(_abrir());
+    }
   }
 
   void _redibujar() {
@@ -161,6 +169,7 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
     final nombre = ref.read(nombreAdultoMayorProvider) ?? '';
     final hogar = ref.read(hogarProvider).value;
     final motivo = motivoSinVistaPrevia(
+      _l,
       camara: widget.camara,
       pc: widget.pc,
       conConsentimiento: hogar?.conConsentimiento ?? true,
@@ -199,11 +208,11 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
       setState(() {
         switch (e.codigo) {
           case 'CAMARA_DESCONECTADA':
-            _motivo = _desconectada;
+            _motivo = _desconectada(_l);
           case 'CAMARA_EN_PAUSA':
-            _motivo = _enPausa(fechaDesdeJson(e.extras['pausadaHasta']));
+            _motivo = _enPausa(_l, fechaDesdeJson(e.extras['pausadaHasta']));
           case 'SIN_CONSENTIMIENTO':
-            _motivo = _sinConsentimiento(nombre);
+            _motivo = _sinConsentimiento(_l, nombre);
             ref.invalidate(hogarProvider);
           default:
             _problema = e;
@@ -215,7 +224,7 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
   /// The stream was lost: the session ends and the sheet says why.
   void _perder() {
     _terminar();
-    if (mounted) setState(() => _motivo = _desconectada);
+    if (mounted) setState(() => _motivo = _desconectada(_l));
   }
 
   /// Ends the session, which records the access, and tells it once (screen 253).
@@ -228,10 +237,11 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
     if (sesion == null) return;
     _cerrarSesion(sesion);
     final aviso = AvisoFlotante(
-      titulo: 'Acceso registrado',
-      texto:
-          'Viste la vista previa de ${widget.camara.nombreDispositivo} '
-          'durante ${duracion(Duration(seconds: _vistos))}.',
+      titulo: _l.pcsAccesoRegistrado,
+      texto: _l.pcsVisteVistaPrevia(
+        widget.camara.nombreDispositivo,
+        _l.formato.duracion(Duration(seconds: _vistos)),
+      ),
       icono: Ico.eye,
     );
     // It may close while the tree is finalized (the sheet's dispose): tell it right after.
@@ -283,16 +293,18 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
                     child: Semantics(
                       header: true,
                       child: Text(
-                        'Vista previa · ${widget.camara.nombreDispositivo}',
+                        context.l10n.pcsVistaPreviaDe(
+                          widget.camara.nombreDispositivo,
+                        ),
                         style: texto.titleLarge,
                       ),
                     ),
                   ),
                   AyudaInfo(
-                    texto:
-                        'No se graba y queda en el registro de accesos. Se '
-                        'cierra sola a los ${duracionVistaPrevia.inSeconds} s.',
-                    tema: 'vista previa',
+                    texto: context.l10n.pcsAyudaVistaPreviaCierre(
+                      duracionVistaPrevia.inSeconds,
+                    ),
+                    tema: context.l10n.pcsVistaPreviaTema,
                   ),
                 ],
               ),
@@ -312,7 +324,7 @@ class _HojaVistaPreviaState extends ConsumerState<HojaVistaPrevia> {
               ],
               const SizedBox(height: 16),
               Boton(
-                'Cerrar',
+                context.l10n.pcsCerrar,
                 alPresionar: () => Navigator.of(context).maybePop(),
               ),
             ],
@@ -359,7 +371,7 @@ class _Imagen extends StatelessWidget {
                     )
                   : Semantics(
                       image: true,
-                      label: 'Vista previa · $nombre',
+                      label: context.l10n.pcsVistaPreviaDe(nombre),
                       child: Center(
                         child: AspectRatio(
                           aspectRatio: r.relacionAspecto > 0
@@ -396,15 +408,10 @@ class _Imagen extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text.rich(
-                        TextSpan(
-                          children: [
-                            const TextSpan(text: 'VISTA PREVIA · '),
-                            TextSpan(
-                              text:
-                                  '0:${s.clamp(0, 59).toString().padLeft(2, '0')}',
-                              style: estiloCifras,
-                            ),
-                          ],
+                        textoConDato(
+                          context.l10n.pcsVistaPreviaCuenta,
+                          '0:${s.clamp(0, 59).toString().padLeft(2, '0')}',
+                          estiloCifras,
                         ),
                         style: estiloTexto(13, 700, color: Colors.white),
                       ),

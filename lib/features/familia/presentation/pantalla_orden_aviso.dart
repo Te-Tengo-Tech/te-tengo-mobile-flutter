@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../app/rutas.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
-import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
 import '../../../core/sesion/sesion_controller.dart';
 import '../../../core/ui/aviso.dart';
@@ -14,6 +13,7 @@ import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../data/familia_repositorio.dart';
 import '../domain/familiar.dart';
 
@@ -27,7 +27,7 @@ class PantallaOrdenAviso extends ConsumerWidget {
     final miembros = ref.watch(miembrosProvider);
     final aviso = ref.watch(avisoProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Orden de aviso')),
+      appBar: AppBar(title: Text(context.l10n.familiaOrdenTitulo)),
       body: switch ((miembros, aviso)) {
         (AsyncData(value: final m), AsyncData(value: final a)) => _Orden(
           miembros: m,
@@ -86,6 +86,7 @@ class _Orden extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final titular = ref.watch(esTitularProvider);
     final yo = ref.watch(sesionControllerProvider)?.usuario.id;
     MiembroFamilia? con(PapelAviso p) =>
@@ -94,7 +95,7 @@ class _Orden extends ConsumerWidget {
     final secundario = con(PapelAviso.secundario);
     final puedeCambiar = titular && miembros.length > 1;
     String nombre(MiembroFamilia m) => m.familiar.usuarioId == yo
-        ? '${m.familiar.nombre} (tú)'
+        ? l.familiaNombreTu(m.familiar.nombre)
         : m.familiar.nombre;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
@@ -102,21 +103,18 @@ class _Orden extends ConsumerWidget {
         if (!titular) ...[
           AvisoSoloLectura(
             titular: ref.watch(nombreTitularProvider) ?? '',
-            accion: 'cambiar el orden de aviso y el tiempo de espera',
+            accion: l.familiaSoloLecturaOrden,
           ),
           const SizedBox(height: 16),
         ],
-        Text(
-          'Si el principal no marca la alerta a tiempo, avisamos al secundario.',
-          style: texto.bodyMedium,
-        ),
-        const EncabezadoSeccion('Quién responde', arriba: 16),
+        Text(l.familiaOrdenExplicacion, style: texto.bodyMedium),
+        EncabezadoSeccion(l.familiaQuienResponde, arriba: 16),
         ListaTarjeta(
           children: [
             _Puesto(
               numero: 1,
               titulo: principal == null ? '' : nombre(principal),
-              detalle: 'Contacto principal',
+              detalle: l.familiaContactoPrincipal,
               alCambiar: puedeCambiar && principal != null
                   ? () => _elegir(context, ref, PapelAviso.principal)
                   : null,
@@ -125,11 +123,11 @@ class _Orden extends ConsumerWidget {
               numero: 2,
               vacio: secundario == null,
               titulo: secundario == null
-                  ? 'Sin contacto secundario'
+                  ? l.familiaSinSecundario
                   : nombre(secundario),
               detalle: secundario == null
-                  ? 'Nadie más recibe el aviso.'
-                  : 'Contacto secundario · a los ${aviso.esperaMinutos} min',
+                  ? l.familiaNadieMasRecibe
+                  : l.familiaContactoSecundarioA(aviso.esperaMinutos),
               alCambiar: puedeCambiar && secundario != null
                   ? () => _elegir(context, ref, PapelAviso.secundario)
                   : null,
@@ -139,30 +137,30 @@ class _Orden extends ConsumerWidget {
         if (secundario == null && titular) ...[
           const SizedBox(height: 12),
           Boton(
-            'Invitar a un familiar',
+            l.familiaInvitar,
             estilo: EstiloBoton.secundario,
             icono: Ico.plus,
             alPresionar: () => context.push(Rutas.invitar),
           ),
         ],
-        const EncabezadoSeccion('Tiempo de espera'),
-        Text('Antes de avisar al secundario.', style: texto.bodyMedium),
+        EncabezadoSeccion(l.familiaTiempoEspera),
+        Text(l.familiaAntesDeAvisar, style: texto.bodyMedium),
         const SizedBox(height: 12),
         for (final m in ConfiguracionAviso.esperas)
           OpcionRadio<int>(
             valor: m,
             seleccion: aviso.esperaMinutos,
-            titulo: '$m minutos',
+            titulo: l.familiaMinutos(m),
             subtitulo: m == ConfiguracionAviso.esperaPredeterminada
-                ? 'Predeterminado'
+                ? l.familiaPredeterminado
                 : null,
             alElegir: titular
                 ? (v) => guardarAviso(
                     context,
                     ref,
                     aviso.con(esperaMinutos: v),
-                    titulo: 'Tiempo de espera: $v minutos',
-                    texto: 'Se aplicará en las próximas alertas.',
+                    titulo: l.familiaEsperaToast(v),
+                    texto: l.familiaEsperaToastTexto,
                     icono: Ico.clock,
                   )
                 : null,
@@ -172,31 +170,43 @@ class _Orden extends ConsumerWidget {
           Aviso(
             tono: TonoAviso.info,
             icono: Ico.clock,
-            contenido: TextSpan(
-              children: [
-                const TextSpan(text: 'Ej.: alerta a las '),
-                TextSpan(text: '10:42', style: estiloMono(tamano: 15.5)),
-                TextSpan(
-                  text:
-                      ' sin atender → '
-                      '${secundario.familiar.nombrePila} a las ',
-                ),
-                TextSpan(
-                  text: hora(
-                    DateTime(2026, 1, 1, 10, 42 + aviso.esperaMinutos),
-                  ),
-                  style: estiloMono(tamano: 15.5),
-                ),
-                const TextSpan(text: '.'),
-              ],
+            contenido: _ejemplo(
+              l,
+              nombre: secundario.familiar.nombrePila,
+              inicio: context.formato.hora(DateTime(2026, 1, 1, 10, 42)),
+              fin: context.formato.hora(
+                DateTime(2026, 1, 1, 10, 42 + aviso.esperaMinutos),
+              ),
             ),
           )
         else
-          const Aviso(
+          Aviso(
             tono: TonoAviso.neutral,
             icono: Ico.info,
-            texto: 'Se usa cuando haya un contacto secundario.',
+            texto: l.familiaUsaConSecundario,
           ),
+      ],
+    );
+  }
+
+  /// «Ej.: alerta a las 10:42 sin atender → Luis a las 10:47.», with the times in mono.
+  static TextSpan _ejemplo(
+    AppLocalizations l, {
+    required String nombre,
+    required String inicio,
+    required String fin,
+  }) {
+    // Both times come in this order in every language.
+    const marca = '\u0000';
+    final partes = l.familiaEjemploEspera(marca, nombre, marca).split(marca);
+    final mono = estiloMono(tamano: 15.5);
+    return TextSpan(
+      children: [
+        TextSpan(text: partes[0]),
+        TextSpan(text: inicio, style: mono),
+        TextSpan(text: partes[1]),
+        TextSpan(text: fin, style: mono),
+        if (partes[2].isNotEmpty) TextSpan(text: partes[2]),
       ],
     );
   }
@@ -257,10 +267,11 @@ class _Puesto extends StatelessWidget {
     fin: alCambiar == null
         ? null
         : Semantics(
-            label:
-                'Cambiar contacto ${numero == 1 ? 'principal' : 'secundario'}',
+            label: context.l10n.familiaCambiarContacto(
+              numero == 1 ? 'principal' : 'secundario',
+            ),
             excludeSemantics: true,
-            child: Enlace('Cambiar', alTocar: alCambiar),
+            child: Enlace(context.l10n.familiaCambiar, alTocar: alCambiar),
           ),
   );
 }
@@ -283,7 +294,9 @@ class _ElegirContacto extends ConsumerWidget {
     final yo = ref.watch(sesionControllerProvider)?.usuario.id;
     final esPrincipal = puesto == PapelAviso.principal;
     final actual = esPrincipal ? aviso.principalId : aviso.secundarioId;
+    // The `select` value of the messages, not a text.
     final nombrePuesto = esPrincipal ? 'principal' : 'secundario';
+    final l = context.l10n;
     Future<void> elegir(MiembroFamilia m) async {
       final id = m.familiar.usuarioId;
       final navegador = Navigator.of(context);
@@ -299,8 +312,8 @@ class _ElegirContacto extends ConsumerWidget {
         navegador.pop();
         mostrarToast(
           context,
-          titulo: 'Primero elige otro principal',
-          texto: '${m.familiar.nombrePila} ya es el contacto principal.',
+          titulo: l.familiaPrimeroOtroPrincipal,
+          texto: l.familiaYaEsPrincipal(m.familiar.nombrePila),
           icono: Ico.warn,
           tono: TonoAviso.advertencia,
         );
@@ -313,8 +326,8 @@ class _ElegirContacto extends ConsumerWidget {
         context,
         ref,
         nuevo,
-        titulo: '${m.familiar.nombrePila} es contacto $nombrePuesto',
-        texto: 'Usaremos este orden en las próximas alertas.',
+        titulo: l.familiaEsContacto(m.familiar.nombrePila, nombrePuesto),
+        texto: l.familiaUsaremosOrden,
       );
     }
 
@@ -328,16 +341,15 @@ class _ElegirContacto extends ConsumerWidget {
             Semantics(
               header: true,
               child: Text(
-                '¿Quién será el contacto $nombrePuesto?',
+                l.familiaQuienSera(nombrePuesto),
                 style: texto.titleLarge,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               esPrincipal
-                  ? 'Atiende cada alerta primero.'
-                  : 'Le avisamos si nadie la marca en '
-                        '${aviso.esperaMinutos} min.',
+                  ? l.familiaAtiendePrimero
+                  : l.familiaLeAvisamos(aviso.esperaMinutos),
               style: texto.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -346,14 +358,16 @@ class _ElegirContacto extends ConsumerWidget {
                 valor: m.familiar.usuarioId,
                 seleccion: actual,
                 titulo: m.familiar.usuarioId == yo
-                    ? '${m.familiar.nombre} (tú)'
+                    ? l.familiaNombreTu(m.familiar.nombre)
                     : m.familiar.nombre,
-                subtitulo: 'ahora: ${m.papel.etiqueta.toLowerCase()}',
+                subtitulo: l.familiaOrdenAhora(
+                  m.papel.etiqueta(l).toLowerCase(),
+                ),
                 alElegir: (_) => elegir(m),
               ),
             if (!esPrincipal && aviso.secundarioId != null)
               Boton(
-                'Quitar contacto secundario',
+                l.familiaQuitarSecundario,
                 estilo: EstiloBoton.fantasma,
                 alPresionar: () async {
                   Navigator.of(context).pop();
@@ -361,9 +375,8 @@ class _ElegirContacto extends ConsumerWidget {
                     context,
                     ref,
                     aviso.con(sinSecundario: true),
-                    titulo: 'Sin contacto secundario',
-                    texto:
-                        'Nadie más será avisado si no se atiende una alerta.',
+                    titulo: l.familiaSinSecundario,
+                    texto: l.familiaNadieMasSeraAvisado,
                   );
                 },
               ),

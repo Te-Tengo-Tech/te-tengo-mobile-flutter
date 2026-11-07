@@ -1,5 +1,6 @@
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/estado_actualizacion.dart';
 import '../domain/versiones.dart';
 
@@ -54,13 +55,18 @@ class Situacion {
 }
 
 /// «Actualizar», or «Abrir» on the iPhone.
-String textoActualizar(InfoApp info, {bool largo = false}) =>
-    info.canal == Canal.ios
-    ? (largo ? 'Abrir ${info.tiendaIos.nombre}' : 'Abrir')
-    : 'Actualizar';
+String textoActualizar(
+  AppLocalizations l,
+  InfoApp info, {
+  bool largo = false,
+}) => info.canal == Canal.ios
+    ? (largo
+          ? l.actualizacionAbrirTienda(info.tiendaIos.nombre)
+          : l.actualizacionAbrir)
+    : l.actualizacionActualizar;
 
 /// Null when there is nothing to say.
-Situacion? situacionDe(EstadoActualizacion e) {
+Situacion? situacionDe(AppLocalizations l, EstadoActualizacion e) {
   final info = e.info;
   final nueva = e.nueva ?? (e.obligatoria ? e.publicada : null);
   if (info == null || nueva == null) return null;
@@ -71,21 +77,21 @@ Situacion? situacionDe(EstadoActualizacion e) {
       return Situacion(
         nueva: false,
         icono: Ico.download,
-        titulo: 'Descargando $version',
-        texto: p == null ? null : '${(p * 100).floor()} %',
+        titulo: l.actualizacionDescargando(version),
+        texto: p == null ? null : l.actualizacionPorcentaje((p * 100).floor()),
         textoMono: true,
         progreso: p,
         indeterminado: p == null,
         // Google Play's download cannot be stopped from here.
         accion: info.canal == Canal.apk ? AccionActualizacion.cancelar : null,
-        textoAccion: 'Cancelar',
+        textoAccion: l.actualizacionCancelar,
         accionPrincipal: false,
       );
     case FaseActualizacion.comprobando:
-      return const Situacion(
+      return Situacion(
         nueva: false,
         icono: Ico.shield,
-        titulo: 'Comprobando la descarga…',
+        titulo: l.actualizacionComprobando,
         indeterminado: true,
       );
     case FaseActualizacion.quieta ||
@@ -95,57 +101,65 @@ Situacion? situacionDe(EstadoActualizacion e) {
         FaseActualizacion.recargando:
       break;
   }
-  const reintentar = (AccionActualizacion.actualizar, 'Reintentar', false);
+  final reintentar = (
+    AccionActualizacion.actualizar,
+    l.actualizacionReintentar,
+    false,
+  );
+  final actualizar = (
+    AccionActualizacion.actualizar,
+    l.actualizacionActualizar,
+    true,
+  );
   final actual = info.version;
   final error = switch (e.error) {
     ErrorActualizacion.sinInternet => (
       TonoAviso.advertencia,
       Ico.wifiOff,
-      'Sin internet',
-      'No se pudo descargar.',
+      l.actualizacionSinInternet,
+      l.actualizacionNoSePudoDescargarPunto,
       null,
       reintentar,
     ),
     ErrorActualizacion.descarga => (
       TonoAviso.advertencia,
       Ico.warn,
-      'No se pudo descargar',
-      'Sigues con la $actual.',
+      l.actualizacionNoSePudoDescargar,
+      l.actualizacionSigues(actual),
       null,
       reintentar,
     ),
     ErrorActualizacion.verificacion => (
       TonoAviso.advertencia,
       Ico.warn,
-      'No se pudo verificar la descarga',
-      'La borramos. Sigues con la $actual.',
-      'No coincide con la versión publicada. Para cuidar tu celular, no se '
-          'instala.',
+      l.actualizacionNoSePudoVerificar,
+      l.actualizacionLaBorramos(actual),
+      l.actualizacionNoCoincide,
       reintentar,
     ),
     ErrorActualizacion.cancelada => (
       TonoAviso.info,
       Ico.info,
-      'No se instaló',
-      'Cancelaste la instalación.',
+      l.actualizacionNoSeInstalo,
+      l.actualizacionCancelaste,
       null,
-      (AccionActualizacion.actualizar, 'Actualizar', true),
+      actualizar,
     ),
     ErrorActualizacion.instalacion => (
       TonoAviso.info,
       Ico.info,
-      'No se instaló',
+      l.actualizacionNoSeInstalo,
       null,
       null,
-      (AccionActualizacion.actualizar, 'Actualizar', true),
+      actualizar,
     ),
     ErrorActualizacion.sinPermiso => (
       TonoAviso.info,
       Ico.lock,
-      'Falta el permiso de Android',
-      'Sin él no se instala.',
+      l.actualizacionFaltaPermiso,
+      l.actualizacionSinPermiso,
       null,
-      (AccionActualizacion.actualizar, 'Actualizar', true),
+      actualizar,
     ),
     ErrorActualizacion.sinInternetAlBuscar || null => null,
   };
@@ -173,10 +187,10 @@ Situacion? situacionDe(EstadoActualizacion e) {
     nueva: true,
     icono: Ico.refresh,
     titulo: info.canal == Canal.apk
-        ? 'Hay una versión nueva ($version)'
-        : 'Hay una versión nueva',
+        ? l.actualizacionHayNuevaVersion(version)
+        : l.actualizacionHayNueva,
     texto: info.canal == Canal.ios ? info.tiendaIos.nombre : null,
     accion: AccionActualizacion.actualizar,
-    textoAccion: textoActualizar(info),
+    textoAccion: textoActualizar(l, info),
   );
 }

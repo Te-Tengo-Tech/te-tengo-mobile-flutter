@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../apoyo/idioma.dart';
 import 'pantallas.dart';
 
 /// Loads a font of the app from its file so the screenshots show the real typography.
@@ -43,6 +44,20 @@ void main() {
       await expectLater(
         find.byType(WidgetsApp).first,
         matchesGoldenFile(_archivo('${p.nombre} oscuro')),
+      );
+    });
+  }
+
+  // The fall alert and Inicio on a phone in English, with the same data.
+  for (final p in pantallasPrincipales.where(
+    (p) => p.nombre == 'alerta de caída' || p.nombre == 'inicio',
+  )) {
+    testWidgets('captura en inglés: ${p.nombre}', (tester) async {
+      usarIngles(tester);
+      await abrirPantalla(tester, p);
+      await expectLater(
+        find.byType(WidgetsApp).first,
+        matchesGoldenFile(_archivo('${p.nombre} en')),
       );
     });
   }

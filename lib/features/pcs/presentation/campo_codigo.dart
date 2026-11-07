@@ -5,7 +5,9 @@ import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/formato.dart';
 import '../../../core/red/problema_api.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/pc.dart';
+import 'piezas_pc.dart';
 
 /// What went wrong with a link code, from the `vinculaciones` endpoints (contract §9).
 enum TipoErrorCodigo {
@@ -29,60 +31,68 @@ enum TipoErrorCodigo {
 }
 
 class ErrorDeCodigo {
-  const ErrorDeCodigo(this.tipo, this.texto, {this.bloqueadaHasta});
+  const ErrorDeCodigo(
+    this.tipo, {
+    this.detalle,
+    this.bloqueadaHasta,
+    this.porFormato = false,
+  });
 
   final TipoErrorCodigo tipo;
 
-  /// The prototype's line for the field or the notice.
-  final String texto;
+  /// The backend's own words, shown as they arrive (`SOLO_TITULAR`, an unknown code, or the
+  /// `codigo` field of a `VALIDACION`).
+  final String? detalle;
 
   /// «Podrás volver a intentarlo a las 10:57».
   final DateTime? bloqueadaHasta;
 
+  /// A `VALIDACION` without the field's message: the code's format is wrong.
+  final bool porFormato;
+
+  /// The prototype's line for the field or the notice.
+  String texto(AppLocalizations l) =>
+      detalle ??
+      switch (tipo) {
+        TipoErrorCodigo.incorrecto =>
+          porFormato ? l.pcsCodigoFormato : l.pcsCodigoNoExiste,
+        TipoErrorCodigo.vencido => l.pcsCodigoVencido,
+        TipoErrorCodigo.bloqueado => l.pcsDemasiadosIntentos,
+        TipoErrorCodigo.yaVinculada => l.pcsYaVinculadaTitulo,
+        TipoErrorCodigo.sinConexion => l.pcsSinInternetReintenta,
+        TipoErrorCodigo.soloTitular || TipoErrorCodigo.otro => '',
+      };
+
   factory ErrorDeCodigo.desde(ProblemaApi e) => switch (e.codigo) {
-    'CODIGO_INCORRECTO' => const ErrorDeCodigo(
-      TipoErrorCodigo.incorrecto,
-      'Ese código no existe. Revísalo letra por letra.',
-    ),
+    'CODIGO_INCORRECTO' => const ErrorDeCodigo(TipoErrorCodigo.incorrecto),
     'VALIDACION' => ErrorDeCodigo(
       TipoErrorCodigo.incorrecto,
-      e.campos['codigo'] ??
-          'El código tiene 8 letras, solo consonantes y sin números.',
+      detalle: e.campos['codigo'],
+      porFormato: true,
     ),
-    'CODIGO_VENCIDO' => const ErrorDeCodigo(
-      TipoErrorCodigo.vencido,
-      'Este código venció o ya se usó. La PC ya muestra uno nuevo.',
-    ),
+    'CODIGO_VENCIDO' => const ErrorDeCodigo(TipoErrorCodigo.vencido),
     'VINCULACION_BLOQUEADA' => ErrorDeCodigo(
       TipoErrorCodigo.bloqueado,
-      'Demasiados intentos',
       bloqueadaHasta: fechaDesdeJson(e.extras['bloqueadaHasta']),
     ),
-    'PC_YA_VINCULADA' => const ErrorDeCodigo(
-      TipoErrorCodigo.yaVinculada,
-      'Esta PC ya está vinculada',
+    'PC_YA_VINCULADA' => const ErrorDeCodigo(TipoErrorCodigo.yaVinculada),
+    'SOLO_TITULAR' => ErrorDeCodigo(
+      TipoErrorCodigo.soloTitular,
+      detalle: e.detalle,
     ),
-    'SOLO_TITULAR' => ErrorDeCodigo(TipoErrorCodigo.soloTitular, e.detalle),
-    ProblemaApi.sinConexion => const ErrorDeCodigo(
-      TipoErrorCodigo.sinConexion,
-      'Sin internet. Vuelve a intentarlo.',
-    ),
-    _ => ErrorDeCodigo(TipoErrorCodigo.otro, e.detalle),
+    ProblemaApi.sinConexion => const ErrorDeCodigo(TipoErrorCodigo.sinConexion),
+    _ => ErrorDeCodigo(TipoErrorCodigo.otro, detalle: e.detalle),
   };
 }
 
 /// «Podrás volver a intentarlo a las 10:57.», with the time in the mono font.
-TextSpan textoBloqueo(DateTime? hasta) => TextSpan(
-  children: [
-    if (hasta == null)
-      const TextSpan(text: 'Podrás volver a intentarlo en 15 minutos.')
-    else ...[
-      const TextSpan(text: 'Podrás volver a intentarlo a las '),
-      TextSpan(text: hora(hasta), style: estiloMono(tamano: 15.5, peso: 400)),
-      const TextSpan(text: '.'),
-    ],
-  ],
-);
+TextSpan textoBloqueo(AppLocalizations l, DateTime? hasta) => hasta == null
+    ? TextSpan(children: [TextSpan(text: l.pcsBloqueoQuinceMinutos)])
+    : textoConDato(
+        l.pcsBloqueoHasta,
+        l.formato.hora(hasta),
+        estiloMono(tamano: 15.5, peso: 400),
+      );
 
 /// Keeps the code's letters and shows them as `KQWT-MXHD`: lower case, a hyphen or none, vowels and
 /// digits are accepted and the ones the code never uses are ignored (CA-28.2).
@@ -238,8 +248,8 @@ class _CampoCodigoState extends State<CampoCodigo> {
                     inputFormatters: [_formato],
                     onChanged: (t) => widget.alCambiar(limpiarCodigo(t)),
                     onSubmitted: (_) => widget.alEnviar?.call(),
-                    decoration: const InputDecoration(
-                      labelText: 'Código de la PC, 8 letras',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.pcsCampoCodigoEtiqueta,
                       border: InputBorder.none,
                     ),
                   ),

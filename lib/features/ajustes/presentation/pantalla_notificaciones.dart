@@ -13,6 +13,7 @@ import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
 import '../../../core/web/entorno.dart';
+import '../../../l10n/l10n.dart';
 import '../../familia/data/familia_repositorio.dart';
 import '../../familia/domain/familiar.dart';
 import '../../inicio/presentation/pantalla_inicio.dart';
@@ -38,8 +39,9 @@ class PantallaNotificaciones extends ConsumerWidget {
         ConfiguracionAviso.esperaPredeterminada;
     final titular = ref.watch(esTitularProvider);
     final control = ref.read(preferenciasProvider.notifier);
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Notificaciones')),
+      appBar: AppBar(title: Text(l.notificacionesTitulo)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
@@ -49,10 +51,10 @@ class PantallaNotificaciones extends ConsumerWidget {
             Aviso(
               tono: TonoAviso.advertencia,
               icono: Ico.bellOff,
-              titulo: 'Desactivadas en tu celular',
-              texto: 'Con la app cerrada no te enterarás de una caída.',
+              titulo: l.notificacionesDesactivadasTitulo,
+              texto: l.notificacionesDesactivadasTexto,
               accion: Boton(
-                'Activar notificaciones',
+                l.notificacionesActivar,
                 estilo: EstiloBoton.tinta,
                 pequeno: true,
                 alPresionar: () => activarNotificaciones(context, ref),
@@ -65,62 +67,59 @@ class PantallaNotificaciones extends ConsumerWidget {
               tono: TonoAviso.advertencia,
               icono: Ico.bellOff,
               titulo: familiaSinAlertas
-                  ? 'Nadie de la familia recibe las alertas'
-                  : 'Este celular no recibe las alertas',
-              texto: 'Sin ellas no sabrás de una caída con la app cerrada.',
+                  ? l.notificacionesFamiliaSinAlertas
+                  : l.notificacionesCelularSinAlertas,
+              texto: l.notificacionesSinAlertasTexto,
               accion: Boton(
-                'Activar notificaciones',
+                l.notificacionesActivar,
                 estilo: EstiloBoton.tinta,
                 pequeno: true,
                 alPresionar: () => activarNotificaciones(context, ref),
               ),
             )
           else if (activas == true && recepcion == RecepcionPush.activa)
-            const Aviso(
+            Aviso(
               tono: TonoAviso.ok,
               icono: Ico.bell,
-              titulo: 'Notificaciones activadas',
+              titulo: l.notificacionesActivadas,
             ),
-          const EncabezadoSeccion('Avisos en este celular'),
+          EncabezadoSeccion(l.notificacionesAvisosEnCelular),
           ListaTarjeta(
             children: [
-              const _FilaInterruptor(
-                titulo: 'Caídas',
-                subtitulo: 'Siempre activas',
+              _FilaInterruptor(
+                titulo: l.notificacionesCaidas,
+                subtitulo: l.notificacionesSiempreActivas,
                 valor: true,
               ),
               if (ref.watch(permisoNotificacionesProvider).ajustesDeSonido)
-                const FilaSonarEnSilencio(
-                  subtitulo: 'Aunque el celular esté en silencio',
-                ),
+                FilaSonarEnSilencio(subtitulo: l.notificacionesSonarSubtitulo),
               _FilaInterruptor(
-                titulo: 'Movimientos inestables',
-                subtitulo: 'Severidad media',
+                titulo: l.notificacionesInestables,
+                subtitulo: l.notificacionesSeveridadMedia,
                 valor: preferencias.inestables,
                 alCambiar: (v) =>
                     control.cambiar(preferencias.con(inestables: v)),
               ),
-              const _FilaInterruptor(
-                titulo: 'Estado de la cámara',
-                subtitulo:
-                    'Desconexión o detección no confiable · siempre activas',
+              _FilaInterruptor(
+                titulo: l.notificacionesEstadoCamara,
+                subtitulo: l.notificacionesEstadoCamaraTexto,
                 valor: true,
               ),
               _FilaInterruptor(
-                titulo: 'Fin de una pausa',
-                subtitulo: 'Cuando la cámara se reactiva sola',
+                titulo: l.notificacionesFinPausa,
+                subtitulo: l.notificacionesFinPausaTexto,
                 valor: preferencias.finPausa,
                 alCambiar: (v) =>
                     control.cambiar(preferencias.con(finPausa: v)),
               ),
             ],
           ),
-          const EncabezadoSeccion('Si nadie atiende'),
+          EncabezadoSeccion(l.notificacionesSiNadieAtiende),
           ListaTarjeta(
             children: [
               FilaLista(
                 inicio: const IconoFila(Ico.clock),
-                titulo: 'Avisar al secundario a los $espera min',
+                titulo: l.notificacionesAvisarSecundario(espera),
                 fin: titular
                     ? null
                     : Icono(Ico.lock, tamano: 22, color: context.colores.icono),

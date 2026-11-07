@@ -11,6 +11,7 @@ import '../features/ajustes/data/contraste.dart';
 import '../features/ajustes/data/tamano_letra.dart';
 import '../features/alertas/data/alertas_repositorio.dart';
 import '../features/widget/presentation/actualizador_widget.dart';
+import '../l10n/l10n.dart';
 import 'push.dart';
 import 'router.dart';
 import 'tema/tema.dart';
@@ -58,6 +59,10 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
     return MaterialApp.router(
       title: 'Te Tengo',
       debugShowCheckedModeBanner: false,
+      // Spanish (Peru) by default; English when the phone prefers it (lib/l10n/l10n.dart).
+      localizationsDelegates: delegadosDeTextos,
+      supportedLocales: idiomasDeLaApp,
+      localeListResolutionCallback: resolverIdioma,
       theme: temaTeTengo(contraste: contraste),
       darkTheme: temaTeTengo(oscuro: true, contraste: contraste),
       highContrastTheme: temaTeTengo(contraste: true),

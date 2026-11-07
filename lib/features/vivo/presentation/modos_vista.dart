@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/tema/paleta.dart';
 import '../../../app/tema/tema.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../domain/vista_en_vivo.dart';
 
 /// «Video» is on in this mode.
@@ -67,15 +68,16 @@ class ModosVista extends StatelessWidget {
       return expandir ? Expanded(child: boton) : boton;
     }
 
+    final l = context.l10n;
     return Semantics(
       container: true,
-      label: 'Qué se ve',
+      label: l.vivoQueSeVe,
       child: Row(
         mainAxisSize: expandir ? MainAxisSize.max : MainAxisSize.min,
         children: [
-          interruptor('Video', Ico.video, true),
+          interruptor(l.vivoModoVideo, Ico.video, true),
           const SizedBox(width: 10),
-          interruptor('Esqueleto', Ico.body, false),
+          interruptor(l.vivoModoEsqueleto, Ico.body, false),
         ],
       ),
     );

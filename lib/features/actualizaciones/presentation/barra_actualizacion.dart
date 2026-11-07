@@ -6,6 +6,7 @@ import '../../../app/tema/tema.dart';
 import '../../../core/ui/aviso.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
+import '../../../l10n/l10n.dart';
 import '../../alertas/data/alertas_repositorio.dart';
 import '../data/actualizacion_controller.dart';
 import '../domain/versiones.dart';
@@ -23,7 +24,8 @@ class BarraActualizacion extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estado = ref.watch(actualizacionProvider);
     if (estado.obligatoria) return const SizedBox.shrink();
-    final situacion = situacionDe(estado);
+    final l = context.l10n;
+    final situacion = situacionDe(l, estado);
     if (situacion == null) return const SizedBox.shrink();
     if (ref.watch(alertaActivaProvider).value != null) {
       return const SizedBox.shrink();
@@ -66,7 +68,7 @@ class BarraActualizacion extends ConsumerWidget {
     final accion = _accion(ref, situacion);
     final ayuda = situacion.ayuda == null
         ? null
-        : AyudaInfo(texto: situacion.ayuda!, tema: 'la descarga');
+        : AyudaInfo(texto: situacion.ayuda!, tema: l.actualizacionDescargaTema);
     return Semantics(
       container: true,
       liveRegion: true,
@@ -145,7 +147,7 @@ class _EnlaceQueCambio extends StatelessWidget {
           alignment: Alignment.centerLeft,
           widthFactor: 1,
           child: Text(
-            'Qué cambió',
+            context.l10n.actualizacionQueCambio,
             style: estiloTexto(15, 700, color: context.colores.moradoTinta)
                 .copyWith(
                   decoration: TextDecoration.underline,
@@ -171,8 +173,10 @@ class PistaDescarga extends StatelessWidget {
     final quieta = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final valor = progreso ?? (quieta ? 1.0 : null);
     return Semantics(
-      label: 'Descarga',
-      value: progreso == null ? null : '${(progreso! * 100).floor()} %',
+      label: context.l10n.actualizacionDescarga,
+      value: progreso == null
+          ? null
+          : context.l10n.actualizacionPorcentaje((progreso! * 100).floor()),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(3),
         child: LinearProgressIndicator(
@@ -201,6 +205,7 @@ Future<void> mostrarQueCambio(BuildContext context, WidgetRef ref) {
         final info = estado.info;
         if (nueva == null || info == null) return const SizedBox.shrink();
         final c = contexto.colores;
+        final l = contexto.l10n;
         return SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
           child: Column(
@@ -209,14 +214,14 @@ Future<void> mostrarQueCambio(BuildContext context, WidgetRef ref) {
               Semantics(
                 header: true,
                 child: Text(
-                  'Qué cambió en la ${nueva.version}',
+                  l.actualizacionQueCambioEn(nueva.version),
                   style: Theme.of(contexto).textTheme.titleLarge,
                 ),
               ),
               if (nueva.tamanoBytes case final b?) ...[
                 const SizedBox(height: 6),
                 Text(
-                  tamanoLegible(b),
+                  tamanoLegible(l, b),
                   style: estiloTexto(15, 400, color: c.tinta3),
                 ),
               ],
@@ -224,7 +229,7 @@ Future<void> mostrarQueCambio(BuildContext context, WidgetRef ref) {
               NotasVersion(nueva.notas),
               const SizedBox(height: 20),
               Boton(
-                textoActualizar(info),
+                textoActualizar(l, info),
                 icono: Ico.refresh,
                 alPresionar: () {
                   Navigator.of(contexto).pop();
@@ -233,7 +238,7 @@ Future<void> mostrarQueCambio(BuildContext context, WidgetRef ref) {
               ),
               const SizedBox(height: 8),
               Boton(
-                'Ahora no',
+                l.actualizacionAhoraNo,
                 estilo: EstiloBoton.fantasma,
                 alPresionar: () => Navigator.of(contexto).pop(),
               ),

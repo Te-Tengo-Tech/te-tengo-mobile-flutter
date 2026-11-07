@@ -10,6 +10,7 @@ import '../../../core/ui/formulario.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
 import '../../../core/ui/tarjeta.dart';
+import '../../../l10n/l10n.dart';
 import '../../pcs/data/pcs_repositorio.dart';
 import '../../pcs/domain/camara_detectada.dart';
 import '../../pcs/presentation/piezas_pc.dart';
@@ -74,19 +75,17 @@ class _PantallaNombreHabitacionState
 
   /// «Ya hay una cámara en la Sala. Por ahora, cada habitación usa una sola cámara.»
   String _ocupada(String habitacion) =>
-      'Ya hay una cámara ${enHabitacion(habitacion)}. Por ahora, cada '
-      'habitación usa una sola cámara.';
+      context.l10n.camaraNombreOcupada(enHabitacion(habitacion, context.l10n));
 
   Future<void> _guardar() async {
     final nombre = _nombre;
+    final l = context.l10n;
     if (nombre.isEmpty) {
-      setState(() => _error = 'Escribe el nombre de la habitación.');
+      setState(() => _error = l.camaraNombreVacio);
       return;
     }
     if (esBano(nombre)) {
-      setState(
-        () => _error = 'Por privacidad, Te Tengo no admite cámaras en el baño.',
-      );
+      setState(() => _error = l.camaraNombreBano);
       return;
     }
     final ocupada = _ocupadas
@@ -113,8 +112,8 @@ class _PantallaNombreHabitacionState
       context.pop();
       mostrarToast(
         context,
-        titulo: 'Nombre guardado: $nombre',
-        texto: 'Las próximas alertas dirán «${enHabitacion(nombre)}».',
+        titulo: l.camaraNombreGuardado(nombre),
+        texto: l.camaraNombreProximasAlertas(enHabitacion(nombre, l)),
         icono: Ico.pin,
       );
     } on ProblemaApi catch (e) {
@@ -122,13 +121,13 @@ class _PantallaNombreHabitacionState
       setState(() {
         switch (e.codigo) {
           case 'CAMARA_NOMBRE_VACIO':
-            _error = 'Escribe el nombre de la habitación.';
+            _error = l.camaraNombreVacio;
           case 'CAMARA_NOMBRE_MUY_LARGO':
             _error = e.detalle;
           case 'AMBIENTE_OCUPADO':
             _error = _ocupada(e.extras['ambiente'] as String? ?? nombre);
           case 'AMBIENTE_NO_PERMITIDO':
-            _error = 'Por privacidad, Te Tengo no admite cámaras en el baño.';
+            _error = l.camaraNombreBano;
           default:
             _problema = e;
         }
@@ -141,11 +140,12 @@ class _PantallaNombreHabitacionState
   @override
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
+    final l = context.l10n;
     final nombre = _nombre;
     ref.watch(ambientesProvider);
     final ocupadas = {for (final a in _ocupadas) a.nombre.toLowerCase()};
     return Scaffold(
-      appBar: AppBar(title: const Text('Nombre de la habitación')),
+      appBar: AppBar(title: Text(l.camaraNombreTitulo)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
         children: [
@@ -154,10 +154,10 @@ class _PantallaNombreHabitacionState
             const SizedBox(height: 16),
           ],
           CampoTexto(
-            etiqueta: 'Nombre de la habitación',
+            etiqueta: l.camaraNombreTitulo,
             controlador: _control,
             error: _error,
-            marcador: 'Ej.: Sala comedor',
+            marcador: l.camaraNombreMarcador,
             longitudMaxima: PantallaNombreHabitacion.largoMaximo,
             alCambiar: (_) => setState(() => _error = null),
             alEnviar: (_) => _guardar(),
@@ -165,7 +165,7 @@ class _PantallaNombreHabitacionState
           Transform.translate(
             offset: const Offset(0, -6),
             child: Semantics(
-              label: 'Sugerencias',
+              label: l.camaraNombreSugerencias,
               child: Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -186,10 +186,7 @@ class _PantallaNombreHabitacionState
           ),
           if (ocupadas.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(
-              'Las que ya tienen cámara no se pueden elegir.',
-              style: texto.bodySmall,
-            ),
+            Text(l.camaraNombreYaTienen, style: texto.bodySmall),
           ],
           const SizedBox(height: 16),
           TarjetaBanda(
@@ -197,10 +194,7 @@ class _PantallaNombreHabitacionState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Así se verá en las próximas alertas',
-                  style: texto.bodySmall,
-                ),
+                Text(l.camaraNombreAsiSeVera, style: texto.bodySmall),
                 const SizedBox(height: 8),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,23 +204,26 @@ class _PantallaNombreHabitacionState
                     Expanded(
                       child: Text(
                         nombre.isEmpty
-                            ? 'Posible caída …'
-                            : 'Posible caída ${enHabitacion(nombre)}',
+                            ? l.camaraNombrePosibleCaidaVacia
+                            : l.camaraNombrePosibleCaida(
+                                enHabitacion(nombre, l),
+                              ),
                         style: texto.titleMedium,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Las alertas anteriores no cambian.',
-                  style: texto.bodySmall,
-                ),
+                Text(l.camaraNombreAnteriores, style: texto.bodySmall),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          Boton('Guardar nombre', cargando: _guardando, alPresionar: _guardar),
+          Boton(
+            l.camaraNombreGuardar,
+            cargando: _guardando,
+            alPresionar: _guardar,
+          ),
         ],
       ),
     );

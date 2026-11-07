@@ -7,6 +7,7 @@ import '../../../core/dispositivo/permiso_notificaciones.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/lista.dart';
+import '../../../l10n/l10n.dart';
 
 /// «✓ Activadas» (`.perm-ok`): the permission is already granted.
 class PermisoActivado extends StatelessWidget {
@@ -20,7 +21,7 @@ class PermisoActivado extends StatelessWidget {
       const SizedBox(width: 6),
       Flexible(
         child: Text(
-          'Activadas',
+          context.l10n.notificacionesActivadasPermiso,
           style: estiloTexto(15, 700, color: context.colores.calmaTinta),
         ),
       ),
@@ -49,10 +50,10 @@ class FilaSonarEnSilencio extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => FilaLista(
     inicio: icono ? const IconoFila(Ico.warn) : null,
-    titulo: 'Sonar en silencio',
+    titulo: context.l10n.notificacionesSonarEnSilencio,
     subtitulo: subtitulo,
     fin: Boton(
-      'Permitir',
+      context.l10n.notificacionesPermitir,
       estilo: EstiloBoton.secundario,
       pequeno: true,
       alPresionar: () =>

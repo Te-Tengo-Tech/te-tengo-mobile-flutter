@@ -8,6 +8,7 @@ import '../../../app/tema/tema.dart';
 import '../../../core/ui/botones.dart';
 import '../../../core/ui/iconos.dart';
 import '../../../core/ui/piezas.dart';
+import '../../../l10n/l10n.dart';
 import '../data/actualizacion_controller.dart';
 import '../../../core/ui/ayuda.dart';
 import '../../../core/ui/marca.dart';
@@ -70,6 +71,7 @@ class _PantallaPermisoInstalarState
   Widget build(BuildContext context) {
     final texto = Theme.of(context).textTheme;
     final c = context.colores;
+    final l = context.l10n;
     return PopScope(
       onPopInvokedWithResult: (salio, _) {
         // Closing it without the permission is «Ahora no».
@@ -81,11 +83,11 @@ class _PantallaPermisoInstalarState
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            tooltip: 'Cerrar',
+            tooltip: l.actualizacionCerrar,
             icon: Icono(Ico.x, color: c.icono),
             onPressed: _ahoraNo,
           ),
-          title: const Text('Instalar la actualización'),
+          title: Text(l.actualizacionInstalarTitulo),
         ),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
@@ -111,7 +113,7 @@ class _PantallaPermisoInstalarState
                             style: estiloTexto(16, 700, color: c.tinta),
                           ),
                           Text(
-                            'Permitir de esta fuente',
+                            l.actualizacionPermitirFuente,
                             style: estiloTexto(15, 400, color: c.tinta2),
                           ),
                         ],
@@ -130,7 +132,7 @@ class _PantallaPermisoInstalarState
             Semantics(
               header: true,
               child: Text(
-                'Permite instalar la actualización',
+                l.actualizacionPermiteInstalar,
                 style: texto.headlineMedium,
               ),
             ),
@@ -139,33 +141,30 @@ class _PantallaPermisoInstalarState
               children: [
                 Flexible(
                   child: Text(
-                    'Android lo pide una sola vez.',
+                    l.actualizacionUnaSolaVez,
                     style: texto.bodyMedium,
                   ),
                 ),
-                const AyudaInfo(
-                  texto:
-                      'Te Tengo no viene de una tienda, así que Android pide '
-                      'permiso para instalar sus versiones nuevas. Solo acepta '
-                      'las firmadas por Te Tengo.',
-                  tema: 'el permiso de Android',
+                AyudaInfo(
+                  texto: l.actualizacionPermisoAyuda,
+                  tema: l.actualizacionPermisoTema,
                 ),
               ],
             ),
-            const PasosNumerados([
-              ('Toca «Abrir ajustes».', null),
-              ('Activa «Permitir de esta fuente».', null),
-              ('Vuelve a Te Tengo.', null),
+            PasosNumerados([
+              (l.actualizacionPasoAbrirAjustes, null),
+              (l.actualizacionPasoActivar, null),
+              (l.actualizacionPasoVolver, null),
             ]),
             const SizedBox(height: 20),
             Boton(
-              'Abrir ajustes',
+              l.actualizacionAbrirAjustes,
               icono: Ico.sliders,
               alPresionar: _abrirAjustes,
             ),
             const SizedBox(height: 8),
             Boton(
-              'Ahora no',
+              l.actualizacionAhoraNo,
               estilo: EstiloBoton.fantasma,
               alPresionar: _ahoraNo,
             ),
