@@ -230,7 +230,11 @@ class GestorPush {
       }
       final dispositivo = await _ref
           .read(dispositivosRepositorioProvider)
-          .registrar(tokenPush: token, plataforma: _push.plataforma);
+          .registrar(
+            tokenPush: token,
+            plataforma: _push.plataforma,
+            avisoEnLaApp: _push.avisoEnLaApp,
+          );
       if (!dispositivo.activo) return _estado(RecepcionPush.rechazada);
       if (dispositivo.id case final id?) await _guardar(token, id);
       if (sobrante != null) await _eliminarDelBackend(sobrante);

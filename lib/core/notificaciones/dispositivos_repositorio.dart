@@ -12,6 +12,7 @@ class DispositivoPush {
     required this.activo,
     this.vistoEn,
     this.desactivadoEn,
+    this.avisoEnLaApp = false,
   });
 
   /// Null only with a backend older than 0.3.1, whose `POST` answered no body.
@@ -23,6 +24,10 @@ class DispositivoPush {
   final DateTime? vistoEn;
   final DateTime? desactivadoEn;
 
+  /// Whether the backend sends this phone data-only pushes (contract §7); false with a backend that
+  /// does not know the field yet.
+  final bool avisoEnLaApp;
+
   static DispositivoPush desdeJson(Object? json) {
     if (json is! Map) return const DispositivoPush(id: null, activo: true);
     return DispositivoPush(
@@ -30,17 +35,20 @@ class DispositivoPush {
       activo: json['activo'] as bool? ?? true,
       vistoEn: fechaDesdeJson(json['vistoEn']),
       desactivadoEn: fechaDesdeJson(json['desactivadoEn']),
+      avisoEnLaApp: json['avisoEnLaApp'] as bool? ?? false,
     );
   }
 }
 
 /// Push device registration (contract §7).
 abstract interface class DispositivosRepositorio {
-  /// `POST /api/dispositivos {tokenPush, plataforma}` → `201 Dispositivo`. An upsert: the app calls
-  /// it on every start and return to the foreground, and the backend records when it was seen.
+  /// `POST /api/dispositivos {tokenPush, plataforma, avisoEnLaApp?}` → `201 Dispositivo`. An upsert:
+  /// the app calls it on every start and return to the foreground, and the backend records when it
+  /// was seen. [avisoEnLaApp]: this phone draws the notices from data-only pushes (Android).
   Future<DispositivoPush> registrar({
     required String tokenPush,
     required String plataforma,
+    bool avisoEnLaApp = false,
   });
 
   /// `GET /api/dispositivos/{id}`; null when the backend does not know it
@@ -61,10 +69,16 @@ class DispositivosRepositorioApi implements DispositivosRepositorio {
   Future<DispositivoPush> registrar({
     required String tokenPush,
     required String plataforma,
+    bool avisoEnLaApp = false,
   }) => llamarApi(() async {
     final respuesta = await _dio.post<Object?>(
       '/api/dispositivos',
-      data: {'tokenPush': tokenPush, 'plataforma': plataforma},
+      data: {
+        'tokenPush': tokenPush,
+        'plataforma': plataforma,
+        // Only when true: a backend older than the field ignores it, and false is its default.
+        if (avisoEnLaApp) 'avisoEnLaApp': true,
+      },
     );
     return DispositivoPush.desdeJson(respuesta.data);
   });
