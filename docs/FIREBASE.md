@@ -32,6 +32,18 @@ and VAPID key as `--dart-define`s.
 - **Android channel:** `MainActivity` creates the channel `alertas_caida` («Alertas», high importance)
   at start; the backend sends alert pushes to it and `AndroidManifest.xml` makes it the default
   channel (`com.google.firebase.messaging.default_notification_channel_id`).
+- **Android draws its own notices (data-only pushes):** FCM keeps only the latest *notification*
+  message while a phone is offline (notification messages are always collapsible), so measured on
+  2026-11-15 a phone that lost its network for 60 s got only one of the alerts sent meanwhile. The
+  Android app therefore registers with `avisoEnLaApp: true` (API contract §7) and the backend sends it
+  data-only pushes, which FCM stores up to 100 of. `ReceptorAvisosPush` (`AvisosPush.kt`, a receiver
+  of the same FCM broadcast as Firebase's own) draws each one while the app is not in the foreground,
+  as FCM drew a notification message: title `titulo`, body `cuerpo`, tag `grupo` (a later notice of
+  the same alert replaces the earlier one), channel `canal` (default `alertas_caida`), id 0. In the
+  foreground nothing is drawn: `onMessage` opens the alert, as before. A tap goes through
+  `MainActivity` and the `tech.tetengo.te_tengo/avisos` channel (`AvisosNativos`): `tomarInicial` for
+  the tap that launched the app, `abierto` for one while it runs. iOS and the PWA keep notification
+  messages. Native tests: `cd android && ./gradlew :app:testDebugUnitTest`.
 - **iOS with the app open:** `setForegroundNotificationPresentationOptions(alert, badge, sound)`, so a
   fall also shows the system banner and plays its sound while the alert screen opens. Urgent pushes
   are `time-sensitive`; iOS honours that only with the Time Sensitive Notifications capability, which
@@ -147,8 +159,10 @@ as `alerta.apns`, using the id of an active alert of the household:
 xcrun simctl push booted alerta.apns
 ```
 - App in the foreground: the alert screen opens (`onMessage`).
-- App in the background: the notification appears; tapping it opens the alert (`onMessageOpenedApp`).
-- App closed: tapping it launches the app on the alert (`getInitialMessage`).
+- App in the background: the notification appears; tapping it opens the alert (`onMessageOpenedApp`;
+  on Android, with data-only pushes, `AvisosNativos.abiertas`).
+- App closed: tapping it launches the app on the alert (`getInitialMessage`; on Android, with
+  data-only pushes, `AvisosNativos.tomarInicial`).
 
 **Real FCM push:** Apple silicon simulators on iOS 16 or later get a real APNs token, so with the APNs
 key uploaded (step 4) the simulator also receives pushes sent through FCM, as below.

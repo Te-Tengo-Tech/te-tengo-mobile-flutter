@@ -243,6 +243,24 @@ void main() {
       expect(dispositivos.registrados, ['fcm-1|ANDROID', 'fcm-2|ANDROID']);
     });
 
+    testWidgets(
+      'un Android que dibuja los avisos se registra con avisoEnLaApp',
+      (tester) async {
+        push = NotificacionesPushFalsas(
+          tokenActual: 'fcm-1',
+          avisoEnLaApp: true,
+        );
+        await abrir(tester);
+        expect(dispositivos.registrados, ['fcm-1|ANDROID']);
+        expect(dispositivos.conAvisoEnLaApp, {'fcm-1'});
+      },
+    );
+
+    testWidgets('sin avisoEnLaApp se registra como antes', (tester) async {
+      await abrir(tester);
+      expect(dispositivos.conAvisoEnLaApp, isEmpty);
+    });
+
     testWidgets('pide el permiso de notificaciones una sola vez, con hogar', (
       tester,
     ) async {
@@ -614,6 +632,52 @@ void main() {
         expect(d.vistoEn, isNotNull);
       },
     );
+
+    test(
+      'avisoEnLaApp: se envía solo cuando es true y se lee del Dispositivo',
+      () async {
+        final http = AdaptadorFalso()
+          ..cuando(
+            'POST',
+            '/api/dispositivos',
+            const Respuesta(201, {
+              'id': 'd-1',
+              'plataforma': 'ANDROID',
+              'activo': true,
+              'avisoEnLaApp': true,
+            }),
+          );
+        final repo = contenedor(http).read(dispositivosRepositorioProvider);
+        final d = await repo.registrar(
+          tokenPush: 'fcm-1',
+          plataforma: 'ANDROID',
+          avisoEnLaApp: true,
+        );
+        expect(d.avisoEnLaApp, isTrue);
+        await repo.registrar(tokenPush: 'fcm-1', plataforma: 'IOS');
+        final cuerpos = http
+            .hechas('POST', '/api/dispositivos')
+            .map((p) => p.data)
+            .toList();
+        expect(cuerpos, [
+          {'tokenPush': 'fcm-1', 'plataforma': 'ANDROID', 'avisoEnLaApp': true},
+          {'tokenPush': 'fcm-1', 'plataforma': 'IOS'},
+        ]);
+      },
+    );
+
+    test('un backend sin avisoEnLaApp lo deja en false', () async {
+      final http = AdaptadorFalso()
+        ..cuando(
+          'POST',
+          '/api/dispositivos',
+          const Respuesta(201, {'id': 'd-1', 'activo': true}),
+        );
+      final d = await contenedor(http)
+          .read(dispositivosRepositorioProvider)
+          .registrar(tokenPush: 'fcm-1', plataforma: 'ANDROID');
+      expect(d.avisoEnLaApp, isFalse);
+    });
 
     test('un backend anterior a 0.3.1 responde sin cuerpo', () async {
       final http = AdaptadorFalso()

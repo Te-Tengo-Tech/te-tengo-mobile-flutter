@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -19,13 +20,49 @@ class MainActivity : FlutterActivity() {
     /** The answer to `instalar`, waiting for the Android installer to close. */
     private var instalacionPendiente: MethodChannel.Result? = null
 
+    /** Answers Dart's `tomarInicial` and is told of taps while the app runs (canal `avisos`). */
+    private var canalAvisos: MethodChannel? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         crearCanalDeAlertas()
     }
 
+    override fun onResume() {
+        super.onResume()
+        enPrimerPlano = true
+    }
+
+    override fun onPause() {
+        enPrimerPlano = false
+        super.onPause()
+    }
+
+    /** A tap on a notice the app drew ([ReceptorAvisosPush]) while the activity exists. */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val datos = tomarPush(intent) ?: return
+        canalAvisos?.invokeMethod("abierto", datos)
+    }
+
+    /** The push data of a tap on a notice the app drew, once: null when there is none. */
+    private fun tomarPush(intent: Intent?): Map<String, String>? {
+        val datos = intent?.getBundleExtra(ReceptorAvisosPush.EXTRA_PUSH) ?: return null
+        intent.removeExtra(ReceptorAvisosPush.EXTRA_PUSH)
+        return datos.keySet().mapNotNull { k -> datos.getString(k)?.let { k to it } }.toMap()
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        canalAvisos = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CANAL_AVISOS).apply {
+            setMethodCallHandler { llamada, resultado ->
+                when (llamada.method) {
+                    // The tap that launched the app (lib/core/notificaciones/avisos_nativos.dart).
+                    "tomarInicial" -> resultado.success(tomarPush(intent))
+                    else -> resultado.notImplemented()
+                }
+            }
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CANAL_ACTUALIZACIONES)
             .setMethodCallHandler { llamada, resultado ->
                 when (llamada.method) {
@@ -48,10 +85,7 @@ class MainActivity : FlutterActivity() {
      */
     private fun crearCanalDeAlertas() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-        val canal = NotificationChannel(CANAL_ALERTAS, "Alertas", NotificationManager.IMPORTANCE_HIGH)
-        canal.enableVibration(true)
-        canal.lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
-        getSystemService(NotificationManager::class.java)?.createNotificationChannel(canal)
+        getSystemService(NotificationManager::class.java)?.createNotificationChannel(canalDeAlertas())
     }
 
     // ---- US-43: updating the sideloaded APK (lib/features/actualizaciones/data/plataforma.dart) ----
@@ -115,7 +149,21 @@ class MainActivity : FlutterActivity() {
     }
 
     companion object {
+        /** Whether the app is on screen: [ReceptorAvisosPush] then leaves the notice to the app. */
+        @Volatile
+        var enPrimerPlano = false
+
         const val CANAL_ALERTAS = "alertas_caida"
+        const val CANAL_AVISOS = "tech.tetengo.te_tengo/avisos"
+
+        /** See [crearCanalDeAlertas]. */
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun canalDeAlertas(): NotificationChannel {
+            val canal = NotificationChannel(CANAL_ALERTAS, "Alertas", NotificationManager.IMPORTANCE_HIGH)
+            canal.enableVibration(true)
+            canal.lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+            return canal
+        }
         const val CANAL_ACTUALIZACIONES = "tech.tetengo.te_tengo/actualizaciones"
         const val PEDIDO_INSTALAR = 4301
     }

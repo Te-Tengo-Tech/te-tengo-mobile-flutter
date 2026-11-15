@@ -100,4 +100,6 @@ flutter {
 dependencies {
     // FileProvider, which hands the downloaded APK to the Android installer (US-43).
     implementation("androidx.core:core:1.19.1")
+    // Plain JVM tests of the push parsing (src/test): ./gradlew :app:testDebugUnitTest
+    testImplementation("junit:junit:4.13.2")
 }
