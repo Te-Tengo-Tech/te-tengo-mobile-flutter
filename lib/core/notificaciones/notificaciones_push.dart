@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../web/navegador.dart';
+import 'avisos_nativos.dart';
 import 'firebase_web.dart';
 import 'mensaje_push.dart';
 
@@ -26,6 +27,11 @@ abstract interface class NotificacionesPush {
 
   /// `ANDROID`, `IOS` or `WEB` (contract §7).
   String get plataforma;
+
+  /// Whether this phone draws the notices itself from data-only pushes, so the backend sends it
+  /// those instead of notification messages (contract §7, `avisoEnLaApp`): on Android only, where FCM
+  /// keeps just the latest notification message while the phone is offline.
+  bool get avisoEnLaApp;
 
   Stream<String> get tokenRenovado;
 
@@ -54,6 +60,9 @@ class NotificacionesPushInactivas implements NotificacionesPush {
 
   @override
   String get plataforma => 'ANDROID';
+
+  @override
+  bool get avisoEnLaApp => false;
 
   @override
   Stream<String> get tokenRenovado => const Stream.empty();
@@ -113,13 +122,21 @@ class NotificacionesFirebase implements NotificacionesPush {
   NotificacionesFirebase({
     this.web = ConfiguracionFirebaseWeb.deCompilacion,
     this.esWeb = kIsWeb,
+    this._avisosNativos,
   });
 
   final ConfiguracionFirebaseWeb web;
   final bool esWeb;
   Future<FirebaseMessaging?>? _mensajeria;
+  AvisosNativos? _avisosNativos;
 
   bool get _esIos => !esWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
+  bool get _esAndroid =>
+      !esWeb && defaultTargetPlatform == TargetPlatform.android;
+
+  /// Taps on the notices Android drew itself (only on Android).
+  AvisosNativos get _nativos => _avisosNativos ??= AvisosNativos();
 
   Future<FirebaseMessaging?> _iniciar() => _mensajeria ??= () async {
     try {
@@ -170,6 +187,9 @@ class NotificacionesFirebase implements NotificacionesPush {
       : _esIos
       ? 'IOS'
       : 'ANDROID';
+
+  @override
+  bool get avisoEnLaApp => _esAndroid;
 
   @override
   Future<bool> pedirPermiso() async {
@@ -242,11 +262,18 @@ class NotificacionesFirebase implements NotificacionesPush {
             .map(MensajePush.desdeDatos)
             .where((m) => m != null)
             .cast<MensajePush>()
-      : Stream.fromFuture(_iniciar()).asyncExpand(
-          (m) => m == null
-              ? const Stream<MensajePush>.empty()
-              : _mensajes(FirebaseMessaging.onMessageOpenedApp),
-        );
+      : Stream.fromFuture(_iniciar()).asyncExpand((m) {
+          if (m == null) return const Stream<MensajePush>.empty();
+          final firebase = _mensajes(FirebaseMessaging.onMessageOpenedApp);
+          if (!_esAndroid) return firebase;
+          return unirFlujos([
+            firebase,
+            _nativos.abiertas
+                .map(MensajePush.desdeDatos)
+                .where((m) => m != null)
+                .cast<MensajePush>(),
+          ]);
+        });
 
   /// On the web, a tap that had to open a new window passes the push in the address (`?tt_push=`).
   @override
@@ -256,6 +283,10 @@ class NotificacionesFirebase implements NotificacionesPush {
       return datos == null ? null : MensajePush.desdeDatos(datos);
     }
     final m = await _iniciar();
+    if (m != null && _esAndroid) {
+      final datos = await _nativos.tomarInicial();
+      if (datos != null) return MensajePush.desdeDatos(datos);
+    }
     final mensaje = await m?.getInitialMessage();
     return mensaje == null ? null : MensajePush.desdeDatos(mensaje.data);
   }

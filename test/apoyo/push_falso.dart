@@ -9,7 +9,11 @@ class NotificacionesPushFalsas implements NotificacionesPush {
     this.tokenActual,
     this.mensajeInicial,
     this.permiso = true,
+    this.avisoEnLaApp = false,
   });
+
+  @override
+  final bool avisoEnLaApp;
 
   String? tokenActual;
   MensajePush? mensajeInicial;
@@ -93,6 +97,9 @@ class DispositivosFalsos implements DispositivosRepositorio {
   final eliminados = <String>[];
   final consultados = <String>[];
 
+  /// Tokens registered with `avisoEnLaApp: true`.
+  final conAvisoEnLaApp = <String>{};
+
   /// Ids the backend deactivated (the push service dropped their token).
   final inactivos = <String>{};
 
@@ -103,9 +110,11 @@ class DispositivosFalsos implements DispositivosRepositorio {
   Future<DispositivoPush> registrar({
     required String tokenPush,
     required String plataforma,
+    bool avisoEnLaApp = false,
   }) async {
     if (errorRegistrar case final e?) throw e;
     registrados.add('$tokenPush|$plataforma');
+    if (avisoEnLaApp) conAvisoEnLaApp.add(tokenPush);
     inactivos.remove('d-$tokenPush');
     return DispositivoPush(id: 'd-$tokenPush', activo: true);
   }

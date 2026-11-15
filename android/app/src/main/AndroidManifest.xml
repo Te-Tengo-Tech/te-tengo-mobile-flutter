@@ -69,6 +69,16 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_te_tengo_pequeno_info" />
         </receiver>
+        <!-- Data-only pushes (API contract §7, `avisoEnLaApp`): the app draws the notice itself while
+             it is not in the foreground. Only the push service may send this broadcast. -->
+        <receiver
+            android:name=".ReceptorAvisosPush"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </receiver>
         <!-- Pushes that name no channel go to the alert channel, created with high importance in
              MainActivity (API contract §7). -->
         <meta-data
