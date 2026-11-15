@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+## [0.10.1]
+
+- Si tu celular se queda sin internet, al reconectarse te llegan todas las alertas, no solo la última.
+
 ## [0.10.0]
 
 - Si tu celular está en inglés, la app ahora también se ve en inglés.

@@ -4,6 +4,11 @@ Format based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-11-15
+
+### Fixed
+- **Android: alerts sent while the phone is offline are no longer dropped.** FCM keeps only the latest notification message per phone while it is offline, so a phone that lost its network for a minute got only the last of the alerts sent meanwhile (measured 2026-11-15; the rest arrived ~5 min later, with the escalation). The Android app now registers with `avisoEnLaApp: true` (`POST /api/dispositivos`, API contract §7) and draws the notices itself from data-only pushes, which FCM keeps up to 100 of: same title, body, channel `alertas_caida` and tag as before, drawn by `ReceptorAvisosPush` (`AvisosPush.kt`) only while the app is not in the foreground; taps reach the app through `AvisosNativos`. A backend without the field keeps sending notification messages, which the app shows as before. iOS and the PWA are unchanged.
+
 ## [0.10.0] - 2026-11-07
 
 ### Added
