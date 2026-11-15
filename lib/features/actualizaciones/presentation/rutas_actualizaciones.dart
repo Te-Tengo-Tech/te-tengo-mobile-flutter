@@ -5,7 +5,7 @@ import 'pantalla_permiso_instalar.dart';
 
 /// Paths of the app's update (US-43).
 abstract final class RutasActualizaciones {
-  /// Ajustes › «Acerca de Te Tengo».
+  /// Ajustes › «Acerca de Fall Alert».
   static const acercaDe = '/ajustes/acerca-de';
 
   /// «Permite instalar la actualización» (Android, APK).

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/ui/botones.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/hogar/domain/hogar.dart';
-import 'package:te_tengo/features/hogar/presentation/pantallas_privacidad.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/notificaciones/mensaje_push.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/ui/botones.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/hogar/domain/hogar.dart';
+import 'package:caregiver_app/features/hogar/presentation/pantallas_privacidad.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -165,7 +165,7 @@ void main() {
       await verHasta(tester, find.text('Revocar consentimiento'));
       expect(
         find.text(
-          'Derechos (Ley N.° 29733): privacidad@tetengo.pe',
+          'Derechos (Ley N.° 29733): privacidad@example.org',
           findRichText: true,
         ),
         findsOneWidget,

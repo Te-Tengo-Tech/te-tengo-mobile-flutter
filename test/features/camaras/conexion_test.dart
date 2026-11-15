@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/camaras/presentation/avisos_camara.dart';
-import 'package:te_tengo/features/camaras/presentation/pantalla_camara.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/inicio/presentation/pantalla_inicio.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/camaras/presentation/avisos_camara.dart';
+import 'package:caregiver_app/features/camaras/presentation/pantalla_camara.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/inicio/presentation/pantalla_inicio.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -71,7 +71,7 @@ void main() {
     await tocar(tester, find.text('Qué revisar'));
     expect(find.text('El cable USB de la cámara'), findsOneWidget);
     expect(find.text('La PC encendida'), findsOneWidget);
-    expect(find.text('Con Te Tengo Captura abierto'), findsOneWidget);
+    expect(find.text('Con Fall Alert Captura abierto'), findsOneWidget);
     expect(find.text('El internet de la casa'), findsOneWidget);
   });
 

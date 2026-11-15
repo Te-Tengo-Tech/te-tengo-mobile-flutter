@@ -5,30 +5,30 @@ import 'dart:ui' show Locale;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/features/hogar/domain/hogar.dart';
-import 'package:te_tengo/core/foto.dart';
-import 'package:te_tengo/app/app.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/sesion/sesion_controller.dart';
-import 'package:te_tengo/core/sesion/sesion_repositorio.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/alertas/presentation/pantalla_alerta.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
-import 'package:te_tengo/features/pcs/domain/camaras_en_casa.dart';
-import 'package:te_tengo/features/pcs/presentation/pantalla_camaras.dart';
-import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
-import 'package:te_tengo/features/vivo/presentation/elegir_habitacion.dart';
-import 'package:te_tengo/features/widget/data/widget_sistema.dart';
-import 'package:te_tengo/features/widget/domain/estado_widget.dart';
-import 'package:te_tengo/features/widget/presentation/pasos_widget.dart';
-import 'package:te_tengo/l10n/l10n.dart';
+import 'package:caregiver_app/features/hogar/domain/hogar.dart';
+import 'package:caregiver_app/core/foto.dart';
+import 'package:caregiver_app/app/app.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion_controller.dart';
+import 'package:caregiver_app/core/sesion/sesion_repositorio.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/alertas/presentation/pantalla_alerta.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/pcs/data/pcs_repositorio.dart';
+import 'package:caregiver_app/features/pcs/domain/camaras_en_casa.dart';
+import 'package:caregiver_app/features/pcs/presentation/pantalla_camaras.dart';
+import 'package:caregiver_app/features/vivo/data/vista_en_vivo_repositorio.dart';
+import 'package:caregiver_app/features/vivo/presentation/elegir_habitacion.dart';
+import 'package:caregiver_app/features/widget/data/widget_sistema.dart';
+import 'package:caregiver_app/features/widget/domain/estado_widget.dart';
+import 'package:caregiver_app/features/widget/presentation/pasos_widget.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -279,7 +279,7 @@ void main() {
     ) async {
       await abrir(tester);
       final contenedor = ProviderScope.containerOf(
-        tester.element(find.byType(TeTengoApp)),
+        tester.element(find.byType(CaregiverApp)),
       );
       await contenedor.read(sesionControllerProvider.notifier).cerrar();
       await tester.pumpAndSettle();
@@ -289,7 +289,7 @@ void main() {
 
     testWidgets('CA-44.2 tocarlo abre lo que dice: Cámaras', (tester) async {
       await abrir(tester);
-      sistema.toquesCtl.add(Uri.parse('tetengo-widget://abrir?ir=%2Fpcs'));
+      sistema.toquesCtl.add(Uri.parse('example-widget://abrir?ir=%2Fpcs'));
       await tester.pumpAndSettle();
       expect(find.byType(PantallaCamaras), findsOneWidget);
     });
@@ -299,7 +299,7 @@ void main() {
       camaras.camaras = [camara('c1', 'Sala', 'pc-sala')];
       await abrir(tester, ubicacion: Rutas.historial);
       sistema.toquesCtl.add(
-        Uri.parse('tetengo-widget://abrir?ir=%2Finicio&vivo=1'),
+        Uri.parse('example-widget://abrir?ir=%2Finicio&vivo=1'),
       );
       await tester.pumpAndSettle();
       expect(find.byType(HojaElegirHabitacion), findsOneWidget);
@@ -311,7 +311,7 @@ void main() {
     testWidgets('abrir la app desde el widget lleva a la alerta', (
       tester,
     ) async {
-      sistema.inicial = Uri.parse('tetengo-widget://abrir?ir=%2Falerta%2Fa-1');
+      sistema.inicial = Uri.parse('example-widget://abrir?ir=%2Falerta%2Fa-1');
       await abrir(tester, alertas: AlertasRepositorioFalso([caidaSala()]));
       expect(find.byType(PantallaAlerta), findsOneWidget);
     });

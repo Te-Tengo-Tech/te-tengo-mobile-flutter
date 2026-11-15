@@ -92,7 +92,7 @@ jobs:
 
   web:
     # The same reusable build that release.yml stores in the candidate (Cloudflare Pages project
-    # te-tengo-app, served at the root of https://app.tetengo.reqsai.tech/). Override the base href
+    # fall-alert-app, served at the root of https://app.example.org/). Override the base href
     # with the repository variable TT_WEB_BASE_HREF (docs/WEB_PWA.md). Skipped when release.yml calls
     # CI with build-pwa false. format(): outside workflow_call the input is null, and null == false.
     name: Web (PWA)
@@ -104,7 +104,7 @@ jobs:
       contents: read
     with:
       base_href: ${{ vars.TT_WEB_BASE_HREF || '/' }}
-      artifact_name: te-tengo-web
+      artifact_name: fall-alert-web
       retention_days: 14
 
   # The single required check (rulesets of develop and main). It always runs, so a skipped or cancelled

@@ -15,7 +15,7 @@ import '../../../l10n/l10n.dart';
 // The copy of this file is not in the prototype (the web app is not in it): it is marked for team
 // review in docs/BLOCKERS.md.
 
-/// On an iPhone or iPad browser tab, the notice that alerts only arrive once Te Tengo is on the
+/// On an iPhone or iPad browser tab, the notice that alerts only arrive once Fall Alert is on the
 /// home screen (iOS 16.4+ only gives Web Push to home-screen web apps). Nothing elsewhere.
 class AvisoInstalarApp extends ConsumerWidget {
   const AvisoInstalarApp({super.key, this.separacion = 12});

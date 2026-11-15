@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
-import 'package:te_tengo/features/pcs/domain/pc.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/pcs/data/pcs_repositorio.dart';
+import 'package:caregiver_app/features/pcs/domain/pc.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/datos.dart';
@@ -61,7 +61,7 @@ void main() {
     final pcs = await repo.listar();
     final pc = pcs.single;
     expect(pc.nombre, 'Sala-Rosa');
-    expect(pc.programa, 'Te Tengo Captura 0.5.0');
+    expect(pc.programa, 'Fall Alert Captura 0.5.0');
     expect(pc.enLinea, isTrue);
     expect(pc.vinculadaPor?.nombre, 'Carmen');
     expect(pc.origen, OrigenPc.vinculacion);
@@ -215,7 +215,7 @@ void main() {
         const Respuesta(201, {
           'sesionId': 'vp-1',
           'urlTransmision':
-              'https://api.tetengo.pe/vivo/camaras/w1/index.m3u8?token=t',
+              'https://api.example.org/vivo/camaras/w1/index.m3u8?token=t',
           'urlWebrtc': null,
           'expiraEn': '2026-09-23T15:44:00Z',
           'modo': 'VIDEO',

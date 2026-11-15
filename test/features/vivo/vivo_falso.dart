@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
-import 'package:te_tengo/features/vivo/domain/vista_en_vivo.dart';
-import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/vivo/data/vista_en_vivo_repositorio.dart';
+import 'package:caregiver_app/features/vivo/domain/vista_en_vivo.dart';
+import 'package:caregiver_app/features/vivo/presentation/reproductor_vivo.dart';
 
 class VistaEnVivoRepositorioFalso implements VistaEnVivoRepositorio {
   final abiertas = <(String, String?)>[];
@@ -54,11 +54,11 @@ class VistaEnVivoRepositorioFalso implements VistaEnVivoRepositorio {
     return SesionVivo(
       sesionId: id,
       urlTransmision: Uri.parse(
-        'https://api.tetengo.pe/vivo/camaras/$camaraId/index.m3u8?token=t-$id',
+        'https://api.example.org/vivo/camaras/$camaraId/index.m3u8?token=t-$id',
       ),
       urlWebrtc: conWebrtc
           ? Uri.parse(
-              'https://api.tetengo.pe/vivo-webrtc/camaras/$camaraId/whep?token=t-$id',
+              'https://api.example.org/vivo-webrtc/camaras/$camaraId/whep?token=t-$id',
             )
           : null,
       modo: this.modo,

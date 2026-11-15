@@ -51,7 +51,7 @@ const estiloCifras = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
 /// Text scale (prototype classes): `headlineMedium` = `.t-title`, `titleLarge` = `.t-h2`,
 /// `titleMedium` = `.t-h3`, `bodyLarge` = `.t-body`, `bodyMedium` = `.t-small`,
 /// `bodySmall` = `.t-meta`. Body text is never below 16 (DESIGN.md accessibility).
-ThemeData temaTeTengo({bool oscuro = false, bool contraste = false}) {
+ThemeData temaCaregiver({bool oscuro = false, bool contraste = false}) {
   final p = Paleta.de(oscuro: oscuro, contraste: contraste);
   final esquema = ColorScheme.fromSeed(
     seedColor: Colores.morado,
@@ -192,4 +192,4 @@ ThemeData temaTeTengo({bool oscuro = false, bool contraste = false}) {
 }
 
 /// The light theme, for surfaces that look the same in dark mode (the alert flood).
-final temaClaroTeTengo = temaTeTengo();
+final temaClaroCaregiver = temaCaregiver();

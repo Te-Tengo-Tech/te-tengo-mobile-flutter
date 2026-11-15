@@ -334,7 +334,7 @@ class _PantallaAprobarPcState extends ConsumerState<PantallaAprobarPc> {
               if (consulta.sistemaOperativo case final so?)
                 FilaDato(clave: l.pcsSistema, valor: so),
               if (consulta.versionAgente case final v?)
-                FilaDato(clave: l.pcsPrograma, valor: 'Te Tengo Captura $v'),
+                FilaDato(clave: l.pcsPrograma, valor: 'Fall Alert Captura $v'),
             ],
             FilaDato(clave: l.pcsCodigo, valor: codigo, mono: true),
           ]),

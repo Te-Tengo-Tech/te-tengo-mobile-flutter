@@ -1,6 +1,6 @@
 # Reference documents
 
-Read-only copies from `Te-Tengo-Tech/docs`, so cloud sessions have the context. **The source of truth is `Te-Tengo-Tech/docs`.** These are thesis documents and stay in their original **Spanish**; the app UI copy must match them.
+Read-only copies from `example-org/docs`, so cloud sessions have the context. **The source of truth is `example-org/docs`.** These are thesis documents and stay in their original **Spanish**; the app UI copy must match them.
 
 | File | Origin | Copied |
 |---|---|---|

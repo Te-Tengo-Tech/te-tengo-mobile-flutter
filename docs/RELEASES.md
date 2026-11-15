@@ -45,12 +45,12 @@ Every third-party action is pinned by its full commit SHA (with the version in a
 ## Channels × stages × switches
 | Channel | Candidate asset (built once) | Staging (`staging`, approval) | Produccion (`produccion`, approval) | Switch |
 |---|---|---|---|---|
-| **PWA** (web app, [WEB_PWA.md](WEB_PWA.md)) | `te-tengo-pwa.tar.gz`: `flutter build web --base-href /` with the Firebase web config, plus `deploy/pwa/_headers` and `robots.txt` (reusable [`build-web.yml`](../.github/workflows/build-web.yml)) | `Staging · PWA`: Pages project `te-tengo-app`, alias `staging`, <https://staging.te-tengo-app.pages.dev> | `Produccion · PWA`: `te-tengo-app` production (branch `main`), <https://app.tetengo.reqsai.tech> | `ENABLE_PWA` |
-| **APK** (sideload, [RELEASE_ANDROID.md](RELEASE_ANDROID.md#sideload-distribution-no-play-store)) | `te-tengo.apk` + `te-tengo.apk.sha256`: the universal APK signed with the release key in the environment `firma` (reusable [`build-apk.yml`](../.github/workflows/build-apk.yml)); built for every candidate | `Staging · APK`: R2 `te-tengo-descargas/staging/te-tengo.apk` | `Produccion · APK`: R2 `te-tengo-descargas/te-tengo.apk`, the landing's download | `ENABLE_APK` |
-| **Google Play**, internal testing track | `te-tengo.aab`, only when the switch is on | — | `Produccion · Google Play (internal)`: uploads **the same AAB** | `ENABLE_PLAY_STORE` |
-| **TestFlight** (iOS) | `te-tengo.ipa` on `macos-26`, only when the switch is on | — | `Produccion · TestFlight`: uploads **the same IPA** | `ENABLE_IOS` |
+| **PWA** (web app, [WEB_PWA.md](WEB_PWA.md)) | `fall-alert-pwa.tar.gz`: `flutter build web --base-href /` with the Firebase web config, plus `deploy/pwa/_headers` and `robots.txt` (reusable [`build-web.yml`](../.github/workflows/build-web.yml)) | `Staging · PWA`: Pages project `fall-alert-app`, alias `staging`, <https://staging.app.example.org> | `Produccion · PWA`: `fall-alert-app` production (branch `main`), <https://app.example.org> | `ENABLE_PWA` |
+| **APK** (sideload, [RELEASE_ANDROID.md](RELEASE_ANDROID.md#sideload-distribution-no-play-store)) | `fall-alert.apk` + `fall-alert.apk.sha256`: the universal APK signed with the release key in the environment `firma` (reusable [`build-apk.yml`](../.github/workflows/build-apk.yml)); built for every candidate | `Staging · APK`: R2 `fall-alert-descargas/staging/fall-alert.apk` | `Produccion · APK`: R2 `fall-alert-descargas/fall-alert.apk`, the landing's download | `ENABLE_APK` |
+| **Google Play**, internal testing track | `fall-alert.aab`, only when the switch is on | — | `Produccion · Google Play (internal)`: uploads **the same AAB** | `ENABLE_PLAY_STORE` |
+| **TestFlight** (iOS) | `fall-alert.ipa` on `macos-26`, only when the switch is on | — | `Produccion · TestFlight`: uploads **the same IPA** | `ENABLE_IOS` |
 | *(every channel)* | — | the whole stage | — | `ENABLE_STAGING` |
-| **SBOM** | `te-tengo-sbom.spdx.json`: SPDX list of the Dart (`pubspec.lock`) and Swift (`Package.resolved`) packages, made by `anchore/sbom-action`; always | — | — (travels to the final release) | — |
+| **SBOM** | `fall-alert-sbom.spdx.json`: SPDX list of the Dart (`pubspec.lock`) and Swift (`Package.resolved`) packages, made by `anchore/sbom-action`; always | — | — (travels to the final release) | — |
 
 Smoke checks after each deploy:
 - **PWA:** `GET <url>/` answers `200` and `<url>/version.json` has this build's version and build number, retried for 2 minutes.
@@ -59,8 +59,8 @@ Smoke checks after each deploy:
 
 ## The release candidate
 - **What it is.** The GitHub **pre-release** `vx.y.z-rc.N`, created by the `Release candidate` job on the release commit (the tag `vx.y.z-rc.N` points to it). Its assets are every file built by that run, plus `SHA256SUMS`. Run artifacts expire (they are kept 7 days here, only to hand the files to that job); pre-releases do not.
-- **Its notes** give the branch, the commit SHA, the git tree (`git rev-parse HEAD^{tree}`), the build number, the channels that were on, the APK signing certificate, the SHA-256 and size of every asset, the staging result and a link to the run. The last line is a hidden HTML comment, `<!-- te-tengo-candidata {…} -->`, with the same data as JSON, which [`candidata.sh`](../.github/scripts/candidata.sh) reads. Do not edit it.
-- **Attestations.** Before creating the pre-release, the `Release candidate` job signs (Sigstore, through GitHub) a **build provenance** attestation of every file and an **SBOM** attestation of the APK, PWA, AAB and IPA. Anyone can check that a file was built by this repository's workflow from the recorded commit: `gh attestation verify te-tengo.apk --repo Te-Tengo-Tech/te-tengo-mobile-flutter`. The final release carries the same bytes, so the attestations stay valid for it.
+- **Its notes** give the branch, the commit SHA, the git tree (`git rev-parse HEAD^{tree}`), the build number, the channels that were on, the APK signing certificate, the SHA-256 and size of every asset, the staging result and a link to the run. The last line is a hidden HTML comment, `<!-- fall-alert-candidata {…} -->`, with the same data as JSON, which [`candidata.sh`](../.github/scripts/candidata.sh) reads. Do not edit it.
+- **Attestations.** Before creating the pre-release, the `Release candidate` job signs (Sigstore, through GitHub) a **build provenance** attestation of every file and an **SBOM** attestation of the APK, PWA, AAB and IPA. Anyone can check that a file was built by this repository's workflow from the recorded commit: `gh attestation verify fall-alert.apk --repo example-org/fall-alert-mobile-flutter`. The final release carries the same bytes, so the attestations stay valid for it.
 - **N** is one more than the highest `rc` of `x.y.z` among the releases and tags. A new push to the branch builds `rc.N+1`. Older candidates are never changed or deleted.
 - **Version inside.** Every file has the final version `x.y.z`: the APK and AAB `versionName`, the IPA `CFBundleShortVersionString`, the PWA `version.json`. «rc» is only the label of the pre-release, so production publishes these bytes as they are.
 - **Rejected versions.** If `vx.y.z` already exists, the run fails at once: a published version never changes (SemVer rule 3), so a fix is a new version (`hotfix/x.y.(z+1)`).
@@ -107,7 +107,7 @@ flowchart LR
 - **The plan.** It writes the plan to the run summary: each stage × channel, and either what will happen or the switch that skips it.
 - **One approval for staging.** Both staging jobs need only the candidate, so they wait together and one review (*Review deployments*) approves both. Each first checks the Cloudflare secrets of the environment `staging`, then downloads the candidate's assets and checks their SHA-256 before deploying.
 - **The staging result is recorded.** `Pull request to main` writes `passed` (a staging job deployed) or `skipped` (staging switched off) into the candidate's notes, with `GITHUB_TOKEN`. A failed or rejected staging job stops the run, and the candidate stays `pending`, which `release-gate` and produccion refuse.
-- **Pull request to `main`.** `release: x.y.z` (`release/x.y.z` → `main`) is opened, or its description is updated, by the GitHub App **te-tengo-release-bot** ([`open-release-pr.sh`](../.github/scripts/open-release-pr.sh); [Release bot](#release-bot-github-app)). The description lists the candidate, the staging URLs, the SHA-256 of every file and the pipeline run *with its attempt*, so it always changes: the `edited` event runs `release-gate` again, which now finds the approved candidate. A later candidate also comments on the pull request.
+- **Pull request to `main`.** `release: x.y.z` (`release/x.y.z` → `main`) is opened, or its description is updated, by the GitHub App **fall-alert-release-bot** ([`open-release-pr.sh`](../.github/scripts/open-release-pr.sh); [Release bot](#release-bot-github-app)). The description lists the candidate, the staging URLs, the SHA-256 of every file and the pipeline run *with its attempt*, so it always changes: the `edited` event runs `release-gate` again, which now finds the approved candidate. A later candidate also comments on the pull request.
 - **Re-running.** Runs of one branch take turns (concurrency group per branch): a deploy is never cancelled, and a run that is still queued is replaced by a newer one. To let a newer run start while an older one waits for approval, reject the older one. `Release candidate` jobs of all branches take turns too, so two never pick the same `rc` or build number.
 
 ### Pull request into `main`
@@ -143,19 +143,19 @@ flowchart LR
 *Actions → Rollback → Run workflow* from `main`, with the version `x.y.z` of an existing final release:
 - `Check the release` checks that the run is on `main` and that `vx.y.z` is a final release (not a candidate) with the needed assets.
 - After an approval on `produccion`:
-  - `Rollback · PWA` (input `pwa`, on by default, and `ENABLE_PWA`) republishes its `te-tengo-pwa.tar.gz`;
-  - `Rollback · APK` (input `apk`, off by default, and `ENABLE_APK`) republishes its `te-tengo.apk`.
+  - `Rollback · PWA` (input `pwa`, on by default, and `ENABLE_PWA`) republishes its `fall-alert-pwa.tar.gz`;
+  - `Rollback · APK` (input `apk`, off by default, and `ENABLE_APK`) republishes its `fall-alert.apk`.
   
   Both first check the Cloudflare secrets of the environment `produccion`, then the SHA-256, and run the same smoke checks.
 - **No build.**
 - **APK.** Android does not install an older `versionCode` over a newer one. Phones that already have the newer APK keep it, so the APK rollback only helps new installs.
 - **Stores.** Google Play and TestFlight are not republished: stores take each build number once and only higher ones. Halt the release in Play Console, or expire the build in TestFlight; testers can still install an earlier TestFlight build.
 - **Real fix.** Usually a `hotfix/x.y.(z+1)`.
-- **Database.** The app has no database of its own. If the bad release came with an API migration, restore the API database from the backup taken before that deploy (`te-tengo-infra`) together with the rollback.
+- **Database.** The app has no database of its own. If the bad release came with an API migration, restore the API database from the backup taken before that deploy (`fall-alert-infra`) together with the rollback.
 
 #### Rollback rehearsal
 Rehearse the rollback before it is needed, at least once per release cycle and whenever `rollback.yml`, `deploy_pwa.sh` or the `produccion` environment changes. The safe rehearsal rolls the PWA back to the release that is **already live**: the same bytes are deployed again, so users see no change.
-1. Find the live release: `curl -s https://app.tetengo.reqsai.tech/version.json` gives its `version` and `build_number`; it is the newest `vX.Y.Z` under *Releases*.
+1. Find the live release: `curl -s https://app.example.org/version.json` gives its `version` and `build_number`; it is the newest `vX.Y.Z` under *Releases*.
 2. *Actions → Rollback → Run workflow*, from `main`: `version` = that `X.Y.Z`, `pwa` on, `apk` off.
 3. Approve the `produccion` review. `Rollback · PWA` checks the Cloudflare secrets and the SHA-256 against the release's `SHA256SUMS`, deploys, and its smoke check waits until `version.json` serves that build.
 4. Check by hand that `version.json` still shows the same `version` and `build_number`, and that the app opens.
@@ -164,7 +164,7 @@ Rehearse the rollback before it is needed, at least once per release cycle and w
 A rehearsal that fails has found a problem while nothing is broken: fix it before the next release. The APK rollback is rehearsed the same way (`apk` on, the live version), and only re-uploads the same file.
 
 ## Release gate
-[`release-gate.yml`](../.github/workflows/release-gate.yml) is the required check `release-gate` of every pull request into `main`; it runs [`release-gate.sh`](../.github/scripts/release-gate.sh) (the same script in every Te Tengo repository) with `candidata.sh buscar` as its find-candidate command. The pull request may be merged only when:
+[`release-gate.yml`](../.github/workflows/release-gate.yml) is the required check `release-gate` of every pull request into `main`; it runs [`release-gate.sh`](../.github/scripts/release-gate.sh) (the same script in every Fall Alert repository) with `candidata.sh buscar` as its find-candidate command. The pull request may be merged only when:
 1. it comes from `release/x.y.z` or `hotfix/x.y.z` of this repository, and `x.y.z` is the `pubspec.yaml` version of its head;
 2. `vx.y.z` is not released yet;
 3. GitHub's test merge puts into `main` exactly the git tree of the head (`main` has nothing the branch lacks; after a hotfix, merge `main` into the release branch first, which builds a new candidate);
@@ -173,7 +173,7 @@ A rehearsal that fails has found a problem while nothing is broken: fix it befor
 Produccion looks for its candidate with the same command, so a green gate means `produccion.yml` will find the candidate after the merge. A push to the release branch turns the gate red until the new candidate has passed staging; the release bot's edit of the pull request then runs it again.
 
 ## Release bot (GitHub App)
-Pull requests opened or edited with `GITHUB_TOKEN` start no workflows, so their required checks would never run. The release pull request (`Pull request to main`) and the back-merge pull requests (`Back-merge into develop`) are therefore opened by the GitHub App **te-tengo-release-bot**:
+Pull requests opened or edited with `GITHUB_TOKEN` start no workflows, so their required checks would never run. The release pull request (`Pull request to main`) and the back-merge pull requests (`Back-merge into develop`) are therefore opened by the GitHub App **fall-alert-release-bot**:
 - the organization variable `RELEASE_APP_ID` and the organization secret `RELEASE_APP_PRIVATE_KEY`;
 - each job mints a short-lived token with `actions/create-github-app-token`, limited to what it needs (pull requests write; plus contents write for the back-merge's auto-merge), and only the steps that open or edit pull requests get it;
 - without the App the job fails with «Release bot not configured»; nothing falls back to `GITHUB_TOKEN`.
@@ -189,7 +189,7 @@ Pull requests opened or edited with `GITHUB_TOKEN` start no workflows, so their 
 - **The final release** carries the same assets and the same `SHA256SUMS` as its candidate. Its notes link to the candidate.
 
 ## Switches
-The switches are **organization variables**: *Te-Tengo-Tech → Settings → Secrets and variables → Actions → Variables*. A channel is **on only when its variable is exactly `true`**. `false`, any other value, or no variable at all means off.
+The switches are **organization variables**: *example-org → Settings → Secrets and variables → Actions → Variables*. A channel is **on only when its variable is exactly `true`**. `false`, any other value, or no variable at all means off.
 
 | Variable | Read by | When it is not `true` |
 |---|---|---|
@@ -204,7 +204,7 @@ Other organization variables (`ENABLE_API_*`, `ENABLE_LANDING_*`, `ENABLE_DESKTO
 **When a switch is on and its configuration is missing, the run fails** with an error that names each missing secret or variable: a signing secret or a build variable in the first job, before any build; a deploy secret (Cloudflare, Google Play, App Store Connect) in the staging or produccion job that needs it, as its first step. A release is never silently left out. Turn a channel on only after its one-time setup is done, and **before** pushing the release branch: a channel turned on after the candidate was built makes produccion fail (see above).
 
 ## Versions for the apps (US-43)
-Each produccion job, right after its channel is live, publishes that channel's version with `.github/scripts/publicar_version.sh`: `versiones/pwa.json`, `versiones/apk.json` (with the APK's SHA-256 and size), `versiones/play.json` or `versiones/ios.json` in the R2 bucket of the downloads. The API's `GET /api/versiones` reads them within 5 minutes (ADR 0012 of te-tengo-general-api) and the app offers the update (docs/APP_UPDATES.md); nothing is set by hand. `rollback.yml` republishes `pwa.json` and `apk.json` with the older version.
+Each produccion job, right after its channel is live, publishes that channel's version with `.github/scripts/publicar_version.sh`: `versiones/pwa.json`, `versiones/apk.json` (with the APK's SHA-256 and size), `versiones/play.json` or `versiones/ios.json` in the R2 bucket of the downloads. The API's `GET /api/versiones` reads them within 5 minutes (ADR 0012 of fall-alert-general-api) and the app offers the update (docs/APP_UPDATES.md); nothing is set by hand. `rollback.yml` republishes `pwa.json` and `apk.json` with the older version.
 - **Notes:** the «Qué cambió» lines are the `- ` lines of the version's section in `NOVEDADES.md` (Spanish, for the family), written on the release branch before merging.
 - **Minimum version** (CA-43.8) is the API's setting (`TT_VERSION_MINIMA_APK`, `_PLAY`, `_IOS`, `_PWA`).
 - **Install permission:** the AAB is built with `--android-project-arg=tt.googlePlay=true` and the `AAB` job fails if its manifest declares `REQUEST_INSTALL_PACKAGES`; the sideloaded APK is built with `tt.googlePlay=false` (docs/APP_UPDATES.md).
@@ -224,7 +224,7 @@ Until the environments hold them, repository secrets of the same names still wor
 | Channel | Secrets | Variables |
 |---|---|---|
 | PWA | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (`staging`, `produccion`) | `TT_API_URL`; `TT_FIREBASE_WEB_API_KEY`, `TT_FIREBASE_WEB_APP_ID`, `TT_FIREBASE_WEB_MESSAGING_SENDER_ID`, `TT_FIREBASE_WEB_PROJECT_ID`, `TT_FCM_VAPID_KEY` (required); `TT_FIREBASE_WEB_AUTH_DOMAIN`, `TT_FIREBASE_WEB_STORAGE_BUCKET`, `TT_FIREBASE_WEB_MEASUREMENT_ID` (optional) |
-| APK | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `GOOGLE_SERVICES_JSON` (`firma`); `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (`staging`, `produccion`) | `TT_API_URL`, `DESCARGAS_BASE_URL`; optional `DESCARGAS_R2_BUCKET` (default `te-tengo-descargas`) |
+| APK | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `GOOGLE_SERVICES_JSON` (`firma`); `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (`staging`, `produccion`) | `TT_API_URL`, `DESCARGAS_BASE_URL`; optional `DESCARGAS_R2_BUCKET` (default `fall-alert-descargas`) |
 | Google Play | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `GOOGLE_SERVICES_JSON` (`firma`); `PLAY_SERVICE_ACCOUNT_JSON` (`produccion`) | `TT_API_URL`; optional `PLAY_RELEASE_STATUS` (`completed` by default, `draft` while the app is a draft in Play Console) |
 | TestFlight | `IOS_DIST_CERT_P12_BASE64`, `IOS_DIST_CERT_PASSWORD`, `IOS_PROVISIONING_PROFILE_BASE64`, `GOOGLE_SERVICE_INFO_PLIST` (`firma`); `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_PRIVATE_KEY` (`produccion`) | `TT_API_URL` |
 
@@ -234,12 +234,12 @@ Until the environments hold them, repository secrets of the same names still wor
 | `CLOUDFLARE_ACCOUNT_ID` | secret | The Cloudflare account ID (dashboard, *Account home*, or `wrangler whoami`) |
 | `TT_API_URL` | variable; a secret of the same name also works | HTTPS URL of the production API, compiled into every build (`--dart-define=TT_API_URL=…`) |
 | `TT_FIREBASE_WEB_*`, `TT_FCM_VAPID_KEY` | variables | Firebase web config and web push key of the PWA; public values ([WEB_PWA.md](WEB_PWA.md#firebase-web-config-and-vapid-key)) |
-| `DESCARGAS_BASE_URL` | variable | Public URL of the R2 bucket, e.g. `https://pub-<id>.r2.dev` (for the smoke check, the links in the summary and the versions for the apps) |
+| `DESCARGAS_BASE_URL` | variable | Public URL of the R2 bucket, e.g. `https://downloads.example.org` (for the smoke check, the links in the summary and the versions for the apps) |
 | `IOS_TIENDA_URL` | variable, optional | The TestFlight public link or the App Store page the iPhone app opens to update (`versiones/ios.json`); unset, the iPhone version is not announced |
 | `ANDROID_*`, `GOOGLE_SERVICES_JSON`, `PLAY_SERVICE_ACCOUNT_JSON` | secrets | See [RELEASE_ANDROID.md](RELEASE_ANDROID.md#secrets-and-variables-settings--secrets-and-variables--actions) |
 | `IOS_DIST_CERT_P12_BASE64` | secret | `base64 -i distribution.p12`: the **Apple Distribution** certificate with its private key |
 | `IOS_DIST_CERT_PASSWORD` | secret | Password chosen when exporting the `.p12` |
-| `IOS_PROVISIONING_PROFILE_BASE64` | secret | `base64 -i Te_Tengo_App_Store.mobileprovision`: the **App Store** profile of `tech.tetengo.teTengo`, made with that certificate |
+| `IOS_PROVISIONING_PROFILE_BASE64` | secret | `base64 -i Caregiver_App_Store.mobileprovision`: the **App Store** profile of `org.example.caregiverApp`, made with that certificate |
 | `GOOGLE_SERVICE_INFO_PLIST` | secret | `base64 -i ios/Runner/GoogleService-Info.plist` (Firebase iOS app, [FIREBASE.md](FIREBASE.md)) |
 | `APP_STORE_CONNECT_KEY_ID` | secret | Key ID of the App Store Connect API key |
 | `APP_STORE_CONNECT_ISSUER_ID` | secret | Issuer ID shown above the list of keys |
@@ -258,12 +258,12 @@ GitHub itself: `GITHUB_TOKEN` for the pre-releases, tags and final releases; the
 ## Turn on Google Play
 1. Do the one-time setup in [RELEASE_ANDROID.md](RELEASE_ANDROID.md#one-time-setup-account-owner), steps 1 to 5:
    - the Play Console account (US$25);
-   - the app `tech.tetengo.te_tengo`, taken from `applicationId` in `android/app/build.gradle.kts`;
+   - the app `org.example.caregiver_app`, taken from `applicationId` in `android/app/build.gradle.kts`;
    - the **first AAB uploaded by hand**, since the API cannot create the first release;
    - the service account.
 2. Save `PLAY_SERVICE_ACCOUNT_JSON` as a secret of the environment `produccion` (`gh secret set PLAY_SERVICE_ACCOUNT_JSON --env produccion < play-service-account.json`), and the repository variable `TT_API_URL` if it is not set. The release key and `GOOGLE_SERVICES_JSON` already exist in `firma`.
 3. Set the organization variable `ENABLE_PLAY_STORE` to `true`.
-4. Push the next `release/x.y.z` (its candidate then includes `te-tengo.aab`), merge its pull request into `main` and approve `Produccion · Google Play (internal)`. While the app is still a draft in Play Console, set the repository variable `PLAY_RELEASE_STATUS` to `draft`, and delete it once the app has been reviewed. If the first AAB uploaded by hand had a build number at or above the next computed one, raise the `+N` of `pubspec.yaml` above it ([Build number](#build-number)).
+4. Push the next `release/x.y.z` (its candidate then includes `fall-alert.aab`), merge its pull request into `main` and approve `Produccion · Google Play (internal)`. While the app is still a draft in Play Console, set the repository variable `PLAY_RELEASE_STATUS` to `draft`, and delete it once the app has been reviewed. If the first AAB uploaded by hand had a build number at or above the next computed one, raise the `+N` of `pubspec.yaml` above it ([Build number](#build-number)).
 
 ## Turn on TestFlight
 Done once by the account owner, on a Mac.
@@ -271,9 +271,9 @@ Done once by the account owner, on a Mac.
 1. **Apple Developer Program.** Enroll at <https://developer.apple.com/programs/enroll/> (99 USD per year). An *individual* membership is enough for the thesis; an *organization* needs a D-U-N-S number.
 2. **App ID with push.**
    - Where: *Certificates, Identifiers & Profiles → Identifiers → +*.
-   - What: an explicit App ID `tech.tetengo.teTengo`, the Runner target's `PRODUCT_BUNDLE_IDENTIFIER`, with the **Push Notifications** capability.
+   - What: an explicit App ID `org.example.caregiverApp`, the Runner target's `PRODUCT_BUNDLE_IDENTIFIER`, with the **Push Notifications** capability.
    - Then upload the APNs key to Firebase ([FIREBASE.md](FIREBASE.md), step 4).
-3. **App record.** *App Store Connect → Apps → + → New App*: iOS, name «Te Tengo», bundle ID `tech.tetengo.teTengo`, any SKU (e.g. `te-tengo`).
+3. **App record.** *App Store Connect → Apps → + → New App*: iOS, name «Fall Alert», bundle ID `org.example.caregiverApp`, any SKU (e.g. `fall-alert`).
 4. **Distribution certificate.**
    1. In *Keychain Access → Certificate Assistant → Request a Certificate From a Certificate Authority*, save the request to disk.
    2. Under *Certificates → +*, choose **Apple Distribution** and upload the request.
@@ -286,17 +286,17 @@ Done once by the account owner, on a Mac.
       ```
    6. Keep the `.p12` and its password in the team's password manager. The certificate lasts one year.
 5. **Provisioning profile.**
-   1. Under *Profiles → +*, choose *Distribution → App Store Connect*. Select the App ID `tech.tetengo.teTengo` and the certificate from step 4, and name it e.g. «Te Tengo App Store».
+   1. Under *Profiles → +*, choose *Distribution → App Store Connect*. Select the App ID `org.example.caregiverApp` and the certificate from step 4, and name it e.g. «Fall Alert App Store».
    2. Download it and save the secret:
       ```bash
-      base64 -i Te_Tengo_App_Store.mobileprovision | gh secret set IOS_PROVISIONING_PROFILE_BASE64 --env firma
+      base64 -i Caregiver_App_Store.mobileprovision | gh secret set IOS_PROVISIONING_PROFILE_BASE64 --env firma
       ```
    3. Make a new profile, and update the secret, whenever the certificate is renewed or the App ID's capabilities change.
 6. **Firebase iOS config:**
    ```bash
    base64 -i ios/Runner/GoogleService-Info.plist | gh secret set GOOGLE_SERVICE_INFO_PLIST --env firma
    ```
-   The workflow checks that its `BUNDLE_ID` is `tech.tetengo.teTengo`.
+   The workflow checks that its `BUNDLE_ID` is `org.example.caregiverApp`.
 7. **App Store Connect API key.**
    1. In *App Store Connect → Users and Access → Integrations → App Store Connect API → Team Keys → +*, create a key with the **App Manager** role.
    2. Download `AuthKey_<key id>.p8`. Apple offers it only once.
@@ -311,7 +311,7 @@ Done once by the account owner, on a Mac.
    - **Internal testers:** up to 100 App Store Connect users of the team. They get builds without review.
    - **External testers:** up to 10 000. They need *Test Information* and a beta review of the first build.
    - **Export compliance:** each build shows *Missing Compliance* until someone answers the encryption question in App Store Connect. To answer it once for every build, the team can add `ITSAppUsesNonExemptEncryption` to `ios/Runner/Info.plist`. That is a legal declaration, so it is left to the owners.
-10. **Switch it on.** Set the organization variable `ENABLE_IOS` to `true`. Push the next `release/x.y.z` (its candidate then includes `te-tengo.ipa`), merge its pull request into `main` and approve `Produccion · TestFlight`.
+10. **Switch it on.** Set the organization variable `ENABLE_IOS` to `true`. Push the next `release/x.y.z` (its candidate then includes `fall-alert.ipa`), merge its pull request into `main` and approve `Produccion · TestFlight`.
 
 ### How the iOS build signs
 - **Runner.** The `IPA` job runs on `macos-26` with Xcode 26.6, selected by `XCODE_VERSION` in the workflow. Since 28 April 2026 App Store Connect accepts only builds made with Xcode 26 or later ([Apple: SDK minimum requirements](https://developer.apple.com/news/upcoming-requirements/)).
@@ -321,7 +321,7 @@ Done once by the account owner, on a Mac.
   - both are deleted at the end of the job.
 - **Checks on the profile.** Before building, the workflow checks that the profile:
   - is an App Store profile (no device list);
-  - is for `<team>.tech.tetengo.teTengo`;
+  - is for `<team>.org.example.caregiverApp`;
   - has `aps-environment: production`;
   - has not expired;
   - contains the imported certificate.
@@ -341,7 +341,7 @@ Done once by the account owner, on a Mac.
   - `get-task-allow: false`;
   - that `GoogleService-Info.plist` is inside.
 
-  It keeps `te-tengo-<version>-<build>.ipa` as a run artifact for 7 days, and the `Release candidate` job stores it in the candidate as `te-tengo.ipa`.
-- **Upload.** On `main`, `Produccion · TestFlight` ([`produccion.yml`](../.github/workflows/produccion.yml)) downloads the candidate's `te-tengo.ipa`, checks its SHA-256 and sends that same IPA with [`apple-actions/upload-testflight-build`](https://github.com/Apple-Actions/upload-testflight-build), pinned by commit SHA. Its default backend is the App Store Connect API, which runs on Linux. The job waits until App Store Connect has processed the build, so an invalid binary fails the run.
+  It keeps `fall-alert-<version>-<build>.ipa` as a run artifact for 7 days, and the `Release candidate` job stores it in the candidate as `fall-alert.ipa`.
+- **Upload.** On `main`, `Produccion · TestFlight` ([`produccion.yml`](../.github/workflows/produccion.yml)) downloads the candidate's `fall-alert.ipa`, checks its SHA-256 and sends that same IPA with [`apple-actions/upload-testflight-build`](https://github.com/Apple-Actions/upload-testflight-build), pinned by commit SHA. Its default backend is the App Store Connect API, which runs on Linux. The job waits until App Store Connect has processed the build, so an invalid binary fails the run.
   - Flutter's guide also shows `xcrun altool --upload-app`, which still works. The App Store Connect API path needs no Transporter or Xcode on the runner.
 - **Version.** The build number grows with every candidate on its own ([Build number](#build-number)); the version must be higher than the last one approved for the App Store.

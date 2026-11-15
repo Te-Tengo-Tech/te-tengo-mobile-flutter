@@ -1,4 +1,4 @@
-package tech.tetengo.te_tengo
+package org.example.caregiver_app
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -70,7 +70,7 @@ class ReceptorAvisosPush : BroadcastReceiver() {
             crearCanal(gestor, aviso.canal)
             val datos = Bundle().apply { aviso.datos.forEach { (k, v) -> putString(k, v) } }
             val abrir = Intent(context, MainActivity::class.java)
-                .setAction("tech.tetengo.te_tengo.AVISO.${aviso.grupo}")
+                .setAction("org.example.caregiver_app.AVISO.${aviso.grupo}")
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .putExtra(EXTRA_PUSH, datos)
             val alTocar = PendingIntent.getActivity(

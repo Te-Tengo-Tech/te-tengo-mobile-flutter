@@ -1,5 +1,5 @@
-# Cloudflare Pages headers of the Flutter PWA (Pages project te-tengo-app: production
-# https://app.tetengo.reqsai.tech, staging https://staging.te-tengo-app.pages.dev). The reusable
+# Cloudflare Pages headers of the Flutter PWA (Pages project fall-alert-app: production
+# https://app.example.org, staging https://staging.app.example.org). The reusable
 # build-web.yml copies this folder into the Flutter build output (build/web), so the artifact that
 # release.yml deploys already contains it. Flutter and Firebase need their own policy, so the
 # landing's CSP, COOP and Permissions-Policy are not applied here.

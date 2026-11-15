@@ -626,7 +626,7 @@
   "acercaDeComoPlay": "Google Play la actualiza sola.",
   "acercaDeComoIos": "Se actualiza desde App Store o TestFlight.",
   "acercaDeTitulo": "Acerca de",
-  "acercaDeFila": "Acerca de Te Tengo",
+  "acercaDeFila": "Acerca de Fall Alert",
   "acercaDeVersion": "Versión {version}",
   "@acercaDeVersion": {
     "placeholders": {
@@ -642,7 +642,7 @@
     "description": "Topic of the «?» button."
   },
   "acercaDePcsDeLaCasa": "PCs de la casa",
-  "acercaDePcsAyuda": "Cada PC actualiza Te Tengo Captura por su cuenta.",
+  "acercaDePcsAyuda": "Cada PC actualiza Fall Alert Captura por su cuenta.",
   "acercaDePcsTema": "las PCs",
   "@acercaDePcsTema": {
     "description": "Topic of the «?» button."
@@ -655,7 +655,7 @@
       }
     }
   },
-  "acercaDeTodasAlDia": "Todas al día · Te Tengo Captura {version}",
+  "acercaDeTodasAlDia": "Todas al día · Fall Alert Captura {version}",
   "@acercaDeTodasAlDia": {
     "placeholders": {
       "version": {
@@ -665,7 +665,7 @@
   },
   "acercaDeCaptura": "Captura {version}",
   "@acercaDeCaptura": {
-    "description": "Te Tengo Captura (the PC program, a brand) and its version.",
+    "description": "Fall Alert Captura (the PC program, a brand) and its version.",
     "placeholders": {
       "version": {
         "type": "String"
@@ -779,7 +779,7 @@
   },
   "actualizacionHayNueva": "Hay una versión nueva",
   "actualizacionAplicacionWeb": "Aplicación web",
-  "actualizacionSeActualizo": "Te Tengo se actualizó",
+  "actualizacionSeActualizo": "Fall Alert se actualizó",
   "actualizacionVersionPunto": "Versión {version}.",
   "@actualizacionVersionPunto": {
     "placeholders": {
@@ -788,7 +788,7 @@
       }
     }
   },
-  "actualizacionObligatoriaTitulo": "Actualiza Te Tengo para seguir recibiendo alertas",
+  "actualizacionObligatoriaTitulo": "Actualiza Fall Alert para seguir recibiendo alertas",
   "actualizacionObligatoriaTienes": "Tienes la {version}. Toma un minuto.",
   "@actualizacionObligatoriaTienes": {
     "placeholders": {
@@ -828,14 +828,14 @@
   },
   "actualizacionPermiteInstalar": "Permite instalar la actualización",
   "actualizacionUnaSolaVez": "Android lo pide una sola vez.",
-  "actualizacionPermisoAyuda": "Te Tengo no viene de una tienda, así que Android pide permiso para instalar sus versiones nuevas. Solo acepta las firmadas por Te Tengo.",
+  "actualizacionPermisoAyuda": "Fall Alert no viene de una tienda, así que Android pide permiso para instalar sus versiones nuevas. Solo acepta las firmadas por Fall Alert.",
   "actualizacionPermisoTema": "el permiso de Android",
   "@actualizacionPermisoTema": {
     "description": "Topic of the «?» button."
   },
   "actualizacionPasoAbrirAjustes": "Toca «Abrir ajustes».",
   "actualizacionPasoActivar": "Activa «Permitir de esta fuente».",
-  "actualizacionPasoVolver": "Vuelve a Te Tengo.",
+  "actualizacionPasoVolver": "Vuelve a Fall Alert.",
   "actualizacionAbrirAjustes": "Abrir ajustes",
   "actualizacionVersionAnteriorPc": "Versión anterior ({version})",
   "@actualizacionVersionAnteriorPc": {
@@ -849,7 +849,7 @@
   "actualizacionPideActualizar": "Pide a quien está en la casa que la actualice. ",
   "actualizacionPcAyuda": "En la PC aparece «Hay una versión nueva»: que elijan «Descargar». Se instala sola y la detección sigue.",
   "@actualizacionPcAyuda": {
-    "description": "The quoted labels are those of the PC program (Te Tengo Captura), which is in Spanish."
+    "description": "The quoted labels are those of the PC program (Fall Alert Captura), which is in Spanish."
   },
   "actualizacionPcTema": "cómo actualizar la PC",
   "@actualizacionPcTema": {
@@ -1428,7 +1428,7 @@
   "reportesNoPudimosTexto": "Lo guardamos y lo enviaremos cuando vuelva la conexión.",
   "reportesNoGeneraAlerta": "Esto no genera una alerta ni avisa a la familia.",
   "reportesVolverHistorial": "Volver al historial",
-  "appTitulo": "Te Tengo",
+  "appTitulo": "Fall Alert",
   "@appTitulo": {
     "description": "App name (brand, never translated)."
   },
@@ -1684,7 +1684,7 @@
     }
   },
   "camaraNombreVacio": "Escribe el nombre de la habitación.",
-  "camaraNombreBano": "Por privacidad, Te Tengo no admite cámaras en el baño.",
+  "camaraNombreBano": "Por privacidad, Fall Alert no admite cámaras en el baño.",
   "camaraNombreGuardado": "Nombre guardado: {nombre}",
   "@camaraNombreGuardado": {
     "placeholders": {
@@ -1764,7 +1764,7 @@
   "camaraAjustesResumen": "Pausa, nombre, registro",
   "camaraRevisarCable": "El cable USB de la cámara",
   "camaraRevisarPc": "La PC encendida",
-  "camaraRevisarPcDetalle": "Con Te Tengo Captura abierto",
+  "camaraRevisarPcDetalle": "Con Fall Alert Captura abierto",
   "camaraRevisarInternet": "El internet de la casa",
   "camaraRevisarLuz": "La luz",
   "camaraRevisarLuzDetalle": "De noche, una lámpara pequeña",
@@ -2584,7 +2584,7 @@
   "perfilSinPermisoFotos": "Sin permiso para ver tus fotos",
   "perfilOtraOpcion": "Puedes elegir otra opción.",
   "perfilCamaraBloqueada": "La cámara del celular está bloqueada",
-  "perfilFotosBloqueadas": "Tus fotos están bloqueadas para Te Tengo",
+  "perfilFotosBloqueadas": "Tus fotos están bloqueadas para Fall Alert",
   "perfilPermitelo": "Permítelo en los ajustes del celular y vuelve a intentarlo.",
   "perfilAbrirAjustes": "Abrir los ajustes del celular",
   "perfilAhoraNo": "Ahora no",
@@ -2631,7 +2631,7 @@
   "sesionVinetaEnVivo": "En vivo, con su permiso",
   "sesionVinetaPostura": "Solo postura, nunca rostros",
   "sesionCrearCuenta": "Crear cuenta",
-  "sesionYaTengoCuenta": "Ya tengo una cuenta",
+  "sesionConCuentaYa": "Ya tengo una cuenta",
   "sesionFotoDescripcion": "Una hija abraza a su madre",
   "@sesionFotoDescripcion": {
     "description": "Description of the welcome photo for screen readers."
@@ -2813,7 +2813,7 @@
   "@consentimientoRegistroTexto": {
     "description": "LEGAL: needs human/legal review in English."
   },
-  "legalTerminosQueEsTitulo": "Qué es Te Tengo",
+  "legalTerminosQueEsTitulo": "Qué es Fall Alert",
   "@legalTerminosQueEsTitulo": {
     "description": "LEGAL: needs human/legal review in English."
   },
@@ -2945,7 +2945,7 @@
   "@legalPoliticaDerechosTitulo": {
     "description": "LEGAL: needs human/legal review in English."
   },
-  "legalPoliticaDerechosTexto": "Ver, corregir o borrar tus datos, u oponerte a su uso (Ley N.° 29733): privacidad@tetengo.pe.",
+  "legalPoliticaDerechosTexto": "Ver, corregir o borrar tus datos, u oponerte a su uso (Ley N.° 29733): privacidad@example.org.",
   "@legalPoliticaDerechosTexto": {
     "description": "LEGAL: needs human/legal review in English."
   },
@@ -3411,7 +3411,7 @@
   "@movimientosSecDerechosResumen": {
     "description": "LEGAL: needs human/legal review in English."
   },
-  "movimientosSecDerechosTexto": "{nombre} puede ver, corregir o borrar sus datos, u oponerse a su uso: privacidad@tetengo.pe (Ley N.° 29733).",
+  "movimientosSecDerechosTexto": "{nombre} puede ver, corregir o borrar sus datos, u oponerse a su uso: privacidad@example.org (Ley N.° 29733).",
   "@movimientosSecDerechosTexto": {
     "description": "LEGAL: needs human/legal review in English.",
     "placeholders": {
@@ -3873,7 +3873,7 @@
     }
   },
   "comunErrorGenerico": "Ocurrió un error.",
-  "redSinConexion": "No hay conexión con Te Tengo. Revisa tu internet.",
+  "redSinConexion": "No hay conexión con Fall Alert. Revisa tu internet.",
   "navInicio": "Inicio",
   "navHistorial": "Historial",
   "navFamilia": "Familia",
@@ -4210,11 +4210,11 @@
   "@arranqueLema": {
     "description": "Brand tagline on the splash screen."
   },
-  "instalarAvisoTitulo": "Agrega Te Tengo a tu pantalla de inicio",
-  "instalarAvisoTexto": "En el iPhone, las alertas solo llegan si abres Te Tengo desde su ícono.",
+  "instalarAvisoTitulo": "Agrega Fall Alert a tu pantalla de inicio",
+  "instalarAvisoTexto": "En el iPhone, las alertas solo llegan si abres Fall Alert desde su ícono.",
   "instalarVerComo": "Ver cómo",
   "instalarTitulo": "Agregar a la pantalla de inicio",
-  "instalarEncabezado": "Instala Te Tengo en tu iPhone",
+  "instalarEncabezado": "Instala Fall Alert en tu iPhone",
   "instalarIntro": "Así te llegarán las alertas de caída aunque tengas la app cerrada. Necesitas iOS 16.4 o posterior.",
   "instalarPaso1": "Abre esta página en Safari",
   "instalarPaso2": "Toca Compartir",
@@ -4225,7 +4225,7 @@
   },
   "instalarPaso3Detalle": "Si no lo ves, toca «Ver más» y desliza la lista hacia arriba.",
   "instalarPaso4": "Toca «Agregar»",
-  "instalarPaso5": "Abre Te Tengo desde su ícono",
+  "instalarPaso5": "Abre Fall Alert desde su ícono",
   "instalarPaso5Detalle": "Inicia sesión otra vez y toca «Activar notificaciones».",
   "widgetAbreLaApp": "Abre la app para ver el estado.",
   "widgetTituloAlerta": "{tipo, select, confirmada{Caída confirmada} caida{Posible caída} other{Movimiento inestable}}",
@@ -4237,7 +4237,7 @@
     }
   },
   "widgetSinCamaras": "Sin cámaras",
-  "widgetAbreTeTengo": "Abre Te Tengo",
+  "widgetAbreCaregiver": "Abre Fall Alert",
   "widgetDeteccionDetenida": "Detección detenida",
   "widgetFaltaConsentimiento": "Falta el consentimiento",
   "widgetCamarasNoResponden": "{n, plural, =1{1 cámara no responde} other{{n} cámaras no responden}}",
@@ -4258,7 +4258,7 @@
     }
   },
   "widgetPaso1": "Mantén presionado un espacio libre de la pantalla de inicio.",
-  "widgetPaso2": "Toca «Widgets» y busca Te Tengo.",
+  "widgetPaso2": "Toca «Widgets» y busca Fall Alert.",
   "widgetPaso3": "Elige el tamaño y suéltalo.",
   "widgetPrivacidad": "Muestra el estado, nunca imágenes de la casa.",
   "pcsSinInternet": "Sin internet",
@@ -4284,7 +4284,7 @@
   },
   "pcsPrograma": "Programa",
   "@pcsPrograma": {
-    "description": "Label of the row with the Te Tengo Captura version."
+    "description": "Label of the row with the Fall Alert Captura version."
   },
   "pcsRegistrarConsentimiento": "Registrar consentimiento",
   "pcsFaltaConsentimientoDe": "Falta el consentimiento de {nombre}",
@@ -4380,7 +4380,7 @@
   "pcsRevisarEncendidaDetalle": "Sin suspender",
   "pcsRevisarInternet": "Que tenga internet",
   "pcsRevisarInternetDetalle": "Con la luz del módem encendida",
-  "pcsRevisarCaptura": "Que Te Tengo Captura esté abierto",
+  "pcsRevisarCaptura": "Que Fall Alert Captura esté abierto",
   "pcsRevisarCapturaDetalle": "Junto al reloj de Windows",
   "pcsChipOcupada": "{habitacion}, ya tiene cámara",
   "@pcsChipOcupada": {
@@ -4441,15 +4441,15 @@
   "pcsEscribeElCodigo": "Escribe el código de la PC",
   "pcsCodigoDe8Letras": "Código de 8 letras",
   "pcsSoloConsonantes": "El código solo lleva consonantes, sin números",
-  "pcsCodigoDondeEsta": "Está debajo del QR, en Te Tengo Captura.",
+  "pcsCodigoDondeEsta": "Está debajo del QR, en Fall Alert Captura.",
   "pcsContinuar": "Continuar",
-  "pcsQrAjenoTitulo": "Ese código no es de Te Tengo Captura",
+  "pcsQrAjenoTitulo": "Ese código no es de Fall Alert Captura",
   "pcsQrAjenoTexto": "Apunta al código QR que muestra la PC.",
   "pcsVolver": "Volver",
   "pcsCamaraDelCelular": "Cámara del celular",
   "pcsApuntaAlQr": "Apunta al QR de la PC",
   "pcsLinterna": "Linterna",
-  "pcsExplicarCamara": "Te Tengo usará la cámara para leer el QR.",
+  "pcsExplicarCamara": "Fall Alert usará la cámara para leer el QR.",
   "pcsNoGuardaImagenes": "No guarda imágenes.",
   "pcsPermitir": "Permitir",
   "pcsCamaraBloqueada": "La cámara del celular está bloqueada",
@@ -4496,7 +4496,7 @@
   "@pcsAccionAgregarPc": {
     "description": "Ends «Solo Rosa (titular) puede …» / «Only Rosa (owner) can …»."
   },
-  "pcsPasoInstalar": "Instala Te Tengo Captura en la PC",
+  "pcsPasoInstalar": "Instala Fall Alert Captura en la PC",
   "pcsPasoInstalarDesde": "Desde {pagina}",
   "@pcsPasoInstalarDesde": {
     "description": "pagina: the download web address.",
@@ -4709,7 +4709,7 @@
     }
   },
   "pcsEscribeNombreHabitacion": "Escribe el nombre de la habitación.",
-  "pcsSinBano": "Por privacidad, Te Tengo no admite cámaras en el baño.",
+  "pcsSinBano": "Por privacidad, Fall Alert no admite cámaras en el baño.",
   "pcsOcupada": "Ya hay una cámara {enHabitacion}. Por ahora, cada habitación usa una sola cámara.",
   "@pcsOcupada": {
     "placeholders": {

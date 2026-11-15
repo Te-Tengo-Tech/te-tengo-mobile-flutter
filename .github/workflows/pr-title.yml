@@ -2,7 +2,7 @@ name: PR title
 
 # Required check `pr-title`: the pull request title is a Conventional Commit, because a squash merge makes
 # it the commit on develop (and the CHANGELOG is written from those commits). Release and back-merge pull
-# requests use `release: x.y.z` and `chore: ...`. Same workflow in every Te Tengo repository.
+# requests use `release: x.y.z` and `chore: ...`. Same workflow in every Fall Alert repository.
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]

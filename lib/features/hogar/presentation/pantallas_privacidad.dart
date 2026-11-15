@@ -184,7 +184,7 @@ class _Privacidad extends ConsumerWidget {
             children: [
               TextSpan(text: l.privacidadDerechos),
               const TextSpan(
-                text: 'privacidad@tetengo.pe',
+                text: 'privacidad@example.org',
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
             ],

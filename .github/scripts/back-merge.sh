@@ -7,8 +7,8 @@
 #      version that lacks main's commits, so the next release does not lose the fix (its release gate
 #      would block it anyway). No auto-merge there: the merge builds a new candidate that goes through
 #      staging again.
-# Run it with the token of the GitHub App te-tengo-release-bot (contents and pull requests write), so the
-# pull requests start their CI. This script is the same in every Te Tengo repository.
+# Run it with the token of the GitHub App fall-alert-release-bot (contents and pull requests write), so the
+# pull requests start their CI. This script is the same in every Fall Alert repository.
 #
 #   back-merge.sh <released version x.y.z>
 #
@@ -31,7 +31,7 @@ open_pr() {
   url=$(gh pr list --repo "$repo" --head main --base "$base" --state open --json url --jq '.[0].url // ""')
   if [ -z "$url" ]; then
     if ! url=$(gh pr create --repo "$repo" --base "$base" --head main --title "$title" --body "$body"); then
-      echo "::error title=Pull request not opened::te-tengo-release-bot could not open main → $base. Check that the App is installed on $repo with Pull requests: write." >&2
+      echo "::error title=Pull request not opened::fall-alert-release-bot could not open main → $base. Check that the App is installed on $repo with Pull requests: write." >&2
       return 1
     fi
   fi

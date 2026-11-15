@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/features/ajustes/data/preferencias.dart';
-import 'package:te_tengo/features/ajustes/presentation/pantalla_notificaciones.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/alertas/presentation/pantalla_alerta.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/notificaciones/mensaje_push.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/features/ajustes/data/preferencias.dart';
+import 'package:caregiver_app/features/ajustes/presentation/pantalla_notificaciones.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/alertas/presentation/pantalla_alerta.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';

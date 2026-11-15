@@ -1,6 +1,6 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/repeticion/data/repeticiones_repositorio.dart';
-import 'package:te_tengo/features/repeticion/domain/repeticion.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/repeticion/data/repeticiones_repositorio.dart';
+import 'package:caregiver_app/features/repeticion/domain/repeticion.dart';
 
 class RepeticionesRepositorioFalso implements RepeticionesRepositorio {
   final creadas = <(String, DateTime, DateTime)>[];
@@ -14,7 +14,7 @@ class RepeticionesRepositorioFalso implements RepeticionesRepositorio {
   /// Files of 5 minutes covering each window, except [sinArchivos].
   List<(DateTime, DateTime)> sinArchivos = [];
 
-  /// Files whose PC uploaded no light file (an older Te Tengo Captura).
+  /// Files whose PC uploaded no light file (an older Fall Alert Captura).
   bool sinLigeros = false;
 
   Repeticion _repeticion(String camaraId, DateTime desde, DateTime hasta) {
@@ -31,13 +31,13 @@ class RepeticionesRepositorioFalso implements RepeticionesRepositorio {
             desde: t,
             hasta: f.isAfter(hasta) ? hasta : f,
             url:
-                'https://movimientos.tetengo.pe/$camaraId/${t.millisecondsSinceEpoch}.parquet',
+                'https://movimientos.example.org/$camaraId/${t.millisecondsSinceEpoch}.parquet',
             sha256: 'abc',
             ligero: sinLigeros
                 ? null
                 : ArchivoLigero(
                     url:
-                        'https://movimientos.tetengo.pe/$camaraId/${t.millisecondsSinceEpoch}.ttmov',
+                        'https://movimientos.example.org/$camaraId/${t.millisecondsSinceEpoch}.ttmov',
                     sha256: 'def',
                   ),
           ),

@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/notificaciones/avisos_nativos.dart';
-import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
+import 'package:caregiver_app/core/notificaciones/avisos_nativos.dart';
+import 'package:caregiver_app/core/notificaciones/mensaje_push.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

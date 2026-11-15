@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/core/ui/formulario.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/core/ui/formulario.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';

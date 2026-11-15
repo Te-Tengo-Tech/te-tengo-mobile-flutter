@@ -648,7 +648,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get acercaDeTitulo => 'About';
 
   @override
-  String get acercaDeFila => 'About Te Tengo';
+  String get acercaDeFila => 'About Fall Alert';
 
   @override
   String acercaDeVersion(String version) {
@@ -668,7 +668,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get acercaDePcsDeLaCasa => 'PCs at home';
 
   @override
-  String get acercaDePcsAyuda => 'Each PC updates Te Tengo Captura on its own.';
+  String get acercaDePcsAyuda =>
+      'Each PC updates Fall Alert Captura on its own.';
 
   @override
   String get acercaDePcsTema => 'the PCs';
@@ -686,7 +687,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String acercaDeTodasAlDia(String version) {
-    return 'All up to date · Te Tengo Captura $version';
+    return 'All up to date · Fall Alert Captura $version';
   }
 
   @override
@@ -826,7 +827,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actualizacionAplicacionWeb => 'Web app';
 
   @override
-  String get actualizacionSeActualizo => 'Te Tengo was updated';
+  String get actualizacionSeActualizo => 'Fall Alert was updated';
 
   @override
   String actualizacionVersionPunto(String version) {
@@ -835,7 +836,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actualizacionObligatoriaTitulo =>
-      'Update Te Tengo to keep getting alerts';
+      'Update Fall Alert to keep getting alerts';
 
   @override
   String actualizacionObligatoriaTienes(String version) {
@@ -882,7 +883,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actualizacionPermisoAyuda =>
-      'Te Tengo doesn\'t come from a store, so Android asks for permission to install its new versions. It only accepts the ones signed by Te Tengo.';
+      'Fall Alert doesn\'t come from a store, so Android asks for permission to install its new versions. It only accepts the ones signed by Fall Alert.';
 
   @override
   String get actualizacionPermisoTema => 'the Android permission';
@@ -894,7 +895,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actualizacionPasoActivar => 'Turn on “Allow from this source”.';
 
   @override
-  String get actualizacionPasoVolver => 'Go back to Te Tengo.';
+  String get actualizacionPasoVolver => 'Go back to Fall Alert.';
 
   @override
   String get actualizacionAbrirAjustes => 'Open settings';
@@ -1565,7 +1566,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportesVolverHistorial => 'Back to history';
 
   @override
-  String get appTitulo => 'Te Tengo';
+  String get appTitulo => 'Fall Alert';
 
   @override
   String get camaraEstadoEnLinea => 'Online';
@@ -1773,7 +1774,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get camaraNombreBano =>
-      'For privacy, Te Tengo doesn\'t allow cameras in the bathroom.';
+      'For privacy, Fall Alert doesn\'t allow cameras in the bathroom.';
 
   @override
   String camaraNombreGuardado(String nombre) {
@@ -1882,7 +1883,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get camaraRevisarPc => 'The PC is on';
 
   @override
-  String get camaraRevisarPcDetalle => 'With Te Tengo Captura open';
+  String get camaraRevisarPcDetalle => 'With Fall Alert Captura open';
 
   @override
   String get camaraRevisarInternet => 'The home internet';
@@ -2829,7 +2830,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get perfilCamaraBloqueada => 'The phone\'s camera is blocked';
 
   @override
-  String get perfilFotosBloqueadas => 'Your photos are blocked for Te Tengo';
+  String get perfilFotosBloqueadas => 'Your photos are blocked for Fall Alert';
 
   @override
   String get perfilPermitelo =>
@@ -2957,7 +2958,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sesionCrearCuenta => 'Create account';
 
   @override
-  String get sesionYaTengoCuenta => 'I have an account';
+  String get sesionConCuentaYa => 'I have an account';
 
   @override
   String get sesionFotoDescripcion => 'A daughter hugs her mother';
@@ -3177,7 +3178,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'We store who gave it, who recorded it, and the date and time (Law No. 29733).';
 
   @override
-  String get legalTerminosQueEsTitulo => 'What Te Tengo is';
+  String get legalTerminosQueEsTitulo => 'What Fall Alert is';
 
   @override
   String get legalTerminosQueEsTexto =>
@@ -3296,7 +3297,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get legalPoliticaDerechosTexto =>
-      'View, correct or delete your data, or object to its use (Law No. 29733): privacidad@tetengo.pe.';
+      'View, correct or delete your data, or object to its use (Law No. 29733): privacidad@example.org.';
 
   @override
   String get legalTerminosTitulo => 'Terms of use';
@@ -3795,7 +3796,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String movimientosSecDerechosTexto(String nombre) {
-    return '$nombre can see, correct or delete their data, or object to its use: privacidad@tetengo.pe (Law No. 29733).';
+    return '$nombre can see, correct or delete their data, or object to its use: privacidad@example.org (Law No. 29733).';
   }
 
   @override
@@ -4369,7 +4370,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get redSinConexion =>
-      'Can\'t reach Te Tengo. Check your internet connection.';
+      'Can\'t reach Fall Alert. Check your internet connection.';
 
   @override
   String get navInicio => 'Home';
@@ -4707,11 +4708,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get arranqueLema => 'Close to your loved ones, even from afar.';
 
   @override
-  String get instalarAvisoTitulo => 'Add Te Tengo to your Home Screen';
+  String get instalarAvisoTitulo => 'Add Fall Alert to your Home Screen';
 
   @override
   String get instalarAvisoTexto =>
-      'On iPhone, alerts only arrive if you open Te Tengo from its icon.';
+      'On iPhone, alerts only arrive if you open Fall Alert from its icon.';
 
   @override
   String get instalarVerComo => 'Show me how';
@@ -4720,7 +4721,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get instalarTitulo => 'Add to Home Screen';
 
   @override
-  String get instalarEncabezado => 'Install Te Tengo on your iPhone';
+  String get instalarEncabezado => 'Install Fall Alert on your iPhone';
 
   @override
   String get instalarIntro =>
@@ -4747,7 +4748,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get instalarPaso4 => 'Tap “Add”';
 
   @override
-  String get instalarPaso5 => 'Open Te Tengo from its icon';
+  String get instalarPaso5 => 'Open Fall Alert from its icon';
 
   @override
   String get instalarPaso5Detalle =>
@@ -4770,7 +4771,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetSinCamaras => 'No cameras';
 
   @override
-  String get widgetAbreTeTengo => 'Open Te Tengo';
+  String get widgetAbreCaregiver => 'Open Fall Alert';
 
   @override
   String get widgetDeteccionDetenida => 'Detection stopped';
@@ -4807,7 +4808,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetPaso1 => 'Touch and hold an empty spot on the Home Screen.';
 
   @override
-  String get widgetPaso2 => 'Tap “Widgets” and find Te Tengo.';
+  String get widgetPaso2 => 'Tap “Widgets” and find Fall Alert.';
 
   @override
   String get widgetPaso3 => 'Choose the size and drop it in place.';
@@ -4967,7 +4968,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pcsRevisarInternetDetalle => 'With the modem light on';
 
   @override
-  String get pcsRevisarCaptura => 'Te Tengo Captura is open';
+  String get pcsRevisarCaptura => 'Fall Alert Captura is open';
 
   @override
   String get pcsRevisarCapturaDetalle => 'Next to the Windows clock';
@@ -5030,13 +5031,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pcsSoloConsonantes => 'The code has only consonants, no numbers';
 
   @override
-  String get pcsCodigoDondeEsta => 'It’s below the QR, in Te Tengo Captura.';
+  String get pcsCodigoDondeEsta => 'It’s below the QR, in Fall Alert Captura.';
 
   @override
   String get pcsContinuar => 'Continue';
 
   @override
-  String get pcsQrAjenoTitulo => 'That code isn’t from Te Tengo Captura';
+  String get pcsQrAjenoTitulo => 'That code isn’t from Fall Alert Captura';
 
   @override
   String get pcsQrAjenoTexto => 'Point at the QR code the PC shows.';
@@ -5055,7 +5056,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pcsExplicarCamara =>
-      'Te Tengo will use the camera to read the QR.';
+      'Fall Alert will use the camera to read the QR.';
 
   @override
   String get pcsNoGuardaImagenes => 'It doesn’t save images.';
@@ -5138,7 +5139,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pcsAccionAgregarPc => 'add a PC';
 
   @override
-  String get pcsPasoInstalar => 'Install Te Tengo Captura on the PC';
+  String get pcsPasoInstalar => 'Install Fall Alert Captura on the PC';
 
   @override
   String pcsPasoInstalarDesde(String pagina) {
@@ -5363,7 +5364,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pcsSinBano =>
-      'For privacy, Te Tengo doesn’t allow cameras in the bathroom.';
+      'For privacy, Fall Alert doesn’t allow cameras in the bathroom.';
 
   @override
   String pcsOcupada(String enHabitacion) {

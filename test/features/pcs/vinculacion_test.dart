@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/cache/cache_local.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
-import 'package:te_tengo/features/pcs/domain/pc.dart';
-import 'package:te_tengo/features/pcs/presentation/escaner_qr.dart';
-import 'package:te_tengo/features/pcs/presentation/pantalla_escanear.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/cache/cache_local.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/pcs/data/pcs_repositorio.dart';
+import 'package:caregiver_app/features/pcs/domain/pc.dart';
+import 'package:caregiver_app/features/pcs/presentation/escaner_qr.dart';
+import 'package:caregiver_app/features/pcs/presentation/pantalla_escanear.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -22,7 +22,7 @@ import '../hogar/hogar_falso.dart';
 import 'escaner_falso.dart';
 import 'pcs_falso.dart';
 
-const _qrDeLaPc = 'https://app.tetengo.reqsai.tech/vincular?codigo=KQWT-MXHD';
+const _qrDeLaPc = 'https://app.example.org/vincular?codigo=KQWT-MXHD';
 
 void main() {
   late PcsRepositorioFalso pcs;
@@ -102,27 +102,27 @@ void main() {
       expect(codigoDeQr(_qrDeLaPc), 'KQWT-MXHD');
       expect(
         codigoDeQr(
-          'https://staging.te-tengo-app.pages.dev/vincular?codigo=kqwtmxhd',
+          'https://staging.app.example.org/vincular?codigo=kqwtmxhd',
         ),
         'KQWT-MXHD',
       );
       expect(codigoDeQr('https://example.com/menu'), isNull);
       expect(codigoDeQr('Hola'), isNull);
-      expect(codigoDeQr('https://app.tetengo.reqsai.tech/vincular'), isNull);
+      expect(codigoDeQr('https://app.example.org/vincular'), isNull);
     });
   });
 
   group('Vincula la PC de la casa', () {
     testWidgets(
-      'CA-28.1: explica cómo instalar Te Tengo Captura y abre el escáner',
+      'CA-28.1: explica cómo instalar Fall Alert Captura y abre el escáner',
       (tester) async {
         await abrir(tester, Rutas.vincular);
         expect(find.text('Agregar PC'), findsOneWidget);
         expect(find.text('Vincula la PC de la casa'), findsOneWidget);
-        expect(find.text('Instala Te Tengo Captura en la PC'), findsOneWidget);
+        expect(find.text('Instala Fall Alert Captura en la PC'), findsOneWidget);
         await tocar(tester, find.text('Escanear el código QR'));
         expect(
-          find.text('Te Tengo usará la cámara para leer el QR.'),
+          find.text('Fall Alert usará la cámara para leer el QR.'),
           findsOneWidget,
         );
       },
@@ -167,20 +167,20 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Windows 11 Home'), findsOneWidget);
-      expect(find.text('Te Tengo Captura 0.5.0'), findsOneWidget);
+      expect(find.text('Fall Alert Captura 0.5.0'), findsOneWidget);
     });
 
-    testWidgets('un QR que no es de Te Tengo Captura no se usa', (
+    testWidgets('un QR que no es de Fall Alert Captura no se usa', (
       tester,
     ) async {
       cache.datos[claveCamaraExplicada] = 'si';
       await abrir(tester, Rutas.escanear);
       escaner.leer('https://example.com/menu');
       await tester.pump();
-      expect(find.text('Ese código no es de Te Tengo Captura'), findsOneWidget);
+      expect(find.text('Ese código no es de Fall Alert Captura'), findsOneWidget);
       expect(pcs.consultas, isEmpty);
       await tester.pump(const Duration(seconds: 7));
-      expect(find.text('Ese código no es de Te Tengo Captura'), findsNothing);
+      expect(find.text('Ese código no es de Fall Alert Captura'), findsNothing);
     });
 
     testWidgets('CA-28.2: con la cámara bloqueada ofrece escribir el código', (
@@ -354,7 +354,7 @@ void main() {
       expect(pcs.consultas, ['KQWT-MXHD']);
       expect(find.text('Sala-Rosa'), findsOneWidget);
       expect(find.text('Windows 11 Home'), findsOneWidget);
-      expect(find.text('Te Tengo Captura 0.5.0'), findsOneWidget);
+      expect(find.text('Fall Alert Captura 0.5.0'), findsOneWidget);
       expect(find.text('Detectar caídas con sus cámaras'), findsOneWidget);
       await verHasta(tester, find.text('No reconozco esta PC'));
       expect(find.text('No reconozco esta PC'), findsOneWidget);

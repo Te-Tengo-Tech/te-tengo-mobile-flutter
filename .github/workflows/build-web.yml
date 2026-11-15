@@ -3,7 +3,7 @@ name: Build PWA
 # Reusable workflow: builds the web app, the installable PWA (docs/WEB_PWA.md), and keeps it as a
 # workflow artifact of the calling run, ready to deploy as is to Cloudflare Pages:
 #   - `flutter build web --release --no-web-resources-cdn` with the given base href (`/` for the root
-#     of https://app.tetengo.reqsai.tech/);
+#     of https://app.example.org/);
 #   - the public build config from repository variables as --dart-define values: TT_API_URL, the
 #     Firebase web config TT_FIREBASE_WEB_* and the web push key TT_FCM_VAPID_KEY. Missing ones are
 #     left out: the build still works, with push unavailable;
@@ -31,7 +31,7 @@ on:
       artifact_name:
         description: Name of the artifact with the contents of build/web
         type: string
-        default: te-tengo-pwa
+        default: fall-alert-pwa
       retention_days:
         type: number
         default: 14

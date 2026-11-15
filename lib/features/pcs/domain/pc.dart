@@ -13,7 +13,7 @@ enum OrigenPc {
       valor == 'INSTALACION' ? instalacion : vinculacion;
 }
 
-/// A PC of the household running Te Tengo Captura, with its cameras in use (contract §9 `Pc`).
+/// A PC of the household running Fall Alert Captura, with its cameras in use (contract §9 `Pc`).
 class Pc {
   const Pc({
     required this.id,
@@ -36,7 +36,7 @@ class Pc {
   final String? versionAgente;
 
   /// «Actualizar automáticamente» of the PC (CA-43.7); null when the PC never said (an older
-  /// Te Tengo Captura).
+  /// Fall Alert Captura).
   final bool? actualizacionAutomatica;
 
   /// A heartbeat of the PC or of one of its cameras in the last 90 s (CA-30.2, CA-30.3).
@@ -62,9 +62,9 @@ class Pc {
   /// getting its tokens, so it does not count as offline.
   bool get sinConexion => !enLinea && ultimaSenal != null;
 
-  /// «Te Tengo Captura 0.5.0», or null when the PC did not report its version.
+  /// «Fall Alert Captura 0.5.0», or null when the PC did not report its version.
   String? get programa =>
-      versionAgente == null ? null : 'Te Tengo Captura $versionAgente';
+      versionAgente == null ? null : 'Fall Alert Captura $versionAgente';
 
   factory Pc.desdeJson(Map<String, dynamic> json) {
     final por = json['vinculadaPor'];
@@ -143,14 +143,14 @@ String formatoCodigo(String limpio) => limpio.length <= 4
     ? limpio
     : '${limpio.substring(0, 4)}-${limpio.substring(4)}';
 
-/// The code of a scanned QR: the PC shows `https://app.tetengo.reqsai.tech/vincular?codigo=…`
+/// The code of a scanned QR: the PC shows `https://app.example.org/vincular?codigo=…`
 /// (`verification_uri_complete`, contract §9). Any `…/vincular?codigo=` link is accepted, since the
 /// domain is pending confirmation; null when the QR is not one of them.
 String? codigoDeQr(String valor) {
   final uri = Uri.tryParse(valor.trim());
   if (uri == null || !uri.hasScheme) return null;
   final esquema = uri.scheme.toLowerCase();
-  if (esquema != 'https' && esquema != 'http' && esquema != 'tetengo') {
+  if (esquema != 'https' && esquema != 'http' && esquema != 'example') {
     return null;
   }
   final segmentos = uri.pathSegments.where((s) => s.isNotEmpty);

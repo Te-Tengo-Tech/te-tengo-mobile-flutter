@@ -1,18 +1,18 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/router.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/features/actualizaciones/data/actualizacion_controller.dart';
-import 'package:te_tengo/features/actualizaciones/domain/estado_actualizacion.dart';
-import 'package:te_tengo/features/actualizaciones/domain/versiones.dart';
-import 'package:te_tengo/features/actualizaciones/presentation/rutas_actualizaciones.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/app/router.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/features/actualizaciones/data/actualizacion_controller.dart';
+import 'package:caregiver_app/features/actualizaciones/domain/estado_actualizacion.dart';
+import 'package:caregiver_app/features/actualizaciones/domain/versiones.dart';
+import 'package:caregiver_app/features/actualizaciones/presentation/rutas_actualizaciones.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/clip_falso.dart';
-import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
+import 'package:caregiver_app/features/alertas/presentation/reproductor.dart';
 import '../../apoyo/dispositivo_falso.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
 import '../alertas/alertas_falso.dart';
 import 'actualizaciones_falso.dart';
 import 'app_actualizaciones.dart';
@@ -169,7 +169,7 @@ void main() {
         ),
       );
       expect(
-        find.text('Actualiza Te Tengo para seguir recibiendo alertas'),
+        find.text('Actualiza Fall Alert para seguir recibiendo alertas'),
         findsOneWidget,
       );
       expect(find.text('Tienes la 0.5.0. Toma un minuto.'), findsOneWidget);
@@ -230,7 +230,7 @@ void main() {
       );
       // The alert opens by itself on top and the update screen steps aside.
       expect(
-        find.text('Actualiza Te Tengo para seguir recibiendo alertas'),
+        find.text('Actualiza Fall Alert para seguir recibiendo alertas'),
         findsNothing,
       );
       expect(find.textContaining('Llamar a Rosa'), findsWidgets);
@@ -251,7 +251,7 @@ void main() {
         ),
       );
       expect(
-        find.text('Actualiza Te Tengo para seguir recibiendo alertas'),
+        find.text('Actualiza Fall Alert para seguir recibiendo alertas'),
         findsNothing,
       );
     });
@@ -266,13 +266,13 @@ void main() {
         ),
       );
       expect(
-        find.text('Actualiza Te Tengo para seguir recibiendo alertas'),
+        find.text('Actualiza Fall Alert para seguir recibiendo alertas'),
         findsNothing,
       );
     });
   });
 
-  group('Acerca de Te Tengo', () {
+  group('Acerca de Fall Alert', () {
     testWidgets('fila de Ajustes: «Versión 0.5.0 · hay una nueva»', (
       tester,
     ) async {
@@ -283,11 +283,11 @@ void main() {
           versiones: VersionesFalsas(versionesEn('0.6.0')),
         ),
       );
-      await verHasta(tester, find.text('Acerca de Te Tengo'));
+      await verHasta(tester, find.text('Acerca de Fall Alert'));
       expect(texto('Versión 0.5.0 · hay una nueva'), findsOneWidget);
-      await verHasta(tester, find.text('Te Tengo 0.5.0'));
-      expect(find.text('Te Tengo 0.5.0'), findsOneWidget);
-      await tocar(tester, find.text('Acerca de Te Tengo'));
+      await verHasta(tester, find.text('Fall Alert 0.5.0'));
+      expect(find.text('Fall Alert 0.5.0'), findsOneWidget);
+      await tocar(tester, find.text('Acerca de Fall Alert'));
       expect(find.text('Acerca de'), findsOneWidget);
     });
 
@@ -369,7 +369,7 @@ void main() {
       );
       await verHasta(tester, find.text('PCs de la casa'));
       expect(
-        find.text('Todas al día · Te Tengo Captura 0.5.0'),
+        find.text('Todas al día · Fall Alert Captura 0.5.0'),
         findsOneWidget,
       );
       expect(texto('Captura 0.5.0 · al día'), findsOneWidget);
@@ -406,7 +406,7 @@ void main() {
       expect(find.text('Android lo pide una sola vez.'), findsOneWidget);
       expect(find.text('Toca «Abrir ajustes».'), findsOneWidget);
       expect(find.text('Activa «Permitir de esta fuente».'), findsOneWidget);
-      expect(find.text('Vuelve a Te Tengo.'), findsOneWidget);
+      expect(find.text('Vuelve a Fall Alert.'), findsOneWidget);
       await tester.tap(find.text('Abrir ajustes'));
       await tester.pump();
       expect(instalador.ajustesAbiertos, 1);

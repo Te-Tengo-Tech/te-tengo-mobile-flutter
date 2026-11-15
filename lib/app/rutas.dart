@@ -145,7 +145,7 @@ abstract final class Rutas {
       ubicacion == ruta || ubicacion.startsWith('$ruta/');
 
   /// A tap on the home-screen widget (US-44) reaches the router as `/?ir=/alerta/a-1` (Flutter's
-  /// deep linking keeps only the path and query of `tetengo-widget://abrir?ir=…`): the app's route
+  /// deep linking keeps only the path and query of `example-widget://abrir?ir=…`): the app's route
   /// it names, which the guards then check. Anything else is not a widget tap.
   static String? destinoDeWidget(Uri uri) {
     if (uri.path.isNotEmpty && uri.path != '/') return null;

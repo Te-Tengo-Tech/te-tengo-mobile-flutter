@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 /// Taps on the notices that Android draws itself from data-only pushes (API contract §7,
 /// `avisoEnLaApp`; android/.../AvisosPush.kt). Firebase's `onMessageOpenedApp` and
 /// `getInitialMessage` only know its own notification messages, so MainActivity passes these taps
-/// through the `tech.tetengo.te_tengo/avisos` channel: `tomarInicial` (the tap that launched the
+/// through the `org.example.caregiver_app/avisos` channel: `tomarInicial` (the tap that launched the
 /// app, once) and `abierto` (a tap while the app runs).
 class AvisosNativos {
   AvisosNativos({MethodChannel? canal})
@@ -19,7 +19,7 @@ class AvisosNativos {
     });
   }
 
-  static const nombreCanal = 'tech.tetengo.te_tengo/avisos';
+  static const nombreCanal = 'org.example.caregiver_app/avisos';
 
   final MethodChannel _canal;
   final _abiertas = StreamController<Map<String, dynamic>>.broadcast();

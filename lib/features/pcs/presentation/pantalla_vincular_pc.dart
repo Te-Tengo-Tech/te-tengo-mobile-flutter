@@ -13,11 +13,11 @@ import '../../../l10n/l10n.dart';
 import '../../familia/data/familia_repositorio.dart';
 import 'piezas_pc.dart';
 
-/// Where the PC's installer is downloaded. The prototype says «tetengo.pe/captura», which does not
+/// Where the PC's installer is downloaded. The prototype says «example.org/captura», which does not
 /// exist yet; the landing's downloads are the real page (docs/BLOCKERS.md).
-const paginaDescargaCaptura = 'tetengo.reqsai.tech';
+const paginaDescargaCaptura = 'example.org';
 
-/// «Vincula la PC de la casa» (screens 22, 120 and 121): how to install Te Tengo Captura, then scan
+/// «Vincula la PC de la casa» (screens 22, 120 and 121): how to install Fall Alert Captura, then scan
 /// its QR or type its code (CA-28.1, CA-28.2). Only the owner links a PC (CA-28.5).
 class PantallaVincularPc extends ConsumerWidget {
   const PantallaVincularPc({super.key});

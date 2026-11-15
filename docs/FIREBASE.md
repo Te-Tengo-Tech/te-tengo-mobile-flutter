@@ -41,7 +41,7 @@ and VAPID key as `--dart-define`s.
   as FCM drew a notification message: title `titulo`, body `cuerpo`, tag `grupo` (a later notice of
   the same alert replaces the earlier one), channel `canal` (default `alertas_caida`), id 0. In the
   foreground nothing is drawn: `onMessage` opens the alert, as before. A tap goes through
-  `MainActivity` and the `tech.tetengo.te_tengo/avisos` channel (`AvisosNativos`): `tomarInicial` for
+  `MainActivity` and the `org.example.caregiver_app/avisos` channel (`AvisosNativos`): `tomarInicial` for
   the tap that launched the app, `abierto` for one while it runs. iOS and the PWA keep notification
   messages. Native tests: `cd android && ./gradlew :app:testDebugUnitTest`.
 - **iOS with the app open:** `setForegroundNotificationPresentationOptions(alert, badge, sound)`, so a
@@ -70,14 +70,14 @@ in this private repository, remove those lines from `.gitignore`. Builds work wi
   `Info.plist` declares the background modes `remote-notification` and `fetch`.
 
 ## Set up the Firebase project (once, by the team)
-The team's project already exists: **`te-tengo-9ad70`**, with both apps registered. These steps
+The team's project already exists: **`fall-alert-project`**, with both apps registered. These steps
 document how it was set up, and what remains (the APNs key).
 
 1. In the [Firebase console](https://console.firebase.google.com/), create a project (for example
-   «Te Tengo»). Google Analytics is not needed.
-2. **Android app:** *Add app › Android*, package name `tech.tetengo.te_tengo`. Download
+   «Fall Alert»). Google Analytics is not needed.
+2. **Android app:** *Add app › Android*, package name `org.example.caregiver_app`. Download
    `google-services.json`. Skip the console's Gradle steps: they are already in the repository.
-3. **iOS app:** *Add app › Apple*, bundle ID `tech.tetengo.teTengo`. Download
+3. **iOS app:** *Add app › Apple*, bundle ID `org.example.caregiverApp`. Download
    `GoogleService-Info.plist`. Skip the SDK and initialization steps: FlutterFire already includes them.
 4. **APNs key** (needed for any iPhone, real or simulator with a real push; requires the paid Apple
    Developer Program):
@@ -89,7 +89,7 @@ document how it was set up, and what remains (the APNs key).
    3. In Xcode, open `ios/Runner.xcworkspace`, select the Runner target › *Signing & Capabilities*,
       choose the team and check that *Push Notifications* and *Background Modes › Remote
       notifications* appear (they come from `Runner.entitlements` and `Info.plist`). Automatic signing
-      registers the capability on the App ID `tech.tetengo.teTengo`.
+      registers the capability on the App ID `org.example.caregiverApp`.
    - A free (personal) Apple team cannot sign the Push Notifications capability, so building for a
      real iPhone fails with it. Simulator builds are not affected.
 5. Share the two config files with the team through a private channel (not the repository, unless
@@ -103,13 +103,13 @@ The web build does not use config files: `Firebase.initializeApp` gets `Firebase
 `--dart-define`s, and the service worker `web/firebase-messaging-sw.js` gets the same values in its
 registration URL. Details, define names and limits on iOS: [WEB_PWA.md](WEB_PWA.md).
 
-Set up once in the Firebase console (project `te-tengo-9ad70`):
-1. *Project settings › General › Your apps › Add app › Web*: «Te Tengo Web» (done). Firebase
+Set up once in the Firebase console (project `fall-alert-project`):
+1. *Project settings › General › Your apps › Add app › Web*: «Fall Alert Web» (done). Firebase
    Hosting is not needed.
 2. *Project settings › Cloud Messaging › Web configuration › Web Push certificates › Generate key
    pair* (done): the public key is `TT_FCM_VAPID_KEY`.
 3. If the browser API key is restricted (*Google Cloud console › APIs & Services › Credentials*),
-   allow the referrers `https://app.tetengo.reqsai.tech/*` and `http://localhost:*/*`, and keep the
+   allow the referrers `https://app.example.org/*` and `http://localhost:*/*`, and keep the
    *Firebase Installations API* and *FCM Registration API* in its API list.
 4. The backend sends to `WEB` tokens through the *Firebase Cloud Messaging API (V1)*, already
    enabled for the Android and iOS tokens.
@@ -123,8 +123,8 @@ Copy the files to these exact paths:
 | `GoogleService-Info.plist` | `ios/Runner/GoogleService-Info.plist` |
 
 Or generate them with the FlutterFire CLI (`dart pub global activate flutterfire_cli`, then
-`flutterfire configure --project=te-tengo-9ad70 --platforms=android,ios --android-package-name=tech.tetengo.te_tengo
---ios-bundle-id=tech.tetengo.teTengo`). If the CLI edits `android/settings.gradle.kts`,
+`flutterfire configure --project=fall-alert-project --platforms=android,ios --android-package-name=org.example.caregiver_app
+--ios-bundle-id=org.example.caregiverApp`). If the CLI edits `android/settings.gradle.kts`,
 `android/app/build.gradle.kts` or the Xcode project, discard those edits (`git checkout -- android ios/Runner.xcodeproj`):
 the repository already applies the plugin and copies the plist when present.
 
@@ -141,7 +141,7 @@ as `alerta.apns`, using the id of an active alert of the household:
 
 ```json
 {
-  "Simulator Target Bundle": "tech.tetengo.teTengo",
+  "Simulator Target Bundle": "org.example.caregiverApp",
   "aps": {
     "alert": { "title": "Posible caída de Rosa en la Sala", "body": "10:42 · Toca para ver qué hacer y llamarla." },
     "sound": "default"
@@ -178,7 +178,7 @@ key uploaded (step 4) the simulator also receives pushes sent through FCM, as be
    - **FCM HTTP v1 API** (needs a token with the `firebase.messaging` scope, for example from a
      service account and `gcloud auth print-access-token`):
      ```bash
-     curl -X POST "https://fcm.googleapis.com/v1/projects/te-tengo-9ad70/messages:send" \
+     curl -X POST "https://fcm.googleapis.com/v1/projects/fall-alert-project/messages:send" \
        -H "Authorization: Bearer $(gcloud auth print-access-token)" \
        -H "Content-Type: application/json" \
        -d '{"message":{"token":"<tokenPush>",

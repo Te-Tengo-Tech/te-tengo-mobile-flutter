@@ -10,7 +10,7 @@ import '../../../l10n/l10n.dart';
 import '../data/actualizacion_controller.dart';
 import 'rutas_actualizaciones.dart';
 
-/// Ajustes › «Acerca de Te Tengo» (screen 379): «Versión 0.5.0 · hay una nueva».
+/// Ajustes › «Acerca de Fall Alert» (screen 379): «Versión 0.5.0 · hay una nueva».
 class FilaAcercaDe extends ConsumerWidget {
   const FilaAcercaDe({super.key});
 
@@ -45,7 +45,7 @@ class FilaAcercaDe extends ConsumerWidget {
   }
 }
 
-/// The version under Ajustes: «Te Tengo 0.5.0».
+/// The version under Ajustes: «Fall Alert 0.5.0».
 class PieVersion extends ConsumerWidget {
   const PieVersion({super.key});
 
@@ -53,7 +53,7 @@ class PieVersion extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final version = ref.watch(actualizacionProvider).info?.version;
     return Text(
-      version == null ? 'Te Tengo' : 'Te Tengo $version',
+      version == null ? 'Fall Alert' : 'Fall Alert $version',
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.bodySmall,
     );

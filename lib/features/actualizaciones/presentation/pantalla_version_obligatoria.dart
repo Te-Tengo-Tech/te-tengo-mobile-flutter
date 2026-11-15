@@ -18,7 +18,7 @@ import 'pantalla_acerca_de.dart';
 import 'situacion.dart';
 import '../../../core/ui/marca.dart';
 
-/// «Actualiza Te Tengo para seguir recibiendo alertas» (screens 375, 377, 378, 394 and 398): the
+/// «Actualiza Fall Alert para seguir recibiendo alertas» (screens 375, 377, 378, 394 and 398): the
 /// installed version is below `versionMinima` (CA-43.8). It blocks politely: the platform's path
 /// to update and «Llamar a Rosa» stay at hand, and an active alert is still one tap away (the
 /// alert and live view screens are never covered).

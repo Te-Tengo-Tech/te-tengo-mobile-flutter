@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/ui/formulario.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/hogar/domain/hogar.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/ui/formulario.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/hogar/domain/hogar.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';

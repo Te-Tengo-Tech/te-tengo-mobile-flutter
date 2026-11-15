@@ -1,7 +1,7 @@
 # Releasing the Android app (direct APK and Google Play)
 
 This document covers the two ways the app reaches testers' phones:
-- **Direct APK (sideload), the path for the pilot.** A signed universal APK, `te-tengo.apk`, downloaded from the landing page and installed without the Play Store. See *[Sideload distribution](#sideload-distribution-no-play-store)*.
+- **Direct APK (sideload), the path for the pilot.** A signed universal APK, `fall-alert.apk`, downloaded from the landing page and installed without the Play Store. See *[Sideload distribution](#sideload-distribution-no-play-store)*.
 - **Google Play's internal testing track,** optional, once the team has a Play Console account. It is switched on by the organization variable `ENABLE_PLAY_STORE` ([RELEASES.md](RELEASES.md) lists every channel and switch).
 
 The release pipeline [`release.yml`](../.github/workflows/release.yml) builds both once, from the same commit, and signs both with the same release key: the universal APK, through the reusable [`build-apk.yml`](../.github/workflows/build-apk.yml), and the Android App Bundle (AAB) for Play. It stores them in the release candidate `vx.y.z-rc.N` (a GitHub pre-release), and [`produccion.yml`](../.github/workflows/produccion.yml) publishes those same files from `main`. [RELEASES.md](RELEASES.md) describes the whole pipeline. The steps under *One-time setup* are done by hand, once, by the account owner.
@@ -10,8 +10,8 @@ The release pipeline [`release.yml`](../.github/workflows/release.yml) builds bo
 | Trigger | What happens |
 |---|---|
 | Pull request (not into `main`) touching `android/`, `pubspec.*`, `release.yml` or `build-apk.yml` | `APK build check`: builds the APK with **no secrets** (debug-signed, kept 3 days) to keep the release path green; no AAB, nothing is uploaded |
-| Push to `release/x.y.z` or `hotfix/x.y.z` | In the environment `firma`, builds the APK (`te-tengo.apk` and `te-tengo.apk.sha256`) and, with `ENABLE_PLAY_STORE` set to `true`, the AAB, and stores them as assets of the pre-release `vx.y.z-rc.N` (`te-tengo.aab` for the AAB). After an approval on `staging`, `Staging · APK` uploads the candidate's APK to R2 `staging/te-tengo.apk` (`ENABLE_STAGING` and `ENABLE_APK`) |
-| Push to `main` (the merged release pull request) | After an approval on `produccion`, `Produccion · APK` uploads **the same APK** to R2 `te-tengo.apk` (`ENABLE_APK`) and `Produccion · Google Play (internal)` uploads **the same AAB** to the **internal** track (`ENABLE_PLAY_STORE`); each checks the file's SHA-256 against the candidate first |
+| Push to `release/x.y.z` or `hotfix/x.y.z` | In the environment `firma`, builds the APK (`fall-alert.apk` and `fall-alert.apk.sha256`) and, with `ENABLE_PLAY_STORE` set to `true`, the AAB, and stores them as assets of the pre-release `vx.y.z-rc.N` (`fall-alert.aab` for the AAB). After an approval on `staging`, `Staging · APK` uploads the candidate's APK to R2 `staging/fall-alert.apk` (`ENABLE_STAGING` and `ENABLE_APK`) |
+| Push to `main` (the merged release pull request) | After an approval on `produccion`, `Produccion · APK` uploads **the same APK** to R2 `fall-alert.apk` (`ENABLE_APK`) and `Produccion · Google Play (internal)` uploads **the same AAB** to the **internal** track (`ENABLE_PLAY_STORE`); each checks the file's SHA-256 against the candidate first |
 
 - **Version.** The versionName is the `x.y.z` of `pubspec.yaml` (`version: <versionName>+<N>`). The **versionCode is computed for each candidate**, one higher than any earlier candidate's and never below `N`, and passed with `--build-number` ([RELEASES.md](RELEASES.md#build-number)). Google Play rejects a versionCode it has already seen, and Android refuses to install an APK over a newer one, so nobody bumps it by hand.
 - **The switch decides, not the secrets.** With `ENABLE_PLAY_STORE` off (`false` or unset) nothing is uploaded to Play. With it, or `ENABLE_APK`, set to `true`, a missing release key, `GOOGLE_SERVICES_JSON` or `TT_API_URL` **fails the run** before the build, with an error that names it, and the `APK` and `AAB` jobs refuse to debug-sign. A missing `PLAY_SERVICE_ACCOUNT_JSON` fails `Produccion · Google Play (internal)` as its first step, before anything is uploaded.
@@ -30,7 +30,7 @@ The signing secrets are secrets of the environment **`firma`** (*Settings → En
 | `PLAY_SERVICE_ACCOUNT_JSON` | secret of `produccion` | JSON key of the service account with access to the app in Play Console (plain JSON, not base64) |
 | `PLAY_RELEASE_STATUS` | optional **variable** | `draft` while the app is still a draft in Play Console; unset (`completed`) afterwards |
 | `TT_API_URL` | **variable** (a secret of the same name also works) | HTTPS URL of the production API, compiled into the app (`--dart-define`) |
-| `ENABLE_PLAY_STORE` | **organization variable** (*Te-Tengo-Tech → Settings → Secrets and variables → Actions → Variables*) | `true` turns the Google Play upload on; anything else, or no variable, keeps it off |
+| `ENABLE_PLAY_STORE` | **organization variable** (*example-org → Settings → Secrets and variables → Actions → Variables*) | `true` turns the Google Play upload on; anything else, or no variable, keeps it off |
 
 With the GitHub CLI: `base64 -i upload-keystore.jks | gh secret set ANDROID_KEYSTORE_BASE64 --env firma`, `gh secret set PLAY_SERVICE_ACCOUNT_JSON --env produccion < play-service-account.json` and `gh variable set TT_API_URL --body https://api.example.com`. Repository secrets of the same names still work until they are moved; once a secret is in its environment, delete the repository copy.
 
@@ -54,7 +54,7 @@ With the GitHub CLI: `base64 -i upload-keystore.jks | gh secret set ANDROID_KEYS
 For the pilot, the app is distributed as a single **universal APK** from the landing page. No Play Console account, fee or review is involved.
 
 ### Where the APK is published
-- **Who publishes it.** This repository **uploads `te-tengo.apk` and `te-tengo.apk.sha256` to the public Cloudflare R2 bucket `te-tengo-descargas`**, always the file stored in the release candidate:
+- **Who publishes it.** This repository **uploads `fall-alert.apk` and `fall-alert.apk.sha256` to the public Cloudflare R2 bucket `fall-alert-descargas`**, always the file stored in the release candidate:
   - first under `staging/` (`Staging · APK` in [`release.yml`](../.github/workflows/release.yml), from the release branch);
   - then at the root (`Produccion · APK` in [`produccion.yml`](../.github/workflows/produccion.yml), from `main`).
 
@@ -62,7 +62,7 @@ For the pilot, the app is distributed as a single **universal APK** from the lan
 - **Why R2.** Run artifacts expire and are only downloadable by signed-in GitHub users; testers need a stable public URL.
 - **When.** Staging on a push to `release/x.y.z` or `hotfix/x.y.z`, production when that branch is merged into `main`, with the organization variable `ENABLE_APK` set to `true` (and `ENABLE_STAGING` for the staging copy). See [RELEASES.md](RELEASES.md).
 - **How the APK is built:** the reusable workflow [`build-apk.yml`](../.github/workflows/build-apk.yml) (`workflow_call`).
-  - **What it does.** It checks out the calling commit of this repository, builds `flutter build apk --release` and verifies the signature with `apksigner`. It keeps `te-tengo.apk` and `te-tengo.apk.sha256` as an artifact of the **calling** run, named `te-tengo-apk` by default.
+  - **What it does.** It checks out the calling commit of this repository, builds `flutter build apk --release` and verifies the signature with `apksigner`. It keeps `fall-alert.apk` and `fall-alert.apk.sha256` as an artifact of the **calling** run, named `fall-alert-apk` by default.
   - **Inputs:** `build_name`, `build_number`, `artifact_name`, `retention_days`; `environment` (the job's GitHub environment, `firma` for a release build) and `require-release-key` (fail instead of debug-signing).
   - **Outputs:** `artifact_name`, `version_name`, `version_code`, `signed`, `certificate_sha256` and `apk_sha256`.
   - **Secrets:** `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`; optionally `GOOGLE_SERVICES_JSON`, and `TT_API_URL` as a secret or variable. Each is read only by the step that uses it. On a release or hotfix push `release.yml` passes them with `secrets: inherit` and `environment: firma`; on a pull request it passes none.
@@ -73,15 +73,15 @@ For the pilot, the app is distributed as a single **universal APK** from the lan
 3. **Allow the install source.** The first time, Android asks to allow the browser or file manager to install apps: «Instalar apps desconocidas» → enable «Permitir de esta fuente», then go back. The path differs by brand; on most phones it is *Ajustes → Apps → Acceso especial → Instalar apps desconocidas*.
 4. **Install.** Google Play Protect may show «App no reconocida» or «App no segura», because the app does not come from the Play Store: «Más detalles» → «Instalar de todas formas». Do not turn Play Protect off.
 5. **Turn the install source off again.** Optional, but recommended: disable «Permitir de esta fuente» once installed.
-6. **Open Te Tengo and accept notifications** when it asks, so alerts arrive.
+6. **Open Fall Alert and accept notifications** when it asks, so alerts arrive.
 
-Optional check before installing: compare the file's SHA-256 with `te-tengo.apk.sha256`, published next to it.
+Optional check before installing: compare the file's SHA-256 with `fall-alert.apk.sha256`, published next to it.
 
-To try a release before production, install `<DESCARGAS_BASE_URL>/staging/te-tengo.apk`: it is signed with the same key, so the production APK updates it later.
+To try a release before production, install `<DESCARGAS_BASE_URL>/staging/fall-alert.apk`: it is signed with the same key, so the production APK updates it later.
 
 ### How updates work
-- **No automatic updates.** A sideloaded app is not updated by the Play Store. Testers update by downloading `te-tengo.apk` again from the same link and installing it over the current app: «¿Quieres actualizar esta app?» → «Actualizar». The session, settings and cached data are kept.
-- **The app tells the family (US-43).** When `GET /api/versiones` publishes a newer `apk` version, the app shows «Hay una versión nueva (0.6.0)», downloads `te-tengo.apk`, checks its SHA-256 against the published one and opens the Android installer (the first time it explains the «Instalar apps desconocidas» permission). Releases must therefore publish `apk.url` and `apk.sha256` (from `te-tengo.apk.sha256`). The permission `REQUEST_INSTALL_PACKAGES` is only in the APK, never in the AAB for Google Play; Play installs use Play's in-app updates. Details: [APP_UPDATES.md](APP_UPDATES.md).
+- **No automatic updates.** A sideloaded app is not updated by the Play Store. Testers update by downloading `fall-alert.apk` again from the same link and installing it over the current app: «¿Quieres actualizar esta app?» → «Actualizar». The session, settings and cached data are kept.
+- **The app tells the family (US-43).** When `GET /api/versiones` publishes a newer `apk` version, the app shows «Hay una versión nueva (0.6.0)», downloads `fall-alert.apk`, checks its SHA-256 against the published one and opens the Android installer (the first time it explains the «Instalar apps desconocidas» permission). Releases must therefore publish `apk.url` and `apk.sha256` (from `fall-alert.apk.sha256`). The permission `REQUEST_INSTALL_PACKAGES` is only in the APK, never in the AAB for Google Play; Play installs use Play's in-app updates. Details: [APP_UPDATES.md](APP_UPDATES.md).
 - **An update only installs when both rules hold:**
   - **The same signing key.** The APK must be signed with the same release key as the installed one. With another key, Android shows «App no instalada» (signatures conflict) and the tester would have to uninstall first, losing the session. This is why debug-signed builds must never be published, and why **losing the keystore** means every tester reinstalls.
   - **A higher versionCode.** The pipeline gives every candidate a higher one; a local build uses the `+N` of `pubspec.yaml`, or `build_number`, which must be higher than the installed build. This is also why a rollback of the APK only serves new installs ([RELEASES.md](RELEASES.md#rollback-rollbackyml-manual)).
@@ -97,7 +97,7 @@ To try a release before production, install `<DESCARGAS_BASE_URL>/staging/te-ten
 1. **Google Play Console developer account.**
    - **Cost and verification.** A one-time **US$25** fee, plus identity verification with an ID document, at <https://play.google.com/console/signup>.
    - **Personal or organization.** A *personal* account is enough for the thesis. An *organization* account needs a D-U-N-S number, but is exempt from the testing rule below.
-2. **Create the app.** In *Create app*: name «Te Tengo», default language Spanish (Latin America) or Spanish (Spain), type *App*, *Free*, and accept the declarations. The package name `tech.tetengo.te_tengo` is fixed by the **first uploaded AAB** and can never change.
+2. **Create the app.** In *Create app*: name «Fall Alert», default language Spanish (Latin America) or Spanish (Spain), type *App*, *Free*, and accept the declarations. The package name `org.example.caregiver_app` is fixed by the **first uploaded AAB** and can never change.
 3. **Play App Signing: upload key vs app signing key.**
    - **Play App Signing** is mandatory for new apps. Google generates and keeps the **app signing key**, which signs the APKs that phones install.
    - The team only holds the **upload key** above, which proves that an upload comes from the team.
@@ -109,7 +109,7 @@ To try a release before production, install `<DESCARGAS_BASE_URL>/staging/te-ten
    - From then on the workflow uploads.
    - While the app is still a **draft** (never reviewed), the API only accepts `release_status: draft`, and the release is then rolled out from the console.
 5. **Service account for the workflow.**
-   1. In Google Cloud (any project, e.g. the Firebase project `te-tengo-9ad70`), enable the **Google Play Android Developer API**.
+   1. In Google Cloud (any project, e.g. the Firebase project `fall-alert-project`), enable the **Google Play Android Developer API**.
    2. Create a service account and a JSON key for it.
    3. In Play Console, *Users and permissions → Invite new users*, invite the service account's e-mail with access to this app. Grant *Release to testing tracks* and *View app information*.
    4. Save the JSON as `PLAY_SERVICE_ACCOUNT_JSON`, a secret of the environment `produccion`.

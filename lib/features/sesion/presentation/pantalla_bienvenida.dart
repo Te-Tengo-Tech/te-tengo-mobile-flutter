@@ -59,7 +59,7 @@ class PantallaBienvenida extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Boton(
-                      l.sesionYaTengoCuenta,
+                      l.sesionConCuentaYa,
                       estilo: EstiloBoton.secundario,
                       alPresionar: () => context.push(Rutas.iniciarSesion),
                     ),

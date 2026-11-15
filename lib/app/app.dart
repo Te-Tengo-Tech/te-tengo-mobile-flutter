@@ -17,14 +17,14 @@ import 'router.dart';
 import 'tema/tema.dart';
 
 /// Family member / caregiver app (the "Aplicación del familiar/cuidador" container of the C4 model).
-class TeTengoApp extends ConsumerStatefulWidget {
-  const TeTengoApp({super.key});
+class CaregiverApp extends ConsumerStatefulWidget {
+  const CaregiverApp({super.key});
 
   @override
-  ConsumerState<TeTengoApp> createState() => _TeTengoAppState();
+  ConsumerState<CaregiverApp> createState() => _CaregiverAppState();
 }
 
-class _TeTengoAppState extends ConsumerState<TeTengoApp> {
+class _CaregiverAppState extends ConsumerState<CaregiverApp> {
   late final AppLifecycleListener _ciclo;
 
   @override
@@ -57,16 +57,16 @@ class _TeTengoAppState extends ConsumerState<TeTengoApp> {
     // setting (the high-contrast themes below).
     final contraste = ref.watch(contrasteProvider);
     return MaterialApp.router(
-      title: 'Te Tengo',
+      title: 'Fall Alert',
       debugShowCheckedModeBanner: false,
       // Spanish (Peru) by default; English when the phone prefers it (lib/l10n/l10n.dart).
       localizationsDelegates: delegadosDeTextos,
       supportedLocales: idiomasDeLaApp,
       localeListResolutionCallback: resolverIdioma,
-      theme: temaTeTengo(contraste: contraste),
-      darkTheme: temaTeTengo(oscuro: true, contraste: contraste),
-      highContrastTheme: temaTeTengo(contraste: true),
-      highContrastDarkTheme: temaTeTengo(oscuro: true, contraste: true),
+      theme: temaCaregiver(contraste: contraste),
+      darkTheme: temaCaregiver(oscuro: true, contraste: contraste),
+      highContrastTheme: temaCaregiver(contraste: true),
+      highContrastDarkTheme: temaCaregiver(oscuro: true, contraste: true),
       // The theme in «Preferencias»: follows the phone (or the browser) by default, or stays light
       // or dark on this device.
       themeMode: ref.watch(aparienciaProvider).modo,

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/actualizaciones/data/versiones_repositorio.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/actualizaciones/data/versiones_repositorio.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 
@@ -29,7 +29,7 @@ void main() {
         'apk': {
           'version': '0.6.0',
           'versionMinima': '0.4.0',
-          'url': 'https://tetengo.example/te-tengo.apk',
+          'url': 'https://example.org/fall-alert.apk',
           'sha256': 'ab',
           'tamanoBytes': 8400000,
           'publicadaEn': '2026-10-10T15:00:00Z',

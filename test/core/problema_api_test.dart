@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/ui/aviso.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/ui/aviso.dart';
 
 import '../apoyo/app_de_prueba.dart';
 

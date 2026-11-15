@@ -1,6 +1,6 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
 
 /// The pilot camera: one USB webcam in the living room.
 final camaraSala = Camara(

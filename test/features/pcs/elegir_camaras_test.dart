@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/ui/formulario.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
-import 'package:te_tengo/features/pcs/domain/camara_detectada.dart';
-import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
-import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
-import 'package:te_tengo/features/vivo/presentation/reproductor_webrtc.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/ui/formulario.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/pcs/data/pcs_repositorio.dart';
+import 'package:caregiver_app/features/pcs/domain/camara_detectada.dart';
+import 'package:caregiver_app/features/vivo/data/vista_en_vivo_repositorio.dart';
+import 'package:caregiver_app/features/vivo/presentation/reproductor_vivo.dart';
+import 'package:caregiver_app/features/vivo/presentation/reproductor_webrtc.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -101,7 +101,7 @@ void main() {
     expect(find.text('¿En qué habitación está?'), findsOneWidget);
     await verAyuda(
       tester,
-      'Por privacidad, Te Tengo no admite cámaras en el baño.',
+      'Por privacidad, Fall Alert no admite cámaras en el baño.',
     );
     await verAyuda(
       tester,
@@ -167,7 +167,7 @@ void main() {
     await tester.enterText(campoOtra(), 'Baño de visitas');
     await tocar(tester, find.text('Usar esta cámara'));
     expect(
-      find.text('Por privacidad, Te Tengo no admite cámaras en el baño.'),
+      find.text('Por privacidad, Fall Alert no admite cámaras en el baño.'),
       findsOneWidget,
     );
     expect(pcs.usos, isEmpty);
@@ -181,14 +181,14 @@ void main() {
   testWidgets('el backend también rechaza el baño', (tester) async {
     pcs.errorUso = const ProblemaApi(
       codigo: 'AMBIENTE_NO_PERMITIDO',
-      detalle: 'Por privacidad, Te Tengo no admite cámaras en el baño.',
+      detalle: 'Por privacidad, Fall Alert no admite cámaras en el baño.',
     );
     await abrir(tester, Rutas.elegirCamaras('pc-sala'));
     await tocar(tester, find.text('Otra…'));
     await tester.enterText(campoOtra(), 'Aseo');
     await tocar(tester, find.text('Usar esta cámara'));
     expect(
-      find.text('Por privacidad, Te Tengo no admite cámaras en el baño.'),
+      find.text('Por privacidad, Fall Alert no admite cámaras en el baño.'),
       findsOneWidget,
     );
   });

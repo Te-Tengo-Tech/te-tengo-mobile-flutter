@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/ui/avisos_flotantes.dart';
+import 'package:caregiver_app/core/ui/avisos_flotantes.dart';
 
 import '../apoyo/app_de_prueba.dart';
 

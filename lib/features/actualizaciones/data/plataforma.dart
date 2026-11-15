@@ -44,7 +44,7 @@ final infoAppProvider = FutureProvider<InfoApp?>((ref) async {
 /// What the Android installer did.
 enum ResultadoInstalador { instalada, cancelada, fallo }
 
-/// The Android side of the APK update (`MainActivity`, channel `tech.tetengo.te_tengo/actualizaciones`).
+/// The Android side of the APK update (`MainActivity`, channel `org.example.caregiver_app/actualizaciones`).
 abstract interface class InstaladorApk {
   /// Android's «Instalar apps desconocidas» permission for this app
   /// (`PackageManager.canRequestPackageInstalls()`).
@@ -60,7 +60,7 @@ abstract interface class InstaladorApk {
 class InstaladorApkAndroid implements InstaladorApk {
   const InstaladorApkAndroid();
 
-  static const canal = MethodChannel('tech.tetengo.te_tengo/actualizaciones');
+  static const canal = MethodChannel('org.example.caregiver_app/actualizaciones');
 
   @override
   Future<bool> puedeInstalar() async {

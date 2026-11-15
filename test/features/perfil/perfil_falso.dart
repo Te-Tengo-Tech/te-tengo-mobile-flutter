@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:te_tengo/core/foto.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/perfil/data/perfil_repositorio.dart';
-import 'package:te_tengo/features/perfil/data/selector_foto.dart';
-import 'package:te_tengo/features/perfil/domain/perfil.dart';
+import 'package:caregiver_app/core/foto.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/perfil/data/perfil_repositorio.dart';
+import 'package:caregiver_app/features/perfil/data/selector_foto.dart';
+import 'package:caregiver_app/features/perfil/domain/perfil.dart';
 
 final fotoCarmen = Foto(
   url: 'https://fotos.test/fotos/usuarios/u-carmen/f1.jpg?firma=1',

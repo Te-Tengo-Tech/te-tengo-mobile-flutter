@@ -1,4 +1,4 @@
-package tech.tetengo.te_tengo
+package org.example.caregiver_app
 
 import android.app.Activity
 import android.app.NotificationChannel
@@ -154,7 +154,7 @@ class MainActivity : FlutterActivity() {
         var enPrimerPlano = false
 
         const val CANAL_ALERTAS = "alertas_caida"
-        const val CANAL_AVISOS = "tech.tetengo.te_tengo/avisos"
+        const val CANAL_AVISOS = "org.example.caregiver_app/avisos"
 
         /** See [crearCanalDeAlertas]. */
         @RequiresApi(Build.VERSION_CODES.O)
@@ -164,7 +164,7 @@ class MainActivity : FlutterActivity() {
             canal.lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
             return canal
         }
-        const val CANAL_ACTUALIZACIONES = "tech.tetengo.te_tengo/actualizaciones"
+        const val CANAL_ACTUALIZACIONES = "org.example.caregiver_app/actualizaciones"
         const val PEDIDO_INSTALAR = 4301
     }
 }

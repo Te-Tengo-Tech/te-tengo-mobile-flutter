@@ -3,17 +3,17 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/cache/cache_local.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/sesion/sesion_controller.dart';
-import 'package:te_tengo/features/ajustes/data/preferencias.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/cache/cache_local.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion_controller.dart';
+import 'package:caregiver_app/features/ajustes/data/preferencias.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
 
 import '../apoyo/adaptador_falso.dart';
 import '../apoyo/app_de_prueba.dart';

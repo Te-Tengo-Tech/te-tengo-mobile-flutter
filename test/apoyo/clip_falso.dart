@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
+import 'package:caregiver_app/features/alertas/presentation/reproductor.dart';
 
 /// Video controller without the platform plugin. Time only moves with [avanzar].
 class ClipFalso extends ChangeNotifier implements ControladorClip {

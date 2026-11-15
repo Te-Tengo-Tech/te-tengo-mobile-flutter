@@ -23,7 +23,7 @@
 
 | Workflow | Trigger | Jobs |
 |---|---|---|
-| [CI](.github/workflows/ci.yml) | Push to `develop`, every PR (only `ci-ok` on PRs into `main`); called by Release on each candidate commit | `Format and analyze` (`dart format`, `flutter analyze`); `Tests and coverage` (`flutter test --coverage`, lcov artifact, coverage per feature on the run page, golden diffs uploaded on failure); `Web (PWA)` (the reusable [Build PWA](.github/workflows/build-web.yml): `flutter build web --base-href /` with the Firebase web config from repository variables, `te-tengo-web` artifact; [docs/WEB_PWA.md](docs/WEB_PWA.md)); `ci-ok`, the single required CI check |
+| [CI](.github/workflows/ci.yml) | Push to `develop`, every PR (only `ci-ok` on PRs into `main`); called by Release on each candidate commit | `Format and analyze` (`dart format`, `flutter analyze`); `Tests and coverage` (`flutter test --coverage`, lcov artifact, coverage per feature on the run page, golden diffs uploaded on failure); `Web (PWA)` (the reusable [Build PWA](.github/workflows/build-web.yml): `flutter build web --base-href /` with the Firebase web config from repository variables, `fall-alert-web` artifact; [docs/WEB_PWA.md](docs/WEB_PWA.md)); `ci-ok`, the single required CI check |
 | [PR title](.github/workflows/pr-title.yml) | Every PR | `pr-title`: the title is a Conventional Commit |
 | [Release gate](.github/workflows/release-gate.yml) | PRs into `main` | `release-gate`: merging puts into `main` the tree of a candidate that passed staging ([docs/RELEASES.md](docs/RELEASES.md#release-gate)) |
 | [OSV-Scanner](.github/workflows/osv-scanner.yml) | Weekly, manual, PRs that change `pubspec.*` | Scans `pubspec.lock`; scheduled runs fail on high or critical |

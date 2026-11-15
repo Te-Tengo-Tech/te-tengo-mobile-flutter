@@ -21,7 +21,7 @@ class CacheEnArchivo implements CacheLocal {
       final carpeta = await getApplicationSupportDirectory();
       return CacheDrift(
         NativeDatabase.createInBackground(
-          File('${carpeta.path}${Platform.pathSeparator}te_tengo.sqlite'),
+          File('${carpeta.path}${Platform.pathSeparator}caregiver_app.sqlite'),
         ),
       );
     } on Object {

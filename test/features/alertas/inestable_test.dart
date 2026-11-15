@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/router.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
-import 'package:te_tengo/core/ui/iconos.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/alertas/presentation/pantalla_alerta.dart';
+import 'package:caregiver_app/app/router.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/notificaciones/mensaje_push.dart';
+import 'package:caregiver_app/core/ui/iconos.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/alertas/presentation/pantalla_alerta.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/push_falso.dart';

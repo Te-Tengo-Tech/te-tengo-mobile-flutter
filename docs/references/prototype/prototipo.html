@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Te Tengo</title>
+<title>Fall Alert</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;500;600&family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ---------- Te Tengo: tokens ---------- */
+/* ---------- Fall Alert: tokens ---------- */
 :root{
   --ground:#EEF0F4;
   --ground-2:#E4E6EC;
@@ -663,7 +663,7 @@ body{font-family:var(--font);color:var(--ink);display:flex;align-items:flex-star
 <div class="stage"><div class="phone"><div class="screen" id="screen"></div></div></div>
 <aside id="demo" class="dp" aria-labelledby="dp-h"></aside>
 <script>
-/* ================= Te Tengo · núcleo compartido ================= */
+/* ================= Fall Alert · núcleo compartido ================= */
 const P = {
   home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9v11h4.5v-6h4v6h4.5V9"/>',
   hist:'<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4h4"/><path d="M12 7.5V12l3 2"/>',
@@ -723,27 +723,27 @@ const P = {
 };
 function ic(n, extra){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"'+(extra?' '+extra:'')+'>'+P[n]+'</svg>'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-/* ---------- Marca Te Tengo: «La T que sostiene» (archivos fuente en 05-prototipos/marca/) ---------- */
+/* ---------- Marca Fall Alert: «La T que sostiene» (archivos fuente en 05-prototipos/marca/) ---------- */
 const BRAND={morado:'#4A2A85', coral:'#E8765A', durazno:'#FFB59C',
   te:'M138.16 80L138.16 46.85L124.52 46.85L124.52 37.25L162.67 37.25L162.67 46.85L149.04 46.85L149.04 80L138.16 80ZM178.09 80.77Q172.91 80.77 168.91 78.78Q164.91 76.8 162.64 73.02Q160.36 69.25 160.36 63.87Q160.36 58.82 162.73 55.1Q165.1 51.39 169.04 49.34Q172.97 47.3 177.64 47.3Q181.61 47.3 184.78 48.7Q187.95 50.11 190.16 52.7Q192.36 55.3 193.42 58.88Q194.48 62.46 194.16 66.88L170.6 66.88Q170.99 68.35 171.66 69.44Q172.33 70.53 173.26 71.26Q174.19 72 175.34 72.35Q176.49 72.7 177.77 72.7Q179.95 72.7 181.55 72.1Q183.15 71.49 183.98 70.46L192.24 73.54Q189.61 77.31 185.74 79.04Q181.87 80.77 178.09 80.77ZM170.54 60.74L184.56 60.74Q184.36 58.75 183.47 57.5Q182.57 56.26 181.13 55.65Q179.69 55.04 177.96 55.04Q176.24 55.04 174.7 55.62Q173.16 56.19 172.08 57.44Q170.99 58.69 170.54 60.74Z',
-  tengo:'M229.93 80L229.93 46.85L216.3 46.85L216.3 37.25L254.44 37.25L254.44 46.85L240.81 46.85L240.81 80L229.93 80ZM269.87 80.77Q264.68 80.77 260.68 78.78Q256.68 76.8 254.41 73.02Q252.14 69.25 252.14 63.87Q252.14 58.82 254.51 55.1Q256.88 51.39 260.81 49.34Q264.75 47.3 269.42 47.3Q273.39 47.3 276.56 48.7Q279.72 50.11 281.93 52.7Q284.14 55.3 285.2 58.88Q286.25 62.46 285.93 66.88L262.38 66.88Q262.76 68.35 263.44 69.44Q264.11 70.53 265.04 71.26Q265.96 72 267.12 72.35Q268.27 72.7 269.55 72.7Q271.72 72.7 273.32 72.1Q274.92 71.49 275.76 70.46L284.01 73.54Q281.39 77.31 277.52 79.04Q273.64 80.77 269.87 80.77ZM262.32 60.74L276.33 60.74Q276.14 58.75 275.24 57.5Q274.35 56.26 272.91 55.65Q271.47 55.04 269.74 55.04Q268.01 55.04 266.48 55.62Q264.94 56.19 263.85 57.44Q262.76 58.69 262.32 60.74ZM290.48 80L290.48 48.26L299.88 48.26L301.04 52.35Q301.74 51.26 303.12 50.08Q304.49 48.9 306.48 48.1Q308.46 47.3 310.83 47.3Q314.73 47.3 317.1 48.7Q319.47 50.11 320.56 52.9Q321.64 55.68 321.64 59.71L321.64 80L311.08 80L311.08 61.89Q311.08 59.65 310.6 58.21Q310.12 56.77 309.13 56.06Q308.14 55.36 306.54 55.36Q303.6 55.36 302.32 57.54Q301.04 59.71 301.04 63.87L301.04 80L290.48 80ZM344.04 93.12Q341.42 93.12 338.67 92.48Q335.92 91.84 333.55 90.27Q331.18 88.7 329.58 85.95L337.84 82.18Q338.73 83.52 340.24 84.38Q341.74 85.25 344.24 85.25Q345.64 85.25 347.02 84.74Q348.4 84.22 349.29 82.94Q350.19 81.66 350.19 79.42L350.19 73.86Q348.01 76.42 345.32 77.57Q342.64 78.72 340.14 78.72Q336.75 78.72 333.58 76.86Q330.41 75.01 328.43 71.58Q326.44 68.16 326.44 63.36Q326.44 57.73 328.43 54.18Q330.41 50.62 333.48 48.93Q336.56 47.23 339.76 47.23Q342.64 47.23 345.48 48.54Q348.33 49.86 350.19 52.48L351.47 48.26L360.68 48.26L360.68 77.31Q360.68 83.01 358.6 86.5Q356.52 89.98 352.78 91.55Q349.04 93.12 344.04 93.12ZM343.98 70.59Q345.77 70.59 347.28 69.92Q348.78 69.25 349.71 67.62Q350.64 65.98 350.64 63.1Q350.64 60.16 349.71 58.46Q348.78 56.77 347.28 56.06Q345.77 55.36 343.98 55.36Q341.36 55.36 339.34 57.09Q337.32 58.82 337.32 62.78Q337.32 66.75 339.34 68.67Q341.36 70.59 343.98 70.59ZM382.57 80.77Q379.24 80.77 376.17 79.74Q373.1 78.72 370.67 76.64Q368.24 74.56 366.86 71.39Q365.48 68.22 365.48 63.94Q365.48 59.65 366.86 56.51Q368.24 53.38 370.67 51.33Q373.1 49.28 376.17 48.29Q379.24 47.3 382.57 47.3Q385.96 47.3 389 48.29Q392.04 49.28 394.48 51.33Q396.91 53.38 398.28 56.51Q399.66 59.65 399.66 63.94Q399.66 68.22 398.28 71.39Q396.91 74.56 394.48 76.64Q392.04 78.72 389 79.74Q385.96 80.77 382.57 80.77ZM382.57 72.7Q384.49 72.7 385.9 71.71Q387.31 70.72 388.11 68.77Q388.91 66.82 388.91 63.94Q388.91 60.99 388.08 59.1Q387.24 57.22 385.84 56.29Q384.43 55.36 382.57 55.36Q380.78 55.36 379.34 56.29Q377.9 57.22 377.07 59.1Q376.24 60.99 376.24 63.94Q376.24 66.82 377.04 68.77Q377.84 70.72 379.28 71.71Q380.72 72.7 382.57 72.7Z',
+  lema:'M229.93 80L229.93 46.85L216.3 46.85L216.3 37.25L254.44 37.25L254.44 46.85L240.81 46.85L240.81 80L229.93 80ZM269.87 80.77Q264.68 80.77 260.68 78.78Q256.68 76.8 254.41 73.02Q252.14 69.25 252.14 63.87Q252.14 58.82 254.51 55.1Q256.88 51.39 260.81 49.34Q264.75 47.3 269.42 47.3Q273.39 47.3 276.56 48.7Q279.72 50.11 281.93 52.7Q284.14 55.3 285.2 58.88Q286.25 62.46 285.93 66.88L262.38 66.88Q262.76 68.35 263.44 69.44Q264.11 70.53 265.04 71.26Q265.96 72 267.12 72.35Q268.27 72.7 269.55 72.7Q271.72 72.7 273.32 72.1Q274.92 71.49 275.76 70.46L284.01 73.54Q281.39 77.31 277.52 79.04Q273.64 80.77 269.87 80.77ZM262.32 60.74L276.33 60.74Q276.14 58.75 275.24 57.5Q274.35 56.26 272.91 55.65Q271.47 55.04 269.74 55.04Q268.01 55.04 266.48 55.62Q264.94 56.19 263.85 57.44Q262.76 58.69 262.32 60.74ZM290.48 80L290.48 48.26L299.88 48.26L301.04 52.35Q301.74 51.26 303.12 50.08Q304.49 48.9 306.48 48.1Q308.46 47.3 310.83 47.3Q314.73 47.3 317.1 48.7Q319.47 50.11 320.56 52.9Q321.64 55.68 321.64 59.71L321.64 80L311.08 80L311.08 61.89Q311.08 59.65 310.6 58.21Q310.12 56.77 309.13 56.06Q308.14 55.36 306.54 55.36Q303.6 55.36 302.32 57.54Q301.04 59.71 301.04 63.87L301.04 80L290.48 80ZM344.04 93.12Q341.42 93.12 338.67 92.48Q335.92 91.84 333.55 90.27Q331.18 88.7 329.58 85.95L337.84 82.18Q338.73 83.52 340.24 84.38Q341.74 85.25 344.24 85.25Q345.64 85.25 347.02 84.74Q348.4 84.22 349.29 82.94Q350.19 81.66 350.19 79.42L350.19 73.86Q348.01 76.42 345.32 77.57Q342.64 78.72 340.14 78.72Q336.75 78.72 333.58 76.86Q330.41 75.01 328.43 71.58Q326.44 68.16 326.44 63.36Q326.44 57.73 328.43 54.18Q330.41 50.62 333.48 48.93Q336.56 47.23 339.76 47.23Q342.64 47.23 345.48 48.54Q348.33 49.86 350.19 52.48L351.47 48.26L360.68 48.26L360.68 77.31Q360.68 83.01 358.6 86.5Q356.52 89.98 352.78 91.55Q349.04 93.12 344.04 93.12ZM343.98 70.59Q345.77 70.59 347.28 69.92Q348.78 69.25 349.71 67.62Q350.64 65.98 350.64 63.1Q350.64 60.16 349.71 58.46Q348.78 56.77 347.28 56.06Q345.77 55.36 343.98 55.36Q341.36 55.36 339.34 57.09Q337.32 58.82 337.32 62.78Q337.32 66.75 339.34 68.67Q341.36 70.59 343.98 70.59ZM382.57 80.77Q379.24 80.77 376.17 79.74Q373.1 78.72 370.67 76.64Q368.24 74.56 366.86 71.39Q365.48 68.22 365.48 63.94Q365.48 59.65 366.86 56.51Q368.24 53.38 370.67 51.33Q373.1 49.28 376.17 48.29Q379.24 47.3 382.57 47.3Q385.96 47.3 389 48.29Q392.04 49.28 394.48 51.33Q396.91 53.38 398.28 56.51Q399.66 59.65 399.66 63.94Q399.66 68.22 398.28 71.39Q396.91 74.56 394.48 76.64Q392.04 78.72 389 79.74Q385.96 80.77 382.57 80.77ZM382.57 72.7Q384.49 72.7 385.9 71.71Q387.31 70.72 388.11 68.77Q388.91 66.82 388.91 63.94Q388.91 60.99 388.08 59.1Q387.24 57.22 385.84 56.29Q384.43 55.36 382.57 55.36Q380.78 55.36 379.34 56.29Q377.9 57.22 377.07 59.1Q376.24 60.99 376.24 63.94Q376.24 66.82 377.04 68.77Q377.84 70.72 379.28 71.71Q380.72 72.7 382.57 72.7Z',
   captura:'M445.42 80.77Q438.95 80.77 434.38 78.02Q429.8 75.26 427.34 70.27Q424.87 65.28 424.87 58.62Q424.87 51.84 427.43 46.88Q429.99 41.92 434.7 39.2Q439.4 36.48 445.74 36.48Q451.56 36.48 455.98 39.07Q460.39 41.66 462.7 46.27L455.34 48.96Q453.93 46.21 451.34 44.8Q448.75 43.39 445.42 43.39Q442.15 43.39 439.43 45.15Q436.71 46.91 435.15 50.3Q433.58 53.7 433.58 58.62Q433.58 63.49 435.11 66.88Q436.65 70.27 439.4 72.06Q442.15 73.86 445.61 73.86Q447.72 73.86 449.64 73.28Q451.56 72.7 453.13 71.46Q454.7 70.21 455.66 68.29L462.95 70.98Q460.52 75.65 455.91 78.21Q451.31 80.77 445.42 80.77ZM477.1 80.77Q474.09 80.77 471.59 79.65Q469.1 78.53 467.59 76.48Q466.09 74.43 466.09 71.55Q466.09 67.78 468.75 65.47Q471.4 63.17 476.27 61.92Q481.13 60.67 487.72 60.1L487.72 59.26Q487.72 56.32 486.12 54.72Q484.52 53.12 481.32 53.12Q478.95 53.12 477.29 54.21Q475.63 55.3 475.11 57.41L468.2 55.04Q469.67 51.65 473.16 49.6Q476.65 47.55 481.51 47.55Q488.3 47.55 491.72 50.62Q495.15 53.7 495.15 60.61L495.15 67.78Q495.15 70.08 495.31 72.35Q495.47 74.62 495.72 76.58Q495.98 78.53 496.3 80L489.07 80L487.85 75.97Q486.25 78.4 483.56 79.58Q480.87 80.77 477.1 80.77ZM479.72 75.14Q481.96 75.14 483.75 74.4Q485.55 73.66 486.63 71.87Q487.72 70.08 487.72 66.94L487.72 65.22Q481.39 65.73 477.9 67.04Q474.41 68.35 474.41 71.1Q474.41 72.9 475.85 74.02Q477.29 75.14 479.72 75.14ZM503.15 90.37L503.15 48.26L509.61 48.26L511.02 52.86Q511.98 51.14 513.55 49.95Q515.11 48.77 517 48.16Q518.89 47.55 520.94 47.55Q524.84 47.55 527.98 49.54Q531.11 51.52 532.94 55.23Q534.76 58.94 534.76 64.19Q534.76 69.38 532.94 73.09Q531.11 76.8 527.98 78.78Q524.84 80.77 520.94 80.77Q518.89 80.77 517 80.13Q515.11 79.49 513.55 78.27Q511.98 77.06 511.02 75.33L511.02 90.37L503.15 90.37ZM518.57 74.5Q521.96 74.5 524.2 71.84Q526.44 69.18 526.44 64.19Q526.44 59.26 524.2 56.54Q521.96 53.82 518.57 53.82Q515.18 53.82 512.94 56.32Q510.7 58.82 510.7 64.06Q510.7 69.25 512.94 71.87Q515.18 74.5 518.57 74.5ZM551.85 80Q548.33 80 546.31 79.36Q544.3 78.72 543.47 76.86Q542.63 75.01 542.63 71.49L542.63 54.34L537.32 54.34L537.32 48.26L542.63 48.26L542.63 40.32L550.51 40.32L550.51 48.26L557.23 48.26L557.23 54.34L550.51 54.34L550.51 69.63Q550.51 72.06 551.24 72.77Q551.98 73.47 554.22 73.47L557.23 73.47L557.23 80L551.85 80ZM573.93 80.77Q569.9 80.77 567.56 79.2Q565.23 77.63 564.23 74.72Q563.24 71.81 563.24 67.84L563.24 48.26L571.11 48.26L571.11 65.79Q571.11 68.1 571.43 70.08Q571.75 72.06 572.94 73.25Q574.12 74.43 576.75 74.43Q580.14 74.43 581.77 72.19Q583.4 69.95 583.4 65.28L583.4 48.26L591.27 48.26L591.27 80L584.75 80L583.4 75.46Q582.06 77.82 579.88 79.3Q577.71 80.77 573.93 80.77ZM599.15 80L599.15 48.26L605.23 48.26L606.95 54.08Q607.98 51.84 609.51 50.37Q611.05 48.9 613.1 48.16Q615.15 47.42 617.64 47.55L617.64 55.42Q613.93 55.17 611.56 56.16Q609.19 57.15 608.11 59.36Q607.02 61.57 607.02 65.02L607.02 80L599.15 80ZM630.76 80.77Q627.75 80.77 625.26 79.65Q622.76 78.53 621.26 76.48Q619.75 74.43 619.75 71.55Q619.75 67.78 622.41 65.47Q625.07 63.17 629.93 61.92Q634.79 60.67 641.39 60.1L641.39 59.26Q641.39 56.32 639.79 54.72Q638.19 53.12 634.99 53.12Q632.62 53.12 630.95 54.21Q629.29 55.3 628.78 57.41L621.87 55.04Q623.34 51.65 626.83 49.6Q630.31 47.55 635.18 47.55Q641.96 47.55 645.39 50.62Q648.81 53.7 648.81 60.61L648.81 67.78Q648.81 70.08 648.97 72.35Q649.13 74.62 649.39 76.58Q649.64 78.53 649.96 80L642.73 80L641.51 75.97Q639.91 78.4 637.23 79.58Q634.54 80.77 630.76 80.77ZM633.39 75.14Q635.63 75.14 637.42 74.4Q639.21 73.66 640.3 71.87Q641.39 70.08 641.39 66.94L641.39 65.22Q635.05 65.73 631.56 67.04Q628.07 68.35 628.07 71.1Q628.07 72.9 629.51 74.02Q630.95 75.14 633.39 75.14Z'};
 function symbolParts(stroke, dot){ return '<g fill="none" stroke="'+stroke+'" stroke-width="13" stroke-linecap="round"><path d="M60 60 V96"/><path d="M22 38 Q60 80 98 38"/></g><circle cx="60" cy="38" r="11" fill="'+dot+'"/>'; }
 function symbolSVG(dark, attrs){ return '<svg viewBox="0 0 120 120" aria-hidden="true"'+(attrs?' '+attrs:'')+'>'+symbolParts(dark?'#FFFFFF':BRAND.morado, dark?BRAND.durazno:BRAND.coral)+'</svg>'; }
 const LOGO = '<svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" rx="28" fill="'+BRAND.morado+'"/>'+symbolParts('#FFFFFF', BRAND.durazno)+'</svg>';
-/* logotipo horizontal: símbolo + «Te Tengo» (+ «Captura» en el agente de escritorio) */
+/* logotipo horizontal: símbolo + «Fall Alert» (+ «Captura» en el agente de escritorio) */
 function logotipo(dark, withCaptura, cls){
   const w = withCaptura ? 638.91 : 387.45;
-  return '<svg class="logotipo'+(cls?' '+cls:'')+'" viewBox="15.5 27 '+w+' 75.5" role="img" aria-label="Te Tengo'+(withCaptura?' Captura':'')+'">'+
+  return '<svg class="logotipo'+(cls?' '+cls:'')+'" viewBox="15.5 27 '+w+' 75.5" role="img" aria-label="Fall Alert'+(withCaptura?' Captura':'')+'">'+
     symbolParts(dark?'#FFFFFF':BRAND.morado, dark?BRAND.durazno:BRAND.coral)+
-    '<path fill="'+(dark?'#FFFFFF':BRAND.morado)+'" d="'+BRAND.te+'"/><path fill="'+(dark?BRAND.durazno:BRAND.coral)+'" d="'+BRAND.tengo+'"/>'+
+    '<path fill="'+(dark?'#FFFFFF':BRAND.morado)+'" d="'+BRAND.te+'"/><path fill="'+(dark?BRAND.durazno:BRAND.coral)+'" d="'+BRAND.lema+'"/>'+
     (withCaptura?'<path fill="'+(dark?'rgba(255,255,255,.8)':'#4F4766')+'" d="'+BRAND.captura+'"/>':'')+'</svg>';
 }
 /* solo las letras, para el arranque */
 function wordmark(dark, withCaptura, cls){
   const w = withCaptura ? 529.91 : 278.45;
-  return '<svg class="wordmark'+(cls?' '+cls:'')+'" viewBox="124.5 37 '+w+' 57" role="img" aria-label="Te Tengo'+(withCaptura?' Captura':'')+'">'+
-    '<path fill="'+(dark?'#FFFFFF':BRAND.morado)+'" d="'+BRAND.te+'"/><path fill="'+(dark?BRAND.durazno:BRAND.coral)+'" d="'+BRAND.tengo+'"/>'+
+  return '<svg class="wordmark'+(cls?' '+cls:'')+'" viewBox="124.5 37 '+w+' 57" role="img" aria-label="Fall Alert'+(withCaptura?' Captura':'')+'">'+
+    '<path fill="'+(dark?'#FFFFFF':BRAND.morado)+'" d="'+BRAND.te+'"/><path fill="'+(dark?BRAND.durazno:BRAND.coral)+'" d="'+BRAND.lema+'"/>'+
     (withCaptura?'<path fill="'+(dark?'rgba(255,255,255,.8)':'#4F4766')+'" d="'+BRAND.captura+'"/>':'')+'</svg>';
 }
 
@@ -1014,7 +1014,7 @@ function weekCounts(st, off){
   return {list:inW, caidas:inW.filter(x=>x.type==='caida'&&x.status!=='falsa').length, inest:inW.filter(x=>x.type==='inestable'&&x.status!=='falsa').length, falsas:inW.filter(x=>x.status==='falsa').length, range:[a,b]};
 }
 
-/* ================= Te Tengo · pantallas ================= */
+/* ================= Fall Alert · pantallas ================= */
 const S = {};
 const F = (st,k)=>st.form[k]||{};
 const E = (st,k)=>st.err[k]||{};
@@ -1133,7 +1133,7 @@ S.perfil = st => { const f=F(st,'perfil'), e=E(st,'perfil');
 /* Texto del consentimiento: el mismo en el resumen plegable y en el documento completo */
 const CONSENT_SEC=[
   ['cs-vivo','eye','Vista en vivo en cualquier momento','La familia puede verla cuando quiera','Los familiares vinculados a esta cuenta pueden ver la cámara en vivo cuando quieran, no solo durante una alerta. Cada acceso queda registrado: quién la vio, cuándo y cuánto tiempo.'],
-  ['cs-hace','cam','Qué hacemos','Detectamos caídas por la postura','La cámara instalada en su vivienda envía video a Te Tengo, donde analizamos la postura del cuerpo para detectar caídas y movimientos inestables.'],
+  ['cs-hace','cam','Qué hacemos','Detectamos caídas por la postura','La cámara instalada en su vivienda envía video a Fall Alert, donde analizamos la postura del cuerpo para detectar caídas y movimientos inestables.'],
   ['cs-no','eyeOff','Qué no hacemos','Sin reconocer rostros ni grabar siempre','No reconocemos rostros ni grabamos de forma continua. La vista en vivo no se guarda.'],
   ['cs-guarda','video','Qué guardamos','Solo el clip de cada alerta, 30 días','Solo el clip de cada alerta, durante 30 días. Luego se elimina.'],
   ['cs-der','shield','Sus derechos','Ley N.° 29733 · puede revocarlo','Según la Ley N.° 29733 de Protección de Datos Personales, puede acceder a sus datos, corregirlos, pedir su eliminación u oponerse a su uso, y revocar este consentimiento cuando quiera.']
@@ -1184,7 +1184,7 @@ function camKv(c, st){
     more('cam-inst','Datos de la instalación',
     '<div class="kv"><span class="k">Conectada a</span><span class="v">PC de la casa</span></div>'+
     '<div class="kv"><span class="k">Instalada el</span><span class="v">'+dYear(c.installed||'2026-08-03')+'</span></div>'+
-    '<div class="kv"><span class="k">Instalada por</span><span class="v">Equipo de Te Tengo</span></div>');
+    '<div class="kv"><span class="k">Instalada por</span><span class="v">Equipo de Fall Alert</span></div>');
 }
 function camHead(c, st, kv){
   const s=camState(c,st);
@@ -1196,7 +1196,7 @@ S.camaraLista = st => { const c=st.cams[0]; const ok=st.consent.given; const nm=
   return {html: setupHead(st,3,'Cámara')+
   '<div class="body" style="padding-top:0">'+
   (ok? '<div class="flex mb8" style="gap:12px"><span style="width:44px;height:44px;border-radius:14px;background:var(--calma-soft);color:var(--calma-ink);display:grid;place-items:center;flex:none">'+ic('check','style="width:26px;height:26px"')+'</span><h2 class="t-h2">Tu cámara ya está lista</h2></div>'+
-     '<p class="t-small mb16">La instaló el equipo de Te Tengo. No tienes que conectar nada: ya detectamos caídas '+enRoom(c.room)+'.</p>'
+     '<p class="t-small mb16">La instaló el equipo de Fall Alert. No tienes que conectar nada: ya detectamos caídas '+enRoom(c.room)+'.</p>'
    : '<h2 class="t-h2 mb12">La cámara está instalada, pero no envía video</h2><div class="mb16">'+notice('err','lock','Falta el consentimiento de '+nm,'Sin él no detectamos caídas. Se registra solo si lo acepta.','<button class="btn btn-primary btn-sm" data-act="goConsent">Completar el consentimiento</button>')+'</div>')+
   camHead(c, st, camKv(c,st))+
   '<h2 class="sec-h">Nombre de la habitación</h2><p class="t-small mb12">Aparece en cada alerta. Cámbialo si en casa la llaman distinto.</p>'+
@@ -1282,7 +1282,7 @@ S.camara = st => { const c=st.cams.find(x=>x.id===st.selCam)||st.cams[0]; const 
   if(!st.consent.given) body=consentLock(adm);
   else if(c.status==='offline') body=
     '<h2 class="sec-h" style="margin-top:4px">Qué revisar en la casa</h2><div class="list"><div class="row static"><span class="ico">'+ic('cam')+'</span><span class="grow"><span class="ttl">El cable de la cámara</span><span class="sub">Conectado al puerto USB de la PC</span></span></div>'+
-    '<div class="row static"><span class="ico">'+ic('pc')+'</span><span class="grow"><span class="ttl">La PC encendida</span><span class="sub">Sin suspender, con Te Tengo Captura abierto</span></span></div>'+
+    '<div class="row static"><span class="ico">'+ic('pc')+'</span><span class="grow"><span class="ttl">La PC encendida</span><span class="sub">Sin suspender, con Fall Alert Captura abierto</span></span></div>'+
     '<div class="row static"><span class="ico">'+ic('wifi')+'</span><span class="grow"><span class="ttl">La conexión a internet</span><span class="sub">Que el módem o router tenga luz</span></span></div></div><p class="t-meta mt8">Te avisaremos cuando vuelva.</p>';
   else if(c.status==='paused') body=notice('neutral','pause','En pausa hasta las '+c.until,'Sin detección ni vista en vivo. Se reactiva sola y te avisaremos.')+'<button class="btn btn-secondary mt12" data-act="resumeCam" data-arg="'+c.id+'">Reanudar ahora</button>';
   else if(c.unreliable) body=notice('warn','eyeOff','Desde las '+(c.unrelAt||'10:36')+' no ve bien a '+nm,'Así no podemos asegurar que detectemos una caída.')+
@@ -1308,11 +1308,11 @@ S.lock = st => { const n=st.lockNotifs||[];
   return {cls:'on-dark', light:true, bare:true, html:
   '<div class="lock">'+lockWall()+statusbar(st,true)+
   '<div class="clock"><p class="d">'+dLong(st.today).replace(/^./,c=>c.toUpperCase())+'</p><p class="h">'+st.clock+'</p></div>'+
-  n.map((x,i)=>'<button class="notif'+(i?' second':'')+'" data-act="openNotif" data-arg="'+i+'"><span class="appicon">'+LOGO+'</span><span class="n-body"><span class="n-top"><span>Te Tengo</span><span>'+(x.ago||'ahora')+'</span></span>'+
+  n.map((x,i)=>'<button class="notif'+(i?' second':'')+'" data-act="openNotif" data-arg="'+i+'"><span class="appicon">'+LOGO+'</span><span class="n-body"><span class="n-top"><span>Fall Alert</span><span>'+(x.ago||'ahora')+'</span></span>'+
     (x.sev? '<span class="n-sev" style="background:'+(x.sev==='caida'?'var(--caida)':x.sev==='ok'?'var(--calma)':'var(--inestable)')+';color:'+(x.sev==='inestable'?'var(--ink)':'#fff')+'">'+(x.sev==='caida'?'URGENTE · CAÍDA':x.sev==='ok'?'SEGUIMIENTO':'SEVERIDAD MEDIA')+'</span>':'')+
     '<span class="n-t" style="display:block">'+x.title+'</span><span class="n-b" style="display:block">'+x.body+'</span></span></button>').join('')+
   (!n.length? '<p class="center" style="position:relative;margin-top:40px;font-size:15px;opacity:.85">Sin notificaciones</p>':'')+
-  '<button class="btn btn-onred" data-act="unlock" style="position:absolute;bottom:40px;left:50%;transform:translateX(-50%);width:auto;min-height:48px;border-radius:24px;font-size:15px">Abrir Te Tengo</button></div>'};
+  '<button class="btn btn-onred" data-act="unlock" style="position:absolute;bottom:40px;left:50%;transform:translateX(-50%);width:auto;min-height:48px;border-radius:24px;font-size:15px">Abrir Fall Alert</button></div>'};
 };
 
 /* Alerta: lo crítico a la vista (qué, dónde, cuándo, llamar); lo demás detrás de «Clip» y «Más detalles» */
@@ -1542,7 +1542,7 @@ S.ajustes = st => { const c0=st.cams[0], cs=camState(c0,st); const adm=isAdmin(s
    '<button class="row" data-go="privacidad"><span class="ico">'+ic('shield')+'</span><span class="grow"><span class="ttl">Privacidad y consentimiento</span><span class="sub">'+(st.consent.given?'Vigente desde el '+dYear(st.consent.date):'Sin consentimiento')+'</span></span>'+tail+'</button></div>'+
   '<div class="list mt16"><div class="row static"><span class="ico">'+ic('user')+'</span><span class="grow"><span class="ttl">Tu cuenta · '+(adm?'Titular':'Familiar invitado')+'</span><span class="sub">'+esc(st.user.email)+'</span></span></div>'+
    '<button class="row danger" data-act="askLogout"><span class="ico">'+ic('logout')+'</span><span class="grow"><span class="ttl">Cerrar sesión</span></span></button></div>'+
-  '<p class="t-meta center mt20">Te Tengo 1.0</p></div>'};
+  '<p class="t-meta center mt20">Fall Alert 1.0</p></div>'};
 };
 S.perfilRosa = st => { const s=st.senior; const e=E(st,'perfilRosa'); const adm=isAdmin(st);
   return {html: appbar('Persona cuidada')+
@@ -1572,7 +1572,7 @@ S.privacidad = st => { const c=st.consent; const adm=isAdmin(st);
   '<div class="row static"><span class="grow"><span class="ttl">Video en vivo</span><span class="sub">La familia puede verlo cuando quiera. No se graba.</span></span></div>'+
   '<div class="row static"><span class="grow"><span class="ttl">Reconocimiento facial</span><span class="sub">No se usa</span></span></div>'+
   '<button class="row" data-go="accesos"><span class="ico">'+ic('eye')+'</span><span class="grow"><span class="ttl">Registro de accesos a la vista en vivo</span><span class="sub">Quién la vio, cuándo y cuánto tiempo</span></span>'+ic('chevR','class="chev"')+'</button></div>'+
-  '<p class="t-small mt16">'+esc(st.senior.first)+' puede pedir ver, corregir o borrar sus datos en <b>privacidad@tetengo.pe</b> (Ley N.° 29733).</p>'+
+  '<p class="t-small mt16">'+esc(st.senior.first)+' puede pedir ver, corregir o borrar sus datos en <b>privacidad@example.org</b> (Ley N.° 29733).</p>'+
   '<div class="list mt16"><button class="row" data-go="politica"><span class="ico">'+ic('doc')+'</span><span class="grow"><span class="ttl">Política de privacidad</span></span>'+ic('chevR','class="chev"')+'</button>'+
   '<button class="row" data-go="terminos"><span class="ico">'+ic('doc')+'</span><span class="grow"><span class="ttl">Términos de uso</span></span>'+ic('chevR','class="chev"')+'</button></div>'+
   (c.given? '<h2 class="sec-h">Revocar</h2>'+(adm? '<p class="t-small mb12">Detiene la cámara y borra las grabaciones.</p><button class="btn btn-danger-ghost" data-act="askRevoke">Revocar consentimiento</button>' : lockNote(st,'revocar el consentimiento. Si '+esc(st.senior.first)+' quiere retirarlo, avísale')):'')+'</div>'};
@@ -1595,8 +1595,8 @@ function docPage(title, intro, secs, extra){
   return {html: appbar(title)+'<div class="body"><p class="t-small">'+intro+'</p>'+
     secs.map(([h,p])=>'<section class="doc-sec"><h2>'+h+'</h2>'+[].concat(p).map(x=>'<p>'+x+'</p>').join('')+'</section>').join('')+(extra||'')+'</div>'};
 }
-S.terminos = st => docPage('Términos de uso','Las reglas para usar Te Tengo.',[
-  ['Qué es Te Tengo','Te Tengo avisa a tu familia cuando la cámara instalada en la casa de la persona cuidada detecta una posible caída o un movimiento inestable. No es una cámara de seguridad.'],
+S.terminos = st => docPage('Términos de uso','Las reglas para usar Fall Alert.',[
+  ['Qué es Fall Alert','Fall Alert avisa a tu familia cuando la cámara instalada en la casa de la persona cuidada detecta una posible caída o un movimiento inestable. No es una cámara de seguridad.'],
   ['Tu cuenta',['Quien crea la cuenta es el titular. Solo el titular cambia los datos de la persona cuidada, el consentimiento, el nombre de la habitación, la familia y el orden de aviso.','Cada cuenta cuida a una sola persona. La contraseña debe tener 8 caracteres o más, con un número. Tras 5 intentos fallidos, el acceso se bloquea 15 minutos.']],
   ['Familiares invitados','Ven las mismas alertas, clips, historial y la cámara en vivo, y pueden marcar alertas y pausar la cámara. La invitación vence en 7 días y el titular puede retirar su acceso cuando quiera.'],
   ['Consentimiento','La cámara solo envía video si la persona cuidada, o su representante legal, acepta el consentimiento informado. Se puede revocar en Ajustes: la captura se detiene y las grabaciones se borran.'],
@@ -1608,7 +1608,7 @@ S.politica = st => docPage('Política de privacidad','Qué datos usamos, quién 
   ['Video',['La cámara envía video para analizar la postura del cuerpo. No reconocemos rostros ni grabamos de forma continua.','Solo guardamos el clip de cada alerta (6 s antes y 6 s después) durante 30 días; luego se elimina. La vista en vivo no se graba.']],
   ['Quién ve los datos','Solo los familiares vinculados a la cuenta. Cada acceso a la vista en vivo queda registrado: quién, cuándo y cuánto duró, y toda la familia ve ese registro.'],
   ['Revocar el consentimiento','Detiene la captura y la vista en vivo y borra las grabaciones. Te enviamos la constancia por correo.'],
-  ['Tus derechos','Según la Ley N.° 29733 de Protección de Datos Personales, puedes pedir acceder a tus datos, corregirlos, eliminarlos u oponerte a su uso. Escríbenos a <b>privacidad@tetengo.pe</b>.']
+  ['Tus derechos','Según la Ley N.° 29733 de Protección de Datos Personales, puedes pedir acceder a tus datos, corregirlos, eliminarlos u oponerte a su uso. Escríbenos a <b>privacidad@example.org</b>.']
 ]);
 S.docConsent = st => { const c=st.consent; const nm=esc(st.senior.first||'la persona cuidada');
   return docPage('Consentimiento','Lo acepta '+nm+' o su representante legal antes de que la cámara envíe video.',
@@ -1670,8 +1670,8 @@ O.elegir = st => { const slot=st.pickSlot||'secundario'; const cur=slot==='princ
   (slot==='secundario'&&cur? '<button class="btn btn-ghost" data-act="setSlot" data-arg="none">Quitar contacto secundario</button>':'')+'</div>';
 };
 function sysDialog(title, text, yes){ return '<div class="scrim"></div><div class="dialog sys" role="alertdialog" aria-modal="true" aria-labelledby="sy-t"><h2 id="sy-t">'+title+'</h2><p>'+text+'</p><div class="sys-btns"><button data-act="closeOv">No permitir</button><button data-act="'+yes+'">Permitir</button></div></div>'; }
-O.sysNotif = st => sysDialog('«Te Tengo» quiere enviarte notificaciones','Pueden incluir alertas, sonidos y globos en el ícono.','grantNotif');
-O.sysCritical = st => sysDialog('«Te Tengo» quiere enviarte alertas críticas','Suenan aunque el celular esté en silencio o en No molestar.','grantCritical');
+O.sysNotif = st => sysDialog('«Fall Alert» quiere enviarte notificaciones','Pueden incluir alertas, sonidos y globos en el ícono.','grantNotif');
+O.sysCritical = st => sysDialog('«Fall Alert» quiere enviarte alertas críticas','Suenan aunque el celular esté en silencio o en No molestar.','grantCritical');
 O.cerrar = st => dialog('logout','morado','¿Cerrar sesión?','Dejarás de recibir las alertas de '+esc(st.senior.first)+' en este celular hasta que vuelvas a iniciar sesión.','<button class="btn btn-primary" data-act="doLogout">Cerrar sesión</button><button class="btn btn-secondary" data-act="closeOv">Cancelar</button>');
 
 /* ---------- Render ---------- */
@@ -1692,7 +1692,7 @@ function renderPhone(st){
   return h;
 }
 
-/* ================= Te Tengo · controlador del prototipo ================= */
+/* ================= Fall Alert · controlador del prototipo ================= */
 let st, seq=1, toastT=null, inappT=null;
 const $phone=document.getElementById('screen');
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -1893,7 +1893,7 @@ function newAlert(type, room, extra){
 function deliver(a, lockNotifs){ /* devuelve false si la notificación no llegó (su mensaje queda en el registro) */
   const failed=a.pushFailed; st.pushFail=false;
   st.inapp=null; st.toast=null; st.ov=null;
-  if(failed){ st.lockNotifs=[]; st.hist=[]; st.screen='lock'; render(); log(!st.perm? 'La notificación no se pudo mostrar: permisos desactivados. Toca “Abrir Te Tengo”.' : 'El envío falló. Toca “Abrir Te Tengo”: la alerta aparecerá al abrir.'); return false; }
+  if(failed){ st.lockNotifs=[]; st.hist=[]; st.screen='lock'; render(); log(!st.perm? 'La notificación no se pudo mostrar: permisos desactivados. Toca “Abrir Fall Alert”.' : 'El envío falló. Toca “Abrir Fall Alert”: la alerta aparecerá al abrir.'); return false; }
   st.lockNotifs=lockNotifs; st.hist=[]; st.screen='lock'; render(); return true;
 }
 const A={
@@ -2089,7 +2089,7 @@ const DEMO={
     toast({tone:'ok', icon:'cam', title:'La cámara '+deRoom(ps[0].room)+' se reactivó', text:'Terminó la pausa a las '+st.clock+'.'}); render(null,true); log('Pausa terminada; reactivación automática.'); },
   acepta(){ const p=st.fam.find(f=>f.role==='pendiente'); if(!need(p,'No hay invitaciones pendientes.')) return;
     p.role=(p.wantRole==='secundario'||!secondary(st))?'secundario':'familiar'; if(p.role==='secundario'){ st.fam.forEach(f=>{ if(f!==p&&f.role==='secundario') f.role='familiar'; }); }
-    inapp({title:p.name.split(' ')[0]+' aceptó tu invitación', text:'Ya recibe las alertas de '+st.senior.first+'.'}); render(null,true); log(p.name+' ya forma parte de la familia en Te Tengo.'); },
+    inapp({title:p.name.split(' ')[0]+' aceptó tu invitación', text:'Ya recibe las alertas de '+st.senior.first+'.'}); render(null,true); log(p.name+' ya forma parte de la familia en Fall Alert.'); },
   perm(){ st.perm=!st.perm; if(st.loggedIn && !st.perm && st.screen==='inicio') render(null,true); else render(null,true); log(st.perm?'Permisos de notificación activados.':'Permisos desactivados: la app mostrará un aviso al abrirla.'); },
   pushFail(){ st.pushFail=!st.pushFail; syncPanel(); log(st.pushFail?'La próxima alerta no llegará como notificación.':'Envío normal.'); },
   oscuro(){ VIEW.dark=!VIEW.dark; render(null,true); log(VIEW.dark?'El celular está en modo oscuro: la app lo sigue.':'El celular volvió al modo claro.'); },
@@ -2172,7 +2172,7 @@ const CTRL={
   levanta:{l:'Rosa se levanta', tip:['Rosa se pone de pie después de la caída.','Llega el aviso «Rosa se levantó». La alerta sigue activa hasta que alguien confirme cómo está.']},
   escalar:{l:'Pasan 5 minutos sin atender', tip:['Nadie marca la alerta dentro del tiempo de espera.','Se avisa al contacto secundario. Si no hay uno, la app lo indica.']},
   otroAtiende:{l:'Otro familiar atiende la alerta', tip:['Otro familiar marca la alerta como atendida desde su celular.','Verás quién la atendió, a qué hora y su nota. La alerta pasa al historial.']},
-  pushFail:{l:'Falla el envío de la próxima alerta', sw:true, tip:['La notificación de la próxima alerta no llega al celular.','La pantalla de bloqueo queda sin aviso, pero al abrir Te Tengo la alerta aparece igual.']},
+  pushFail:{l:'Falla el envío de la próxima alerta', sw:true, tip:['La notificación de la próxima alerta no llega al celular.','La pantalla de bloqueo queda sin aviso, pero al abrir Fall Alert la alerta aparece igual.']},
   clipFail:{l:'El próximo clip no se guarda', sw:true, tip:['El video de la próxima alerta no se guarda.','La alerta muestra «Clip no disponible» en lugar de la ilustración de la habitación.']},
   desconectar:{l:'Desconectar la cámara', tip:['La cámara de la Sala deja de enviar video: cable suelto, PC apagada o casa sin internet.','Llega el aviso «La cámara se desconectó» con qué revisar, y la vista en vivo deja de estar disponible.']},
   reconectar:{l:'Reconectar la cámara', tip:['La cámara vuelve a enviar video.','Aparece el aviso «volvió a estar en línea» con la hora en que se restableció el monitoreo.']},
@@ -2180,7 +2180,7 @@ const CTRL={
   finPausa:{l:'Terminar la pausa ahora', tip:['Adelanta el final de una pausa hecha desde el detalle de la cámara.','La cámara se reactiva sola y aparece el aviso de que terminó la pausa.']},
   acepta:{l:'El familiar invitado acepta', tip:['La persona con la invitación pendiente crea su acceso.','Llega el aviso «aceptó tu invitación» y pasa a la lista de Familia con sus alertas activas.']},
   abrirInvitacion:{l:'Abrir la invitación como Milagros', tip:['Cambia al celular de Milagros, que recibió la invitación por correo.','Verás «Carmen te invitó a cuidar a Rosa» y el formulario para crear su acceso.']},
-  perm:{l:'Notificaciones desactivadas', sw:true, tip:['El celular bloquea las notificaciones de Te Tengo.','La app muestra un aviso para activarlas, y las alertas no aparecen en la pantalla de bloqueo.']},
+  perm:{l:'Notificaciones desactivadas', sw:true, tip:['El celular bloquea las notificaciones de Fall Alert.','La app muestra un aviso para activarlas, y las alertas no aparecen en la pantalla de bloqueo.']},
   oscuro:{l:'Modo oscuro', sw:true, tip:['El celular usa el tema oscuro.','La app cambia a fondos oscuros; las alertas mantienen su color de severidad.']},
   grande:{l:'Letra grande', sw:true, tip:['El celular tiene la letra agrandada en accesibilidad.','La app agranda el texto y se reacomoda sin cortar nada.']},
   offline:{l:'Celular sin internet', sw:true, tip:['El celular pierde la conexión.','Cada sección muestra la barra «Tu celular no tiene internet».']},

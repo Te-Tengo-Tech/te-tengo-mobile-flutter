@@ -10,6 +10,6 @@
   `cwebp -q 80 -m 6 -metadata none -crop 0 72 640 480 bienvenida-hero.jpg -o bienvenida.webp`
   (640 × 480, about 29 KB, no metadata).
 - **Use.** The people are not the project's users and the photo is not a camera view; the app
-  never implies that they endorse Te Tengo. Its screen reader label is «Una hija abraza a su madre».
+  never implies that they endorse Fall Alert. Its screen reader label is «Una hija abraza a su madre».
 - **Replacing it.** Use only photos whose license allows use in an app (Pexels, Unsplash, or one
   the team owns), add a row here and keep the file under about 60 KB.

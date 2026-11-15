@@ -281,17 +281,17 @@ class Actividad {
       ? (_momento(l) ?? '—', _visto(l) ?? '—')
       : null;
 
-  /// A new version of Te Tengo Captura installed on a PC (US-43): drawn with the update icon.
+  /// A new version of Fall Alert Captura installed on a PC (US-43): drawn with the update icon.
   bool get esActualizacion => tipo == 'PC_ACTUALIZADA';
 
-  /// «Quién»: the member, «Alguien en la PC», «Te Tengo», or «Te Tengo Captura» for an update
+  /// «Quién»: the member, «Alguien en la PC», «Fall Alert», or «Fall Alert Captura» for an update
   /// (screen 390).
   String quien(AppLocalizations l) => esActualizacion
-      ? (objeto ?? 'Te Tengo Captura')
+      ? (objeto ?? 'Fall Alert Captura')
       : switch (actor) {
           TipoActor.familiar => usuario ?? '—',
           TipoActor.pc => l.actividadAlguienEnPc,
-          TipoActor.sistema => 'Te Tengo',
+          TipoActor.sistema => 'Fall Alert',
         };
 
   /// «Desde»: «Celular de Carmen», «PC Sala-Rosa» or «Automático».

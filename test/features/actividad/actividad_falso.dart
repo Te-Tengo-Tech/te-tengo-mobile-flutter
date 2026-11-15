@@ -1,6 +1,6 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/actividad/data/actividad_repositorio.dart';
-import 'package:te_tengo/features/actividad/domain/actividad.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/actividad/data/actividad_repositorio.dart';
+import 'package:caregiver_app/features/actividad/domain/actividad.dart';
 
 Actividad actividad(
   String id,

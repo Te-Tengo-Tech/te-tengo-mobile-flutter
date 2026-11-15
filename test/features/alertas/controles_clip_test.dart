@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/dispositivo/pantalla_completa.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/alertas/presentation/clip_evento.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/dispositivo/pantalla_completa.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/alertas/presentation/clip_evento.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/clip_falso.dart';
@@ -374,7 +374,7 @@ void main() {
 
     testWidgets('si el reproductor sigue fallando, el clip no está '
         'disponible', (tester) async {
-      clips.fallanAlIniciar.add('https://clips.tetengo.pe/a-1.mp4');
+      clips.fallanAlIniciar.add('https://clips.example.org/a-1.mp4');
       await abrirConAlertas(
         tester,
         ubicacion: Rutas.alerta('a-1'),

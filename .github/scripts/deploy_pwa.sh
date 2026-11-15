@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Deploys a PWA build (the contents of te-tengo-pwa.tar.gz, an asset of the release candidate) to the
+# Deploys a PWA build (the contents of fall-alert-pwa.tar.gz, an asset of the release candidate) to the
 # Cloudflare Pages project $PAGES_PROJECT and checks that the public URL serves it. Used by
 # release.yml (staging), produccion.yml and rollback.yml.
 #
 #   deploy_pwa.sh <build dir> <pages branch> <public url>
 #
-# <pages branch> main is the project's production branch (https://app.tetengo.reqsai.tech); any other
+# <pages branch> main is the project's production branch (https://app.example.org); any other
 # name is a preview alias, https://<branch>.<project>.pages.dev (staging).
 # Smoke check: GET <public url>/ answers 200 and <public url>/version.json has the version and build
 # number of this build (Flutter writes version.json from pubspec.yaml), retried for up to 2 minutes.
@@ -36,7 +36,7 @@ fi
 
 log=$(mktemp)
 wrangler pages deploy "$dir" --project-name="$PAGES_PROJECT" --branch="$branch" \
-  --commit-hash="$commit" --commit-message="te-tengo-mobile-flutter ${commit:0:12}" \
+  --commit-hash="$commit" --commit-message="fall-alert-mobile-flutter ${commit:0:12}" \
   --commit-dirty=true | tee "$log"
 deployment=$(grep -oE 'https://[a-z0-9.-]+\.pages\.dev' "$log" | head -n1 || true)
 

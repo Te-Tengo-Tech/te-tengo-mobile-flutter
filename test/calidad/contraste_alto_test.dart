@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/tema/paleta.dart';
+import 'package:caregiver_app/app/tema/paleta.dart';
 
 import 'oscuro_y_letra_grande_test.dart' show abrirPlegables;
 import 'pantallas.dart';

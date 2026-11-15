@@ -69,8 +69,8 @@ points in [BLOCKERS.md](BLOCKERS.md).
 | `historial` | US-25, US-27 | Done: filtered history with paging, weekly summary with trend |
 | `ajustes` | US-08 (read-only), US-16 | Done: settings for owner and invited member in the prototype's sections («Persona cuidada», «Monitoreo», «Este celular», «Cuenta»), notification preferences, «Preferencias» (theme, text size, contrast) |
 | `perfil` | — (contract §13) | «Tu perfil» (`GET`/`PUT /api/cuenta`), «Cambiar contraseña», and the photos: «Cambiar foto» (`CabeceraFoto`) opens «Foto de X», takes or picks a picture (`SelectorFoto` over `image_picker`), crops it to a 512 px square (`PantallaRecorte`) and uploads it through a pre-signed `PUT` (`CambioFoto`); `fotoDeUsuarioProvider` / `fotoAdultoMayorProvider` feed every `Avatar`, which shows the initials meanwhile and without a photo; `renovacionFotosProvider` reads the photos again before their signatures end |
-| `instalar` | — | Web only: «Agrega Te Tengo a tu pantalla de inicio» notice and guide on iPhone browser tabs |
-| `widget` | US-44 | The home-screen widget: `estadoDelHogar` (alert, cameras, consent), `ActualizadorWidget` (saves it through `home_widget` and routes the taps `tetengo-widget://abrir?ir=…`), the Android providers `WidgetTeTengoGrande`/`Pequeno` and the iOS extension source; an alert push with the app closed redraws it on Android |
+| `instalar` | — | Web only: «Agrega Fall Alert a tu pantalla de inicio» notice and guide on iPhone browser tabs |
+| `widget` | US-44 | The home-screen widget: `estadoDelHogar` (alert, cameras, consent), `ActualizadorWidget` (saves it through `home_widget` and routes the taps `example-widget://abrir?ir=…`), the Android providers `WidgetCaregiverGrande`/`Pequeno` and the iOS extension source; an alert push with the app closed redraws it on Android |
 | `legal` | US-01, US-05, US-09 | Términos de uso, Política de privacidad and the full consent document; the consent text shared with the summary |
 
 ## Design system
@@ -97,7 +97,7 @@ points in [BLOCKERS.md](BLOCKERS.md).
   every endpoint and push type of `docs/API_CONTRACT.md`.
 
 ## Communication
-- **REST:** `te-tengo-general-api` through `clienteApiProvider`, which sets the base URL, `Api-Version: 1` and `Authorization: Bearer`.
+- **REST:** `fall-alert-general-api` through `clienteApiProvider`, which sets the base URL, `Api-Version: 1` and `Authorization: Bearer`.
 - **Push:** Amazon SNS delivers through FCM (Android) and APNs (iOS); `firebase_messaging` obtains the device token, which is registered with `POST /api/dispositivos`. The web app registers an FCM Web Push token as `WEB`.
 
 ## Web build (PWA)

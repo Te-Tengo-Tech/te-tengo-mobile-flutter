@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/ui/iconos.dart';
-import 'package:te_tengo/core/ui/lista.dart';
-import 'package:te_tengo/core/ui/plegable.dart';
+import 'package:caregiver_app/core/ui/iconos.dart';
+import 'package:caregiver_app/core/ui/lista.dart';
+import 'package:caregiver_app/core/ui/plegable.dart';
 
 import '../apoyo/app_de_prueba.dart';
 

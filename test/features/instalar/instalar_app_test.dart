@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/web/entorno.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/web/entorno.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -14,7 +14,7 @@ import '../familia/familia_falso.dart';
 import '../hogar/hogar_falso.dart';
 
 const _pestanaIphone = EntornoNavegador(esWeb: true, esIos: true);
-const _titulo = 'Agrega Te Tengo a tu pantalla de inicio';
+const _titulo = 'Agrega Fall Alert a tu pantalla de inicio';
 
 void main() {
   test('solo una pestaña del iPhone debe instalar la app', () {
@@ -66,16 +66,16 @@ void main() {
     expect(find.text(_titulo), findsOneWidget);
     expect(
       find.text(
-        'En el iPhone, las alertas solo llegan si abres Te Tengo desde su ícono.',
+        'En el iPhone, las alertas solo llegan si abres Fall Alert desde su ícono.',
       ),
       findsOneWidget,
     );
     await tocar(tester, find.text('Ver cómo'));
     expect(find.text('Agregar a la pantalla de inicio'), findsOneWidget);
-    expect(find.text('Instala Te Tengo en tu iPhone'), findsOneWidget);
+    expect(find.text('Instala Fall Alert en tu iPhone'), findsOneWidget);
     expect(find.text('Toca Compartir'), findsOneWidget);
     expect(find.text('Elige «Agregar a inicio»'), findsOneWidget);
-    expect(find.text('Abre Te Tengo desde su ícono'), findsOneWidget);
+    expect(find.text('Abre Fall Alert desde su ícono'), findsOneWidget);
   });
 
   testWidgets('instalada o fuera del iPhone no muestra el aviso', (

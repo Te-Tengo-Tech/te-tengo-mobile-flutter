@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 /// Illustrations of the prototype (`roomSVG`, `skeleton`, `emptyIll`), drawn from the same SVG.
 ///
-/// Te Tengo never shows photos of the person: rooms are illustrated and the person is the pose
+/// Fall Alert never shows photos of the person: rooms are illustrated and the person is the pose
 /// skeleton (PRODUCT.md, Positioning).
 enum Postura { pie, inestable, caida, ninguna }
 

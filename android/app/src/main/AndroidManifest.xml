@@ -4,7 +4,7 @@
     <!-- Fall alerts are notifications (CA-16.2, CA-16.3). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
-        android:label="Te Tengo"
+        android:label="Fall Alert"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -28,27 +28,27 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Email links: password reset (tetengo://app/nueva-contrasena?token=...) and
-                 invitations (tetengo://app/invitacion/{token}). See docs/BLOCKERS.md. -->
+            <!-- Email links: password reset (example://app/nueva-contrasena?token=...) and
+                 invitations (example://app/invitacion/{token}). See docs/BLOCKERS.md. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="tetengo" android:host="app"/>
+                <data android:scheme="example" android:host="app"/>
             </intent-filter>
-            <!-- The QR of Te Tengo Captura (US-28): https://app.tetengo.reqsai.tech/vincular?codigo=…
+            <!-- The QR of Fall Alert Captura (US-28): https://app.example.org/vincular?codigo=…
                  opens the approval screen. Verified with /.well-known/assetlinks.json on that host
                  (deploy/pwa); without it Android opens the PWA's route. See docs/WEB_PWA.md. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="https" android:host="app.tetengo.reqsai.tech" android:path="/vincular"/>
+                <data android:scheme="https" android:host="app.example.org" android:path="/vincular"/>
             </intent-filter>
         </activity>
         <!-- Home-screen widget, 4 × 2 and 2 × 2 (US-44): state only, never images. -->
         <receiver
-            android:name=".WidgetTeTengoGrande"
+            android:name=".WidgetCaregiverGrande"
             android:exported="false"
             android:label="@string/widget_nombre">
             <intent-filter>
@@ -56,10 +56,10 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_te_tengo_grande_info" />
+                android:resource="@xml/widget_caregiver_app_grande_info" />
         </receiver>
         <receiver
-            android:name=".WidgetTeTengoPequeno"
+            android:name=".WidgetCaregiverPequeno"
             android:exported="false"
             android:label="@string/widget_nombre">
             <intent-filter>
@@ -67,7 +67,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_te_tengo_pequeno_info" />
+                android:resource="@xml/widget_caregiver_app_pequeno_info" />
         </receiver>
         <!-- Data-only pushes (API contract §7, `avisoEnLaApp`): the app draws the notice itself while
              it is not in the foreground. Only the push service may send this broadcast. -->

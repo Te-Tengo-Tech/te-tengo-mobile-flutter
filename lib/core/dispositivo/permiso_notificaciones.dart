@@ -68,7 +68,7 @@ final permisoNotificacionesProvider = Provider<PermisoNotificaciones>(
       : const PermisoNotificacionesSistema(),
 );
 
-/// Whether the phone lets Te Tengo show notifications; refreshed when the app resumes.
+/// Whether the phone lets Fall Alert show notifications; refreshed when the app resumes.
 final notificacionesActivasProvider = FutureProvider<bool>(
   (ref) => ref.watch(permisoNotificacionesProvider).activadas(),
 );

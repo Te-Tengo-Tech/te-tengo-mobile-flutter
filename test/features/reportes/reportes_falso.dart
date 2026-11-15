@@ -1,6 +1,6 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/reportes/data/reportes_repositorio.dart';
-import 'package:te_tengo/features/reportes/domain/reporte_caida.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/reportes/data/reportes_repositorio.dart';
+import 'package:caregiver_app/features/reportes/domain/reporte_caida.dart';
 
 class ReportesRepositorioFalso implements ReportesRepositorio {
   final enviados = <ReporteCaida>[];
@@ -25,5 +25,5 @@ class ReportesRepositorioFalso implements ReportesRepositorio {
 
 const sinConexion = ProblemaApi(
   codigo: ProblemaApi.sinConexion,
-  detalle: 'No hay conexión con Te Tengo. Revisa tu internet.',
+  detalle: 'No hay conexión con Fall Alert. Revisa tu internet.',
 );

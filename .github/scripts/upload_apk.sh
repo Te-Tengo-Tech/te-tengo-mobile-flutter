@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Uploads te-tengo.apk and te-tengo.apk.sha256 (assets of the release candidate, built by
+# Uploads fall-alert.apk and fall-alert.apk.sha256 (assets of the release candidate, built by
 # build-apk.yml) to the public R2 bucket and checks that its public URL serves them. Used by
 # release.yml (staging), produccion.yml and rollback.yml.
 #
@@ -7,7 +7,7 @@
 #
 # <key prefix> is "staging/" for staging and "" for production (stable keys at the bucket root, linked
 # from the landing).
-# Smoke check: HEAD <DESCARGAS_BASE_URL>/<prefix>te-tengo.apk answers 200 with the file's size, and the
+# Smoke check: HEAD <DESCARGAS_BASE_URL>/<prefix>fall-alert.apk answers 200 with the file's size, and the
 # public .sha256 equals the uploaded one, retried for up to 1 minute.
 #
 # Environment: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (secrets of the job's environment, staging or
@@ -16,7 +16,7 @@ set -euo pipefail
 
 dir=$1
 prefix=$2
-apk="${prefix}te-tengo.apk"
+apk="${prefix}fall-alert.apk"
 
 if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
   echo "::error title=Cloudflare secrets missing::CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must reach this step: secrets of the environment staging or produccion (Cloudflare API token with Account → Cloudflare Pages: Edit and Workers R2 Storage: Edit; docs/RELEASES.md)."
@@ -27,19 +27,19 @@ if [ -z "${DESCARGAS_BASE_URL:-}" ]; then
   exit 1
 fi
 base=${DESCARGAS_BASE_URL%/}
-test -s "$dir/te-tengo.apk" || { echo "::error::The APK artifact has no te-tengo.apk"; exit 1; }
-test -s "$dir/te-tengo.apk.sha256" || { echo "::error::The APK artifact has no te-tengo.apk.sha256"; exit 1; }
+test -s "$dir/fall-alert.apk" || { echo "::error::The APK artifact has no fall-alert.apk"; exit 1; }
+test -s "$dir/fall-alert.apk.sha256" || { echo "::error::The APK artifact has no fall-alert.apk.sha256"; exit 1; }
 
 put() {
   npx --yes "wrangler@$WRANGLER_VERSION" r2 object put "$R2_BUCKET/$1" --remote --file "$2" "${@:3}"
 }
-put "$apk" "$dir/te-tengo.apk" --content-type application/vnd.android.package-archive \
-  --cache-control no-cache --content-disposition 'attachment; filename="te-tengo.apk"'
-put "$apk.sha256" "$dir/te-tengo.apk.sha256" --content-type "text/plain; charset=utf-8" \
+put "$apk" "$dir/fall-alert.apk" --content-type application/vnd.android.package-archive \
+  --cache-control no-cache --content-disposition 'attachment; filename="fall-alert.apk"'
+put "$apk.sha256" "$dir/fall-alert.apk.sha256" --content-type "text/plain; charset=utf-8" \
   --cache-control no-cache
 
-size=$(wc -c < "$dir/te-tengo.apk" | tr -d ' ')
-sha=$(cut -d' ' -f1 "$dir/te-tengo.apk.sha256")
+size=$(wc -c < "$dir/fall-alert.apk" | tr -d ' ')
+sha=$(cut -d' ' -f1 "$dir/fall-alert.apk.sha256")
 status=""
 length=""
 served=""

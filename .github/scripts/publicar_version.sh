@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Publishes the version of one channel for GET /api/versiones (US-43; ADR 0012 of te-tengo-general-api):
+# Publishes the version of one channel for GET /api/versiones (US-43; ADR 0012 of fall-alert-general-api):
 # writes versiones/<canal>.json to the public R2 bucket of the downloads, next to the binaries, and
 # checks the public copy. The API reads it within 5 minutes; nobody sets versions by hand.
 #
 #   publicar_version.sh <canal> <version> <url> [<local file>]
-#   e.g. publicar_version.sh windows 0.5.0 "$DESCARGAS_BASE_URL/te-tengo-captura-setup.exe" \
-#          candidata/r2/te-tengo-captura-setup.exe
+#   e.g. publicar_version.sh windows 0.5.0 "$DESCARGAS_BASE_URL/fall-alert-captura-setup.exe" \
+#          candidata/r2/fall-alert-captura-setup.exe
 #
 # <canal>: windows, mac, apk, play, ios or pwa. With <local file> (the verified binary that was just
 # uploaded to <url>), the manifest carries its SHA-256 and size, which clients check before

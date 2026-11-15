@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/legal/presentation/pantallas_legales.dart';
-import 'package:te_tengo/features/legal/presentation/textos_legales.dart';
-import 'package:te_tengo/l10n/l10n.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/legal/presentation/pantallas_legales.dart';
+import 'package:caregiver_app/features/legal/presentation/textos_legales.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -54,13 +54,13 @@ void main() {
     await abrir(tester, Rutas.registro, sesion: null);
     await tocar(tester, find.text('Términos'));
     expect(find.byType(PantallaTerminos), findsOneWidget);
-    expect(find.text('Las reglas para usar Te Tengo.'), findsNothing);
-    expect(find.text('Qué es Te Tengo'), findsOneWidget);
+    expect(find.text('Las reglas para usar Fall Alert.'), findsNothing);
+    expect(find.text('Qué es Fall Alert'), findsOneWidget);
     await verHasta(tester, find.text('Límites del servicio'));
     await tocar(tester, find.text('Ver la política de privacidad'));
     expect(find.byType(PantallaPolitica), findsOneWidget);
     await verHasta(tester, find.text('Tus derechos'));
-    expect(find.textContaining('privacidad@tetengo.pe'), findsOneWidget);
+    expect(find.textContaining('privacidad@example.org'), findsOneWidget);
     await volver(tester);
     await tester.pumpAndSettle();
     await volver(tester);
@@ -116,7 +116,7 @@ void main() {
     final politica = seccionesPolitica(es).expand((s) => s.$2).join(' ');
     final terminos = seccionesTerminos(es).expand((s) => s.$2).join(' ');
     for (final texto in [consentimiento, politica]) {
-      expect(texto, isNot(contains('envía video a Te Tengo')));
+      expect(texto, isNot(contains('envía video a Fall Alert')));
       expect(texto, contains('PC de la casa'));
       expect(texto, contains('Microsoft Azure'));
       expect(texto, isNot(contains('Cloudflare R2')));
@@ -156,7 +156,7 @@ void main() {
     await volver(tester);
     await tester.pumpAndSettle();
     await tocar(tester, find.text('Terms of use'));
-    expect(find.text('What Te Tengo is'), findsOneWidget);
+    expect(find.text('What Fall Alert is'), findsOneWidget);
     await verHasta(tester, find.text('View the privacy policy'));
   });
 
@@ -173,7 +173,7 @@ void main() {
       }
       expect(
         seccionesPolitica(en).last.$2.single,
-        contains('privacidad@tetengo.pe'),
+        contains('privacidad@example.org'),
       );
     },
   );

@@ -3,7 +3,7 @@
 # vX.Y.Z-rc.N whose assets are the files built once by release.yml; produccion.yml and rollback.yml
 # publish those same files and never rebuild. Each candidate's notes end with one hidden line,
 #
-#   <!-- te-tengo-candidata {"version":"0.3.0","rc":2,"build":8,"commit":"…","tree":"…",
+#   <!-- fall-alert-candidata {"version":"0.3.0","rc":2,"build":8,"commit":"…","tree":"…",
 #        "staging":"passed","canales":["pwa","apk"],…} -->
 #
 # (on one line), which this script writes and reads. Do not edit it by hand.
@@ -22,7 +22,7 @@
 set -euo pipefail
 
 repo=${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is not set}
-marca=te-tengo-candidata
+marca=fall-alert-candidata
 out=${GITHUB_OUTPUT:-/dev/stdout}
 summary=${GITHUB_STEP_SUMMARY:-/dev/null}
 tmp=${RUNNER_TEMP:-$(mktemp -d)}
@@ -127,7 +127,7 @@ crear() {
       package: $package, bundle_id: $bundle_id, certificado_apk: $certificado}')
   notes="$tmp/candidata-notes.md"
   {
-    echo "Release candidate **$VERSION-rc.$RC** of the Te Tengo mobile app. Inside, every file is version \`$VERSION\` with build number \`$BUILD\` (Android versionCode, iOS CFBundleVersion, PWA \`version.json\`); \`rc\` is only this label. Not a release: \`v$VERSION\` is created after produccion publishes these same files."
+    echo "Release candidate **$VERSION-rc.$RC** of the Fall Alert mobile app. Inside, every file is version \`$VERSION\` with build number \`$BUILD\` (Android versionCode, iOS CFBundleVersion, PWA \`version.json\`); \`rc\` is only this label. Not a release: \`v$VERSION\` is created after produccion publishes these same files."
     echo
     echo "- **Branch:** \`${GITHUB_REF_NAME:-}\`"
     echo "- **Commit:** \`$GITHUB_SHA\`"
@@ -275,7 +275,7 @@ final() {
   fi
   notes="$tmp/final-notes.md"
   {
-    echo "Te Tengo mobile app **$version**, build number \`$build\` (Android versionCode, iOS CFBundleVersion). These are the files of the candidate [\`$candidata\`](${GITHUB_SERVER_URL:-https://github.com}/$repo/releases/tag/$candidata), tested on staging and published to produccion without rebuilding."
+    echo "Fall Alert mobile app **$version**, build number \`$build\` (Android versionCode, iOS CFBundleVersion). These are the files of the candidate [\`$candidata\`](${GITHUB_SERVER_URL:-https://github.com}/$repo/releases/tag/$candidata), tested on staging and published to produccion without rebuilding."
     echo
     printf '%s\n' "$section"
     echo

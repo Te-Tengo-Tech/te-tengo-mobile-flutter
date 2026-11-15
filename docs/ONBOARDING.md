@@ -56,7 +56,7 @@ flowchart LR
   «Permitir» (CA-16.2). An iPhone browser tab first shows how to add the app to the home screen.
   If the owner does not allow them, Inicio keeps «Activa las notificaciones» with «Activar
   notificaciones» (CA-16.3).
-- **The PC is deferred.** Linking needs Te Tengo Captura installed on the home's PC, which the owner
+- **The PC is deferred.** Linking needs Fall Alert Captura installed on the home's PC, which the owner
   often cannot do at sign-up. «Todo listo» says «Sin PC vinculada» · «Agrégala desde Ajustes ›
   Cámaras y PCs», and once the consent is registered Inicio's status card offers «Agregar PC» (or
   «Elegir las cámaras» once the PC is linked). The PC's QR (`/vincular?codigo=…`) still opens the approval screen. The pairing

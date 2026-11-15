@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
+import 'package:caregiver_app/core/notificaciones/mensaje_push.dart';
 
 /// Endpoints of the contract the app does not need, with the reason.
 const _sinUso = {

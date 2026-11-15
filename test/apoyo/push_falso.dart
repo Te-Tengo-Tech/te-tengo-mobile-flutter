@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:te_tengo/core/notificaciones/dispositivos_repositorio.dart';
-import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
-import 'package:te_tengo/core/notificaciones/notificaciones_push.dart';
+import 'package:caregiver_app/core/notificaciones/dispositivos_repositorio.dart';
+import 'package:caregiver_app/core/notificaciones/mensaje_push.dart';
+import 'package:caregiver_app/core/notificaciones/notificaciones_push.dart';
 
 class NotificacionesPushFalsas implements NotificacionesPush {
   NotificacionesPushFalsas({

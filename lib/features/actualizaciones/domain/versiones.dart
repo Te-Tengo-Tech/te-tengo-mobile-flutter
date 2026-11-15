@@ -158,7 +158,7 @@ class Versiones {
     Canal.ios => ios,
   };
 
-  /// Te Tengo Captura for a PC's `sistemaOperativo` («Windows 10 Pro», «macOS 14»): `windows` or
+  /// Fall Alert Captura for a PC's `sistemaOperativo` («Windows 10 Pro», «macOS 14»): `windows` or
   /// `mac`; null when the system is unknown.
   VersionPublicada? captura(String? sistemaOperativo) {
     final so = (sistemaOperativo ?? '').toLowerCase();
@@ -177,7 +177,7 @@ String tamanoLegible(AppLocalizations l, int bytes) {
   );
 }
 
-/// How a PC's Te Tengo Captura compares with the published one (CA-43.7).
+/// How a PC's Fall Alert Captura compares with the published one (CA-43.7).
 enum EstadoVersionPc {
   /// «al día».
   alDia,

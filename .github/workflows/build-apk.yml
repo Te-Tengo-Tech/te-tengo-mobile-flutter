@@ -1,7 +1,7 @@
 name: Build APK
 
-# Reusable workflow: builds the universal release APK `te-tengo.apk` (all ABIs in one file, for
-# sideload distribution) from the calling commit and keeps it, with `te-tengo.apk.sha256`, as a
+# Reusable workflow: builds the universal release APK `fall-alert.apk` (all ABIs in one file, for
+# sideload distribution) from the calling commit and keeps it, with `fall-alert.apk.sha256`, as a
 # workflow artifact of the calling run (docs/RELEASE_ANDROID.md). It is signed with the release key
 # when the four keystore secrets reach it, and with the runner's throwaway debug key otherwise.
 #
@@ -30,9 +30,9 @@ on:
         type: string
         default: ""
       artifact_name:
-        description: Name of the artifact that holds te-tengo.apk and te-tengo.apk.sha256
+        description: Name of the artifact that holds fall-alert.apk and fall-alert.apk.sha256
         type: string
-        default: te-tengo-apk
+        default: fall-alert-apk
       retention_days:
         type: number
         default: 30
@@ -59,7 +59,7 @@ on:
         required: false
     outputs:
       artifact_name:
-        description: Name of the artifact with te-tengo.apk
+        description: Name of the artifact with fall-alert.apk
         value: ${{ inputs.artifact_name }}
       version_name:
         value: ${{ jobs.apk.outputs.version_name }}
@@ -193,20 +193,20 @@ jobs:
           set -euo pipefail
           apksigner=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name apksigner | sort -V | tail -n 1)
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk dist/te-tengo.apk
-          "$apksigner" verify --print-certs dist/te-tengo.apk | tee "$RUNNER_TEMP/apksigner.txt"
+          cp build/app/outputs/flutter-apk/app-release.apk dist/fall-alert.apk
+          "$apksigner" verify --print-certs dist/fall-alert.apk | tee "$RUNNER_TEMP/apksigner.txt"
           certificate=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$RUNNER_TEMP/apksigner.txt")
-          (cd dist && sha256sum te-tengo.apk > te-tengo.apk.sha256)
+          (cd dist && sha256sum fall-alert.apk > fall-alert.apk.sha256)
           echo "certificate=$certificate" >> "$GITHUB_OUTPUT"
-          echo "apk_sha256=$(cut -d' ' -f1 dist/te-tengo.apk.sha256)" >> "$GITHUB_OUTPUT"
+          echo "apk_sha256=$(cut -d' ' -f1 dist/fall-alert.apk.sha256)" >> "$GITHUB_OUTPUT"
 
       - name: Upload the APK as an artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.artifact_name }}
           path: |
-            dist/te-tengo.apk
-            dist/te-tengo.apk.sha256
+            dist/fall-alert.apk
+            dist/fall-alert.apk.sha256
           if-no-files-found: error
           retention-days: ${{ inputs.retention_days }}
 
@@ -225,7 +225,7 @@ jobs:
           elif [ "$HAS_API_SECRET" = true ]; then api="the TT_API_URL secret"
           else api="http://10.0.2.2:8080 (default)"; fi
           {
-            echo "## APK te-tengo.apk $NAME ($CODE)"
+            echo "## APK fall-alert.apk $NAME ($CODE)"
             if [ "$RELEASE_KEY" = true ]; then
               echo "- Signing: release key"
             else

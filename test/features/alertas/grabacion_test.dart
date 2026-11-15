@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/ui/iconos.dart';
-import 'package:te_tengo/features/alertas/data/descarga_grabacion.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/alertas/presentation/pantalla_detalle_alerta.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/ui/iconos.dart';
+import 'package:caregiver_app/features/alertas/data/descarga_grabacion.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/alertas/presentation/pantalla_detalle_alerta.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/clip_falso.dart';
@@ -80,7 +80,7 @@ void main() {
     expect(alertas.descargas, ['h1']);
     expect(
       guardados.single.$1.toString(),
-      'https://clips.tetengo.pe/h1.mp4?descarga',
+      'https://clips.example.org/h1.mp4?descarga',
     );
     expect(guardados.single.$2, 'alerta-21-sep-1205.mp4');
     expect(find.text('Grabación descargada'), findsOneWidget);

@@ -1,23 +1,23 @@
-// Home-screen widget of Te Tengo for iPhone (US-44), WidgetKit, systemMedium (4 × 2) and
+// Home-screen widget of Fall Alert for iPhone (US-44), WidgetKit, systemMedium (4 × 2) and
 // systemSmall (2 × 2). It shows the state the app saved through `home_widget` in the App Group
-// `group.tech.tetengo.teTengo` (lib/features/widget/data/widget_sistema.dart), never an image of
+// `group.org.example.caregiverApp` (lib/features/widget/data/widget_sistema.dart), never an image of
 // the home (CA-44.1). A tap opens the app on the active alert, «Cámaras» or Inicio, and «Ver en vivo»
 // on the room picker (CA-44.2); signed out it only asks to open the app (CA-44.3).
 //
 // NOT YET IN THE XCODE PROJECT: a widget extension needs its own App ID
-// (`tech.tetengo.teTengo.TeTengoWidget`), the App Groups capability on both App IDs and provisioning
+// (`org.example.caregiverApp.CaregiverWidget`), the App Groups capability on both App IDs and provisioning
 // profiles for both, from the Apple account owner (docs/BLOCKERS.md, «US-44 widget»). Then, in Xcode:
-// File › New › Target › Widget Extension named `TeTengoWidget` (no configuration intent), replace its
+// File › New › Target › Widget Extension named `CaregiverWidget` (no configuration intent), replace its
 // Swift file with this one, set its deployment target to iOS 17 (`containerBackground`; checked with
 // `swiftc -parse-as-library -typecheck -target arm64-apple-ios17.0`), add the App Groups capability
-// with `group.tech.tetengo.teTengo` to Runner and to the extension, and archive as usual.
+// with `group.org.example.caregiverApp` to Runner and to the extension, and archive as usual.
 
 import SwiftUI
 import WidgetKit
 
-private let grupo = "group.tech.tetengo.teTengo"
+private let grupo = "group.org.example.caregiverApp"
 
-struct EstadoTeTengo: TimelineEntry {
+struct EstadoCaregiver: TimelineEntry {
     let date: Date
     let tono: String
     let titulo: String
@@ -29,18 +29,18 @@ struct EstadoTeTengo: TimelineEntry {
     let actualizado: String
     let conSesion: Bool
 
-    static let vacio = EstadoTeTengo(
-        date: Date(), tono: "pausa", titulo: "Te Tengo",
+    static let vacio = EstadoCaregiver(
+        date: Date(), tono: "pausa", titulo: "Fall Alert",
         linea: "Abre la app para ver el estado.", iniciales: "", foto: nil, destino: "/inicio",
         actualizado: "", conSesion: false)
 
-    static func leido() -> EstadoTeTengo {
+    static func leido() -> EstadoCaregiver {
         guard let d = UserDefaults(suiteName: grupo), let tono = d.string(forKey: "tt_tono") else {
             return vacio
         }
-        return EstadoTeTengo(
+        return EstadoCaregiver(
             date: Date(), tono: tono,
-            titulo: d.string(forKey: "tt_titulo") ?? "Te Tengo",
+            titulo: d.string(forKey: "tt_titulo") ?? "Fall Alert",
             linea: d.string(forKey: "tt_linea") ?? "",
             iniciales: d.string(forKey: "tt_iniciales") ?? "",
             foto: d.string(forKey: "tt_foto"),
@@ -51,14 +51,14 @@ struct EstadoTeTengo: TimelineEntry {
 }
 
 struct Proveedor: TimelineProvider {
-    func placeholder(in context: Context) -> EstadoTeTengo { .vacio }
+    func placeholder(in context: Context) -> EstadoCaregiver { .vacio }
 
-    func getSnapshot(in context: Context, completion: @escaping (EstadoTeTengo) -> Void) {
+    func getSnapshot(in context: Context, completion: @escaping (EstadoCaregiver) -> Void) {
         completion(.leido())
     }
 
     /// The app reloads the timeline whenever it saves a state; iOS also asks again in about 30 min.
-    func getTimeline(in context: Context, completion: @escaping (Timeline<EstadoTeTengo>) -> Void) {
+    func getTimeline(in context: Context, completion: @escaping (Timeline<EstadoCaregiver>) -> Void) {
         let siguiente = Calendar.current.date(byAdding: .minute, value: 30, to: Date()) ?? Date()
         completion(Timeline(entries: [.leido()], policy: .after(siguiente)))
     }
@@ -66,17 +66,17 @@ struct Proveedor: TimelineProvider {
 
 private func url(_ destino: String, vivo: Bool = false) -> URL {
     var c = URLComponents()
-    c.scheme = "tetengo-widget"
+    c.scheme = "example-widget"
     c.host = "abrir"
     c.queryItems = [URLQueryItem(name: "ir", value: destino)]
     if vivo { c.queryItems?.append(URLQueryItem(name: "vivo", value: "1")) }
     return c.url!
 }
 
-struct VistaTeTengo: View {
+struct VistaCaregiver: View {
     @Environment(\.widgetFamily) var familia
     @Environment(\.colorScheme) var esquema
-    let e: EstadoTeTengo
+    let e: EstadoCaregiver
 
     private var oscuro: Bool { esquema == .dark }
     private var fondo: Color {
@@ -109,7 +109,7 @@ struct VistaTeTengo: View {
         VStack(alignment: .leading, spacing: 8) {
             if familia == .systemMedium {
                 HStack {
-                    Text("Te Tengo").font(.subheadline.bold())
+                    Text("Fall Alert").font(.subheadline.bold())
                     Spacer()
                     Text(e.actualizado).font(.subheadline.monospacedDigit())
                 }
@@ -154,18 +154,18 @@ struct VistaTeTengo: View {
         .padding(14)
         .widgetURL(url(e.destino))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Te Tengo: \(e.titulo), \(e.linea). Abrir la app")
+        .accessibilityLabel("Fall Alert: \(e.titulo), \(e.linea). Abrir la app")
         .containerBackground(fondo, for: .widget)
     }
 }
 
 @main
-struct TeTengoWidget: Widget {
+struct CaregiverWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "TeTengoWidget", provider: Proveedor()) { e in
-            VistaTeTengo(e: e)
+        StaticConfiguration(kind: "CaregiverWidget", provider: Proveedor()) { e in
+            VistaCaregiver(e: e)
         }
-        .configurationDisplayName("Te Tengo")
+        .configurationDisplayName("Fall Alert")
         .description("Muestra el estado, nunca imágenes de la casa.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }

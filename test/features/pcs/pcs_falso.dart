@@ -1,9 +1,9 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
-import 'package:te_tengo/features/pcs/domain/camara_detectada.dart';
-import 'package:te_tengo/features/pcs/domain/pc.dart';
-import 'package:te_tengo/features/vivo/domain/vista_en_vivo.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/pcs/data/pcs_repositorio.dart';
+import 'package:caregiver_app/features/pcs/domain/camara_detectada.dart';
+import 'package:caregiver_app/features/pcs/domain/pc.dart';
+import 'package:caregiver_app/features/vivo/domain/vista_en_vivo.dart';
 
 /// The PC of the pilot, with the camera of the living room.
 final camaraSalaPc = Camara(
@@ -211,7 +211,7 @@ class PcsRepositorioFalso implements PcsRepositorio {
     return SesionVivo(
       sesionId: 'vp-${vistasPrevias.length}',
       urlTransmision: Uri.parse(
-        'https://api.tetengo.pe/vivo/camaras/$camaraId/index.m3u8?token=t',
+        'https://api.example.org/vivo/camaras/$camaraId/index.m3u8?token=t',
       ),
       expiraEn: expiraVistaPrevia,
     );

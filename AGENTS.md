@@ -1,12 +1,12 @@
 # AGENTS.md
 
 ## Purpose
-Mobile app **Te Tengo** for family members and caregivers. This repository is the "Aplicación del familiar/cuidador" container of the C4 model. The app lets them:
+Mobile app **Fall Alert** for family members and caregivers. This repository is the "Aplicación del familiar/cuidador" container of the C4 model. The app lets them:
 - receive fall and unstable-movement alerts;
 - watch the event clip and the live view;
 - manage the camera, consent, family and history.
 
-It talks to `te-tengo-general-api` over HTTPS/REST with `Api-Version: 1`.
+It talks to `fall-alert-general-api` over HTTPS/REST with `Api-Version: 1`.
 
 ## Where to look
 | Question | Source |

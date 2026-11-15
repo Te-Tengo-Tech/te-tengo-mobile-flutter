@@ -192,7 +192,7 @@ class EnlaceClip {
   final String? puntos;
 
   /// The same landmarks in the light replay format (`puntos.ligero.url`, contract §11): what the
-  /// app draws over the clip. Null when the PC did not upload them (an older Te Tengo Captura).
+  /// app draws over the clip. Null when the PC did not upload them (an older Fall Alert Captura).
   final String? puntosLigeros;
 
   /// Why there are none: `SIN_CONSENTIMIENTO` or `SIN_ARCHIVO` (CA-36.2); null from an older

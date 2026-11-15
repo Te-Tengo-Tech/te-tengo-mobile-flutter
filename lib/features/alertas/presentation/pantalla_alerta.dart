@@ -163,7 +163,7 @@ class _Alerta extends ConsumerWidget {
             SliverToBoxAdapter(
               // The flood keeps its severity color in dark mode: its buttons and notices stay light.
               child: Theme(
-                data: temaClaroTeTengo,
+                data: temaClaroCaregiver,
                 child: _Heroe(alerta: alerta, adulto: adulto, color: tinta),
               ),
             ),

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Te Tengo</string>
+	<string>Fall Alert</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -18,10 +18,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>pe.tetengo.app</string>
+			<string>org.example.app</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>tetengo</string>
+				<string>example</string>
 			</array>
 		</dict>
 	</array>
@@ -32,7 +32,7 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<!-- Scanning the QR of Te Tengo Captura to link a PC (US-28); no image is kept. -->
+	<!-- Scanning the QR of Fall Alert Captura to link a PC (US-28); no image is kept. -->
 	<key>NSCameraUsageDescription</key>
 	<string>Para escanear el código QR de la PC y tomar las fotos de perfil que ve tu familia.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -42,7 +42,7 @@
 		<string>tel</string>
 	</array>
 	<key>CFBundleName</key>
-	<string>te_tengo</string>
+	<string>caregiver_app</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

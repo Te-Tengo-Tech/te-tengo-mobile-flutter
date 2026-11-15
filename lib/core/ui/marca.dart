@@ -35,8 +35,8 @@ String svgSimbolo({required bool oscuro}) {
   );
 }
 
-class SimboloTeTengo extends StatelessWidget {
-  const SimboloTeTengo({super.key, this.tamano = 40, this.oscuro = false});
+class SimboloCaregiver extends StatelessWidget {
+  const SimboloCaregiver({super.key, this.tamano = 40, this.oscuro = false});
 
   final double tamano;
   final bool oscuro;
@@ -51,9 +51,9 @@ class SimboloTeTengo extends StatelessWidget {
   );
 }
 
-/// «Te Tengo» in Poppins Bold (`wordmark()`): violet on light, white on dark.
-class PalabraTeTengo extends StatelessWidget {
-  const PalabraTeTengo({super.key, this.tamano = 34, this.oscuro = false});
+/// «Fall Alert» in Poppins Bold (`wordmark()`): violet on light, white on dark.
+class PalabraCaregiver extends StatelessWidget {
+  const PalabraCaregiver({super.key, this.tamano = 34, this.oscuro = false});
 
   /// Font size of the name.
   final double tamano;
@@ -61,7 +61,7 @@ class PalabraTeTengo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-    'Te Tengo',
+    'Fall Alert',
     maxLines: 1,
     softWrap: false,
     // The logotype keeps its size: it is an image of the name, not body text.
@@ -74,7 +74,7 @@ class PalabraTeTengo extends StatelessWidget {
   );
 }
 
-/// Horizontal logo (`logotipo()`): symbol + «Te Tengo» (welcome, sign-in, invitation, «Todo listo»).
+/// Horizontal logo (`logotipo()`): symbol + «Fall Alert» (welcome, sign-in, invitation, «Todo listo»).
 class Logotipo extends StatelessWidget {
   const Logotipo({super.key, this.oscuro});
 
@@ -86,14 +86,14 @@ class Logotipo extends StatelessWidget {
     final oscuro =
         this.oscuro ?? Theme.of(context).brightness == Brightness.dark;
     return Semantics(
-      label: 'Te Tengo',
+      label: 'Fall Alert',
       excludeSemantics: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SimboloTeTengo(tamano: 44, oscuro: oscuro),
+          SimboloCaregiver(tamano: 44, oscuro: oscuro),
           const SizedBox(width: 8),
-          PalabraTeTengo(tamano: 26, oscuro: oscuro),
+          PalabraCaregiver(tamano: 26, oscuro: oscuro),
         ],
       ),
     );

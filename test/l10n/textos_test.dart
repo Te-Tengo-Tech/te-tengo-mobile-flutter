@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/formato.dart';
-import 'package:te_tengo/l10n/l10n.dart';
+import 'package:caregiver_app/core/formato.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
 
 Map<String, Object?> _arb(String idioma) =>
     jsonDecode(File('lib/l10n/app_$idioma.arb').readAsStringSync())

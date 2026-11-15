@@ -1,4 +1,4 @@
-import 'package:te_tengo/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
 
 const usuarioCarmen = Usuario(
   id: 'u-carmen',

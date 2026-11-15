@@ -1,8 +1,8 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
 import '../../apoyo/datos.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/familia/domain/familiar.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/familia/domain/familiar.dart';
 
 const carmen = Familiar(
   usuarioId: 'u-carmen',

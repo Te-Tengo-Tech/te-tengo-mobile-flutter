@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/features/actualizaciones/domain/estado_actualizacion.dart';
-import 'package:te_tengo/features/actualizaciones/domain/versiones.dart';
-import 'package:te_tengo/l10n/l10n.dart';
+import 'package:caregiver_app/features/actualizaciones/domain/estado_actualizacion.dart';
+import 'package:caregiver_app/features/actualizaciones/domain/versiones.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
 
 final _es = lookupAppLocalizations(const Locale('es'));
 final _en = lookupAppLocalizations(const Locale('en'));
@@ -50,7 +50,7 @@ void main() {
       'windows': {
         'version': '0.5.0',
         'versionMinima': null,
-        'url': 'https://tetengo.example/captura.exe',
+        'url': 'https://example.org/captura.exe',
         'sha256': 'AB' * 32,
         'tamanoBytes': 52000000,
         'publicadaEn': '2026-10-10T15:00:00Z',
@@ -61,7 +61,7 @@ void main() {
       'play': null,
       'ios': null,
       'pwa': {'version': 'no es versión'},
-      'paginaDescargas': 'https://tetengo.reqsai.tech/descargas',
+      'paginaDescargas': 'https://example.org/descargas',
     });
     expect(v.windows!.sha256, 'ab' * 32);
     expect(v.windows!.notas, ['Detecta mejor de noche.']);
@@ -74,7 +74,7 @@ void main() {
     expect(v.captura(null), isNull);
   });
 
-  test('versión de Te Tengo Captura de una PC (CA-43.7)', () {
+  test('versión de Fall Alert Captura de una PC (CA-43.7)', () {
     const v = Versiones(
       windows: VersionPublicada(version: '0.5.0'),
       mac: VersionPublicada(version: '0.4.0'),

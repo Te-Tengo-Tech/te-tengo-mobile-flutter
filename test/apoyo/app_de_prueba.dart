@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
-import 'package:te_tengo/app/app.dart';
-import 'package:te_tengo/app/router.dart';
-import 'package:te_tengo/app/tema/tema.dart';
-import 'package:te_tengo/core/cache/cache_local.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/ui/avisos_flotantes.dart';
-import 'package:te_tengo/core/ui/ayuda.dart';
-import 'package:te_tengo/features/perfil/data/perfil_repositorio.dart';
-import 'package:te_tengo/features/widget/data/widget_sistema.dart';
-import 'package:te_tengo/l10n/l10n.dart';
+import 'package:caregiver_app/app/app.dart';
+import 'package:caregiver_app/app/router.dart';
+import 'package:caregiver_app/app/tema/tema.dart';
+import 'package:caregiver_app/core/cache/cache_local.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/ui/avisos_flotantes.dart';
+import 'package:caregiver_app/core/ui/ayuda.dart';
+import 'package:caregiver_app/features/perfil/data/perfil_repositorio.dart';
+import 'package:caregiver_app/features/widget/data/widget_sistema.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
 
-import 'package:te_tengo/core/dispositivo/conectividad.dart';
-import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
+import 'package:caregiver_app/core/dispositivo/conectividad.dart';
+import 'package:caregiver_app/core/dispositivo/permiso_notificaciones.dart';
 
-import 'package:te_tengo/core/notificaciones/dispositivos_repositorio.dart';
-import 'package:te_tengo/core/notificaciones/notificaciones_push.dart';
+import 'package:caregiver_app/core/notificaciones/dispositivos_repositorio.dart';
+import 'package:caregiver_app/core/notificaciones/notificaciones_push.dart';
 
 import '../features/perfil/perfil_falso.dart';
 import 'adaptador_falso.dart';
@@ -44,7 +44,7 @@ Widget pantallaDePrueba(
     ...overrides,
   ],
   child: MaterialApp(
-    theme: temaTeTengo(),
+    theme: temaCaregiver(),
     localizationsDelegates: delegadosDeTextos,
     supportedLocales: idiomasDeLaApp,
     localeListResolutionCallback: resolverIdioma,
@@ -95,7 +95,7 @@ Widget appDePrueba({
     ),
     ...overrides,
   ],
-  child: const TeTengoApp(),
+  child: const CaregiverApp(),
 );
 
 /// Uses a phone-sized view (390 × 844 logical px, as the prototype).

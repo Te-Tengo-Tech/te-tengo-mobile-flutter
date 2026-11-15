@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/cache/cache_local.dart';
-import 'package:te_tengo/core/dispositivo/conectividad.dart';
-import 'package:te_tengo/core/dispositivo/llamada.dart';
-import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/core/cache/cache_local.dart';
+import 'package:caregiver_app/core/dispositivo/conectividad.dart';
+import 'package:caregiver_app/core/dispositivo/llamada.dart';
+import 'package:caregiver_app/core/dispositivo/permiso_notificaciones.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/presentation/reproductor.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/clip_falso.dart';

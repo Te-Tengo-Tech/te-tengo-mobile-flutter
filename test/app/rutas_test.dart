@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
+import 'package:caregiver_app/app/rutas.dart';
 
 import '../apoyo/datos.dart';
 

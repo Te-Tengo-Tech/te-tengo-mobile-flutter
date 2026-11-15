@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/core/notificaciones/firebase_web.dart';
-import 'package:te_tengo/core/notificaciones/notificaciones_push.dart';
+import 'package:caregiver_app/core/notificaciones/firebase_web.dart';
+import 'package:caregiver_app/core/notificaciones/notificaciones_push.dart';
 
 const _completa = ConfiguracionFirebaseWeb(
   apiKey: 'clave',

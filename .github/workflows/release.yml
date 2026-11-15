@@ -16,24 +16,24 @@ run-name: >-
 #          the branch), numbers the candidate x.y.z-rc.N and its build number B (below), checks the
 #          signing secrets and the variables of the channels that are on (an error names each missing
 #          one, before any build) and writes the plan to the summary;
-#        - `APK` (environment `firma`): the signed universal APK te-tengo.apk (reusable build-apk.yml);
+#        - `APK` (environment `firma`): the signed universal APK fall-alert.apk (reusable build-apk.yml);
 #        - `PWA`: the web build with base href / and its Pages files (reusable build-web.yml);
 #        - `AAB` (environment `firma`): only when ENABLE_PLAY_STORE is 'true';
 #        - `IPA` (environment `firma`): only when ENABLE_IOS is 'true' (macOS runner, manual signing).
 #      Every file carries the final version x.y.z and build number B inside; "rc" is only a label.
-#   2. `Release candidate`, only after CI passed: an SBOM (te-tengo-sbom.spdx.json), build provenance
+#   2. `Release candidate`, only after CI passed: an SBOM (fall-alert-sbom.spdx.json), build provenance
 #      and SBOM attestations of the files, then the GitHub pre-release vx.y.z-rc.N on this commit with
-#      every file as an asset (te-tengo.apk, te-tengo.apk.sha256, te-tengo-pwa.tar.gz, te-tengo.aab,
-#      te-tengo.ipa, te-tengo-sbom.spdx.json) and SHA256SUMS. Its notes record the commit, the git tree,
+#      every file as an asset (fall-alert.apk, fall-alert.apk.sha256, fall-alert-pwa.tar.gz, fall-alert.aab,
+#      fall-alert.ipa, fall-alert-sbom.spdx.json) and SHA256SUMS. Its notes record the commit, the git tree,
 #      B, the SHA-256 of each asset and the channels checked (.github/scripts/candidata.sh).
 #      Pre-releases do not expire, unlike artifacts.
 #   3. staging (environment `staging`, approval), when ENABLE_STAGING is 'true', with the candidate's
 #      assets after checking their SHA-256:
-#        - PWA → Pages project te-tengo-app, alias `staging` (https://staging.te-tengo-app.pages.dev);
-#        - APK → R2 `staging/te-tengo.apk`;
+#        - PWA → Pages project fall-alert-app, alias `staging` (https://staging.app.example.org);
+#        - APK → R2 `staging/fall-alert.apk`;
 #      each with a smoke check. Both wait together, so one approval covers them.
 #   4. `Pull request to main`: records the staging result in the candidate, then opens `release: x.y.z`
-#      (release/x.y.z → main) as the GitHub App te-tengo-release-bot, or updates its description to the
+#      (release/x.y.z → main) as the GitHub App fall-alert-release-bot, or updates its description to the
 #      new candidate. The `edited` event re-runs release-gate.yml, which turns green now.
 # A new push to the branch builds the next candidate, rc.N+1, with a higher B.
 # A pull request into develop (or a release branch) that changes the Android build or this workflow
@@ -58,7 +58,7 @@ run-name: >-
 #   environment `staging`: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (the staging jobs check them);
 #   organization: RELEASE_APP_PRIVATE_KEY + variable RELEASE_APP_ID (the pull request to main).
 # Variables: TT_API_URL; TT_FIREBASE_WEB_* and TT_FCM_VAPID_KEY (PWA); DESCARGAS_BASE_URL (APK);
-# optional DESCARGAS_R2_BUCKET (default te-tengo-descargas).
+# optional DESCARGAS_R2_BUCKET (default fall-alert-descargas).
 on:
   push:
     branches: ["release/**", "hotfix/**"]
@@ -87,7 +87,7 @@ defaults:
 env:
   WRANGLER_VERSION: 4.149.0
   NODE_VERSION: "24"
-  PAGES_PROJECT: te-tengo-app
+  PAGES_PROJECT: fall-alert-app
   # Xcode 26 or later is required for App Store Connect uploads since 28 April 2026
   # (https://developer.apple.com/news/upcoming-requirements/). Installed versions of the image:
   # https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
@@ -278,13 +278,13 @@ jobs:
             echo "| Stage | Channel | Target | This run |"
             echo "|---|---|---|---|"
             echo "| test | CI | format, analyze, tests | $ci |"
-            echo "| build | APK | \`te-tengo.apk\` | $apk_build |"
-            echo "| build | PWA | \`te-tengo-pwa.tar.gz\` | $pwa_build |"
-            echo "| build | AAB | \`te-tengo.aab\` | $aab_build |"
-            echo "| build | IPA | \`te-tengo.ipa\` | $ipa_build |"
+            echo "| build | APK | \`fall-alert.apk\` | $apk_build |"
+            echo "| build | PWA | \`fall-alert-pwa.tar.gz\` | $pwa_build |"
+            echo "| build | AAB | \`fall-alert.aab\` | $aab_build |"
+            echo "| build | IPA | \`fall-alert.ipa\` | $ipa_build |"
             echo "| candidate | GitHub pre-release | \`${TAG:-vX.Y.Z-rc.N}\` with every file above, the SBOM and \`SHA256SUMS\`, attested | $(estado 'created after CI and the builds') |"
-            echo "| staging | PWA | https://staging.te-tengo-app.pages.dev | $(estado "$stg" ENABLE_STAGING ENABLE_PWA) |"
-            echo "| staging | APK | $base/staging/te-tengo.apk | $(estado "$stg" ENABLE_STAGING ENABLE_APK) |"
+            echo "| staging | PWA | https://staging.app.example.org | $(estado "$stg" ENABLE_STAGING ENABLE_PWA) |"
+            echo "| staging | APK | $base/staging/fall-alert.apk | $(estado "$stg" ENABLE_STAGING ENABLE_APK) |"
             echo "| main | Pull request | \`$GITHUB_REF_NAME\` → \`main\` | $(estado 'opened or updated after staging') |"
             echo
             echo "Produccion (PWA, APK, Google Play, TestFlight) runs when the pull request is merged into \`main\` (\`produccion.yml\`), with this candidate's files."
@@ -302,7 +302,7 @@ jobs:
       build-pwa: false
 
   apk:
-    # The universal release APK for sideloading: te-tengo.apk and te-tengo.apk.sha256. Signed in the
+    # The universal release APK for sideloading: fall-alert.apk and fall-alert.apk.sha256. Signed in the
     # environment `firma`, which only release/* and hotfix/* runs reach.
     name: APK
     needs: preparar
@@ -313,7 +313,7 @@ jobs:
     with:
       build_name: ${{ needs.preparar.outputs.name }}
       build_number: ${{ needs.preparar.outputs.code }}
-      artifact_name: te-tengo-apk
+      artifact_name: fall-alert-apk
       # The candidate job copies it to the pre-release right after the builds.
       retention_days: 7
       environment: firma
@@ -333,7 +333,7 @@ jobs:
     with:
       build_name: ${{ needs.preparar.outputs.name }}
       build_number: ${{ needs.preparar.outputs.code }}
-      artifact_name: te-tengo-apk-check
+      artifact_name: fall-alert-apk-check
       retention_days: 3
 
   web:
@@ -347,7 +347,7 @@ jobs:
       base_href: /
       build_name: ${{ needs.preparar.outputs.name }}
       build_number: ${{ needs.preparar.outputs.code }}
-      artifact_name: te-tengo-pwa
+      artifact_name: fall-alert-pwa
       retention_days: 7
 
   aab:
@@ -449,7 +449,7 @@ jobs:
         id: artifact
         env:
           SUFFIX: ${{ steps.key.outputs.release_key != 'true' && '-debug-signed' || '' }}
-        run: echo "name=te-tengo-$NAME-$CODE$SUFFIX-aab" >> "$GITHUB_OUTPUT"
+        run: echo "name=fall-alert-$NAME-$CODE$SUFFIX-aab" >> "$GITHUB_OUTPUT"
       - name: Upload the AAB as an artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -515,7 +515,7 @@ jobs:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
           BUNDLE_ID: ${{ steps.bundle.outputs.bundle_id }}
         run: |
-          keychain="$RUNNER_TEMP/te-tengo-signing.keychain-db"
+          keychain="$RUNNER_TEMP/fall-alert-signing.keychain-db"
           cert="$RUNNER_TEMP/distribution.p12"
           profile="$RUNNER_TEMP/distribution.mobileprovision"
           profile_plist="$RUNNER_TEMP/profile.plist"
@@ -680,13 +680,13 @@ jobs:
             for e in "${errors[@]}"; do echo "::error title=Unexpected IPA::$e"; done
             exit 1
           fi
-          file="te-tengo-$NAME-$CODE.ipa"
+          file="fall-alert-$NAME-$CODE.ipa"
           mkdir -p dist
           cp "$ipa" "dist/$file"
           (cd dist && shasum -a 256 "$file" > "$file.sha256")
           {
             echo "ipa=$file"
-            echo "artifact=te-tengo-ios-$NAME-$CODE"
+            echo "artifact=fall-alert-ios-$NAME-$CODE"
             echo "ipa_sha256=$(cut -d' ' -f1 "dist/$file.sha256")"
           } >> "$GITHUB_OUTPUT"
 
@@ -804,11 +804,11 @@ jobs:
           dir="$RUNNER_TEMP/candidata"
           mkdir -p "$dir"
           if [ "$APK_SIGNED" = true ]; then
-            [ "$(sha256sum "$RUNNER_TEMP/apk/te-tengo.apk" | cut -d' ' -f1)" = "$APK_SHA256" ] || {
-              echo "::error::te-tengo.apk differs from the APK that the APK job verified"
+            [ "$(sha256sum "$RUNNER_TEMP/apk/fall-alert.apk" | cut -d' ' -f1)" = "$APK_SHA256" ] || {
+              echo "::error::fall-alert.apk differs from the APK that the APK job verified"
               exit 1
             }
-            cp "$RUNNER_TEMP/apk/te-tengo.apk" "$RUNNER_TEMP/apk/te-tengo.apk.sha256" "$dir/"
+            cp "$RUNNER_TEMP/apk/fall-alert.apk" "$RUNNER_TEMP/apk/fall-alert.apk.sha256" "$dir/"
           else
             # Only possible with ENABLE_APK and ENABLE_PLAY_STORE off: the configuration check requires
             # the release key for both.
@@ -816,12 +816,12 @@ jobs:
           fi
           # The PWA as one archive, so its SHA-256 identifies the whole site.
           tar --sort=name --owner=0 --group=0 --numeric-owner --mtime=@0 -C "$RUNNER_TEMP/pwa" -cf - . |
-            gzip -n -9 > "$dir/te-tengo-pwa.tar.gz"
+            gzip -n -9 > "$dir/fall-alert-pwa.tar.gz"
           if [ "$AAB" = true ]; then
-            cp "$RUNNER_TEMP/aab/app-release.aab" "$dir/te-tengo.aab"
+            cp "$RUNNER_TEMP/aab/app-release.aab" "$dir/fall-alert.aab"
           fi
           if [ "$IPA" = true ]; then
-            cp "$RUNNER_TEMP/ipa/$IPA_FILE" "$dir/te-tengo.ipa"
+            cp "$RUNNER_TEMP/ipa/$IPA_FILE" "$dir/fall-alert.ipa"
           fi
           ls -l "$dir"
 
@@ -832,10 +832,10 @@ jobs:
         with:
           path: .
           format: spdx-json
-          output-file: ${{ runner.temp }}/candidata/te-tengo-sbom.spdx.json
+          output-file: ${{ runner.temp }}/candidata/fall-alert-sbom.spdx.json
           upload-artifact: false
           upload-release-assets: false
-      # Verify with `gh attestation verify <file> --repo Te-Tengo-Tech/te-tengo-mobile-flutter`.
+      # Verify with `gh attestation verify <file> --repo example-org/fall-alert-mobile-flutter`.
       - name: Build provenance attestation
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
@@ -844,11 +844,11 @@ jobs:
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: |
-            ${{ runner.temp }}/candidata/te-tengo*.apk
-            ${{ runner.temp }}/candidata/te-tengo-pwa.tar.gz
-            ${{ runner.temp }}/candidata/te-tengo*.aab
-            ${{ runner.temp }}/candidata/te-tengo*.ipa
-          sbom-path: ${{ runner.temp }}/candidata/te-tengo-sbom.spdx.json
+            ${{ runner.temp }}/candidata/fall-alert*.apk
+            ${{ runner.temp }}/candidata/fall-alert-pwa.tar.gz
+            ${{ runner.temp }}/candidata/fall-alert*.aab
+            ${{ runner.temp }}/candidata/fall-alert*.ipa
+          sbom-path: ${{ runner.temp }}/candidata/fall-alert-sbom.spdx.json
 
       - name: Create the pre-release
         env:
@@ -866,7 +866,7 @@ jobs:
       && vars.ENABLE_STAGING == 'true' && vars.ENABLE_PWA == 'true'
     environment:
       name: staging
-      url: https://staging.te-tengo-app.pages.dev
+      url: https://staging.app.example.org
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -890,9 +890,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/candidata" te-tengo-pwa.tar.gz
+          .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/candidata" fall-alert-pwa.tar.gz
           mkdir -p "$RUNNER_TEMP/pwa"
-          tar -xzf "$RUNNER_TEMP/candidata/te-tengo-pwa.tar.gz" -C "$RUNNER_TEMP/pwa"
+          tar -xzf "$RUNNER_TEMP/candidata/fall-alert-pwa.tar.gz" -C "$RUNNER_TEMP/pwa"
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -900,7 +900,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: .github/scripts/deploy_pwa.sh "$RUNNER_TEMP/pwa" staging https://staging.te-tengo-app.pages.dev
+        run: .github/scripts/deploy_pwa.sh "$RUNNER_TEMP/pwa" staging https://staging.app.example.org
 
   staging-apk:
     name: Staging · APK
@@ -910,13 +910,13 @@ jobs:
       && vars.ENABLE_STAGING == 'true' && vars.ENABLE_APK == 'true'
     environment:
       name: staging
-      url: ${{ vars.DESCARGAS_BASE_URL }}/staging/te-tengo.apk
+      url: ${{ vars.DESCARGAS_BASE_URL }}/staging/fall-alert.apk
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
     env:
-      R2_BUCKET: ${{ vars.DESCARGAS_R2_BUCKET || 'te-tengo-descargas' }}
+      R2_BUCKET: ${{ vars.DESCARGAS_R2_BUCKET || 'fall-alert-descargas' }}
       DESCARGAS_BASE_URL: ${{ vars.DESCARGAS_BASE_URL }}
       TAG: ${{ needs.candidata.outputs.tag }}
     steps:
@@ -935,7 +935,7 @@ jobs:
       - name: Download the candidate's APK and check its SHA-256
         env:
           GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/apk" te-tengo.apk te-tengo.apk.sha256
+        run: .github/scripts/candidata.sh descargar "$TAG" "$RUNNER_TEMP/apk" fall-alert.apk fall-alert.apk.sha256
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -947,7 +947,7 @@ jobs:
 
   # ── 4. Pull request to main ─────────────────────────────────────────────────────────────────────
   # The staging result is recorded with GITHUB_TOKEN; the pull request is opened or edited by the
-  # GitHub App te-tengo-release-bot, so its checks run (a pull request opened or edited with
+  # GitHub App fall-alert-release-bot, so its checks run (a pull request opened or edited with
   # GITHUB_TOKEN starts no workflows). The edit re-runs release-gate, now green for this candidate.
   pr-main:
     name: Pull request to main
@@ -993,7 +993,7 @@ jobs:
           HAS_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY != '' }}
         run: |
           if [ -z "$APP_ID" ] || [ "$HAS_KEY" != true ]; then
-            echo "::error title=Release bot not configured::The organization variable RELEASE_APP_ID and the organization secret RELEASE_APP_PRIVATE_KEY (GitHub App te-tengo-release-bot) are required to open the pull request. Nothing falls back to GITHUB_TOKEN: its pull requests start no workflows."
+            echo "::error title=Release bot not configured::The organization variable RELEASE_APP_ID and the organization secret RELEASE_APP_PRIVATE_KEY (GitHub App fall-alert-release-bot) are required to open the pull request. Nothing falls back to GITHUB_TOKEN: its pull requests start no workflows."
             exit 1
           fi
       - name: Mint the release bot token
@@ -1019,8 +1019,8 @@ jobs:
             echo
             echo "| Staging | Target | Result |"
             echo "|---|---|---|"
-            echo "| PWA | https://staging.te-tengo-app.pages.dev | $(resultado "$STAGING_PWA" deployed) |"
-            echo "| APK | $base/staging/te-tengo.apk | $(resultado "$STAGING_APK" uploaded) |"
+            echo "| PWA | https://staging.app.example.org | $(resultado "$STAGING_PWA" deployed) |"
+            echo "| APK | $base/staging/fall-alert.apk | $(resultado "$STAGING_APK" uploaded) |"
             echo
             echo "Staging of the candidate: **$ESTADO**. Skipped channels are switched off (the run summary says which variable)."
             echo
@@ -1030,7 +1030,7 @@ jobs:
             echo
             echo "Provenance and SBOM attestations: \`gh attestation verify <asset> --repo $GITHUB_REPOSITORY\`."
             echo
-            echo "\`release-gate\` checks that merging puts exactly this tree into \`main\` and that the candidate passed staging. Merge with a merge commit. Merging runs \`produccion.yml\` on \`main\`: it finds this candidate by the tree of \`main\`, publishes these same files after an approval on \`produccion\` (PWA https://app.tetengo.reqsai.tech, APK \`$base/te-tengo.apk\`, Google Play and TestFlight when switched on) and, only if at least one channel was published and none failed, tags \`v$NAME\` and opens the back-merge pull request into \`develop\`. A new push to \`$GITHUB_REF_NAME\` builds the next candidate and updates this description."
+            echo "\`release-gate\` checks that merging puts exactly this tree into \`main\` and that the candidate passed staging. Merge with a merge commit. Merging runs \`produccion.yml\` on \`main\`: it finds this candidate by the tree of \`main\`, publishes these same files after an approval on \`produccion\` (PWA https://app.example.org, APK \`$base/fall-alert.apk\`, Google Play and TestFlight when switched on) and, only if at least one channel was published and none failed, tags \`v$NAME\` and opens the back-merge pull request into \`develop\`. A new push to \`$GITHUB_REF_NAME\` builds the next candidate and updates this description."
           } > "$body"
           .github/scripts/open-release-pr.sh "release: $NAME" "$body" \
             "Candidate [\`$TAG\`]($release) (commit \`${GITHUB_SHA:0:12}\`), staging $ESTADO: the description now lists its files."

@@ -6,15 +6,15 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/misc.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/actualizaciones/data/descarga_apk.dart';
-import 'package:te_tengo/features/actualizaciones/data/plataforma.dart';
-import 'package:te_tengo/features/actualizaciones/data/versiones_repositorio.dart';
-import 'package:te_tengo/features/actualizaciones/domain/estado_actualizacion.dart';
-import 'package:te_tengo/features/actualizaciones/domain/versiones.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/actualizaciones/data/descarga_apk.dart';
+import 'package:caregiver_app/features/actualizaciones/data/plataforma.dart';
+import 'package:caregiver_app/features/actualizaciones/data/versiones_repositorio.dart';
+import 'package:caregiver_app/features/actualizaciones/domain/estado_actualizacion.dart';
+import 'package:caregiver_app/features/actualizaciones/domain/versiones.dart';
 
 /// The bytes of the fake APK 0.6.0 and their SHA-256.
-final bytesApk = utf8.encode('apk falso de Te Tengo 0.6.0');
+final bytesApk = utf8.encode('apk falso de Fall Alert 0.6.0');
 final sumaApk = sha256.convert(bytesApk).toString();
 
 const notasEjemplo = [
@@ -25,7 +25,7 @@ const notasEjemplo = [
 VersionPublicada publicada(
   String version, {
   String? minima,
-  String? url = 'https://tetengo.example/te-tengo.apk',
+  String? url = 'https://example.org/fall-alert.apk',
   String? sha,
   int? tamano = 8400000,
   List<String> notas = notasEjemplo,
@@ -51,18 +51,18 @@ Versiones versionesEn(
   play: publicada(
     version,
     minima: minima,
-    url: 'https://play.google.com/store/apps/details?id=tech.tetengo.te_tengo',
+    url: 'https://play.google.com/store/apps/details?id=org.example.caregiver_app',
   ),
   ios: publicada(
     version,
     minima: minima,
-    url: 'https://testflight.apple.com/join/tetengo',
+    url: 'https://testflight.apple.com/join/example',
     tamano: null,
   ),
   pwa: publicada(
     version,
     minima: minima,
-    url: 'https://app.tetengo.reqsai.tech/',
+    url: 'https://app.example.org/',
     tamano: null,
   ),
 );

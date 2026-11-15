@@ -1,41 +1,41 @@
 # Web app (installable PWA)
 
-The same Flutter app is built for the web so that **iPhone users can use Te Tengo without the App
+The same Flutter app is built for the web so that **iPhone users can use Fall Alert without the App
 Store** (the team has no paid Apple Developer account). They open it in Safari and add it to the home
 screen; from iOS 16.4 a home-screen web app can receive push notifications. Android and desktop
 browsers can install it too.
 
 ## Hosting and base href
-- Served at the **root of its own origin, `https://app.tetengo.reqsai.tech/`**: the Cloudflare Pages
-  project `te-tengo-app`, separate from the landing (`https://tetengo.reqsai.tech`, project
-  `te-tengo-landing`). This repository builds and deploys it: the reusable
+- Served at the **root of its own origin, `https://app.example.org/`**: the Cloudflare Pages
+  project `fall-alert-app`, separate from the landing (`https://example.org`, project
+  `fall-alert-landing`). This repository builds and deploys it: the reusable
   [`build-web.yml`](../.github/workflows/build-web.yml) runs `flutter build web --base-href /` and adds
   the Pages files of [`deploy/pwa/`](../deploy/pwa/) (`_headers`, `robots.txt`).
-  [`release.yml`](../.github/workflows/release.yml) stores that build as `te-tengo-pwa.tar.gz` in the
-  release candidate and deploys it to the alias `https://staging.te-tengo-app.pages.dev`;
+  [`release.yml`](../.github/workflows/release.yml) stores that build as `fall-alert-pwa.tar.gz` in the
+  release candidate and deploys it to the alias `https://staging.app.example.org`;
   [`produccion.yml`](../.github/workflows/produccion.yml) deploys the same archive to production from
-  `main`. Each deploy follows an approval and a smoke check ([RELEASES.md](RELEASES.md)). The old address `https://tetengo.reqsai.tech/app/…` redirects
+  `main`. Each deploy follows an approval and a smoke check ([RELEASES.md](RELEASES.md)). The old address `https://example.org/app/…` redirects
   there with a `301`, keeping the `#fragment`.
-- The CI job `Web (PWA)` runs the same build on every pull request and uploads the `te-tengo-web`
+- The CI job `Web (PWA)` runs the same build on every pull request and uploads the `fall-alert-web`
   artifact; it is a check, not what gets deployed.
 - The base href is a build flag, `/` for the app origin: `flutter build web --base-href /`. A
-  sub-path works the same (it was tested under `/app/` and `/te-tengo-descargas/app/`); in CI set the
+  sub-path works the same (it was tested under `/app/` and `/fall-alert-descargas/app/`); in CI set the
   repository variable `TT_WEB_BASE_HREF`. Every URL in `web/` (manifest, icons, service worker) is
   relative, so nothing else changes.
 - `--no-web-resources-cdn` serves CanvasKit from the app origin instead of Google's CDN, so the
   service worker can keep it for offline use.
 
 ## Routing and e-mail links
-The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#/inicio`.
+The app uses Flutter's default **hash URLs**: `https://app.example.org/#/inicio`.
 - Why: hash URLs need no rewrite rule on the host, work on any static host, and a reload never 404s.
   They also survive the `301` from the old `/app/` address of the landing, since the browser keeps the
   fragment across a redirect.
-- **E-mail links the API must send** (the routes are the same as the app's `tetengo://app/…` links):
-  - password reset: `https://app.tetengo.reqsai.tech/#/nueva-contrasena?token=<token>&correo=<email>`;
-  - invitation: `https://app.tetengo.reqsai.tech/#/invitacion/<token>?titular=<name>&adultoMayor=<name>&correo=<email>`.
+- **E-mail links the API must send** (the routes are the same as the app's `example://app/…` links):
+  - password reset: `https://app.example.org/#/nueva-contrasena?token=<token>&correo=<email>`;
+  - invitation: `https://app.example.org/#/invitacion/<token>?titular=<name>&adultoMayor=<name>&correo=<email>`.
   Query values are percent-encoded; the optional ones can be left out. Both screens are public, so
   they open without a session (verified in Chrome and iOS Safari).
-- **The PC's QR** (US-28) is a path URL, `https://app.tetengo.reqsai.tech/vincular?codigo=KQWT-MXHD`
+- **The PC's QR** (US-28) is a path URL, `https://app.example.org/vincular?codigo=KQWT-MXHD`
   (contract §9). `deploy/pwa/_redirects` serves the page at `/vincular` (`/vincular / 200`), and a
   script in `web/index.html`, before Flutter starts, turns the address into `/#/vincular?codigo=…`,
   which opens the approval screen. Other paths are untouched. The phone's camera app opens it in
@@ -56,7 +56,7 @@ The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#
   `serviceWorkerSettings`, and the file in `build/web` is never used.
 - `web/firebase-messaging-sw.js` is the only worker, registered from Dart at startup
   (`registrarTrabajadorServicio` in `lib/core/web/navegador_web.dart`) with the base href as its
-  scope, `/` on `https://app.tetengo.reqsai.tech/`. It:
+  scope, `/` on `https://app.example.org/`. It:
   - caches the app **network first**: online, every file comes fresh; offline, the last copy kept
     (the app shell is cached on install, so the second visit already opens offline). API, Firebase
     and CDN requests are never cached by it;
@@ -89,11 +89,11 @@ The app uses Flutter's default **hash URLs**: `https://app.tetengo.reqsai.tech/#
 
 ### Firebase web config and VAPID key
 The values are public (they ship in the page) but are **not committed**. The owner keeps them in
-`~/.config/te-tengo/firebase-web.env`; the define names are its keys:
+`~/.config/fall-alert/firebase-web.env`; the define names are its keys:
 
 | Define | Firebase console |
 |---|---|
-| `TT_FIREBASE_WEB_API_KEY`, `TT_FIREBASE_WEB_APP_ID`, `TT_FIREBASE_WEB_MESSAGING_SENDER_ID`, `TT_FIREBASE_WEB_PROJECT_ID` (required) | *Project settings › General › Your apps › Te Tengo Web › SDK setup and configuration › Config* |
+| `TT_FIREBASE_WEB_API_KEY`, `TT_FIREBASE_WEB_APP_ID`, `TT_FIREBASE_WEB_MESSAGING_SENDER_ID`, `TT_FIREBASE_WEB_PROJECT_ID` (required) | *Project settings › General › Your apps › Fall Alert Web › SDK setup and configuration › Config* |
 | `TT_FIREBASE_WEB_AUTH_DOMAIN`, `TT_FIREBASE_WEB_STORAGE_BUCKET`, `TT_FIREBASE_WEB_MEASUREMENT_ID` (optional) | same place |
 | `TT_FCM_VAPID_KEY` (required) | *Project settings › Cloud Messaging › Web configuration › Web Push certificates › Key pair* (the public key) |
 | `TT_API_URL` | the backend (HTTPS in production) |
@@ -101,7 +101,7 @@ The values are public (they ship in the page) but are **not committed**. The own
 Flutter reads `.env` files directly:
 ```bash
 flutter build web --release --base-href / --no-web-resources-cdn \
-  --dart-define-from-file=$HOME/.config/te-tengo/firebase-web.env \
+  --dart-define-from-file=$HOME/.config/fall-alert/firebase-web.env \
   --dart-define=TT_API_URL=https://<api host>
 ```
 In CI, the same names are **repository variables** (*Settings › Secrets and variables › Actions ›
@@ -110,7 +110,7 @@ that `release.yml` deploys. With `ENABLE_PWA` on, a release fails at once if a r
 
 ## What the iPhone allows (iOS 16.4+)
 - **Push only for the home-screen app.** In a Safari tab there is no `Notification` API: the app
-  shows «Agrega Te Tengo a tu pantalla de inicio» on the welcome screen, Inicio and Notificaciones,
+  shows «Agrega Fall Alert a tu pantalla de inicio» on the welcome screen, Inicio and Notificaciones,
   with a guide (`/instalar`). In iOS 26 «Agregar a inicio» is inside *Compartir › Ver más*.
 - **Separate storage.** The home-screen app does not share Safari's cookies or storage: the user
   signs in again there. Removing the icon deletes its data.
@@ -119,9 +119,9 @@ that `release.yml` deploys. With `ENABLE_PWA` on, a release fails at once if a r
   while a window of the app is visible (the Firebase SDK then only hands it to the page), with the
   backend's `tag` (the alert's id), so a later notice of the same alert replaces the earlier one and
   Firebase's own copy, when no window is visible, just replaces it. Urgent alert pushes stay until
-  dismissed (`requireInteraction`). A data-only push shows «Te Tengo» as a fallback.
+  dismissed (`requireInteraction`). A data-only push shows «Fall Alert» as a fallback.
 - **Permission per install**, asked from a tap; if denied, it can only be changed in *Ajustes del
-  iPhone › Notificaciones › Te Tengo*.
+  iPhone › Notificaciones › Fall Alert*.
 - No background fetch, badges are limited, and delivery while the phone is idle is up to iOS. The
   App Store build stays the reliable option for iPhones once there is a paid account.
 
@@ -182,15 +182,15 @@ hls.js, which keeps loading until MediaMTX answers `401` after the session ends.
 itself fails (no connection, or an origin missing from `hlsAllowOrigins`), the player is tried anyway.
 
 ## Backend and infrastructure requirements
-The API side is in te-tengo-general-api#12 (contract §§ Conventions, 4 and 7); each environment
+The API side is in fall-alert-general-api#12 (contract §§ Conventions, 4 and 7); each environment
 configures it:
-- **CORS:** `TT_CORS_ORIGENES` with the PWA origin, `https://app.tetengo.reqsai.tech`
+- **CORS:** `TT_CORS_ORIGENES` with the PWA origin, `https://app.example.org`
   (`http://localhost:*` locally). Without it a browser preflight gets `403` and the PWA cannot sign in.
-- **E-mail links:** `TT_ENLACE_BASE=https://app.tetengo.reqsai.tech/#`, which gives the hash links
+- **E-mail links:** `TT_ENLACE_BASE=https://app.example.org/#`, which gives the hash links
   above.
 - **Web push:** the push service's web configuration; `plataforma: "WEB"` tokens get an FCM web push
   with the same title, body and data, and are skipped without it.
-- **Live view:** MediaMTX `hlsAllowOrigins` with the PWA origins (`https://app.tetengo.reqsai.tech`
+- **Live view:** MediaMTX `hlsAllowOrigins` with the PWA origins (`https://app.example.org`
   and the staging alias), for hls.js and for the app's first request to the playlist, and
   `webrtcAllowOrigins` with the same origins for the WHEP offer.
 
@@ -198,7 +198,7 @@ configures it:
 **Locally in Chrome** (`localhost` is a secure context, so the worker and push work without HTTPS):
 ```bash
 flutter build web --release --base-href / --no-web-resources-cdn \
-  --dart-define-from-file=$HOME/.config/te-tengo/firebase-web.env
+  --dart-define-from-file=$HOME/.config/fall-alert/firebase-web.env
 python3 -m http.server 8123 --directory build/web
 ```
 Open `http://localhost:8123/`. DevTools › *Application* shows the manifest, the icons and
@@ -211,6 +211,6 @@ Firebase console (*Messaging › Send test message*).
 welcome screen shows the install notice; *··· › Compartir › Ver más › Agregar a inicio* installs it,
 and the icon opens it without Safari's bars and without the notice.
 
-**Real iPhone** (push needs HTTPS and the installed app): use `https://app.tetengo.reqsai.tech/`, or a
+**Real iPhone** (push needs HTTPS and the installed app): use `https://app.example.org/`, or a
 tunnel to the local server (`cloudflared tunnel --url http://localhost:8123`); open it in Safari, add it to the home screen, open it from the icon, sign in, tap
 «Activar notificaciones» and send a test message to the registered token.

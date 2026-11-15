@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/features/arranque/pantalla_arranque.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/features/arranque/pantalla_arranque.dart';
 
 import '../apoyo/app_de_prueba.dart';
 import '../apoyo/datos.dart';
 
-const lemaTeTengo = 'Cerca de los tuyos, aunque estés lejos.';
+const lemaCaregiver = 'Cerca de los tuyos, aunque estés lejos.';
 
 void main() {
   testWidgets('el arranque muestra el lema y pasa a la bienvenida sin sesión', (
@@ -15,7 +15,7 @@ void main() {
     await tester.pumpWidget(appDePrueba(ubicacion: Rutas.arranque));
     await tester.pump();
     expect(find.byType(PantallaArranque), findsOneWidget);
-    expect(find.text(lemaTeTengo), findsOneWidget);
+    expect(find.text(lemaCaregiver), findsOneWidget);
     await tester.pump(PantallaArranque.duracionAnimacion);
     await tester.pumpAndSettle();
     expect(
@@ -42,7 +42,7 @@ void main() {
     await tester.pump();
     expect(tester.hasRunningAnimations, isFalse);
     final lema = tester.widget<Opacity>(
-      find.ancestor(of: find.text(lemaTeTengo), matching: find.byType(Opacity)),
+      find.ancestor(of: find.text(lemaCaregiver), matching: find.byType(Opacity)),
     );
     expect(lema.opacity, 1);
     await tester.pump(PantallaArranque.duracionQuieta);

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/features/actividad/domain/actividad.dart';
-import 'package:te_tengo/features/actividad/presentation/pantalla_actividad.dart';
-import 'package:te_tengo/features/pcs/domain/pc.dart';
-import 'package:te_tengo/l10n/l10n.dart';
-import 'package:te_tengo/core/ui/ayuda.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/features/actividad/domain/actividad.dart';
+import 'package:caregiver_app/features/actividad/presentation/pantalla_actividad.dart';
+import 'package:caregiver_app/features/pcs/domain/pc.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
+import 'package:caregiver_app/core/ui/ayuda.dart';
 
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -71,7 +71,7 @@ void main() {
       );
       expect(
         find.textContaining(
-          'Te Tengo Captura 0.4.3 · versión anterior',
+          'Fall Alert Captura 0.4.3 · versión anterior',
           findRichText: true,
         ),
         findsOneWidget,
@@ -138,7 +138,7 @@ void main() {
       actor: TipoActor.pc,
       pcId: 'pc-sala',
       pc: 'Sala-Rosa',
-      objeto: 'Te Tengo Captura',
+      objeto: 'Fall Alert Captura',
       antes: '0.4.3',
       despues: '0.5.0',
     );
@@ -150,7 +150,7 @@ void main() {
         actualizada.frase(es, adultoMayor: 'Rosa'),
         'Sala-Rosa se actualizó a 0.5.0',
       );
-      expect(actualizada.quien(es), 'Te Tengo Captura');
+      expect(actualizada.quien(es), 'Fall Alert Captura');
       expect(actualizada.desde(es), 'PC Sala-Rosa');
       expect(actualizada.antesYDespues(es), ('0.4.3', '0.5.0'));
     });
@@ -189,7 +189,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Sala-Rosa se actualizó a 0.5.0'), findsOneWidget);
-      expect(find.text('Te Tengo Captura'), findsOneWidget);
+      expect(find.text('Fall Alert Captura'), findsOneWidget);
       expect(find.text('PC Sala-Rosa'), findsOneWidget);
       expect(find.text('0.4.3'), findsOneWidget);
       expect(find.text('0.5.0'), findsOneWidget);

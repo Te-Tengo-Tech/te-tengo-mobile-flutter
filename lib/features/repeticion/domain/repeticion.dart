@@ -41,7 +41,7 @@ class ArchivoMovimientos {
   final String? sha256;
   final int fotogramas;
 
-  /// Null: the PC did not upload it (an older Te Tengo Captura); drawn as a stretch without data.
+  /// Null: the PC did not upload it (an older Fall Alert Captura); drawn as a stretch without data.
   final ArchivoLigero? ligero;
 
   factory ArchivoMovimientos.desdeJson(Map<String, dynamic> json) =>

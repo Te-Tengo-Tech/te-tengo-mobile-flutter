@@ -53,7 +53,7 @@ Future<void> main() async {
         contrasteInicialProvider.overrideWithValue(contraste),
         tamanoLetraInicialProvider.overrideWithValue(letra),
       ],
-      child: const TeTengoApp(),
+      child: const CaregiverApp(),
     ),
   );
 }

@@ -1,14 +1,14 @@
-# Te Tengo API contract (v1)
+# Fall Alert API contract (v1)
 
-> **Shared contract between `te-tengo-general-api` (implements it) and `te-tengo-mobile-flutter` (consumes it).** An identical copy lives in both repositories at `docs/API_CONTRACT.md`. Neither side may change it unilaterally: if a task needs a change, record it in `docs/BLOCKERS.md` and keep implementing against the current version.
+> **Shared contract between `fall-alert-general-api` (implements it) and `fall-alert-mobile-flutter` (consumes it).** An identical copy lives in both repositories at `docs/API_CONTRACT.md`. Neither side may change it unilaterally: if a task needs a change, record it in `docs/BLOCKERS.md` and keep implementing against the current version.
 >
 > Every business value comes from the product backlog (`docs/references/PRODUCT_BACKLOG.md`, cited as `CA-xx.y`). Values marked **[implementation choice]** are not in the backlog and can be adjusted by the team.
 
 ## Conventions
 - **Base path** `/api`. **Version header** `Api-Version: 1` (optional; defaults to 1).
-- **Clients:** the native app (Android, iOS) and its web build, a PWA served from another origin (e.g. Cloudflare Pages, `https://te-tengo.pages.dev/app/`, or a custom domain; the backend has no default origin).
+- **Clients:** the native app (Android, iOS) and its web build, a PWA served from another origin (e.g. Cloudflare Pages, `https://app.example.org/app/`, or a custom domain; the backend has no default origin).
   - **CORS** for `/api/**` is on only for the origins the backend is configured with (`TT_CORS_ORIGENES`; off by default, `http://localhost:*` locally). Allowed request headers: `Authorization`, `Api-Version`, `Content-Type`; exposed: `WWW-Authenticate`; no cookies or credentials; preflight answers are cached for 1 h **[implementation choice]**. A preflight from another origin, or with another header, answers `403` without CORS headers.
-  - **E-mailed links** open the app's `/nueva-contrasena?token={token}` and `/invitacion/{token}` routes under the configured base: `tetengo://app/…` for the native app (default), or the PWA's hash URL, e.g. `https://te-tengo.pages.dev/app/#/nueva-contrasena?token=…` and `…/app/#/invitacion/{token}`.
+  - **E-mailed links** open the app's `/nueva-contrasena?token={token}` and `/invitacion/{token}` routes under the configured base: `example://app/…` for the native app (default), or the PWA's hash URL, e.g. `https://app.example.org/app/#/nueva-contrasena?token=…` and `…/app/#/invitacion/{token}`.
 - **Auth:** `Authorization: Bearer <accessToken>` (JWT RS256). Claims:
   - `sub`: user id;
   - `hogar_id`: active household, the tenant;
@@ -140,7 +140,7 @@ Alerta = {
 | `GET /api/alertas/{id}` | member | → `200 Alerta`. Active alerts must be visible when the app opens, even if the push failed (CA-16.4) | `404 ALERTA_NO_ENCONTRADA` |
 | `POST /api/alertas/{id}/atencion` | member | → `200 Alerta` with `ATENDIDA`, `atendidaPor` and `atendidaEn`. Pushes `ALERTA_ATENDIDA` to the other members (CA-19.1, CA-19.3) | `409 ALERTA_CERRADA` |
 | `POST /api/alertas/{id}/falsa-alarma` | member | → `200 Alerta` with `FALSA_ALARMA`; excluded from the fall count (CA-19.2) | `409 ALERTA_CERRADA` |
-| `GET /api/alertas/{id}/clip` | member | Query `descarga=true` for the download disposition → `200 {url, expiraEn, puntos: {url, expiraEn, ligero: {url} \| null} \| null, puntosNoDisponibles}`, a short-lived pre-signed URL of the clip covering 6 s before and 6 s after the event (CA-18.1, CA-26.1, CA-26.2). `puntos` (US-36): the clip's body landmarks, a Parquet file, synchronized with the clip by time (CA-36.1); `puntos.ligero.url` (same expiry) is the same landmarks in the light replay format (§11), the one the app draws over the clip, null when the PC did not upload it (an older Te Tengo Captura); when null, `puntosNoDisponibles` is `SIN_CONSENTIMIENTO` (the consent to store movements is not in force) or `SIN_ARCHIVO` (this clip has none) and the switch shows that reason while the clip plays normally (CA-36.2). An older backend sends neither field | `404 CLIP_NO_DISPONIBLE` (CA-18.2) · `410 CLIP_ELIMINADO` (CA-26.3) |
+| `GET /api/alertas/{id}/clip` | member | Query `descarga=true` for the download disposition → `200 {url, expiraEn, puntos: {url, expiraEn, ligero: {url} \| null} \| null, puntosNoDisponibles}`, a short-lived pre-signed URL of the clip covering 6 s before and 6 s after the event (CA-18.1, CA-26.1, CA-26.2). `puntos` (US-36): the clip's body landmarks, a Parquet file, synchronized with the clip by time (CA-36.1); `puntos.ligero.url` (same expiry) is the same landmarks in the light replay format (§11), the one the app draws over the clip, null when the PC did not upload it (an older Fall Alert Captura); when null, `puntosNoDisponibles` is `SIN_CONSENTIMIENTO` (the consent to store movements is not in force) or `SIN_ARCHIVO` (this clip has none) and the switch shows that reason while the clip plays normally (CA-36.2). An older backend sends neither field | `404 CLIP_NO_DISPONIBLE` (CA-18.2) · `410 CLIP_ELIMINADO` (CA-26.3) |
 | `POST /api/reportes-de-caida` | member | `{camaraId \| null, habitacion \| null, ocurridaAproximadamenteEn, nota \| null}` → `201 {id, recibidoEn, movimientosDisponibles}`: «¿Hubo una caída y no avisó?» (CA-40.4). Stored as a possible false negative for the team's evaluation; it creates no alert and notifies nobody. `camaraId` (its room is recorded) or `habitacion`, or neither for «No sé»; `nota` up to 300 characters. `movimientosDisponibles`: movements of that time may be in the cloud (consent and retention on): «Revisaremos los movimientos de ese momento»; otherwise «revisaremos lo que nos cuentes» | `400 VALIDACION` with `campos.ocurridaAproximadamenteEn` («Elige una hora que ya pasó.», up to 5 min ahead is tolerated) or `campos.nota` · `404 CAMARA_NO_ENCONTRADA` |
 
 **Escalation (backend job):**
@@ -196,10 +196,10 @@ Data payload: `{tipo, alertaId?, camaraId?, habitacion?, ocurridaEn}` (plus `eti
 | `PC_DESVINCULADA` | A PC left the household without the app: from the PC itself, for security (a stolen refresh token) or after 90 days without connecting. Not sent when the owner removes it from the app. The app shows «Ver PCs y cámaras» (§9) | CA-31.3 |
 
 ## 8. Household agent endpoints
-Used only by the desktop agent (`te-tengo-desktop-pywebview`). They are described in the backend repository at `docs/AGENT_CONTRACT.md` and do not concern the mobile app.
+Used only by the desktop agent (`fall-alert-desktop-pywebview`). They are described in the backend repository at `docs/AGENT_CONTRACT.md` and do not concern the mobile app.
 
 ## 9. PCs and their link (`camaras`) — US-28, US-30, US-31
-Change request «PCs, cámaras y datos de movimiento» (pending the advisor's approval; built ahead of it, additively). A household has one or more **PCs** running Te Tengo Captura, each with its own cameras. The owner links a PC from the app with the code the PC shows (OAuth 2.0 device grant, RFC 8628; ADR 0009 of the backend); installations made by the project team before this appear as a PC named «PC de la casa» of origin `INSTALACION`.
+Change request «PCs, cámaras y datos de movimiento» (pending the advisor's approval; built ahead of it, additively). A household has one or more **PCs** running Fall Alert Captura, each with its own cameras. The owner links a PC from the app with the code the PC shows (OAuth 2.0 device grant, RFC 8628; ADR 0009 of the backend); installations made by the project team before this appear as a PC named «PC de la casa» of origin `INSTALACION`.
 
 ```
 Pc = {
@@ -223,7 +223,7 @@ Pc = {
 | `PATCH /api/pcs/{id}` | owner | `{nombre}` (1–60 chars) → `200 Pc` | `422 PC_NOMBRE_VACIO` · `422 PC_NOMBRE_MUY_LARGO` · `404 PC_NO_ENCONTRADA` |
 | `DELETE /api/pcs/{id}` | owner | → `204`: «Quitar esta PC». The app stops showing it and its cameras at once; the PC stops capturing, deletes its credentials and shows the QR again at once if online (CA-31.1), or as soon as it connects (CA-31.2). No push is sent for it | `404 PC_NO_ENCONTRADA` |
 
-**Cameras and rooms («ambientes», US-29).** Product decision of 2026-10-10 (backlog US-29, CA-29.1 to CA-29.9): **the owner chooses the cameras and their rooms from the phone.** Invited members see the same, read-only (CA-29.9: `403 SOLO_TITULAR` on changes). The PC reports every webcam it detects; the app shows them in «Elige las cámaras» (after pairing, and in the PC's detail), the owner previews each one to recognise it, assigns it a room, renames rooms, or «Dejar de usar»; the PC hears every change at once and only cameras in use capture. (The PC can still assign a camera itself, as the installer's fallback.) For now a room has **one camera**, on any PC (CA-29.3); the data allows more later. **No cameras in the bathroom:** room names that mean a bathroom (baño, servicios higiénicos, SS.HH., WC, aseo…) answer `422 AMBIENTE_NO_PERMITIDO` («Por privacidad, Te Tengo no admite cámaras en el baño.»).
+**Cameras and rooms («ambientes», US-29).** Product decision of 2026-10-10 (backlog US-29, CA-29.1 to CA-29.9): **the owner chooses the cameras and their rooms from the phone.** Invited members see the same, read-only (CA-29.9: `403 SOLO_TITULAR` on changes). The PC reports every webcam it detects; the app shows them in «Elige las cámaras» (after pairing, and in the PC's detail), the owner previews each one to recognise it, assigns it a room, renames rooms, or «Dejar de usar»; the PC hears every change at once and only cameras in use capture. (The PC can still assign a camera itself, as the installer's fallback.) For now a room has **one camera**, on any PC (CA-29.3); the data allows more later. **No cameras in the bathroom:** room names that mean a bathroom (baño, servicios higiénicos, SS.HH., WC, aseo…) answer `422 AMBIENTE_NO_PERMITIDO` («Por privacidad, Fall Alert no admite cámaras en el baño.»).
 
 `CamaraDetectada = {id, pcId, nombreDispositivo, enUso, conectada, ambienteId | null, nombreHabitacion | null, estadoConexion | null, pausadaHasta | null, detectadaEn | null}`: a webcam the PC reported, known by the operating system's device id so it is always the same `id` (CA-29.4). `enUso: false` is «sin usar» (no room). `conectada`: for a camera in use, online by its heartbeats; otherwise plugged in at the PC's latest report. A camera in use that is unplugged keeps its room (CA-29.5).
 
@@ -248,7 +248,7 @@ Pc = {
 
 **The code (`codigo`).**
 - 8 letters of `BCDFGHJKLMNPQRSTVWXZ` (no vowels, no digits), shown `XXXX-XXXX`. The app accepts it in lowercase, with or without the hyphen, and only those letters (CA-28.2); anything else is `400 VALIDACION` with `campos.codigo` («El código tiene 8 letras, solo consonantes y sin números.»).
-- **QR:** the PC's QR is `https://app.tetengo.reqsai.tech/vincular?codigo=KQWT-MXHD` (`verification_uri_complete`; domain pending confirmation, BLOCKERS). The app reads `codigo` from it when it scans it, and should also open that link (app link or the PWA's `/vincular` route) when the phone's camera app scans it. «Escribir el código» is the fallback (CA-28.2).
+- **QR:** the PC's QR is `https://app.example.org/vincular?codigo=KQWT-MXHD` (`verification_uri_complete`; domain pending confirmation, BLOCKERS). The app reads `codigo` from it when it scans it, and should also open that link (app link or the PWA's `/vincular` route) when the phone's camera app scans it. «Escribir el código» is the fallback (CA-28.2).
 - It lasts **10 minutes** and works **once**; the PC shows a new one on its own when it expires (CA-28.3).
 - Only the owner may look it up, approve or reject it: `403 SOLO_TITULAR` for an invited member, who sees «Solo Carmen (titular) puede vincular una PC» (CA-28.5).
 
@@ -259,7 +259,7 @@ Pc = {
 - `409 PC_YA_VINCULADA {mismoHogar, pcId}` (`consulta` and `aprobacion`): the PC showing the code is already linked, to this household (`mismoHogar: true`, with its `pcId`) or to another one (`mismoHogar: false`, and nothing else: no `pcId`, name or household). The app shows «Esta PC ya está vinculada» / «La encuentras en Cámaras y PCs.» and goes back to «Cámaras y PCs». It needs a PC that sends its installation id (AGENT_CONTRACT.md "PC link"); it does not count as wrong, and the code stays pending until it expires. To link it again, first remove it with «Quitar esta PC».
 - `400 VALIDACION` · `403 SOLO_TITULAR`.
 
-**Status and notices.** A PC with no heartbeat for 90 s shows as `DESCONECTADA` with its cameras (CA-30.3); each camera still sends `CAMARA_DESCONECTADA` (§7), and the app shows what to check (the PC on, internet, Te Tengo Captura open). A PC that went 90 days without connecting is removed and must be linked again (CA-28.7). Push `PC_DESVINCULADA` (§7) tells the family when a PC left without the app (CA-31.3).
+**Status and notices.** A PC with no heartbeat for 90 s shows as `DESCONECTADA` with its cameras (CA-30.3); each camera still sends `CAMARA_DESCONECTADA` (§7), and the app shows what to check (the PC on, internet, Fall Alert Captura open). A PC that went 90 days without connecting is removed and must be linked again (CA-28.7). Push `PC_DESVINCULADA` (§7) tells the family when a PC left without the app (CA-31.3).
 
 ## 10. Activity log (`actividad`) — US-33
 Who changed what and when in the system's configuration, from the app or from a PC (CA-33.1). **Append-only:** nobody can edit or delete it (the database refuses it too). Any member, owner or invited, reads it (CA-33.2).
@@ -296,7 +296,7 @@ Actividad = {
 | `GUARDADO_LOCAL_CAMBIADO` | «Desde la PC Sala-Rosa: video continuo pasó de No a Sí, 7 días» | PC | as the PC reports it |
 | `DATOS_LOCALES_ELIMINADOS` | «Desde la PC Sala-Rosa: se borraron los datos guardados en la PC» | PC | as the PC reports it, or `Datos guardados en la PC` → «Borrados al desvincular» when it was unlinked with that option (CA-31.6) |
 | `REPETICION_VISTA` | «Desde la PC Sala-Rosa: se vio qué pasó en la Sala (23/09 10:36–10:46, 3 min)» | PC | room · moment replayed as an ISO-8601 interval `desde/hasta` → seconds watched (e.g. `"180"`); `camaraId` is the camera. A replay watched **on the PC**, reported only when it was played or scrubbed (CA-39.3; agent contract, «Activity log»). Replays in the app are in `GET /api/accesos-repeticiones` instead; the access log shows both |
-| `PC_ACTUALIZADA` | «Sala-Rosa se actualizó a 0.5.0» | PC | `Te Tengo Captura` · old version → new version, as the PC reports it after installing an update (US-43, CA-43.2) |
+| `PC_ACTUALIZADA` | «Sala-Rosa se actualizó a 0.5.0» | PC | `Fall Alert Captura` · old version → new version, as the PC reports it after installing an update (US-43, CA-43.2) |
 | `ACTUALIZACION_AUTOMATICA_ACTIVADA` / `ACTUALIZACION_AUTOMATICA_DESACTIVADA` | «Desde la PC Sala-Rosa: se activó la actualización automática» | PC | `Actualizar automáticamente` (CA-43.7), as the PC reports it |
 | `FOTO_ADULTO_MAYOR_CAMBIADA` / `FOTO_ADULTO_MAYOR_QUITADA` | «Carmen cambió la foto de Rosa» / «Carmen quitó la foto de Rosa» | FAMILIAR | the older adult's first name (§13) |
 
@@ -332,7 +332,7 @@ Repeticion = {
   urlsExpiranEn
 }
 ```
-- **Files:** Parquet compressed with zstd, one per camera and 5 minutes, written by Te Tengo Captura (its contract defines the columns), for analysis; the app draws `ligero`, the same frames in the light replay format below. Check the light file's `sha256` before drawing; a file without `ligero` draws as a stretch without data. A moment outside the retention returns `archivos: []` with `disponiblesDesde` (CA-39.4).
+- **Files:** Parquet compressed with zstd, one per camera and 5 minutes, written by Fall Alert Captura (its contract defines the columns), for analysis; the app draws `ligero`, the same frames in the light replay format below. Check the light file's `sha256` before drawing; a file without `ligero` draws as a stretch without data. A moment outside the retention returns `archivos: []` with `disponiblesDesde` (CA-39.4).
 - **Gaps** (CA-39.5): frames exist only while a person is in the image; time between frames inside a file is «Sin persona en la imagen», time without files is «PC apagada» or «En pausa» (the pause of the camera is known from the alerts and the camera; the API does not mark it). The timeline's events come from `GET /api/alertas?desde=&hasta=`, filtered by `camaraId` in the app.
 - **Without internet** the app says «Sin internet. La repetición necesita conexión.»; a revoked consent while watching makes the next request answer `409 SIN_CONSENTIMIENTO_DE_MOVIMIENTOS` («Rosa ya no autoriza guardar sus movimientos.»).
 
@@ -370,7 +370,7 @@ The app cannot read Parquet on every platform (ADR 0011 of the backend), so next
 - **Sizes** (measured, 5 minutes with a person in the image 86 % of the frames): Parquet 459 KB, light file 257 KB; about 132 MB and 74 MB per camera and day.
 
 ## 12. App versions (`versiones`) — US-43
-The latest published version of each app, so that Te Tengo Captura and the mobile app tell the family when there is a new one (CA-43.1 to CA-43.6) and stop an app the backend no longer supports (CA-43.8). The release workflows publish it when a version reaches production; nobody edits it by hand (backend ADR 0012).
+The latest published version of each app, so that Fall Alert Captura and the mobile app tell the family when there is a new one (CA-43.1 to CA-43.6) and stop an app the backend no longer supports (CA-43.8). The release workflows publish it when a version reaches production; nobody edits it by hand (backend ADR 0012).
 
 | Method and path | Auth | Body → response | Errors |
 |---|---|---|---|
@@ -378,13 +378,13 @@ The latest published version of each app, so that Te Tengo Captura and the mobil
 
 ```
 Versiones = {
-  windows: Version | null,     // Te Tengo Captura for Windows: the installer (CA-43.2, CA-43.7)
-  mac: Version | null,         // Te Tengo Captura for macOS: the disk image, only linked (CA-43.3)
+  windows: Version | null,     // Fall Alert Captura for Windows: the installer (CA-43.2, CA-43.7)
+  mac: Version | null,         // Fall Alert Captura for macOS: the disk image, only linked (CA-43.3)
   apk: Version | null,         // the Android app installed from the APK (CA-43.5)
   play: Version | null,        // the Android app from Google Play (CA-43.5)
   ios: Version | null,         // the iPhone app, TestFlight or App Store (CA-43.6)
   pwa: Version | null,         // the installable web app (CA-43.4)
-  paginaDescargas: string | null   // the downloads page, «Ir a la descarga» (CA-43.3), e.g. https://tetengo.reqsai.tech/descargas
+  paginaDescargas: string | null   // the downloads page, «Ir a la descarga» (CA-43.3), e.g. https://example.org/descargas
 }
 Version = {
   version,                     // the latest published version, "0.5.0" (MAJOR.MINOR.PATCH)
@@ -398,7 +398,7 @@ Version = {
 ```
 - A channel is `null` when nothing was published on it (for example `play` and `ios` while the app is not in the stores).
 - **Comparing versions:** numerically by `MAJOR.MINOR.PATCH`, ignoring a build suffix (`0.5.3+12` is `0.5.3`). An installed version below `version` has an update; below `versionMinima` it must update (CA-43.8).
-- **Which channel:** Te Tengo Captura reads `windows` or `mac`; the mobile app reads `pwa` on the web, `play` on Android when Google Play installed it, `apk` on other Android installs, and `ios` on iPhone. The app compares each PC's `versionAgente` (§9) with `windows` or `mac` by its `sistemaOperativo`, to show «Versión anterior (0.4.3)» and whether that PC updates itself (`actualizacionAutomatica`, CA-43.7).
+- **Which channel:** Fall Alert Captura reads `windows` or `mac`; the mobile app reads `pwa` on the web, `play` on Android when Google Play installed it, `apk` on other Android installs, and `ios` on iPhone. The app compares each PC's `versionAgente` (§9) with `windows` or `mac` by its `sistemaOperativo`, to show «Versión anterior (0.4.3)» and whether that PC updates itself (`actualizacionAutomatica`, CA-43.7).
 - **Downloads are checked:** a client that downloads `url` checks its SHA-256 against `sha256` and installs nothing when it differs (CA-43.2). `url` keeps the same address between versions (the landing's download link), so between a new file and the new `sha256` there can be a few minutes where they differ: the check fails safely and the client tries again later.
 - **Never during an alert or a live view** (CA-43.9): the clients wait to show a notice or install until it ends; this endpoint does not know about alerts.
 

@@ -4,10 +4,10 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/features/movimientos/data/decodificador_ttmov.dart';
+import 'package:caregiver_app/features/movimientos/data/decodificador_ttmov.dart';
 
-/// Golden fixtures written by Te Tengo Captura's encoder (`scripts/fixture_ligero.py` of
-/// te-tengo-desktop-pywebview): a real 12 s clip around a fall, without and with `z`, and the
+/// Golden fixtures written by Fall Alert Captura's encoder (`scripts/fixture_ligero.py` of
+/// fall-alert-desktop-pywebview): a real 12 s clip around a fall, without and with `z`, and the
 /// JSON of what its Python decoder reads. Decoding them here is the cross-language round trip.
 const _carpeta = 'test/fixtures/movimientos';
 

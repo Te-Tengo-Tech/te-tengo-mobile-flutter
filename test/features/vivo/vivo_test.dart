@@ -2,28 +2,28 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/dispositivo/llamada.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/ui/iconos.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/alertas/presentation/pantalla_alerta.dart';
-import 'package:te_tengo/features/alertas/presentation/reproductor.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/vivo/data/cliente_whep.dart';
-import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
-import 'package:te_tengo/features/vivo/domain/vista_en_vivo.dart';
-import 'package:te_tengo/features/vivo/presentation/modos_vista.dart';
-import 'package:te_tengo/features/vivo/presentation/pantalla_vivo.dart';
-import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
-import 'package:te_tengo/features/vivo/presentation/reproductor_webrtc.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/dispositivo/llamada.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/ui/iconos.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/presentation/pantalla_alerta.dart';
+import 'package:caregiver_app/features/alertas/presentation/reproductor.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/vivo/data/cliente_whep.dart';
+import 'package:caregiver_app/features/vivo/data/vista_en_vivo_repositorio.dart';
+import 'package:caregiver_app/features/vivo/domain/vista_en_vivo.dart';
+import 'package:caregiver_app/features/vivo/presentation/modos_vista.dart';
+import 'package:caregiver_app/features/vivo/presentation/pantalla_vivo.dart';
+import 'package:caregiver_app/features/vivo/presentation/reproductor_vivo.dart';
+import 'package:caregiver_app/features/vivo/presentation/reproductor_webrtc.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -111,7 +111,7 @@ void main() {
     expect(vivo.abiertas, [('c1', null)]);
     expect(
       reproductores.ultimo.url.toString(),
-      'https://api.tetengo.pe/vivo/camaras/c1/index.m3u8?token=t-v-1',
+      'https://api.example.org/vivo/camaras/c1/index.m3u8?token=t-v-1',
     );
     expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
     expect(find.text('En vivo · Sala'), findsOneWidget);
@@ -406,7 +406,7 @@ void main() {
   });
 
   group('comprobarLista', () {
-    const lista = 'https://api.tetengo.pe/vivo/camaras/c1/index.m3u8?token=t';
+    const lista = 'https://api.example.org/vivo/camaras/c1/index.m3u8?token=t';
     late AdaptadorFalso http;
     late Dio dio;
 
@@ -646,7 +646,7 @@ void main() {
 
   group('WebRTC (WHEP) con LL-HLS de respaldo', () {
     const whep =
-        'https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep?token=t-v-1';
+        'https://api.example.org/vivo-webrtc/camaras/c1/whep?token=t-v-1';
 
     setUp(() => vivo.conWebrtc = true);
 
@@ -661,7 +661,7 @@ void main() {
       expect(reproductores.creados, hasLength(1));
       expect(
         reproductores.ultimo.url.toString(),
-        'https://api.tetengo.pe/vivo/camaras/c1/index.m3u8?token=t-v-1',
+        'https://api.example.org/vivo/camaras/c1/index.m3u8?token=t-v-1',
       );
       expect(reproductores.ultimo.desechado, isFalse);
       expect(find.byKey(const Key('video-en-vivo')), findsOneWidget);
@@ -861,7 +861,7 @@ void main() {
       repo = c.read(vistaEnVivoRepositorioProvider);
     });
 
-    const url = 'https://api.tetengo.pe/vivo/camaras/c1/index.m3u8?token=abc';
+    const url = 'https://api.example.org/vivo/camaras/c1/index.m3u8?token=abc';
 
     test('POST /api/camaras/{id}/vista-en-vivo', () async {
       http.cuando(
@@ -943,7 +943,7 @@ void main() {
 
     test('urlWebrtc cuando la API ofrece WebRTC', () async {
       const whep =
-          'https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep?token=abc';
+          'https://api.example.org/vivo-webrtc/camaras/c1/whep?token=abc';
       http
         ..cuando(
           'POST',

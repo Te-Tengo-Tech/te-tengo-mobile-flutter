@@ -4,24 +4,24 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/app.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/cache/cache_local.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/sesion/sesion_controller.dart';
-import 'package:te_tengo/core/sesion/sesion_repositorio.dart';
-import 'package:te_tengo/core/ui/formulario.dart';
-import 'package:te_tengo/app/tema/paleta.dart';
-import 'package:te_tengo/features/ajustes/data/apariencia.dart';
-import 'package:te_tengo/features/ajustes/data/contraste.dart';
-import 'package:te_tengo/features/ajustes/data/tamano_letra.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
+import 'package:caregiver_app/app/app.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/cache/cache_local.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion_controller.dart';
+import 'package:caregiver_app/core/sesion/sesion_repositorio.dart';
+import 'package:caregiver_app/core/ui/formulario.dart';
+import 'package:caregiver_app/app/tema/paleta.dart';
+import 'package:caregiver_app/features/ajustes/data/apariencia.dart';
+import 'package:caregiver_app/features/ajustes/data/contraste.dart';
+import 'package:caregiver_app/features/ajustes/data/tamano_letra.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/vivo/data/vista_en_vivo_repositorio.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -414,7 +414,7 @@ void main() {
       await cache.guardar(AlmacenContrasteLocal.clave, 'si');
       await cache.guardar('h1|/api/camaras?', '[]');
       final contenedor = ProviderScope.containerOf(
-        tester.element(find.byType(TeTengoApp)),
+        tester.element(find.byType(CaregiverApp)),
       );
       await contenedor.read(sesionControllerProvider.notifier).cerrar();
       await tester.pumpAndSettle();

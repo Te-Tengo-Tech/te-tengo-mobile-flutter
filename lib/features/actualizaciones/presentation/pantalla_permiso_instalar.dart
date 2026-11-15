@@ -109,7 +109,7 @@ class _PantallaPermisoInstalarState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Te Tengo',
+                            'Fall Alert',
                             style: estiloTexto(16, 700, color: c.tinta),
                           ),
                           Text(

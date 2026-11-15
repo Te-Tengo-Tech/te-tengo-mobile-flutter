@@ -1,6 +1,6 @@
-# Security Policy — te-tengo-mobile-flutter
+# Security Policy — fall-alert-mobile-flutter
 
-Te Tengo handles sensitive data: clips of older adults at home, alerts and family contact details. Please report problems privately and quickly.
+Fall Alert handles sensitive data: clips of older adults at home, alerts and family contact details. Please report problems privately and quickly.
 
 ## Supported branches
 
@@ -14,7 +14,7 @@ Te Tengo handles sensitive data: clips of older adults at home, alerts and famil
 
 **Do not open an issue or pull request** for a vulnerability or an exposed secret (API tokens, Firebase or signing keys, keystores, passwords).
 
-The repository is private, so GitHub's *private vulnerability reporting* is not available. Instead, e-mail the maintainer, **Jhosepmyr Orlando Gutiérrez Soto** — `jhosepmyrgutierrezsoto@gmail.com`, with:
+The repository is private, so GitHub's *private vulnerability reporting* is not available. Instead, e-mail the maintainer, **the maintainer (anonymized)** — `maintainer@example.org`, with:
 
 - a description of the issue and its impact;
 - steps to reproduce, or the file and commit where a secret is exposed;
@@ -41,7 +41,7 @@ Reports are uploaded as workflow artifacts and summarised on the run page.
 
 ## Limitations of the current plan
 
-The `Te-Tengo-Tech` organization uses the GitHub **Free** plan with private repositories. On that plan:
+The `example-org` organization uses the GitHub **Free** plan with private repositories. On that plan:
 
 - **No CodeQL / code scanning.** Code scanning and SARIF uploads require GitHub Advanced Security (GitHub Code Security), which is not available for private repositories on Free. That is why there is no `codeql.yml`; OSV-Scanner runs without it and publishes its report as an artifact instead.
 - **No secret scanning or push protection** for private repositories (GitHub Secret Protection). The `.gitignore` and code review are the only guards; never commit keystores, `key.properties` or Firebase configuration files.

@@ -9,7 +9,7 @@ import '../../core/ui/marca.dart';
 import '../../l10n/l10n.dart';
 
 /// Splash (screen 00): on cream the violet body rises, its head drops in, the coral figure enters the
-/// embrace, the symbol beats once and «Te Tengo» and the tagline appear; then the screen goes to
+/// embrace, the symbol beats once and «Fall Alert» and the tagline appear; then the screen goes to
 /// [siguiente] (about 2 s; a tap skips it). Only transform and opacity animate.
 ///
 /// With `disableAnimations` the final frame is shown still and then fades (DESIGN.md, Brand).
@@ -172,7 +172,7 @@ class _Escena extends StatelessWidget {
               opacity: palabra,
               child: Transform.translate(
                 offset: Offset(0, 12 * (1 - palabra)),
-                child: const PalabraTeTengo(tamano: 44),
+                child: const PalabraCaregiver(tamano: 44),
               ),
             ),
             const SizedBox(height: 12),

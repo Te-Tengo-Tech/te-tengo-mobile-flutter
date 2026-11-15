@@ -1,6 +1,6 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
 
 /// A fall in the living room at 10:42, notified 6 s later.
 Alerta caidaSala({
@@ -110,7 +110,7 @@ class AlertasRepositorioFalso implements AlertasRepositorio {
     if (errorClip != null) throw errorClip!;
     if (!descarga && enlaces.isNotEmpty) return enlaces.removeAt(0);
     return EnlaceClip(
-      url: 'https://clips.tetengo.pe/$id.mp4${descarga ? '?descarga' : ''}',
+      url: 'https://clips.example.org/$id.mp4${descarga ? '?descarga' : ''}',
     );
   }
 

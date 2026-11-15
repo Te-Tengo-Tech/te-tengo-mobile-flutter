@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/features/vivo/data/cliente_whep.dart';
+import 'package:caregiver_app/features/vivo/data/cliente_whep.dart';
 
 /// MediaMTX's WHEP endpoint, answering with a status, a body and a `Location`.
 class _MediaMtxFalso implements HttpClientAdapter {
@@ -47,7 +47,7 @@ void main() {
   late ClienteWhep cliente;
   const oferta = 'v=0\r\no=- oferta\r\n';
   final endpoint = Uri.parse(
-    'https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep?token=t-1',
+    'https://api.example.org/vivo-webrtc/camaras/c1/whep?token=t-1',
   );
 
   setUp(() {
@@ -70,13 +70,13 @@ void main() {
     expect(r.sdp, mediamtx.cuerpo);
     expect(
       r.recurso.toString(),
-      'https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep/0b5e?token=t-1',
+      'https://api.example.org/vivo-webrtc/camaras/c1/whep/0b5e?token=t-1',
     );
   });
 
   test('sin token en la URL lo agrega a la query', () async {
     await cliente.ofrecer(
-      Uri.parse('https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep'),
+      Uri.parse('https://api.example.org/vivo-webrtc/camaras/c1/whep'),
       oferta,
       token: 't 2',
     );
@@ -87,7 +87,7 @@ void main() {
 
   test('sin token envía la URL tal cual', () async {
     final sinToken = Uri.parse(
-      'https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep',
+      'https://api.example.org/vivo-webrtc/camaras/c1/whep',
     );
     await cliente.ofrecer(sinToken, oferta);
     expect(mediamtx.peticiones.single.uri, sinToken);
@@ -128,7 +128,7 @@ void main() {
 
   test('cerrar borra la sesión WHEP y no falla sin conexión', () async {
     final recurso = Uri.parse(
-      'https://api.tetengo.pe/vivo-webrtc/camaras/c1/whep/0b5e?token=t-1',
+      'https://api.example.org/vivo-webrtc/camaras/c1/whep/0b5e?token=t-1',
     );
     mediamtx.estado = 200;
     await cliente.cerrar(recurso);

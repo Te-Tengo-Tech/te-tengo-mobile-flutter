@@ -2,19 +2,19 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/cache/cache_local.dart';
-import 'package:te_tengo/core/dispositivo/conectividad.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/ui/avisos_flotantes.dart';
-import 'package:te_tengo/features/actualizaciones/data/actualizacion_controller.dart';
-import 'package:te_tengo/features/actualizaciones/data/interrupcion.dart';
-import 'package:te_tengo/features/actualizaciones/data/plataforma.dart';
-import 'package:te_tengo/features/actualizaciones/domain/estado_actualizacion.dart';
-import 'package:te_tengo/features/actualizaciones/domain/versiones.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/cache/cache_local.dart';
+import 'package:caregiver_app/core/dispositivo/conectividad.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/ui/avisos_flotantes.dart';
+import 'package:caregiver_app/features/actualizaciones/data/actualizacion_controller.dart';
+import 'package:caregiver_app/features/actualizaciones/data/interrupcion.dart';
+import 'package:caregiver_app/features/actualizaciones/data/plataforma.dart';
+import 'package:caregiver_app/features/actualizaciones/domain/estado_actualizacion.dart';
+import 'package:caregiver_app/features/actualizaciones/domain/versiones.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
 
 import '../../apoyo/dispositivo_falso.dart';
 import '../alertas/alertas_falso.dart';
@@ -180,14 +180,14 @@ void main() {
       await c.read(actualizacionProvider.notifier).actualizar();
       expect(
         descarga.pedidos.single.uri.toString(),
-        'https://tetengo.example/te-tengo.apk',
+        'https://example.org/fall-alert.apk',
       );
       expect(
         descarga.pedidos.single.headers.containsKey('Authorization'),
         isFalse,
       );
       final ruta = instalador.instalados.single;
-      expect(ruta, '${carpeta.path}/te-tengo-0.6.0.apk');
+      expect(ruta, '${carpeta.path}/fall-alert-0.6.0.apk');
       expect(File(ruta).readAsBytesSync(), bytesApk);
       expect(estado(c).fase, FaseActualizacion.quieta);
       expect(estado(c).error, isNull);
@@ -200,7 +200,7 @@ void main() {
       await c.read(actualizacionProvider.notifier).actualizar();
       expect(instalador.instalados, isEmpty);
       expect(estado(c).error, ErrorActualizacion.verificacion);
-      expect(File('${carpeta.path}/te-tengo-0.6.0.apk').existsSync(), isFalse);
+      expect(File('${carpeta.path}/fall-alert-0.6.0.apk').existsSync(), isFalse);
       expect(estado(c).apkVerificado, isNull);
     });
 
@@ -210,7 +210,7 @@ void main() {
       await c.read(actualizacionProvider.notifier).actualizar();
       expect(estado(c).error, ErrorActualizacion.descarga);
       expect(instalador.instalados, isEmpty);
-      expect(File('${carpeta.path}/te-tengo-0.6.0.apk').existsSync(), isFalse);
+      expect(File('${carpeta.path}/fall-alert-0.6.0.apk').existsSync(), isFalse);
     });
 
     test('sin conexión: «Sin internet»', () async {
@@ -383,14 +383,14 @@ void main() {
   });
 
   group('al abrir', () {
-    test('«Te Tengo se actualizó · Versión 0.6.0.»', () async {
+    test('«Fall Alert se actualizó · Versión 0.6.0.»', () async {
       await cache.guardar(claveActualizacionPedida, '0.5.0');
       final c = contenedor(
         info: const InfoApp(version: '0.6.0', canal: Canal.apk),
       );
       await c.read(actualizacionProvider.notifier).alAbrir();
       final aviso = c.read(avisoFlotanteProvider);
-      expect(aviso!.titulo, 'Te Tengo se actualizó');
+      expect(aviso!.titulo, 'Fall Alert se actualizó');
       expect(aviso.texto, 'Versión 0.6.0.');
       expect(await cache.leer(claveActualizacionPedida), '');
     });
@@ -403,7 +403,7 @@ void main() {
     });
 
     test('borra las descargas anteriores', () async {
-      File('${carpeta.path}/te-tengo-0.4.0.apk').writeAsStringSync('x');
+      File('${carpeta.path}/fall-alert-0.4.0.apk').writeAsStringSync('x');
       final c = contenedor();
       await c.read(actualizacionProvider.notifier).alAbrir();
       await Future<void>.delayed(const Duration(milliseconds: 20));

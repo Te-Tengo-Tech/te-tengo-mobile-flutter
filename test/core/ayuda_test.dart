@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/tema/tema.dart';
-import 'package:te_tengo/core/ui/ayuda.dart';
-import 'package:te_tengo/l10n/l10n.dart';
+import 'package:caregiver_app/app/tema/tema.dart';
+import 'package:caregiver_app/core/ui/ayuda.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
 
 const _texto = 'Nadie puede borrar ni cambiar este registro.';
 
 Widget _pantalla({bool largo = false}) => MaterialApp(
   localizationsDelegates: delegadosDeTextos,
   supportedLocales: idiomasDeLaApp,
-  theme: temaTeTengo(),
+  theme: temaCaregiver(),
   home: Scaffold(
     appBar: AppBar(
       title: const Text('Actividad'),
@@ -102,7 +102,7 @@ void main() {
       MaterialApp(
         localizationsDelegates: delegadosDeTextos,
         supportedLocales: idiomasDeLaApp,
-        theme: temaTeTengo(),
+        theme: temaCaregiver(),
         home: Scaffold(
           body: ListView(
             children: const [

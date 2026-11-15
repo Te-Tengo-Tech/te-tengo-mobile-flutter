@@ -3,11 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 /// Firebase web app config and the Web Push (VAPID) key, given at build time (docs/WEB_PWA.md):
 ///
 /// ```
-/// flutter build web --dart-define-from-file=$HOME/.config/te-tengo/firebase-web.env
+/// flutter build web --dart-define-from-file=$HOME/.config/fall-alert/firebase-web.env
 /// ```
 ///
 /// The define names are the keys of that `.env` file (Firebase console › Project settings › Your
-/// apps › «Te Tengo Web»). None of them is a secret, but none is committed either: without them push
+/// apps › «Fall Alert Web»). None of them is a secret, but none is committed either: without them push
 /// is unavailable on the web and everything else works.
 class ConfiguracionFirebaseWeb {
   const ConfiguracionFirebaseWeb({

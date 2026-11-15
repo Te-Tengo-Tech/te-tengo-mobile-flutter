@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/ui/chips.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/alertas/presentation/etiquetas.dart';
-import 'package:te_tengo/features/alertas/presentation/pantalla_detalle_alerta.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/historial/domain/filtro_historial.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/ui/chips.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/alertas/presentation/etiquetas.dart';
+import 'package:caregiver_app/features/alertas/presentation/pantalla_detalle_alerta.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/historial/domain/filtro_historial.dart';
 
 import '../apoyo/app_de_prueba.dart';
 import 'alertas/alertas_falso.dart';

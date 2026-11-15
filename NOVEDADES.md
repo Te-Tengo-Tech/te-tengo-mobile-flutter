@@ -1,6 +1,6 @@
 # Novedades
 
-«Qué cambió» of each version of the Te Tengo app, as the family reads it when the app says «Hay una versión nueva» (US-43). When a version reaches production, `produccion.yml` publishes the lines of its section with the version for the apps (`versiones/pwa.json`, `apk.json`, `play.json` and `ios.json`, read by `GET /api/versiones`; docs/RELEASES.md).
+«Qué cambió» of each version of the Fall Alert app, as the family reads it when the app says «Hay una versión nueva» (US-43). When a version reaches production, `produccion.yml` publishes the lines of its section with the version for the apps (`versiones/pwa.json`, `apk.json`, `play.json` and `ios.json`, read by `GET /api/versiones`; docs/RELEASES.md).
 
 - One section per version, `## [x.y.z]`, written on the release branch before merging it (rename `[Unreleased]`).
 - Each line starts with `- `: one short sentence in Spanish for a family member, at most 10 lines of 200 characters; what changed for them, not how (the CHANGELOG is the technical record).
@@ -24,5 +24,5 @@
 
 ## [0.7.0]
 
-- Ahora Te Tengo te avisa cuando una PC se restablece o se desinstala.
+- Ahora Fall Alert te avisa cuando una PC se restablece o se desinstala.
 - Las PC que se quitan de la casa desaparecen de «PCs y cámaras».

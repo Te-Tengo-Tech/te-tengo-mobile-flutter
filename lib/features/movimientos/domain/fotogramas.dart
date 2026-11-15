@@ -18,7 +18,7 @@ const huesos = [
   (11, 13), (13, 15), (12, 14), (14, 16), // legs
 ];
 
-/// Reads one light movement file (TTMOV v1, contract §11, written by Te Tengo Captura next to
+/// Reads one light movement file (TTMOV v1, contract §11, written by Fall Alert Captura next to
 /// each Parquet file) into frames: `DecodificadorTtmov`.
 abstract interface class DecodificadorMovimientos {
   /// [bytes] already checked against the file's `sha256`.

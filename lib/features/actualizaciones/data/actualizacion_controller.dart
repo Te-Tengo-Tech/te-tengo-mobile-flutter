@@ -19,7 +19,7 @@ import 'plataforma.dart';
 import 'versiones_repositorio.dart';
 
 /// The version this phone had when the family chose «Actualizar»: the next start with a newer
-/// version shows «Te Tengo se actualizó». A device key, kept on sign-out.
+/// version shows «Fall Alert se actualizó». A device key, kept on sign-out.
 const claveActualizacionPedida = 'dispositivo|actualizacion-desde';
 
 /// This app's update (US-43): asks `GET /api/versiones`, and runs the channel's path when the
@@ -90,7 +90,7 @@ class ActualizacionController extends Notifier<EstadoActualizacion> {
         actual == ErrorActualizacion.sinInternetAlBuscar ? null : actual;
   }
 
-  /// At start: «Te Tengo se actualizó · Versión 0.6.0.» when this app is newer than the one that
+  /// At start: «Fall Alert se actualizó · Versión 0.6.0.» when this app is newer than the one that
   /// chose «Actualizar», and the downloads of earlier updates are deleted.
   Future<void> alAbrir() async {
     final info = await ref.read(infoAppProvider.future);
@@ -203,7 +203,7 @@ class ActualizacionController extends Notifier<EstadoActualizacion> {
       return;
     }
     final carpeta = await ref.read(carpetaActualizacionesProvider.future);
-    final destino = File('${carpeta.path}/te-tengo-${v.version}.apk');
+    final destino = File('${carpeta.path}/fall-alert-${v.version}.apk');
     final cancelacion = _cancelacion = CancelToken();
     state = state.copiar(
       fase: FaseActualizacion.descargando,
@@ -345,7 +345,7 @@ final actualizacionProvider =
       ActualizacionController.new,
     );
 
-/// The last published versions, for the PCs' Te Tengo Captura (CA-43.7).
+/// The last published versions, for the PCs' Fall Alert Captura (CA-43.7).
 final versionesPublicadasProvider = Provider<Versiones?>(
   (ref) => ref.watch(actualizacionProvider.select((e) => e.versiones)),
 );

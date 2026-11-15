@@ -1,7 +1,7 @@
-// Te Tengo service worker: the web app's only worker (docs/WEB_PWA.md).
+// Fall Alert service worker: the web app's only worker (docs/WEB_PWA.md).
 //
 // - Registered from Dart (lib/core/web/navegador_web.dart) at the base href scope: / on
-//   https://app.tetengo.reqsai.tech/. Flutter's own flutter_service_worker.js
+//   https://app.example.org/. Flutter's own flutter_service_worker.js
 //   is deprecated and not registered (web/flutter_bootstrap.js).
 // - Offline: network first for the app files, falling back to the last copy kept.
 // - Push: FCM web push when the URL carries the Firebase web config
@@ -17,7 +17,7 @@
 // Keep it equal to the version in pubspec.lock's firebase_core_web when upgrading FlutterFire.
 const FIREBASE_SDK = '12.19.0';
 
-const CACHE = 'te-tengo-app-v1';
+const CACHE = 'fall-alert-app-v1';
 const ALCANCE = self.registration.scope;
 
 // The app shell, so the second visit already works offline.
@@ -111,7 +111,7 @@ self.addEventListener('push', (evento) => {
   const urgente = aviso.requireInteraction === true || URGENTES.has(datos.tipo);
   evento.waitUntil(
     Promise.all([
-      self.registration.showNotification(aviso.title || 'Te Tengo', {
+      self.registration.showNotification(aviso.title || 'Fall Alert', {
         body: aviso.body || '',
         icon: aviso.icon || new URL('icons/Icon-192.png', ALCANCE).href,
         tag,

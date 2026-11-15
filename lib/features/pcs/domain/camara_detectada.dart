@@ -110,7 +110,7 @@ class CamaraDeAmbiente {
 }
 
 /// Room names that mean a bathroom (contract §9: baño, servicios higiénicos, SS.HH., WC, aseo…),
-/// the same words as the backend's rule, so the app says «Por privacidad, Te Tengo no admite cámaras
+/// the same words as the backend's rule, so the app says «Por privacidad, Fall Alert no admite cámaras
 /// en el baño.» before sending them.
 bool esBano(String nombre) {
   const tildes = {

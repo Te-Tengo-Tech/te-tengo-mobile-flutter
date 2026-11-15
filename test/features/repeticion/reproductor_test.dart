@@ -7,25 +7,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/alertas/domain/alerta.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/presentation/pantalla_camara.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/movimientos/data/fuente_fotogramas.dart';
-import 'package:te_tengo/features/movimientos/data/movimientos_repositorio.dart';
-import 'package:te_tengo/features/movimientos/domain/fotogramas.dart';
-import 'package:te_tengo/features/movimientos/presentation/esqueleto.dart';
-import 'package:te_tengo/features/repeticion/data/repeticiones_repositorio.dart';
-import 'package:te_tengo/features/repeticion/domain/repeticion.dart';
-import 'package:te_tengo/features/repeticion/presentation/reproductor_camara.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/alertas/domain/alerta.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/camaras/presentation/pantalla_camara.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/movimientos/data/fuente_fotogramas.dart';
+import 'package:caregiver_app/features/movimientos/data/movimientos_repositorio.dart';
+import 'package:caregiver_app/features/movimientos/domain/fotogramas.dart';
+import 'package:caregiver_app/features/movimientos/presentation/esqueleto.dart';
+import 'package:caregiver_app/features/repeticion/data/repeticiones_repositorio.dart';
+import 'package:caregiver_app/features/repeticion/domain/repeticion.dart';
+import 'package:caregiver_app/features/repeticion/presentation/reproductor_camara.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -180,16 +180,16 @@ void main() {
         );
         alertas.enlaces.add(
           const EnlaceClip(
-            url: 'https://clips.tetengo.pe/a-caida.mp4',
-            puntos: 'https://clips.tetengo.pe/a-caida.landmarks.parquet',
-            puntosLigeros: 'https://clips.tetengo.pe/a-caida.landmarks.ttmov',
+            url: 'https://clips.example.org/a-caida.mp4',
+            puntos: 'https://clips.example.org/a-caida.landmarks.parquet',
+            puntosLigeros: 'https://clips.example.org/a-caida.landmarks.ttmov',
           ),
         );
         await abrir(tester, Rutas.camara('c1'), fuente: fuente);
         expect(momento('Hoy 10:41:52'), findsOneWidget);
         expect(alertas.clips, ['a-caida']);
         expect(fuente.cargadas, [
-          'https://clips.tetengo.pe/a-caida.landmarks.ttmov',
+          'https://clips.example.org/a-caida.landmarks.ttmov',
         ]);
         expect(
           find.byWidgetPredicate(
@@ -382,7 +382,7 @@ void main() {
     testWidgets('sin internet lo dice', (tester) async {
       repeticiones.errorCrear = const ProblemaApi(
         codigo: ProblemaApi.sinConexion,
-        detalle: 'No hay conexión con Te Tengo. Revisa tu internet.',
+        detalle: 'No hay conexión con Fall Alert. Revisa tu internet.',
       );
       await abrir(tester, Rutas.camara('c1'));
       await tester.tap(find.bySemanticsLabel('Reproducir'));

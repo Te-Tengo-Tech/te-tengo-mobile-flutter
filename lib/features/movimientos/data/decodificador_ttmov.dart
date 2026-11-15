@@ -6,7 +6,7 @@ import 'package:archive/archive.dart';
 import '../domain/fotogramas.dart';
 
 /// The light replay format TTMOV v1 (contract §11, «Light replay format»; backend ADR 0011): what
-/// Te Tengo Captura uploads next to each Parquet movement file and each clip's landmarks, so the
+/// Fall Alert Captura uploads next to each Parquet movement file and each clip's landmarks, so the
 /// app can draw them on Android, iOS and the web. Pure Dart: gzip through `package:archive`
 /// (`dart:io`'s zlib on the phones, its own inflate on the web), then a little-endian payload.
 class ArchivoTtmov {

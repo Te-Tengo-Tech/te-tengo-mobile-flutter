@@ -1,6 +1,6 @@
 # App updates (US-43)
 
-How the app learns about a new version of itself and of Te Tengo Captura, and how each platform
+How the app learns about a new version of itself and of Fall Alert Captura, and how each platform
 updates. Code: `lib/features/actualizaciones/`; API: `GET /api/versiones` (contract §12).
 
 ## Checking
@@ -10,7 +10,7 @@ updates. Code: `lib/features/actualizaciones/`; API: `GET /api/versiones` (contr
   `If-None-Match` with the last `ETag` and reuses the last answer on `304`; the browser revalidates by
   itself (and `If-None-Match` is not a header the API's CORS allows).
 - **When** (`PlanBusqueda`, **[implementation choice]**): when the app opens, once a day while it stays
-  open, on «Buscar actualizaciones» in Ajustes › «Acerca de Te Tengo», and when it comes back from the
+  open, on «Buscar actualizaciones» in Ajustes › «Acerca de Fall Alert», and when it comes back from the
   background if the last answer is older than the API's `max-age` (5 minutes).
 - **Which channel** (`infoAppProvider`, `canalPara`): the web app reads `pwa`; Android reads `play` when
   Google Play installed it (`package_info_plus`'s `installerStore` is `com.android.vending`) and `apk`
@@ -40,9 +40,9 @@ it such as «Ver todas») is open:
 One component (`BarraActualizacion`) above the content of the four tabs, never on an alert or a live
 view: «Hay una versión nueva · Actualizar» (PWA, Google Play), «Hay una versión nueva (0.6.0)» with «Qué
 cambió» (APK), «Hay una versión nueva · TestFlight/App Store» with «Abrir» (iPhone); the same bar shows
-the download, its check and the errors. «Acerca de Te Tengo» shows the version and platform, the same
-states as cards, «Buscar actualizaciones», and «PCs de la casa» with each PC's Te Tengo Captura. After an
-update, the next start says «Te Tengo se actualizó · Versión 0.6.0.» (the version that chose
+the download, its check and the errors. «Acerca de Fall Alert» shows the version and platform, the same
+states as cards, «Buscar actualizaciones», and «PCs de la casa» with each PC's Fall Alert Captura. After an
+update, the next start says «Fall Alert se actualizó · Versión 0.6.0.» (the version that chose
 «Actualizar» is kept under the device key `dispositivo|actualizacion-desde`).
 
 ## Per platform
@@ -64,7 +64,7 @@ and reloads the page, which revalidates every file and loads the new build.
 4. The Android installer opens with the file through the app's FileProvider
    (`${applicationId}.actualizaciones`, `res/xml/actualizaciones.xml`) and a temporary read grant
    (`ACTION_INSTALL_PACKAGE` with `EXTRA_RETURN_RESULT`, `MainActivity`, channel
-   `tech.tetengo.te_tengo/actualizaciones`). If the family cancels it, «No se instaló · Cancelaste la
+   `org.example.caregiver_app/actualizaciones`). If the family cancels it, «No se instaló · Cancelaste la
    instalación.»; «Actualizar» opens the installer again with the same verified file, without
    downloading it again.
 5. Errors keep the installed version: «Sin internet · No se pudo descargar.», «No se pudo descargar ·
@@ -97,7 +97,7 @@ except that «Abrir la tienda» falls back to the store page (`url`).
 minimum-version screen) opens `url` outside the app. The app never downloads anything.
 
 ## Minimum version (CA-43.8)
-Below `versionMinima` the app is covered by «Actualiza Te Tengo para seguir recibiendo alertas» / «Tienes
+Below `versionMinima` the app is covered by «Actualiza Fall Alert para seguir recibiendo alertas» / «Tienes
 la 0.5.0. Toma un minuto.» with the platform's path («Abrir la tienda» and «Se abre Google Play.» / «Se
 abre App Store.» / «Se abre TestFlight.»; «Actualizar» for the APK, with its download and errors on the
 screen, and for the PWA) and «Llamar a Rosa». The app stays built underneath, so an active alert still
@@ -106,11 +106,11 @@ permission screen are never covered, and the active alert strip is shown on the 
 
 ## The PCs (CA-43.7)
 Each PC's `versionAgente` is compared with `windows` or `mac` by its `sistemaOperativo`. An older one
-reads «Versión anterior (0.4.3)» in «PCs de la casa» (Cámaras), «Te Tengo Captura 0.4.3 · versión
+reads «Versión anterior (0.4.3)» in «PCs de la casa» (Cámaras), «Fall Alert Captura 0.4.3 · versión
 anterior» in the PC's header, and its detail says «Se actualizará sola.» (`actualizacionAutomatica:
 true`) or «Pide a quien está en la casa que la actualice.» (`false`). A PC that never said (`null`, an
-older Te Tengo Captura) shows the title only **[implementation choice]**. Activity shows `PC_ACTUALIZADA`
-«Sala-Rosa se actualizó a 0.5.0» (who: Te Tengo Captura; before → after) and
+older Fall Alert Captura) shows the title only **[implementation choice]**. Activity shows `PC_ACTUALIZADA`
+«Sala-Rosa se actualizó a 0.5.0» (who: Fall Alert Captura; before → after) and
 `ACTUALIZACION_AUTOMATICA_ACTIVADA/_DESACTIVADA` «Desde la PC Sala-Rosa: se activó / se desactivó la
 actualización automática».
 

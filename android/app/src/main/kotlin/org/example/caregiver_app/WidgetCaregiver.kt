@@ -1,4 +1,4 @@
-package tech.tetengo.te_tengo
+package org.example.caregiver_app
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -12,12 +12,12 @@ import es.antonborri.home_widget.HomeWidgetLaunchIntent
 import es.antonborri.home_widget.HomeWidgetProvider
 
 /**
- * The home-screen widget of Te Tengo (US-44): the older adult's state as the app last saved it
+ * The home-screen widget of Fall Alert (US-44): the older adult's state as the app last saved it
  * (`lib/features/widget`), never an image of the home (CA-44.1). A tap opens the app on the active
  * alert, «Cámaras» or Inicio, and «Ver en vivo» opens it on the room picker; the widget never opens
  * the live view by itself (CA-44.2). Signed out, it only asks to open the app (CA-44.3).
  */
-abstract class WidgetTeTengo(private val diseno: Int) : HomeWidgetProvider() {
+abstract class WidgetCaregiver(private val diseno: Int) : HomeWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -38,7 +38,7 @@ abstract class WidgetTeTengo(private val diseno: Int) : HomeWidgetProvider() {
         val linea = datos.getString("tt_linea", null) ?: context.getString(R.string.widget_cargando)
         v.setTextViewText(R.id.titulo, titulo)
         v.setTextViewText(R.id.linea, linea)
-        if (diseno == R.layout.widget_te_tengo_grande) {
+        if (diseno == R.layout.widget_caregiver_app_grande) {
             v.setTextViewText(R.id.actualizado, datos.getString("tt_actualizado", "") ?: "")
         }
         v.setTextViewText(R.id.iniciales, datos.getString("tt_iniciales", "") ?: "")
@@ -88,7 +88,7 @@ abstract class WidgetTeTengo(private val diseno: Int) : HomeWidgetProvider() {
 
         v.setViewVisibility(R.id.foto, if (conSesion) View.VISIBLE else View.GONE)
         v.setViewVisibility(R.id.ver_en_vivo, if (conSesion) View.VISIBLE else View.GONE)
-        v.setContentDescription(R.id.raiz, "Te Tengo: $titulo, $linea. Abrir la app")
+        v.setContentDescription(R.id.raiz, "Fall Alert: $titulo, $linea. Abrir la app")
 
         val destino = datos.getString("tt_destino", "/inicio") ?: "/inicio"
         v.setOnClickPendingIntent(
@@ -96,7 +96,7 @@ abstract class WidgetTeTengo(private val diseno: Int) : HomeWidgetProvider() {
             HomeWidgetLaunchIntent.getActivity(
                 context,
                 MainActivity::class.java,
-                Uri.parse("tetengo-widget://abrir?ir=" + Uri.encode(destino)),
+                Uri.parse("example-widget://abrir?ir=" + Uri.encode(destino)),
             ),
         )
         v.setOnClickPendingIntent(
@@ -104,7 +104,7 @@ abstract class WidgetTeTengo(private val diseno: Int) : HomeWidgetProvider() {
             HomeWidgetLaunchIntent.getActivity(
                 context,
                 MainActivity::class.java,
-                Uri.parse("tetengo-widget://abrir?ir=%2Finicio&vivo=1"),
+                Uri.parse("example-widget://abrir?ir=%2Finicio&vivo=1"),
             ),
         )
         return v
@@ -112,7 +112,7 @@ abstract class WidgetTeTengo(private val diseno: Int) : HomeWidgetProvider() {
 
     /** The texts of this size: the 2 × 2 has no brand line nor time. */
     private fun textos(): List<Int> =
-        if (diseno == R.layout.widget_te_tengo_grande) {
+        if (diseno == R.layout.widget_caregiver_app_grande) {
             listOf(R.id.titulo, R.id.linea, R.id.marca, R.id.actualizado)
         } else {
             listOf(R.id.titulo, R.id.linea)
@@ -126,7 +126,7 @@ abstract class WidgetTeTengo(private val diseno: Int) : HomeWidgetProvider() {
 }
 
 /** 4 × 2. */
-class WidgetTeTengoGrande : WidgetTeTengo(R.layout.widget_te_tengo_grande)
+class WidgetCaregiverGrande : WidgetCaregiver(R.layout.widget_caregiver_app_grande)
 
 /** 2 × 2. */
-class WidgetTeTengoPequeno : WidgetTeTengo(R.layout.widget_te_tengo_pequeno)
+class WidgetCaregiverPequeno : WidgetCaregiver(R.layout.widget_caregiver_app_pequeno)

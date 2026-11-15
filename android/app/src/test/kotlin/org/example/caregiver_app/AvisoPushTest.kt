@@ -1,4 +1,4 @@
-package tech.tetengo.te_tengo
+package org.example.caregiver_app
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

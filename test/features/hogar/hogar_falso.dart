@@ -1,7 +1,7 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/hogar/domain/hogar.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/hogar/domain/hogar.dart';
 
 const rosa = AdultoMayor(
   nombre: 'Rosa Huamán',

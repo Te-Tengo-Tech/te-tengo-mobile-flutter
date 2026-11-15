@@ -32,7 +32,7 @@ enum _Estado {
   /// The camera preview with the frame (screen 125).
   escaneando,
 
-  /// A Te Tengo QR was read: looking up the PC (screen 126).
+  /// A Fall Alert QR was read: looking up the PC (screen 126).
   buscando,
 
   /// The camera is blocked for the app (screen 124).

@@ -11,7 +11,7 @@ import '../data/actualizacion_controller.dart';
 import '../domain/versiones.dart';
 import '../../../core/ui/ayuda.dart';
 
-/// The PC runs an older Te Tengo Captura than the published one for its system (CA-43.7).
+/// The PC runs an older Fall Alert Captura than the published one for its system (CA-43.7).
 bool pcConVersionAnterior(Pc pc, Versiones? versiones) =>
     estadoVersionPc(
       versiones,
@@ -41,7 +41,7 @@ class EtiquetaVersionPc extends ConsumerWidget {
 
 /// The notice of the PC's detail (screens 387 and 388): «Se actualizará sola.» when the PC updates
 /// itself, or «Pide a quien está en la casa que la actualice.» when the family turned that off
-/// (`actualizacionAutomatica: false`, CA-43.7). A PC that never said (`null`, an older Te Tengo
+/// (`actualizacionAutomatica: false`, CA-43.7). A PC that never said (`null`, an older Fall Alert
 /// Captura) shows the title only **[implementation choice]**.
 class AvisoVersionPc extends ConsumerWidget {
   const AvisoVersionPc({super.key, required this.pc});
@@ -89,7 +89,7 @@ class AvisoVersionPc extends ConsumerWidget {
   }
 }
 
-/// «Te Tengo Captura 0.4.3 · versión anterior» in the PC's header (screen 387).
+/// «Fall Alert Captura 0.4.3 · versión anterior» in the PC's header (screen 387).
 InlineSpan? programaConVersion(
   BuildContext context,
   Pc pc,

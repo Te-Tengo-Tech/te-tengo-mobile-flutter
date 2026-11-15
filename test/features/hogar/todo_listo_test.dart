@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/web/entorno.dart';
-import 'package:te_tengo/features/ajustes/presentation/permiso_avisos.dart';
-import 'package:te_tengo/features/instalar/presentation/instalar_app.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/web/entorno.dart';
+import 'package:caregiver_app/features/ajustes/presentation/permiso_avisos.dart';
+import 'package:caregiver_app/features/instalar/presentation/instalar_app.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/dispositivo_falso.dart';

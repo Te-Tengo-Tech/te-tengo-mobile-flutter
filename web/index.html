@@ -2,27 +2,27 @@
 <html lang="es-PE">
 <head>
   <!--
-    Replaced by `flutter build web --base-href /` (root of https://app.tetengo.reqsai.tech/).
+    Replaced by `flutter build web --base-href /` (root of https://app.example.org/).
     Every relative URL below (manifest, icons, service worker) resolves against it. See docs/WEB_PWA.md.
   -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Te Tengo. Cerca de los tuyos, aunque estés lejos.">
+  <meta name="description" content="Fall Alert. Cerca de los tuyos, aunque estés lejos.">
   <meta name="theme-color" content="#4B2E83">
 
   <!-- Installable web app (Android) and iOS home-screen web app: push only works once installed. -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Te Tengo">
+  <meta name="apple-mobile-web-app-title" content="Fall Alert">
   <meta name="format-detection" content="telephone=no">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <link rel="icon" type="image/png" href="favicon.png">
 
-  <title>Te Tengo</title>
+  <title>Fall Alert</title>
   <link rel="manifest" href="manifest.json">
 
   <!--
@@ -51,7 +51,7 @@
           crossorigin="anonymous"></script>
 
   <!--
-    The QR of Te Tengo Captura is a path URL, /vincular?codigo=… (API contract §9, US-28), while the
+    The QR of Fall Alert Captura is a path URL, /vincular?codigo=… (API contract §9, US-28), while the
     app routes with hash URLs: before Flutter starts, /vincular?… becomes /#/vincular?…, which opens
     the PC's approval screen. deploy/pwa/_redirects serves this page at /vincular. See docs/WEB_PWA.md.
   -->

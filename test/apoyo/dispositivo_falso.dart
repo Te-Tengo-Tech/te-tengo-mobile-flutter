@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:te_tengo/core/dispositivo/conectividad.dart';
-import 'package:te_tengo/core/dispositivo/permiso_notificaciones.dart';
+import 'package:caregiver_app/core/dispositivo/conectividad.dart';
+import 'package:caregiver_app/core/dispositivo/permiso_notificaciones.dart';
 
 class PermisoFalso implements PermisoNotificaciones {
   PermisoFalso({

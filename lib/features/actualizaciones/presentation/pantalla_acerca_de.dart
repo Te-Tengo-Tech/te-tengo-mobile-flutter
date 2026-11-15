@@ -30,9 +30,9 @@ String comoSeActualiza(AppLocalizations l, Canal canal) => switch (canal) {
   Canal.ios => l.acercaDeComoIos,
 };
 
-/// Ajustes › «Acerca de Te Tengo» (screens 379 to 385): the version and the platform,
+/// Ajustes › «Acerca de Fall Alert» (screens 379 to 385): the version and the platform,
 /// «Actualizaciones» (look for one, the new version with «Qué cambió» and its action, or the
-/// download and its errors) and «PCs de la casa» with each PC's Te Tengo Captura (CA-43.4 to
+/// download and its errors) and «PCs de la casa» with each PC's Fall Alert Captura (CA-43.4 to
 /// CA-43.7).
 class PantallaAcercaDe extends ConsumerWidget {
   const PantallaAcercaDe({super.key});
@@ -63,7 +63,7 @@ class PantallaAcercaDe extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Te Tengo',
+                        'Fall Alert',
                         style: estiloTexto(22, 800, color: c.tinta),
                       ),
                       if (info != null) ...[
@@ -379,8 +379,8 @@ class TarjetaSituacion extends ConsumerWidget {
   }
 }
 
-/// «PCs de la casa» (screens 379 and 382): «Todas al día · Te Tengo Captura 0.5.0» or «1 PC con
-/// versión anterior», and each PC with its Te Tengo Captura.
+/// «PCs de la casa» (screens 379 and 382): «Todas al día · Fall Alert Captura 0.5.0» or «1 PC con
+/// versión anterior», and each PC with its Fall Alert Captura.
 class _PcsDeLaCasa extends StatelessWidget {
   const _PcsDeLaCasa({required this.pcs, required this.versiones});
 

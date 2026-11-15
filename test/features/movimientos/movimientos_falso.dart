@@ -1,6 +1,6 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/features/movimientos/data/movimientos_repositorio.dart';
-import 'package:te_tengo/features/movimientos/domain/movimientos.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/features/movimientos/data/movimientos_repositorio.dart';
+import 'package:caregiver_app/features/movimientos/domain/movimientos.dart';
 
 final constanciaRosa = ConstanciaMovimientos(
   otorgadoEn: DateTime(2026, 8, 24, 10, 15),

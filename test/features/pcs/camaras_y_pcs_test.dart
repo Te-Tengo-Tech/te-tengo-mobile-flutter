@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/push.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/notificaciones/mensaje_push.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/pcs/presentation/piezas_pc.dart';
-import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
-import 'package:te_tengo/features/pcs/domain/camaras_en_casa.dart';
-import 'package:te_tengo/features/pcs/domain/pc.dart';
-import 'package:te_tengo/features/vivo/data/vista_en_vivo_repositorio.dart';
-import 'package:te_tengo/features/vivo/presentation/reproductor_vivo.dart';
-import 'package:te_tengo/features/vivo/presentation/reproductor_webrtc.dart';
-import 'package:te_tengo/l10n/l10n.dart';
+import 'package:caregiver_app/app/push.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/notificaciones/mensaje_push.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/pcs/presentation/piezas_pc.dart';
+import 'package:caregiver_app/features/pcs/data/pcs_repositorio.dart';
+import 'package:caregiver_app/features/pcs/domain/camaras_en_casa.dart';
+import 'package:caregiver_app/features/pcs/domain/pc.dart';
+import 'package:caregiver_app/features/vivo/data/vista_en_vivo_repositorio.dart';
+import 'package:caregiver_app/features/vivo/presentation/reproductor_vivo.dart';
+import 'package:caregiver_app/features/vivo/presentation/reproductor_webrtc.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
 
 import '../../apoyo/app_de_prueba.dart';
 import '../../apoyo/datos.dart';
@@ -434,7 +434,7 @@ void main() {
     testWidgets('CA-30.2: su versión, sus datos y sus cámaras', (tester) async {
       await abrir(tester, Rutas.pc('pc-sala'));
       expect(find.text('Windows 11 Home'), findsOneWidget);
-      expect(find.text('Te Tengo Captura 0.5.0'), findsWidgets);
+      expect(find.text('Fall Alert Captura 0.5.0'), findsWidgets);
       expect(find.text('03/08/2026 por Carmen'), findsOneWidget);
       expect(find.text('Cámaras de esta PC'), findsOneWidget);
       await verHasta(tester, find.text('Usa otra cámara o deja de usar una'));

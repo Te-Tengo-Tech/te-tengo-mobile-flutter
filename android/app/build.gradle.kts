@@ -40,7 +40,7 @@ if (paraGooglePlay) {
 }
 
 android {
-    namespace = "tech.tetengo.te_tengo"
+    namespace = "org.example.caregiver_app"
     // permission_handler_android requires compiling against API 37 (checkReleaseAarMetadata fails
     // with Flutter 3.44's default of 36). compileSdk only exposes newer APIs: targetSdk and minSdk,
     // which change runtime behavior and supported devices, stay at Flutter's defaults.
@@ -54,7 +54,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "tech.tetengo.te_tengo"
+        applicationId = "org.example.caregiver_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

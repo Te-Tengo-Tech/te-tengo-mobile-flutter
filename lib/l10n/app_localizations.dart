@@ -1113,7 +1113,7 @@ abstract class AppLocalizations {
   /// No description provided for @acercaDeFila.
   ///
   /// In es, this message translates to:
-  /// **'Acerca de Te Tengo'**
+  /// **'Acerca de Fall Alert'**
   String get acercaDeFila;
 
   /// No description provided for @acercaDeVersion.
@@ -1149,7 +1149,7 @@ abstract class AppLocalizations {
   /// No description provided for @acercaDePcsAyuda.
   ///
   /// In es, this message translates to:
-  /// **'Cada PC actualiza Te Tengo Captura por su cuenta.'**
+  /// **'Cada PC actualiza Fall Alert Captura por su cuenta.'**
   String get acercaDePcsAyuda;
 
   /// Topic of the «?» button.
@@ -1167,10 +1167,10 @@ abstract class AppLocalizations {
   /// No description provided for @acercaDeTodasAlDia.
   ///
   /// In es, this message translates to:
-  /// **'Todas al día · Te Tengo Captura {version}'**
+  /// **'Todas al día · Fall Alert Captura {version}'**
   String acercaDeTodasAlDia(String version);
 
-  /// Te Tengo Captura (the PC program, a brand) and its version.
+  /// Fall Alert Captura (the PC program, a brand) and its version.
   ///
   /// In es, this message translates to:
   /// **'Captura {version}'**
@@ -1407,7 +1407,7 @@ abstract class AppLocalizations {
   /// No description provided for @actualizacionSeActualizo.
   ///
   /// In es, this message translates to:
-  /// **'Te Tengo se actualizó'**
+  /// **'Fall Alert se actualizó'**
   String get actualizacionSeActualizo;
 
   /// No description provided for @actualizacionVersionPunto.
@@ -1419,7 +1419,7 @@ abstract class AppLocalizations {
   /// No description provided for @actualizacionObligatoriaTitulo.
   ///
   /// In es, this message translates to:
-  /// **'Actualiza Te Tengo para seguir recibiendo alertas'**
+  /// **'Actualiza Fall Alert para seguir recibiendo alertas'**
   String get actualizacionObligatoriaTitulo;
 
   /// No description provided for @actualizacionObligatoriaTienes.
@@ -1497,7 +1497,7 @@ abstract class AppLocalizations {
   /// No description provided for @actualizacionPermisoAyuda.
   ///
   /// In es, this message translates to:
-  /// **'Te Tengo no viene de una tienda, así que Android pide permiso para instalar sus versiones nuevas. Solo acepta las firmadas por Te Tengo.'**
+  /// **'Fall Alert no viene de una tienda, así que Android pide permiso para instalar sus versiones nuevas. Solo acepta las firmadas por Fall Alert.'**
   String get actualizacionPermisoAyuda;
 
   /// Topic of the «?» button.
@@ -1521,7 +1521,7 @@ abstract class AppLocalizations {
   /// No description provided for @actualizacionPasoVolver.
   ///
   /// In es, this message translates to:
-  /// **'Vuelve a Te Tengo.'**
+  /// **'Vuelve a Fall Alert.'**
   String get actualizacionPasoVolver;
 
   /// No description provided for @actualizacionAbrirAjustes.
@@ -1548,7 +1548,7 @@ abstract class AppLocalizations {
   /// **'Pide a quien está en la casa que la actualice. '**
   String get actualizacionPideActualizar;
 
-  /// The quoted labels are those of the PC program (Te Tengo Captura), which is in Spanish.
+  /// The quoted labels are those of the PC program (Fall Alert Captura), which is in Spanish.
   ///
   /// In es, this message translates to:
   /// **'En la PC aparece «Hay una versión nueva»: que elijan «Descargar». Se instala sola y la detección sigue.'**
@@ -2634,7 +2634,7 @@ abstract class AppLocalizations {
   /// App name (brand, never translated).
   ///
   /// In es, this message translates to:
-  /// **'Te Tengo'**
+  /// **'Fall Alert'**
   String get appTitulo;
 
   /// Camera state.
@@ -2946,7 +2946,7 @@ abstract class AppLocalizations {
   /// No description provided for @camaraNombreBano.
   ///
   /// In es, this message translates to:
-  /// **'Por privacidad, Te Tengo no admite cámaras en el baño.'**
+  /// **'Por privacidad, Fall Alert no admite cámaras en el baño.'**
   String get camaraNombreBano;
 
   /// No description provided for @camaraNombreGuardado.
@@ -3132,7 +3132,7 @@ abstract class AppLocalizations {
   /// No description provided for @camaraRevisarPcDetalle.
   ///
   /// In es, this message translates to:
-  /// **'Con Te Tengo Captura abierto'**
+  /// **'Con Fall Alert Captura abierto'**
   String get camaraRevisarPcDetalle;
 
   /// No description provided for @camaraRevisarInternet.
@@ -4631,7 +4631,7 @@ abstract class AppLocalizations {
   /// No description provided for @perfilFotosBloqueadas.
   ///
   /// In es, this message translates to:
-  /// **'Tus fotos están bloqueadas para Te Tengo'**
+  /// **'Tus fotos están bloqueadas para Fall Alert'**
   String get perfilFotosBloqueadas;
 
   /// No description provided for @perfilPermitelo.
@@ -4868,11 +4868,11 @@ abstract class AppLocalizations {
   /// **'Crear cuenta'**
   String get sesionCrearCuenta;
 
-  /// No description provided for @sesionYaTengoCuenta.
+  /// No description provided for @sesionConCuentaYa.
   ///
   /// In es, this message translates to:
   /// **'Ya tengo una cuenta'**
-  String get sesionYaTengoCuenta;
+  String get sesionConCuentaYa;
 
   /// Description of the welcome photo for screen readers.
   ///
@@ -5255,7 +5255,7 @@ abstract class AppLocalizations {
   /// LEGAL: needs human/legal review in English.
   ///
   /// In es, this message translates to:
-  /// **'Qué es Te Tengo'**
+  /// **'Qué es Fall Alert'**
   String get legalTerminosQueEsTitulo;
 
   /// LEGAL: needs human/legal review in English.
@@ -5453,7 +5453,7 @@ abstract class AppLocalizations {
   /// LEGAL: needs human/legal review in English.
   ///
   /// In es, this message translates to:
-  /// **'Ver, corregir o borrar tus datos, u oponerte a su uso (Ley N.° 29733): privacidad@tetengo.pe.'**
+  /// **'Ver, corregir o borrar tus datos, u oponerte a su uso (Ley N.° 29733): privacidad@example.org.'**
   String get legalPoliticaDerechosTexto;
 
   /// Title of the terms of use (screen and link).
@@ -6315,7 +6315,7 @@ abstract class AppLocalizations {
   /// LEGAL: needs human/legal review in English.
   ///
   /// In es, this message translates to:
-  /// **'{nombre} puede ver, corregir o borrar sus datos, u oponerse a su uso: privacidad@tetengo.pe (Ley N.° 29733).'**
+  /// **'{nombre} puede ver, corregir o borrar sus datos, u oponerse a su uso: privacidad@example.org (Ley N.° 29733).'**
   String movimientosSecDerechosTexto(String nombre);
 
   /// No description provided for @movimientosTitulo.
@@ -7227,7 +7227,7 @@ abstract class AppLocalizations {
   /// No description provided for @redSinConexion.
   ///
   /// In es, this message translates to:
-  /// **'No hay conexión con Te Tengo. Revisa tu internet.'**
+  /// **'No hay conexión con Fall Alert. Revisa tu internet.'**
   String get redSinConexion;
 
   /// No description provided for @navInicio.
@@ -7665,13 +7665,13 @@ abstract class AppLocalizations {
   /// No description provided for @instalarAvisoTitulo.
   ///
   /// In es, this message translates to:
-  /// **'Agrega Te Tengo a tu pantalla de inicio'**
+  /// **'Agrega Fall Alert a tu pantalla de inicio'**
   String get instalarAvisoTitulo;
 
   /// No description provided for @instalarAvisoTexto.
   ///
   /// In es, this message translates to:
-  /// **'En el iPhone, las alertas solo llegan si abres Te Tengo desde su ícono.'**
+  /// **'En el iPhone, las alertas solo llegan si abres Fall Alert desde su ícono.'**
   String get instalarAvisoTexto;
 
   /// No description provided for @instalarVerComo.
@@ -7689,7 +7689,7 @@ abstract class AppLocalizations {
   /// No description provided for @instalarEncabezado.
   ///
   /// In es, this message translates to:
-  /// **'Instala Te Tengo en tu iPhone'**
+  /// **'Instala Fall Alert en tu iPhone'**
   String get instalarEncabezado;
 
   /// No description provided for @instalarIntro.
@@ -7737,7 +7737,7 @@ abstract class AppLocalizations {
   /// No description provided for @instalarPaso5.
   ///
   /// In es, this message translates to:
-  /// **'Abre Te Tengo desde su ícono'**
+  /// **'Abre Fall Alert desde su ícono'**
   String get instalarPaso5;
 
   /// No description provided for @instalarPaso5Detalle.
@@ -7764,11 +7764,11 @@ abstract class AppLocalizations {
   /// **'Sin cámaras'**
   String get widgetSinCamaras;
 
-  /// No description provided for @widgetAbreTeTengo.
+  /// No description provided for @widgetAbreCaregiver.
   ///
   /// In es, this message translates to:
-  /// **'Abre Te Tengo'**
-  String get widgetAbreTeTengo;
+  /// **'Abre Fall Alert'**
+  String get widgetAbreCaregiver;
 
   /// No description provided for @widgetDeteccionDetenida.
   ///
@@ -7809,7 +7809,7 @@ abstract class AppLocalizations {
   /// No description provided for @widgetPaso2.
   ///
   /// In es, this message translates to:
-  /// **'Toca «Widgets» y busca Te Tengo.'**
+  /// **'Toca «Widgets» y busca Fall Alert.'**
   String get widgetPaso2;
 
   /// No description provided for @widgetPaso3.
@@ -7932,7 +7932,7 @@ abstract class AppLocalizations {
   /// **'Sistema'**
   String get pcsSistema;
 
-  /// Label of the row with the Te Tengo Captura version.
+  /// Label of the row with the Fall Alert Captura version.
   ///
   /// In es, this message translates to:
   /// **'Programa'**
@@ -8067,7 +8067,7 @@ abstract class AppLocalizations {
   /// No description provided for @pcsRevisarCaptura.
   ///
   /// In es, this message translates to:
-  /// **'Que Te Tengo Captura esté abierto'**
+  /// **'Que Fall Alert Captura esté abierto'**
   String get pcsRevisarCaptura;
 
   /// No description provided for @pcsRevisarCapturaDetalle.
@@ -8163,7 +8163,7 @@ abstract class AppLocalizations {
   /// No description provided for @pcsCodigoDondeEsta.
   ///
   /// In es, this message translates to:
-  /// **'Está debajo del QR, en Te Tengo Captura.'**
+  /// **'Está debajo del QR, en Fall Alert Captura.'**
   String get pcsCodigoDondeEsta;
 
   /// No description provided for @pcsContinuar.
@@ -8175,7 +8175,7 @@ abstract class AppLocalizations {
   /// No description provided for @pcsQrAjenoTitulo.
   ///
   /// In es, this message translates to:
-  /// **'Ese código no es de Te Tengo Captura'**
+  /// **'Ese código no es de Fall Alert Captura'**
   String get pcsQrAjenoTitulo;
 
   /// No description provided for @pcsQrAjenoTexto.
@@ -8211,7 +8211,7 @@ abstract class AppLocalizations {
   /// No description provided for @pcsExplicarCamara.
   ///
   /// In es, this message translates to:
-  /// **'Te Tengo usará la cámara para leer el QR.'**
+  /// **'Fall Alert usará la cámara para leer el QR.'**
   String get pcsExplicarCamara;
 
   /// No description provided for @pcsNoGuardaImagenes.
@@ -8367,7 +8367,7 @@ abstract class AppLocalizations {
   /// No description provided for @pcsPasoInstalar.
   ///
   /// In es, this message translates to:
-  /// **'Instala Te Tengo Captura en la PC'**
+  /// **'Instala Fall Alert Captura en la PC'**
   String get pcsPasoInstalar;
 
   /// pagina: the download web address.
@@ -8739,7 +8739,7 @@ abstract class AppLocalizations {
   /// No description provided for @pcsSinBano.
   ///
   /// In es, this message translates to:
-  /// **'Por privacidad, Te Tengo no admite cámaras en el baño.'**
+  /// **'Por privacidad, Fall Alert no admite cámaras en el baño.'**
   String get pcsSinBano;
 
   /// No description provided for @pcsOcupada.

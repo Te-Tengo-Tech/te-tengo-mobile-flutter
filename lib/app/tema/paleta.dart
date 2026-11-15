@@ -160,7 +160,7 @@ class Paleta extends ThemeExtension<Paleta> {
     ],
   );
 
-  static const oscuraTeTengo = Paleta(
+  static const oscuraCaregiver = Paleta(
     oscura: true,
     fondo: Color(0xFF14111B),
     fondo2: Color(0xFF1E1A27),
@@ -220,7 +220,7 @@ class Paleta extends ThemeExtension<Paleta> {
   );
 
   /// High contrast in dark (`.screen.dark.hc`): white ink on a deeper background.
-  static final oscuraContraste = oscuraTeTengo._conContraste(
+  static final oscuraContraste = oscuraCaregiver._conContraste(
     fondo: const Color(0xFF0A0810),
     fondo2: const Color(0xFF14101C),
     tarjeta: const Color(0xFF1A1524),
@@ -250,7 +250,7 @@ class Paleta extends ThemeExtension<Paleta> {
   static Paleta de({bool oscuro = false, bool contraste = false}) =>
       switch ((oscuro, contraste)) {
         (false, false) => clara,
-        (true, false) => oscuraTeTengo,
+        (true, false) => oscuraCaregiver,
         (false, true) => claraContraste,
         (true, true) => oscuraContraste,
       };

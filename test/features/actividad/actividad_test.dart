@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/core/red/cliente_api.dart';
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/reloj.dart';
-import 'package:te_tengo/core/sesion/almacen_sesion.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/core/ui/chips.dart';
-import 'package:te_tengo/features/actividad/data/actividad_repositorio.dart';
-import 'package:te_tengo/features/actividad/domain/actividad.dart';
-import 'package:te_tengo/features/actividad/presentation/pantalla_actividad.dart';
-import 'package:te_tengo/features/alertas/data/alertas_repositorio.dart';
-import 'package:te_tengo/features/camaras/data/camaras_repositorio.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
-import 'package:te_tengo/features/familia/data/familia_repositorio.dart';
-import 'package:te_tengo/features/hogar/data/hogar_repositorio.dart';
-import 'package:te_tengo/features/pcs/data/pcs_repositorio.dart';
-import 'package:te_tengo/features/pcs/domain/pc.dart';
-import 'package:te_tengo/l10n/l10n.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/core/red/cliente_api.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/reloj.dart';
+import 'package:caregiver_app/core/sesion/almacen_sesion.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/core/ui/chips.dart';
+import 'package:caregiver_app/features/actividad/data/actividad_repositorio.dart';
+import 'package:caregiver_app/features/actividad/domain/actividad.dart';
+import 'package:caregiver_app/features/actividad/presentation/pantalla_actividad.dart';
+import 'package:caregiver_app/features/alertas/data/alertas_repositorio.dart';
+import 'package:caregiver_app/features/camaras/data/camaras_repositorio.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/familia/data/familia_repositorio.dart';
+import 'package:caregiver_app/features/hogar/data/hogar_repositorio.dart';
+import 'package:caregiver_app/features/pcs/data/pcs_repositorio.dart';
+import 'package:caregiver_app/features/pcs/domain/pc.dart';
+import 'package:caregiver_app/l10n/l10n.dart';
 
 import '../../apoyo/adaptador_falso.dart';
 import '../../apoyo/app_de_prueba.dart';
@@ -195,11 +195,11 @@ void main() {
     testWidgets('un error se puede reintentar', (tester) async {
       repo.error = const ProblemaApi(
         codigo: ProblemaApi.sinConexion,
-        detalle: 'No hay conexión con Te Tengo. Revisa tu internet.',
+        detalle: 'No hay conexión con Fall Alert. Revisa tu internet.',
       );
       await abrir(tester, Rutas.actividad);
       expect(
-        find.text('No hay conexión con Te Tengo. Revisa tu internet.'),
+        find.text('No hay conexión con Fall Alert. Revisa tu internet.'),
         findsOneWidget,
       );
       repo.error = null;

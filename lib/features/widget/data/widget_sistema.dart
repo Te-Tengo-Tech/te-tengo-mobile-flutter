@@ -12,16 +12,16 @@ import '../../../l10n/l10n.dart';
 
 /// The App Group the iOS widget extension shares with the app (docs/BLOCKERS.md: it needs the Apple
 /// account's capability before it can be signed).
-const grupoAppIos = 'group.tech.tetengo.teTengo';
+const grupoAppIos = 'group.org.example.caregiverApp';
 
 /// Names of the Android `AppWidgetProvider`s (4 × 2 and 2 × 2) and of the iOS widget kind.
-const widgetAndroidGrande = 'tech.tetengo.te_tengo.WidgetTeTengoGrande';
-const widgetAndroidPequeno = 'tech.tetengo.te_tengo.WidgetTeTengoPequeno';
-const widgetIos = 'TeTengoWidget';
+const widgetAndroidGrande = 'org.example.caregiver_app.WidgetCaregiverGrande';
+const widgetAndroidPequeno = 'org.example.caregiver_app.WidgetCaregiverPequeno';
+const widgetIos = 'CaregiverWidget';
 
 /// What the widget's taps send to the app (the Android `PendingIntent`s and the iOS `widgetURL`):
-/// `tetengo-widget://abrir?ir=/alerta/a-1`, or `…?ir=/inicio&vivo=1` for «Ver en vivo».
-const esquemaWidget = 'tetengo-widget';
+/// `example-widget://abrir?ir=/alerta/a-1`, or `…?ir=/inicio&vivo=1` for «Ver en vivo».
+const esquemaWidget = 'example-widget';
 
 /// The home-screen widget of the phone (US-44): the app writes its state, the system draws it.
 /// Replaceable in tests; the web has none.

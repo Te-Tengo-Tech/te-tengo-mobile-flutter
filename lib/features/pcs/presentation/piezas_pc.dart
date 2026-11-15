@@ -124,7 +124,7 @@ class _CirculoPunteado extends CustomPainter {
   bool shouldRepaint(_CirculoPunteado old) => old.color != color;
 }
 
-/// Header row of a PC (`pcHead`): icon, name, state and the version of Te Tengo Captura. Opens the
+/// Header row of a PC (`pcHead`): icon, name, state and the version of Fall Alert Captura. Opens the
 /// PC's detail when [alTocar] is set.
 class CabeceraPc extends ConsumerWidget {
   const CabeceraPc({

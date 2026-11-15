@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/app/rutas.dart';
-import 'package:te_tengo/features/actualizaciones/presentation/rutas_actualizaciones.dart';
-import 'package:te_tengo/features/pcs/domain/pc.dart';
+import 'package:caregiver_app/app/rutas.dart';
+import 'package:caregiver_app/features/actualizaciones/presentation/rutas_actualizaciones.dart';
+import 'package:caregiver_app/features/pcs/domain/pc.dart';
 
 import '../pcs/pcs_falso.dart';
 import 'actualizaciones_falso.dart';

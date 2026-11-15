@@ -7,13 +7,13 @@
 #      was switched off), or its automatic verification passed. produccion.yml looks for that same
 #      candidate after the merge, with the same command, so a green gate means production will find it.
 # A push to the release branch fails the gate until the Release run of that commit has a candidate; that
-# run then edits the pull request (as te-tengo-release-bot), and the `edited` event runs the gate again.
+# run then edits the pull request (as fall-alert-release-bot), and the `edited` event runs the gate again.
 #
 #   release-gate.sh <version of the head> <find-candidate command> [arguments...]
 #
 # The find-candidate command is run with "<version> <tree>" appended. It must exit 0 only when an approved
 # candidate of <version> records <tree>, and explain itself otherwise. This script is the same in every
-# Te Tengo repository; only the find-candidate command differs.
+# Fall Alert repository; only the find-candidate command differs.
 #
 # Environment: GH_TOKEN (contents and pull requests read), GITHUB_REPOSITORY, PR_NUMBER, HEAD_REF,
 # HEAD_SHA, HEAD_REPO (owner/name of the head repository), GITHUB_STEP_SUMMARY.

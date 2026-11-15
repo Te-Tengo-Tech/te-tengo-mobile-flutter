@@ -135,7 +135,7 @@ EstadoWidget estadoDelHogar({
     return estado(
       TonoWidget.pausa,
       t.widgetSinCamaras,
-      t.widgetAbreTeTengo,
+      t.widgetAbreCaregiver,
       Rutas.inicio,
     );
   }

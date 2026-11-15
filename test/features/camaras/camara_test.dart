@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:te_tengo/features/camaras/domain/camara.dart';
+import 'package:caregiver_app/features/camaras/domain/camara.dart';
 
 void main() {
   test('lee la cámara tal como la devuelve el backend', () {

@@ -1,6 +1,6 @@
 import 'package:flutter/painting.dart';
 
-/// Design color tokens of the Te Tengo brand kit (docs/references/DESIGN.md and the `:root` of the
+/// Design color tokens of the Fall Alert brand kit (docs/references/DESIGN.md and the `:root` of the
 /// prototype): cream background, violet for action and brand, coral for the accent.
 ///
 /// Rule: red and amber are reserved for real events, and status never depends on color alone (always

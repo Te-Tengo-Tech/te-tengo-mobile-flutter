@@ -1,7 +1,7 @@
-import 'package:te_tengo/core/red/problema_api.dart';
-import 'package:te_tengo/core/sesion/sesion.dart';
-import 'package:te_tengo/features/sesion/data/cuentas_repositorio.dart';
-import 'package:te_tengo/features/sesion/domain/cuenta.dart';
+import 'package:caregiver_app/core/red/problema_api.dart';
+import 'package:caregiver_app/core/sesion/sesion.dart';
+import 'package:caregiver_app/features/sesion/data/cuentas_repositorio.dart';
+import 'package:caregiver_app/features/sesion/domain/cuenta.dart';
 
 import '../../apoyo/datos.dart';
 

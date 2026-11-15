@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:te_tengo/features/pcs/presentation/escaner_qr.dart';
+import 'package:caregiver_app/features/pcs/presentation/escaner_qr.dart';
 
 /// The phone's camera without the platform: the test reads a QR or makes the camera fail.
 class EscanerFalso implements EscanerQr {
